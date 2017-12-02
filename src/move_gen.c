@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 
 #include "move_gen.h"
 #include "utils.h"
@@ -303,6 +304,27 @@ const Bitboard BISHOP_SQS[] = {
 const char *APM[] = {
 	ALL_POSSIBLE_MOVES, NULL
 };
+
+/*************************************
+ **** Chester interface functions ****
+ *************************************/
+
+int
+che_move_gen( const char *fen, char ***moves )
+{
+	printf( "%s\n", fen );
+
+	char **char_ptr_array = (char **) malloc( 5 * sizeof(char *) );
+	char_ptr_array[ 0 ] = "one";
+	char_ptr_array[ 1 ] = "two";
+	char_ptr_array[ 2 ] = "three";
+	char_ptr_array[ 3 ] = "four";
+	char_ptr_array[ 4 ] = NULL;
+
+	*moves = char_ptr_array;
+
+	return 0;
+}
 
 /****************************
  **** External functions ****

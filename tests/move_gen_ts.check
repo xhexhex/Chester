@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "../src/move_gen.h"
 #include "../src/utils.h"
@@ -300,3 +301,13 @@ left_lesser_than_right( const char *left, const char *right )
 	}
 
 	ck_assert( counter == 3211264 ); // 1792^2
+
+#tcase che_move_gen_tests
+
+#test C_che_move_gen_preparation
+	char **strings;
+	che_move_gen( "hello", &strings );
+	for( int i = 0; strings[ i ]; i++ )
+		printf( "%s\n", strings[ i ] );
+
+	free( strings );

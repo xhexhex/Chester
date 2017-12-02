@@ -39,8 +39,9 @@ typedef struct {
 } Squares;
 
 enum fen_str_error che_validate_fen_str( const char *fen_str );
-size_t che_Squares_add( /* var args */ ); // Returns size
-size_t che_Squares_init( /* var args */ );
+int che_move_gen( const char *fen, char ***moves );
+// size_t che_Squares_add( /* var args */ ); // Returns size
+// size_t che_Squares_init( /* var args */ );
 
 #endif
 // end CHESTER_H
