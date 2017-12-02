@@ -1,0 +1,499 @@
+#include "../src/validation.h"
+
+#suite validation_ts
+
+#define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
+for( int i = 0; str_array_name[ i ]; i++ ) { \
+	enum fen_str_error real_ret_val = \
+		che_validate_fen_str( (char *) str_array_name[ i ] ); \
+	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
+		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
+
+#tcase che_validate_fen_str_tests
+
+#test C_che_validate_fen_str_returns_FEN_STR_NO_ERRORS
+	const char * const valid_fen_strs[] = {
+		STD_START_POS_FEN,
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 0 1",
+		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR "
+			"w KQkq - 4095 4095",
+		"r6r/ppp1bkpp/4n3/3p1q2/3P4/2P2P2/PP2Q2R/RNB3K1 b - - 1 17",
+		"rnbk3r/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/RNB1K2R w KQ - 1 8",
+		"r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100",
+		// The following 16 FENs are for testing castling availability
+		// and fullmove number validation
+		"r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1",
+		"k7/8/8/8/8/8/8/4K2R w K - 0 2",
+		"7k/8/8/8/8/8/8/R3K3 w Q - 0 3",
+		"4k2r/8/8/8/8/8/8/K7 w k - 0 39",
+		"r3k3/8/8/8/8/8/8/K7 w q - 0 50",
+		"8/1k6/8/8/8/8/8/R3K2R w KQ - 0 51",
+		"4k2r/8/8/8/8/8/8/4K2R w Kk - 0 1337",
+		"r3k3/8/8/8/8/8/8/4K2R w Kq - 0 2017",
+		"4k2r/8/8/8/8/8/8/R3K3 w Qk - 0 4000",
+		"r3k3/8/8/8/8/8/8/R3K3 w Qq - 0 4095",
+		"r3k2r/8/8/8/8/8/8/K7 w kq - 0 1",
+		"4k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1",
+		"r3k3/8/8/8/8/8/8/R3K2R w KQq - 0 1",
+		"r3k2r/8/8/8/8/8/8/4K2R w Kkq - 0 1",
+		"r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1",
+		"r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+		// The following 6 FENs are for testing the en passant target square
+		"4k3/8/8/4p3/8/8/8/4K3 w - e6 0 1",
+		"4k3/8/8/p7/8/8/8/4K3 w - a6 0 1",
+		"4k3/8/8/7p/8/8/8/4K3 w - h6 0 1",
+		"4k3/8/8/8/3P4/8/8/4K3 b - d3 0 1",
+		"4k3/8/8/8/P7/8/8/4K3 b - a3 0 1",
+		"4k3/8/8/8/7P/8/8/4K3 b - h3 0 1",
+		// The following 10 FENs are for testing the halfmove clock
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"4k3/8/8/4p3/8/8/8/4K3 w - e6 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 4095 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 1 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 9 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 15 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 789 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 1234 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3333 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 4000 1",
+		"rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 0 1",
+		"4k3/8/8/8/4P3/8/8/4K3 b - e3 0 1",
+		"rnbqkbnr/ppppppp1/8/7p/8/8/PPPPPPPP/RNBQKBNR w KQkq h6 0 1",
+		"4k3/8/8/8/P7/8/8/4K3 b - a3 0 1",
+		// Other valid FEN strings
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+		"8/8/8/8/8/4k3/8/4K3 w - - 0 1",
+		"8/8/8/8/8/4k3/8/4K3 b - - 0 1",
+		"4k3/8/4N3/8/8/8/8/4K3 w - - 0 1",
+		"4r3/8/8/8/4k3/8/8/4K3 b - - 0 1",
+		"8/8/8/8/2RNk1K1/8/8/8 w - - 0 1",
+		"4k3/8/8/8/8/8/8/4QK2 b - - 0 1",
+		"7k/8/8/8/8/8/8/QK6 b - - 0 1",
+		"8/8/8/qK5k/8/8/8/8 w - - 0 1",
+		"q6K/8/8/8/8/8/8/k7 w - - 0 1",
+		"8/1qk5/8/8/8/8/8/7K w - - 0 1",
+		"k7/8/8/8/8/8/8/K6B b - - 0 1",
+		"8/8/8/3k4/4BK2/8/8/8 b - - 0 1",
+		"8/8/5bk1/8/8/2K5/8/8 w - - 0 1",
+		"8/4K3/5bk1/8/8/8/8/8 w - - 0 1",
+		"8/1K6/8/4k3/8/8/6b1/8 w - - 0 1",
+		"8/1K6/8/3k4/8/8/6b1/8 b - - 0 1",
+		"8/1K6/8/3B4/8/8/6bk/8 b - - 0 1",
+		"8/8/8/3k4/4PK2/8/8/8 b - - 0 1",
+		"8/8/8/3k4/2P2K2/8/8/8 b - - 0 1",
+		"8/8/8/3k4/3P1K2/8/8/8 w - - 0 1",
+		"8/8/8/8/8/8/1pk5/K7 w - - 0 1",
+		"8/8/8/8/8/8/5kp1/7K w - - 0 1",
+		"8/3N4/8/Q1rk4/3P4/4PK2/8/3R3B w - - 0 123",
+		"8/3N4/8/Q1rk4/3P4/4P1K1/8/3R3B b - - 0 123",
+		"8/3N4/8/Q2k4/3P4/4PK2/8/3R3B b - - 0 123",
+		"8/3N4/8/Q1rk4/3PP3/5K2/8/3R3B b - - 0 123",
+		"8/3N4/8/Q1rk4/8/4PK2/8/3R3B b - - 0 123",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( valid_fen_strs, FEN_STR_NO_ERRORS );
+
+// Test 1 fails
+#test C_che_validate_fen_str_returns_FEN_STR_LENGTH_ERROR
+	const char * const invalid_length_fen_strs[] = {
+		"",
+		"hello",
+		"The quick brown fox jumps over the lazy dog, THE QUICK BROWN FOX "
+			"JUMPS OVER THE LAZY DOG!!!",
+		"k7/8/8/8/8/8/8/8 w - - 0 1",
+		"ppppXpppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP "
+			"w KQkq - 9999 9999",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( invalid_length_fen_strs, FEN_STR_LENGTH_ERROR );
+
+// Test 2 fails
+#test C_che_validate_fen_str_returns_FEN_STR_CHARS_ERROR
+	const char * const fen_strs_with_invalid_chars[] = {
+		"k7/8/8/8/8/8/8/K7 w - - 0\\1", // backslash
+		"k7/8/8/8/8/8/8/K7 w - - 0\n1", // newline
+		"4k3/8/8/8/8/8/8/4K3\n\n\nw - - 0 1", // multiple newlines
+		"\n4k3/8/8/8/8/8/8/4K3 w - - 0 1", // newline at beginning
+		"4k3/8/8/8/8/8/8/4K3 w - - 0 1\n", // newline at end
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq E4 0 1", // cap. E
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq – 0 1", // en dash '–'
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq å3 0 1", // 'å'
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_STR_CHARS_ERROR );
+
+// Test 3 fails
+#test C_che_validate_fen_str_returns_FEN_STR_FIELD_STRUCTURE_ERROR
+	const char * const fen_strs_with_invalid_field_structure[] = {
+		"k7/8/8/8/8/8/8/K7  w - - 0 1", // two spaces between 1st and 2nd field
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR wKQkq - 0 1", // only five fields
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ kq - 0 1", // seven fields
+		" k7/8/8/8/8/8/8/K7 w - - 0 1", // space at beginning
+		"k7/8/8/8/8/8/8/K7 w - - 0 1 ", // space at end
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_field_structure,
+		FEN_STR_FIELD_STRUCTURE_ERROR );
+
+// Test 4 fails
+#test C_che_validate_fen_str_returns_FEN_STR_PPF_STRUCTURE_ERROR
+	const char * const fen_strs_with_ppfs_with_invalid_ranks[] = {
+		"k7/8/8/9/8/8/8/K7 w - - 0 1", // invalid char '9'
+		"k7/8/8/0/8/8/8/K7 w - - 0 1", // invalid char '0'
+		"k7/8/8/8/8/8/8/K7/8 w - - 0 1", // extra rank
+		"pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // missing rank
+		"/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // PPF starts with '/'
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1", // PPF ends with '/'
+		"rnbqkbnr/pppppppp//8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // PPF contains "//"
+		"rnbqkbnr/pppppppp//8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // empty rank string
+		"rnbqkbnr/ppppKpppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // too long a rank string
+		"rnbqkbnr/ppppappp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // invalid character 'a'
+		"---k7/8/8/8/8/8/8/K7--- w - - 0 1", // PPF starts and ends with dashes
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_ppfs_with_invalid_ranks,
+		FEN_STR_PPF_STRUCTURE_ERROR );
+
+// Test 5 fails
+#test C_che_validate_fen_str_returns_FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR
+	const char * const piece_placement_fields_with_consecutive_digits[] = {
+		"rnbqkbnr/ppp11ppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // "11"
+		"k7/8/8/17/8/8/8/K7 w - - 0 1", // "17"
+		"k7/8/8/88/8/8/8/K7 w - - 0 1", // "88"
+		"r6r/ppp1bkpp/4n3/3p1q2/p123p/2P2P2/PP2Q2R/RNB3K1 b - - 1 17", // "123"
+		"35/k7/8/8/8/8/8/K7 w - - 0 1", // "35"
+		"k7/8/8/8/8/8/K7/521 w - - 0 1", // "521"
+		"rnbqkbnr/pppppppp/8/11111111/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // "11111111"
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_consecutive_digits,
+		FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR );
+
+// Test 6 fails
+#test C_che_validate_fen_str_returns_FEN_STR_PPF_RANK_SUM_ERROR
+	const char * const piece_placement_fields_with_invalid_rank_sums[] = {
+		// Rank sum of 8th rank is 10
+		"rnb3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"k7/8/8/7/8/8/8/K7 w - - 0 1", // Rank sum of 5th rank is 7
+		// Rank sum of 6th rank is 9
+		"pppppppp/pppppppp/2ppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP "
+			"w KQkq - 9999 9999",
+		// Rank sum of 5th rank is 6
+		"r6r/ppp1bkpp/4n3/pp1q2/3P4/2P2P2/PP2Q2R/RNB3K1 b - - 1 17",
+		// Rank sum of 1st rank is 1
+		"rnbk3r/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/1 w KQ - 1 8",
+		// Rank sum of 8th rank is 1
+		"k/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/8 w KQ - 1 8",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_invalid_rank_sums,
+		FEN_STR_PPF_RANK_SUM_ERROR );
+
+// Test 7 fails
+#test C_che_validate_fen_str_returns_FEN_STR_ACF_ERROR
+	const char * const fens_with_invalid_active_color[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR K KQkq - 0 1", // Active color "K"
+		"k7/8/8/8/8/8/8/K7 1 - - 0 1", // Active color "1"
+		"pppppppp/pppppppp/pppppppp/8/8/PPPPPPPP/PPPPPPPP/PPPPPPPP "
+			"hehe KQkq - 9999 9999", // Active color "hehe"
+		"r6r/ppp1bkpp/4n3/3p1q2/3P4/2P2P2/PP2Q2R/RNB3K1 B - - 1 17", // Active color "B"
+		"rnbk3r/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/RNB1K2R - KQ - 1 8", // Active color "-"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w/b KQkq - 0 1", // Active color "w/b"
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_STR_ACF_ERROR );
+
+// Test 8 fails
+#test C_che_validate_fen_str_returns_FEN_STR_CAF_ERROR
+	const char * const fens_with_invalid_castling_availability[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w QKkq - 0 1", // Q before K
+		"k7/8/8/8/8/8/8/K7 w / - 0 1", // "/" as CA field
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kqKQ - 0 1", // lowercase before uppercase
+		"k7/8/8/8/8/8/8/K7 w hehe - 0 1", // "hehe" as CA field
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KK - 0 1", // two K's
+		"k7/8/8/8/8/8/8/K7 w 1234 - 0 1", // "1234" as CA field
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_castling_availability,
+		FEN_STR_CAF_ERROR );
+
+// Test 9 fails
+#test C_che_validate_fen_str_returns_FEN_STR_EPTSF_ERROR
+	const char * const fens_with_invalid_en_passant_target_squares[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -- 0 1",
+		"k7/8/8/8/8/8/8/K7 b - / 0 1",
+		"k7/8/8/8/8/8/8/K7 w - k6 0 1",
+		"k7/8/8/8/8/8/8/K7 w - 33 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq c5 0 1",
+		"k7/8/8/8/8/8/8/K7 b - g8 0 1",
+		"k7/8/8/8/8/8/8/K7 b - a1 0 1",
+		"k7/8/8/8/8/8/8/K7 w - h8 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_en_passant_target_squares,
+		FEN_STR_EPTSF_ERROR );
+
+// Test 10 fails
+#test C_che_validate_fen_str_returns_FEN_STR_HMCF_ERROR
+	const char * const fens_with_invalid_halfmove_clock[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - - 1", // "-"
+		"k7/8/8/8/8/8/8/K7 w - - / 1", // "/"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - K 1", // "K"
+		"k7/8/8/8/8/8/8/K7 w - - -1 1", // "-1"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 00 1", // "00"
+		"k7/8/8/8/8/8/8/K7 w - - 07 1", // "07"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 007 1", // 007
+		"k7/8/8/8/8/8/8/K7 w - - 4096 1", // "4096"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 12345 1", // "12345"
+		"k7/8/8/8/8/8/8/K7 w - - 9999 1", // "9999"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - -123 1", // "-123"
+		"k7/8/8/8/8/8/8/K7 w - - 123hehe 1", // "123hehe"
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_halfmove_clock,
+		FEN_STR_HMCF_ERROR );
+
+// Test 11 fails
+#test C_che_validate_fen_str_returns_FEN_STR_FMNF_ERROR
+	const char * const fens_with_invalid_fullmove_number[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0", // "0"
+		"k7/8/8/8/8/8/8/K7 w - - 0 4096", // "4096"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 -1",  // "-1"
+		"k7/8/8/8/8/8/8/K7 w - - 0 4097",  // "4097"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 -123",  // "-123"
+		"k7/8/8/8/8/8/8/K7 w - - 0 5000",  // "5000"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 ab",  // "ab"
+		"k7/8/8/8/8/8/8/K7 w - - 0 12345",  // "12345"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 hehe",  // "hehe"
+		"k7/8/8/8/8/8/8/K7 w - - 0 -",  // "-"
+		"k7/8/8/8/8/8/8/K7 w - - 0 -/",  // "-/"
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_fullmove_number,
+		FEN_STR_FMNF_ERROR );
+
+// Test 12 fails
+#test C_che_validate_fen_str_returns_FEN_STR_PPF_CONTRADICTS_CAF_ERROR
+	const char * const contradictory_ppf_and_caf[] = {
+		// In the following FENs we see a rookless board, yet the castling
+		// availability field is something else than "-".
+		"k7/8/8/8/8/8/8/K7 w K - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Q - 0 1",
+		"k7/8/8/8/8/8/8/K7 w k - 0 1",
+		"k7/8/8/8/8/8/8/K7 w q - 0 1",
+		"k7/8/8/8/8/8/8/K7 w KQ - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Kk - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Kq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Qk - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Qq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w kq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Qkq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w Kkq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w KQq - 0 1",
+		"k7/8/8/8/8/8/8/K7 w KQk - 0 1",
+		"k7/8/8/8/8/8/8/K7 w KQkq - 0 1",
+		// Other discrepancies between the piece placement
+		// and castling availability
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR w KQkq - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w KQkq - 0 1",
+		"rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
+		FEN_STR_PPF_CONTRADICTS_CAF_ERROR );
+
+// Test 13 fails
+#test C_che_validate_fen_str_returns_FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR
+	const char * const contradictory_epts_and_hmc_fields[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 1 1",
+		"k7/8/8/8/8/8/8/K7 b - e3 2 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq d6 50 1",
+		"k7/8/8/8/8/8/8/K7 b - d3 1234 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq a6 4000 1",
+		"k7/8/8/8/8/8/8/K7 b - h3 4095 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_hmc_fields,
+		FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR );
+
+// Test 14 fails
+#test C_che_validate_fen_str_returns_FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR
+	const char * const contradictory_epts_and_ac_fields[] = {
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1",
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR b KQkq c6 0 2",
+		"k7/8/8/8/8/8/8/K7 w - a3 0 1",
+		"k7/8/8/8/8/8/8/K7 b - a6 0 1",
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_ac_fields,
+		FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR );
+
+// Test 15 fails
+#test C_che_validate_fen_str_returns_FEN_STR_EPTSF_CONTRADICTS_PPF_ERROR
+	const char * const contradictory_epts_and_pp_fields[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+		"rnbqkbnr/pp1ppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+		"4k3/8/8/8/P7/8/8/4K3 b - e3 0 1",
+		"4k3/8/8/8/8/8/8/4K3 w - e6 0 1",
+		"4k3/8/8/4P3/4p3/8/8/4K3 w - e6 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_pp_fields,
+		FEN_STR_EPTSF_CONTRADICTS_PPF_ERROR );
+
+// Test 16 fails
+#test C_che_validate_fen_str_returns_FEN_STR_WHITE_PAWN_ON_FIRST_RANK
+	const char * const white_pawn_on_first_rank[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBPKBNR w KQkq - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/RNBQKBNR/PPPPPPPP w kq - 0 1",
+		"4k3/8/8/8/8/8/8/3PK3 w - - 0 50",
+		"4k3/8/8/8/8/8/8/P3K3 w - - 0 50",
+		"4k3/8/8/8/8/8/8/4K2P w - - 0 50",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( white_pawn_on_first_rank,
+		FEN_STR_WHITE_PAWN_ON_FIRST_RANK );
+
+// Test 17 fails
+#test C_che_validate_fen_str_returns_FEN_STR_BLACK_PAWN_ON_FIRST_RANK
+	const char * const black_pawn_on_first_rank[] = {
+		"rnbpkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"pppppppp/rnbqkbnr/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+		"3pk3/8/8/8/8/8/8/4K3 w - - 0 50",
+		"k6p/8/8/8/8/8/8/K7 w - - 0 1",
+		"p7/8/8/8/8/8/8/K7 w - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( black_pawn_on_first_rank,
+		FEN_STR_BLACK_PAWN_ON_FIRST_RANK );
+
+// Test 18 fails
+#test C_che_validate_fen_str_returns_FEN_STR_WHITE_PAWN_ON_LAST_RANK
+	const char * const white_pawn_on_last_rank[] = {
+		"rnbPkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"rPbqkbnr/2pppppp/8/8/8/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1",
+		"P3k2P/8/8/8/8/8/8/4K3 w - - 0 50",
+		"P7/8/8/8/8/8/8/K7 w - - 0 1",
+		"P6P/8/k7/8/8/8/8/K7 w - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( white_pawn_on_last_rank,
+		FEN_STR_WHITE_PAWN_ON_LAST_RANK );
+
+// Test 19 fails
+#test C_che_validate_fen_str_returns_FEN_STR_BLACK_PAWN_ON_LAST_RANK
+	const char * const black_pawn_on_last_rank[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBpKBNR w KQkq - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RpBQKBpR w KQkq - 0 1",
+		"4k3/8/8/8/8/8/8/3pK3 w - - 0 50",
+		"8/8/8/8/8/8/8/4p3 w - - 0 1",
+		"8/8/8/8/8/8/8/pppppppp w - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( black_pawn_on_last_rank,
+		FEN_STR_BLACK_PAWN_ON_LAST_RANK );
+
+// Test 20 fails
+#test C_che_validate_fen_str_returns_FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS
+	const char * const invalid_number_of_white_kings[] = {
+		"b7/8/8/8/8/8/8/B7 w - - 0 1",
+		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w - - 0 1",
+		"k7/8/8/8/8/8/8/B7 w - - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1",
+		"k7/8/8/8/8/8/8/KKKKKKKK w - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( invalid_number_of_white_kings,
+		FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS );
+
+// Test 21 fails
+#test C_che_validate_fen_str_returns_FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS
+	const char * const invalid_number_of_black_kings[] = {
+		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+		"8/p7/8/8/8/8/8/K7 w - - 0 1",
+		"rnbkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"kkkkkkkk/8/8/8/8/8/8/7K w - - 0 1",
+		"kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkKkkk w - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
+		FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS );
+
+// Test 22 fails
+#test C_che_validate_fen_str_returns_FEN_STR_WHITE_KING_CAN_BE_CAPTURED
+	const char * const white_king_can_be_captured[] = {
+		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
+		"8/8/4k3/2n3n1/4K3/8/8/8 b - - 30 100",
+		"rnbqkbnr/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
+		// Cornered white king attacked by single black knight
+		"8/8/8/8/8/kn6/8/K7 b - - 0 1",
+		// Lone white king can be captured by lone black king
+		"8/8/8/4k3/4K3/8/8/8 b - - 0 1",
+		// White king can be captured by black rook
+		"8/4k3/8/3NKN2/8/4r3/8/8 b - - 0 1",
+		"8/8/8/8/8/8/1K4rk/8 b - - 0 1",
+		// White king can be captured by black queen
+		"8/8/8/qK5k/8/8/8/8 b - - 0 1",
+		"q6K/8/8/8/8/8/8/k7 b - - 0 1",
+		"8/1qk5/8/8/8/8/8/7K b - - 0 1",
+		// White king can be captured by black bishop
+		"8/8/5bk1/8/8/2K5/8/8 b - - 0 1",
+		"8/4K3/5bk1/8/8/8/8/8 b - - 0 1",
+		"8/1K6/8/4k3/8/8/6b1/8 b - - 0 1",
+		// White king can be captured by black pawn
+		"8/8/8/8/8/8/1pk5/K7 b - - 0 1",
+		"8/8/8/8/8/8/5kp1/7K b - - 0 1",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( white_king_can_be_captured,
+		FEN_STR_WHITE_KING_CAN_BE_CAPTURED );
+
+// Test 23 fails
+#test C_che_validate_fen_str_returns_FEN_STR_BLACK_KING_CAN_BE_CAPTURED
+	const char * const black_king_can_be_captured[] = {
+		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
+		"k6K/8/1N6/8/8/8/8/8 w - - 0 100",
+		"N6K/8/1k6/8/8/8/8/8 w - - 0 100",
+		// Black king attacked by single white knight
+		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 1",
+		// Lone black king can be captured by lone white king
+		"8/8/8/4k3/4K3/8/8/8 w - - 0 1",
+		// Black king can be captured by white rook
+		"4k3/8/8/8/8/8/8/4RK2 w - - 25 50",
+		"8/8/8/4kR2/8/8/8/K7 w - - 0 1",
+		"8/3N4/8/Q1rk4/8/4PK2/8/3R3B w - - 0 123",
+		// Black king can be captured by white queen
+		"4k3/8/8/8/8/8/8/4QK2 w - - 0 1",
+		"7k/8/8/8/8/8/8/QK6 w - - 0 1",
+		"8/3N4/8/Q2k4/3P4/4PK2/8/3R3B w - - 0 123",
+		// Black king can be captured by white bishop
+		"k7/8/8/8/8/8/8/K6B w - - 0 1",
+		"8/8/8/3k4/4BK2/8/8/8 w - - 0 1",
+		"8/3N4/8/Q1rk4/3P4/4P1K1/8/3R3B w - - 0 123",
+		// Black king can be captured by white pawn
+		"8/8/8/3k4/4PK2/8/8/8 w - - 0 1",
+		"8/8/8/3k4/2P2K2/8/8/8 w - - 0 1",
+		"8/3N4/8/Q1rk4/3PP3/5K2/8/3R3B w - - 0 123",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( black_king_can_be_captured,
+		FEN_STR_BLACK_KING_CAN_BE_CAPTURED );
+
+#tcase valid_sq_name_tests
+
+#test C_valid_sq_name_works_with_all_valid_inputs
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( valid_sq_name( SNA[ i ] ) );
+	}
+
+#test C_valid_sq_name_returns_false
+	ck_assert( !valid_sq_name( NULL ) );
+	ck_assert( !valid_sq_name( "" ) );
+	ck_assert( !valid_sq_name( "a" ) );
+	ck_assert( !valid_sq_name( "aa" ) );
+	ck_assert( !valid_sq_name( "a11" ) );
+	ck_assert( !valid_sq_name( "bb2" ) );

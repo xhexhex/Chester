@@ -1,0 +1,371 @@
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include "../src/types.h"
+#include "../src/utils.h"
+
+#suite types_ts
+
+#tcase global_data_tests
+
+#test C_quick_and_dirty_SB_and_SBA_test
+	ck_assert_msg(
+		SB.a1 == 1u && SBA[ 0 ] == 1u && // 1 = 2^0
+		SB.c2 == 1024u && SBA[ 10 ] == 1024u && // kibi = 2^10
+		SB.e3 == 1048576u && SBA[ 20 ] == 1048576u && // mebi = 2^20
+		SB.g4 == 1073741824u && SBA[ 30 ] == 1073741824u && // gibi = 2^30
+		SB.a6 == 1099511627776u && SBA[ 40 ] == 1099511627776u && // tebi = 2^40
+		SB.c7 == 1125899906842624u && SBA[ 50 ] == 1125899906842624u && // pebi = 2^50
+		SB.h8 == 9223372036854775808u && SBA[ 63 ] == 9223372036854775808u ); // 2^63
+
+// uint64, unsigned 64-bit integer
+#test C_incremental_sum_of_SBA_elements_test
+	unsigned long sum = 0;
+
+	for( int i = 0; i < 64; i++ ) {
+		sum += SBA[ i ];
+		ck_assert_msg( sum == ( (unsigned long) pow( 2, i + 1 ) - 1 ) );
+	}
+
+#tcase fen_str_to_pos_var_tests
+
+#test C_fen_str_to_pos_var_with_std_start_pos_fen
+	Pos *p = fen_str_to_pos_var( STD_START_POS_FEN );
+
+	ck_assert( p->pieces[ EMPTY_SQUARE ] == 0xffffffff0000u );
+	ck_assert( p->pieces[ WHITE_KING ] == 0x10u );
+	ck_assert( p->pieces[ WHITE_QUEEN ] == 0x8u );
+	ck_assert( p->pieces[ WHITE_ROOK ] == 0x81u );
+	ck_assert( p->pieces[ WHITE_BISHOP ] == 0x24u );
+	ck_assert( p->pieces[ WHITE_KNIGHT ] == 0x42u );
+	ck_assert( p->pieces[ WHITE_PAWN ] == 0xff00u );
+	ck_assert( p->pieces[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->pieces[ BLACK_QUEEN ] == 0x800000000000000u );
+	ck_assert( p->pieces[ BLACK_ROOK ] == 0x8100000000000000u );
+	ck_assert( p->pieces[ BLACK_BISHOP ] == 0x2400000000000000u );
+	ck_assert( p->pieces[ BLACK_KNIGHT ] == 0x4200000000000000u );
+	ck_assert( p->pieces[ BLACK_PAWN ] == 0xff000000000000u );
+
+	// Should be White's turn
+	ck_assert( active_color( p ) == 'w' );
+	// Castling availability "KQkq"
+	ck_assert(
+		( p->info & BM_CA_WK ) &&
+		( p->info & BM_CA_WQ ) &&
+		( p->info & BM_CA_BK ) &&
+		( p->info & BM_CA_BQ ) );
+	// En passant target square not set
+	ck_assert( !( p->info & BM_EPTS_ALL ) );
+	// Halfmove clock set to zero
+	ck_assert( !( p->info & BM_HMC ) );
+	// Fullmove number is 1
+	ck_assert( ( p->info & BM_FMN ) == 0x2000000u );
+
+	ck_assert( p->info == 0x200001fU );
+
+	free( p );
+
+#test C_fen_str_to_pos_var_manually_computed_test_1
+	Pos *p = fen_str_to_pos_var( "r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100" );
+
+	ck_assert( p->pieces[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
+	ck_assert( p->pieces[ WHITE_KING ] == 0x10u );
+	ck_assert( p->pieces[ WHITE_QUEEN ] == 0 );
+	ck_assert( p->pieces[ WHITE_ROOK ] == 0x80u );
+	ck_assert( p->pieces[ WHITE_BISHOP ] == 0 );
+	ck_assert( p->pieces[ WHITE_KNIGHT ] == 0 );
+	ck_assert( p->pieces[ WHITE_PAWN ] == 0x10000000u );
+	ck_assert( p->pieces[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->pieces[ BLACK_QUEEN ] == 0 );
+	ck_assert( p->pieces[ BLACK_ROOK ] == 0x100000000000000u );
+	ck_assert( p->pieces[ BLACK_BISHOP ] == 0 );
+	ck_assert( p->pieces[ BLACK_KNIGHT ] == 0 );
+	ck_assert( p->pieces[ BLACK_PAWN ] == 0 );
+
+	ck_assert( p->info == 0xc8000212u );
+
+	free( p );
+
+#tcase active_color_tests
+
+#test C_active_color_works
+	Pos *p;
+
+	p = fen_str_to_pos_var( STD_START_POS_FEN );
+	ck_assert( active_color( p ) == 'w' );
+	free( p );
+
+	p = fen_str_to_pos_var(
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
+	ck_assert( active_color( p ) == 'b' );
+	free( p );
+
+	Pos pos_var;
+
+	// The following two tests rely on the implementation detail of
+	// BM_AC being the least significant digit of the 'info' uint64_t.
+	for( pos_var.info = 0; pos_var.info <= 100; pos_var.info += 2 ) {
+		ck_assert( active_color( &pos_var ) == 'b' );
+	}
+	for( pos_var.info = 1; pos_var.info <= 101; pos_var.info += 2 ) {
+		ck_assert( active_color( &pos_var ) == 'w' );
+	}
+
+#tcase bitmask_tests
+
+#test C_macro_BM_UNUSED_INFO_BITS_correctly_defined
+	ck_assert( BM_UNUSED_INFO_BITS == 0xffffffe000000000u );
+	ck_assert( BM_UNUSED_INFO_BITS == ( 0x7ffffffUL << 37 ) );
+
+#test C_BM_AC_correctly_defined
+	ck_assert( BM_AC == 1u );
+
+#test C_BM_CA_bits_correctly_defined
+	ck_assert(
+		BM_CA_WK == 2u &&
+		( BM_CA_WK << 1 ) == BM_CA_WQ &&
+		( BM_CA_WK << 2 ) == BM_CA_BK &&
+		( BM_CA_WK << 3 ) == BM_CA_BQ
+	);
+
+#test C_macro_BM_CA_ALL_correctly_defined
+	ck_assert( BM_CA_ALL == 30u );
+
+#test C_BM_EPTS_bits_correctly_defined
+	ck_assert(
+		BM_EPTS_FILE_A == 32u &&
+		BM_EPTS_FILE_B == ( BM_EPTS_FILE_A << 1 ) &&
+		BM_EPTS_FILE_C == ( BM_EPTS_FILE_A << 2 ) &&
+		BM_EPTS_FILE_D == ( BM_EPTS_FILE_A << 3 ) &&
+		BM_EPTS_FILE_E == ( BM_EPTS_FILE_A << 4 ) &&
+		BM_EPTS_FILE_F == ( BM_EPTS_FILE_A << 5 ) &&
+		BM_EPTS_FILE_G == ( BM_EPTS_FILE_A << 6 ) &&
+		BM_EPTS_FILE_H == ( BM_EPTS_FILE_A << 7 )
+	);
+
+#test C_BM_HMC_correctly_defined
+	ck_assert( ( BM_HMC >> 13 ) == 4095u );
+
+#test C_BM_FMN_correctly_defined
+	ck_assert( ( BM_FMN >> 25 ) == 4095u );
+
+#tcase Chessman_enum_tests
+
+#test C_EMPTY_SQUARE_equals_0
+	Chessman cm = EMPTY_SQUARE;
+	ck_assert( !cm );
+
+#test C_BLACK_PAWN_equals_12
+	Chessman cm = BLACK_PAWN;
+	ck_assert( cm == 12 );
+
+#tcase pos_var_sq_integrity_check_tests
+
+#define NULL_CONTENT_POS_VAR \
+Pos p; \
+for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.pieces[ i ] = 0u; \
+p.info = 0u;
+
+#define ASSIGN_AND_ASSERT( sq_name_constant ) \
+const char *sq_name = pos_var_sq_integrity_check( &p ); \
+ck_assert( sq_name && !strcmp( sq_name_constant, sq_name ) );
+
+#define SEE_SAW_PATTERN_POS_VAR \
+Pos see_saw; \
+see_saw.pieces[ EMPTY_SQUARE ] = 0x8000008000008000u; \
+see_saw.pieces[ WHITE_KING ] = 0x4000014000014000u; \
+see_saw.pieces[ WHITE_QUEEN ] = 0x2000022000022000u; \
+see_saw.pieces[ WHITE_ROOK ] = 0x1000041000041000u; \
+see_saw.pieces[ WHITE_BISHOP ] = 0x800080800080800u; \
+see_saw.pieces[ WHITE_KNIGHT ] = 0x400100400100400u; \
+see_saw.pieces[ WHITE_PAWN ] = 0x200200200200200u; \
+see_saw.pieces[ BLACK_KING ] = 0x100400100400100u; \
+see_saw.pieces[ BLACK_QUEEN ] = 0x80800080800080u; \
+see_saw.pieces[ BLACK_ROOK ] = 0x41000041000041u; \
+see_saw.pieces[ BLACK_BISHOP ] = 0x22000022000022u; \
+see_saw.pieces[ BLACK_KNIGHT ] = 0x14000014000014u; \
+see_saw.pieces[ BLACK_PAWN ] = 0x8000008000008u; \
+see_saw.info = 0u;
+
+#test C_pos_var_sq_integrity_check_returns_NULL
+	ck_assert( !pos_var_sq_integrity_check(
+		fen_str_to_pos_var(
+			STD_START_POS_FEN ) ) );
+	ck_assert( !pos_var_sq_integrity_check(
+		fen_str_to_pos_var(
+			"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" ) ) );
+	SEE_SAW_PATTERN_POS_VAR
+	ck_assert( !pos_var_sq_integrity_check( &see_saw ) );
+	// print_pos_var( &see_saw );
+	ck_assert( !pos_var_sq_integrity_check(
+		fen_str_to_pos_var(
+			"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2" ) ) );
+
+#test C_pos_var_sq_integrity_check_returns_a1
+	NULL_CONTENT_POS_VAR
+	ASSIGN_AND_ASSERT( "a1" )
+
+#test C_pos_var_sq_integrity_check_returns_b1
+	NULL_CONTENT_POS_VAR
+	p.pieces[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.pieces[ WHITE_KING ] = 2u;
+	ASSIGN_AND_ASSERT( "b1" );
+
+#test C_pos_var_sq_integrity_check_returns_e4
+	NULL_CONTENT_POS_VAR
+	p.pieces[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.pieces[ WHITE_KING ] = 0x10000000U;
+	p.pieces[ BLACK_KING ] = 0x10000000U;
+	ASSIGN_AND_ASSERT( "e4" );
+
+#test C_pos_var_sq_integrity_check_returns_h8
+	NULL_CONTENT_POS_VAR
+	p.pieces[ EMPTY_SQUARE ] = 0xffffffffffffffefU;
+	p.pieces[ BLACK_KING ] = SB.h8;
+	p.pieces[ WHITE_KING ] = SB.e1;
+	ASSIGN_AND_ASSERT( "h8" )
+
+#tcase sq_set_of_file_tests
+
+#test C_sq_set_of_file_test
+	const Bitboard file_a = 0x101010101010101U;
+	for( int file = 'a'; file <= 'h'; file++ ) {
+		ck_assert( sq_set_of_file( file ) == ( file_a << ( file - 'a' ) ) );
+	}
+
+#tcase sq_set_of_rank_tests
+
+#test C_sq_set_of_rank_test
+	const Bitboard rank_1 = 0xffU;
+	for( int rank = '1'; rank <= '8'; rank++ ) {
+		ck_assert( sq_set_of_rank( rank ) ==
+			( rank_1 << ( ( rank - 'a' ) * 8 ) ) );
+	}
+
+#tcase SS_DIAG_tests
+
+#test C_SS_DIAG_constants_tested_with_sq_navigator
+
+Bitboard sq_bit = sq_name_to_sq_bit( "h1" ), bb;
+int index = 0;
+while( true ) {
+	bb = 0u;
+	char *sq = (char *) sq_bit_to_sq_name( sq_bit );
+
+	do {
+		bb |= sq_name_to_sq_bit( sq );
+	} while( ( sq = (char *) sq_navigator( sq, NORTHEAST ) ) );
+	ck_assert( bb == sq_set_of_diag( index ) );
+	++index;
+
+	if( sq_bit == sq_name_to_sq_bit( "a8" ) )
+		break;
+	else if( sq_bit < sq_name_to_sq_bit( "a2" ) &&
+			sq_bit != sq_name_to_sq_bit( "a1" ) )
+		sq_bit >>= 1;
+	else
+		sq_bit <<= 8;
+}
+
+#test C_SS_DIAG_constants_add_up_to_UINT64_MAX
+	ck_assert( UINT64_MAX ==
+		SS_DIAG_H1H1 + SS_DIAG_G1H2 + SS_DIAG_F1H3 + SS_DIAG_E1H4 + SS_DIAG_D1H5 +
+		SS_DIAG_C1H6 + SS_DIAG_B1H7 + SS_DIAG_A1H8 + SS_DIAG_A2G8 + SS_DIAG_A3F8 +
+		SS_DIAG_A4E8 + SS_DIAG_A5D8 + SS_DIAG_A6C8 + SS_DIAG_A7B8 + SS_DIAG_A8A8 );
+
+#tcase SS_ANTIDIAG_tests
+
+#test C_SS_ANTIDIAG_constants_tested_with_sq_navigator
+
+Bitboard sq_bit = sq_name_to_sq_bit( "a1" ), bb;
+int index = 0;
+while( true ) {
+	bb = 0u;
+	char *sq = (char *) sq_bit_to_sq_name( sq_bit );
+
+	do {
+		bb |= sq_name_to_sq_bit( sq );
+	} while( ( sq = (char *) sq_navigator( sq, NORTHWEST ) ) );
+	ck_assert( bb == sq_set_of_antidiag( index ) );
+	++index;
+
+	if( sq_bit == sq_name_to_sq_bit( "h8" ) )
+		break;
+	else if( sq_bit < sq_name_to_sq_bit( "h1" ) )
+		sq_bit <<= 1;
+	else
+		sq_bit <<= 8;
+}
+
+#test C_SS_ANTIDIAG_constants_add_up_to_UINT64_MAX
+	ck_assert( UINT64_MAX ==
+		SS_ANTIDIAG_A1A1 + SS_ANTIDIAG_B1A2 + SS_ANTIDIAG_C1A3 +
+		SS_ANTIDIAG_D1A4 + SS_ANTIDIAG_E1A5 + SS_ANTIDIAG_F1A6 +
+		SS_ANTIDIAG_G1A7 + SS_ANTIDIAG_H1A8 + SS_ANTIDIAG_H2B8 +
+		SS_ANTIDIAG_H3C8 + SS_ANTIDIAG_H4D8 + SS_ANTIDIAG_H5E8 +
+		SS_ANTIDIAG_H6F8 + SS_ANTIDIAG_H7G8 + SS_ANTIDIAG_H8H8
+	);
+
+#tcase sq_set_of_diag_tests
+
+#test C_sq_set_of_diag_comprehensive_input_test
+	// ck_assert( sq_set_of_diag( -1 ) == 0 );
+	ck_assert( sq_set_of_diag( 0 ) == SB.h1 );
+	ck_assert( sq_set_of_diag( 1 ) == ( SB.g1 | SB.h2 ) );
+	ck_assert( sq_set_of_diag( 2 ) == ( SB.f1 | SB.g2 | SB.h3 ) );
+	ck_assert( sq_set_of_diag( 3 ) == ( SB.e1 | SB.f2 | SB.g3 | SB.h4 ) );
+	ck_assert( sq_set_of_diag( 4 ) ==
+		( SB.d1 | SB.e2 | SB.f3 | SB.g4 | SB.h5 ) );
+	ck_assert( sq_set_of_diag( 5 ) ==
+		( SB.c1 | SB.d2 | SB.e3 | SB.f4 | SB.g5 | SB.h6 ) );
+	ck_assert( sq_set_of_diag( 6 ) ==
+		( SB.b1 | SB.c2 | SB.d3 | SB.e4 | SB.f5 | SB.g6 | SB.h7 ) );
+	ck_assert( sq_set_of_diag( 7 ) ==
+		( SB.a1 | SB.b2 | SB.c3 | SB.d4 | SB.e5 | SB.f6 | SB.g7 | SB.h8 ) );
+	ck_assert( sq_set_of_diag( 8 ) ==
+		( SB.a2 | SB.b3 | SB.c4 | SB.d5 | SB.e6 | SB.f7 | SB.g8 ) );
+	ck_assert( sq_set_of_diag( 9 ) ==
+		( SB.a3 | SB.b4 | SB.c5 | SB.d6 | SB.e7 | SB.f8 ) );
+	ck_assert( sq_set_of_diag( 10 ) ==
+		( SB.a4 | SB.b5 | SB.c6 | SB.d7 | SB.e8 ) );
+	ck_assert( sq_set_of_diag( 11 ) == ( SB.a5 | SB.b6 | SB.c7 | SB.d8 ) );
+	ck_assert( sq_set_of_diag( 12 ) == ( SB.a6 | SB.b7 | SB.c8 ) );
+	ck_assert( sq_set_of_diag( 13 ) == ( SB.a7 | SB.b8 ) );
+	ck_assert( sq_set_of_diag( 14 ) == SB.a8 );
+	// ck_assert( sq_set_of_diag( 15 ) == 0 );
+
+#tcase sq_set_of_antidiag_tests
+
+#test C_sq_set_of_antidiag_comprehensive_input_test
+	// ck_assert( sq_set_of_antidiag( -1 ) == 0 );
+	ck_assert( sq_set_of_antidiag( 0 ) == SB.a1 );
+	ck_assert( sq_set_of_antidiag( 1 ) == ( SB.b1 | SB.a2 ) );
+	ck_assert( sq_set_of_antidiag( 2 ) == ( SB.c1 | SB.b2 | SB.a3 ) );
+	ck_assert( sq_set_of_antidiag( 3 ) == ( SB.d1 | SB.c2 | SB.b3 | SB.a4 ) );
+	ck_assert( sq_set_of_antidiag( 4 ) ==
+		( SB.e1 | SB.d2 | SB.c3 | SB.b4 | SB.a5 ) );
+	ck_assert( sq_set_of_antidiag( 5 ) ==
+		( SB.f1 | SB.e2 | SB.d3 | SB.c4 | SB.b5 | SB.a6 ) );
+	ck_assert( sq_set_of_antidiag( 6 ) ==
+		( SB.g1 | SB.f2 | SB.e3 | SB.d4 | SB.c5 | SB.b6 | SB.a7 ) );
+	ck_assert( sq_set_of_antidiag( 7 ) ==
+		( SB.h1 | SB.g2 | SB.f3 | SB.e4 | SB.d5 | SB.c6 | SB.b7 | SB.a8 ) );
+	ck_assert( sq_set_of_antidiag( 8 ) ==
+		( SB.h2 | SB.g3 | SB.f4 | SB.e5 | SB.d6 | SB.c7 | SB.b8 ) );
+	ck_assert( sq_set_of_antidiag( 9 ) ==
+		( SB.h3 | SB.g4 | SB.f5 | SB.e6 | SB.d7 | SB.c8 ) );
+	ck_assert( sq_set_of_antidiag( 10 ) ==
+		( SB.h4 | SB.g5 | SB.f6 | SB.e7 | SB.d8 ) );
+	ck_assert( sq_set_of_antidiag( 11 ) == ( SB.h5 | SB.g6 | SB.f7 | SB.e8 ) );
+	ck_assert( sq_set_of_antidiag( 12 ) == ( SB.h6 | SB.g7 | SB.f8 ) );
+	ck_assert( sq_set_of_antidiag( 13 ) == ( SB.h7 | SB.g8 ) );
+	ck_assert( sq_set_of_antidiag( 14 ) == SB.h8 );
+	// ck_assert( sq_set_of_antidiag( 15 ) == 0 );
+
+#tcase misc_tests
+
+#test C_left_shifting_gives_expected_results
+	// 10952704 = 1337 * 2^13
+	ck_assert( 10952704 == ( 1337u << 13 ) );

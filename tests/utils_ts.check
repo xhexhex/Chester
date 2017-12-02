@@ -1,0 +1,610 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
+#include "../src/types.h"
+#include "../src/utils.h"
+#include "../src/chester.h"
+#include "../src/move_gen.h"
+
+// Returns the hash pattern squares of the square argument. For example,
+// hps_of_sq( "e4" ) returns the following string:
+// "e5 f5 f4 f3 e3 d3 d4 d5 f6 g5 g3 f2 d2 c3 c5 d6"
+// Another example: hps_of_sq( "a1" ) returns
+// "a2 b2 b1 - - - - - b3 c2 - - - - - -"
+char *
+hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of square
+{
+	char *hps = (char *) malloc( 48 ); // 48 = 16 * 3
+	int current_pos = 0; // Indicates the current position in the char array
+
+	for( enum sq_direction dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
+		assert( current_pos < 48 );
+
+		const char *sq_in_dir = use_alt_impl ?
+			ALT_sq_navigator( sq_name, dir ) : sq_navigator( sq_name, dir );
+		if( sq_in_dir ) {
+			*( hps + current_pos ) = *sq_in_dir;
+			*( hps + current_pos + 1 ) = *( sq_in_dir + 1 );
+			*( hps + current_pos + 2 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
+
+			current_pos += 3;
+		}
+		else {
+			*( hps + current_pos ) = '-';
+			*( hps + current_pos + 1 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
+
+			current_pos += 2;
+		}
+	}
+
+	assert( strlen( hps ) >= 36 && strlen( hps ) <= 47 );
+	return hps;
+}
+
+#suite utils_ts
+
+#tcase nth_field_of_fen_str_tests
+
+#test C_nth_field_of_fen_str_works
+	SRAND( time( NULL ) ); // Calling srand(), unless it has already been called
+
+	char start_pos_fen[] =
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	const int NUM_OF_FIELDS = 6;
+	char writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
+	char *tok_start_pos_fen[] = { // tok, tokenized
+		// Note that index 0 contains the empty string
+		"", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq",
+		"-", "0", "1" };
+
+// Avoiding copy & paste code
+#define FOR_LOOP_BODY( nth_field_func, str_with_fields ) \
+	ck_assert_msg( \
+		! strcmp( nth_field_func( str_with_fields, writable_mem, i ), \
+			tok_ ## str_with_fields[ i ] ), \
+		"Non-identical strings detected" )
+// The first for loop tests in sequence, the second in random order
+#define TWO_FOR_LOOPS( nth_field_func, str_with_fields ) \
+	for( int i = 1; i <= NUM_OF_FIELDS; i++ ) { \
+		FOR_LOOP_BODY( nth_field_func, str_with_fields ); } \
+	for( int counter = 1; counter <= 50; counter++ ) { \
+		int i = ( rand() % NUM_OF_FIELDS ) + 1; \
+		FOR_LOOP_BODY( nth_field_func, str_with_fields ); }
+
+	TWO_FOR_LOOPS( nth_field_of_fen_str, start_pos_fen );
+
+#tcase nth_rank_of_ppf_tests
+
+#test C_nth_rank_of_ppf_works
+	char start_pos_ppf[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+	const int NUM_OF_FIELDS = 8;
+	char writable_mem[ PPF_MAX_LENGTH + 1 ];
+	char *tok_start_pos_ppf[] = { // tok, tokenized
+		// Note that index 0 contains the empty string
+		"",
+		"RNBQKBNR", // rank 1
+		"PPPPPPPP", // rank 2
+		"8",
+		"8",
+		"8",
+		"8",
+		"pppppppp",
+		"rnbqkbnr" // rank 8
+	};
+
+	TWO_FOR_LOOPS( nth_rank_of_ppf, start_pos_ppf );
+
+#tcase set_or_unset_bits_tests
+
+// Moving from the LSB to the MSB, each bit in turn is set to one
+// and left that way.
+#test C_set_or_unset_bits_test_1
+	uint64_t bit_array = 0;
+	const uint64_t BIT_TO_SET = 1;
+
+	for( int i = 0; i < 64; i++ ) {
+		set_or_unset_bits( &bit_array, BIT_TO_SET << i, 1 );
+
+		// printf( "%d\t0x%lx\n", i, bit_array );
+
+		if( i < 63 ) ck_assert( bit_array == (uint64_t) pow( 2, i + 1 ) - 1 );
+		else ck_assert( bit_array == UINT64_MAX );
+	}
+
+// On the first iteration the MSB of 'bit_array' is set, on the second
+// iteration the bit next to the MSB, and on the last iteration the LSB
+// is set. While doing this, the previously set bits are unset. This makes
+// 'bit_array' a decreasing power of two with values between 2^63 and 1.
+#test C_set_or_unset_bits_test_2
+	uint64_t bit_array = 0, bits_to_unset = 0;
+	const uint64_t BIT_TO_SET = (uint64_t) pow( 2, 63 );
+
+	for( int i = 0; i < 64; i++ ) {
+		set_or_unset_bits( &bit_array, BIT_TO_SET >> i, 1 );
+		if( i > 0 )
+			set_or_unset_bits( &bits_to_unset, BIT_TO_SET >> ( i - 1 ), 1 );
+		set_or_unset_bits( &bit_array, bits_to_unset, 0 );
+
+		ck_assert( bit_array == (uint64_t) pow( 2, 63 - i ) );
+	}
+
+// Testing set_or_unset_bits() with various values
+#test C_set_or_unset_bits_test_3
+	uint64_t ba = UINT64_MAX, bitmask = UINT64_MAX;
+
+	set_or_unset_bits( &ba, bitmask, 1 );
+	ck_assert( ba == UINT64_MAX );
+	set_or_unset_bits( &ba, bitmask, 0 );
+	ck_assert( !ba );
+
+	ba = UINT64_MAX, bitmask = 0;
+	set_or_unset_bits( &ba, bitmask, 1 );
+	ck_assert( ba == UINT64_MAX );
+
+	bitmask = UINT64_MAX;
+	set_or_unset_bits( &ba, bitmask, 1 );
+	ck_assert( ba == UINT64_MAX );
+
+	ba = 0, bitmask = UINT64_MAX;
+	set_or_unset_bits( &ba, bitmask, 0 );
+	ck_assert( !ba );
+
+	set_or_unset_bits( &ba, bitmask, 1 );
+	ck_assert( ba == UINT64_MAX );
+
+	bitmask = 0xaaaaaaaaaaaaaaaaU;
+	set_or_unset_bits( &ba, bitmask, 0 );
+	ck_assert( ba == 0x5555555555555555u );
+
+	set_or_unset_bits( &ba, bitmask, 1 );
+	ck_assert( ba == UINT64_MAX );
+
+#tcase sq_name_to_sq_bit_tests
+
+#test C_sq_name_to_sq_bit_test_with_all_valid_inputs
+	char sq_name[ 3 ] = { '\0' };
+	ck_assert( !sq_name[ 2 ] );
+
+	Bitboard sq_bit = 1u;
+	for( int rank = '1'; rank <= '8'; rank++ ) {
+		for( int file = 'a'; file <= 'h'; file++ ) {
+			sq_name[ 0 ] = file;
+			sq_name[ 1 ] = rank;
+			// printf( "%s  %lx\n", sq_name, sq_bit );
+			ck_assert( sq_name_to_sq_bit( sq_name ) == sq_bit );
+			sq_bit <<= 1;
+		}
+	}
+
+#test C_sq_name_to_sq_bit_inverse_function_test
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( sq_name_to_sq_bit( sq_bit_to_sq_name( SBA[ i ] ) ) == SBA[ i ] );
+	}
+
+#tcase sq_bit_to_sq_name_tests
+
+#test C_sq_bit_to_sq_name_quick_and_dirty_test
+	ck_assert( !strcmp( "a1", sq_bit_to_sq_name( 1u ) ) );
+	ck_assert( !strcmp( "h8", sq_bit_to_sq_name( 0x8000000000000000u ) ) );
+	ck_assert( !strcmp( "e4", sq_bit_to_sq_name( 0x10000000u ) ) );
+	ck_assert( !strcmp( "c7", sq_bit_to_sq_name( 0x4000000000000u ) ) );
+
+#test C_sq_bit_to_sq_name_inverse_function_test
+	for( int i = 0; i < 64; i++ ) {
+		// printf( "%s\n", sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ) );
+		ck_assert( !strcmp( sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ),
+			SNA[ i ] ) );
+	}
+
+#tcase bb_is_sq_bit_tests
+
+#test C_bb_is_sq_bit_returns_true
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( bb_is_sq_bit( SBA[ i ] ) );
+	}
+
+#test C_bb_is_sq_bit_returns_false
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( !bb_is_sq_bit( SBA[ i ] + ( rand() % 30000 ) + 1 ) );
+	}
+
+#tcase occupant_of_sq_tests
+
+#define STD_START_POS fen_str_to_pos_var( STD_START_POS_FEN )
+
+#test C_occupant_of_sq_returns_EMPTY_SQUARE
+	for( int i = 16; i <= 47; i++ ) {
+		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == EMPTY_SQUARE );
+	}
+
+#test C_occupant_of_sq_returns_WHITE_KING
+	ck_assert( occupant_of_sq( STD_START_POS, "e1" ) == WHITE_KING );
+
+#test C_occupant_of_sq_returns_WHITE_QUEEN
+	ck_assert( occupant_of_sq( STD_START_POS, "d1" ) == WHITE_QUEEN );
+
+#test C_occupant_of_sq_returns_WHITE_ROOK
+	ck_assert( occupant_of_sq( STD_START_POS, "a1" ) == WHITE_ROOK );
+	ck_assert( occupant_of_sq( STD_START_POS, "h1" ) == WHITE_ROOK );
+
+#test C_occupant_of_sq_returns_WHITE_BISHOP
+	ck_assert( occupant_of_sq( STD_START_POS, "c1" ) == WHITE_BISHOP );
+	ck_assert( occupant_of_sq( STD_START_POS, "f1" ) == WHITE_BISHOP );
+
+#test C_occupant_of_sq_returns_WHITE_KNIGHT
+	ck_assert( occupant_of_sq( STD_START_POS, "b1" ) == WHITE_KNIGHT );
+	ck_assert( occupant_of_sq( STD_START_POS, "g1" ) == WHITE_KNIGHT );
+
+#test C_occupant_of_sq_returns_WHITE_PAWN
+	for( int i = 8; i <= 15; i++ ) {
+		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == WHITE_PAWN );
+	}
+
+#test C_occupant_of_sq_returns_BLACK_KING
+	ck_assert( occupant_of_sq( STD_START_POS, "e8" ) == BLACK_KING );
+
+#test C_occupant_of_sq_returns_BLACK_QUEEN
+	ck_assert( occupant_of_sq( STD_START_POS, "d8" ) == BLACK_QUEEN );
+
+#test C_occupant_of_sq_returns_BLACK_ROOK
+	ck_assert( occupant_of_sq( STD_START_POS, "a8" ) == BLACK_ROOK );
+	ck_assert( occupant_of_sq( STD_START_POS, "h8" ) == BLACK_ROOK );
+
+#test C_occupant_of_sq_returns_BLACK_BISHOP
+	ck_assert( occupant_of_sq( STD_START_POS, "c8" ) == BLACK_BISHOP );
+	ck_assert( occupant_of_sq( STD_START_POS, "f8" ) == BLACK_BISHOP );
+
+#test C_occupant_of_sq_returns_BLACK_KNIGHT
+	ck_assert( occupant_of_sq( STD_START_POS, "b8" ) == BLACK_KNIGHT );
+	ck_assert( occupant_of_sq( STD_START_POS, "g8" ) == BLACK_KNIGHT );
+
+#test C_occupant_of_sq_returns_BLACK_PAWN
+	for( int i = 48; i <= 55; i++ ) {
+		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == BLACK_PAWN );
+	}
+
+#tcase epts_from_pos_var_tests
+
+#test C_epts_from_pos_var_quick_and_dirty_test
+	ck_assert( !strcmp( "-", epts_from_pos_var( STD_START_POS ) ) );
+	ck_assert( !strcmp( "e3", epts_from_pos_var( fen_str_to_pos_var(
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" ) ) ) );
+	ck_assert( !strcmp( "c6", epts_from_pos_var( fen_str_to_pos_var(
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2" ) ) ) );
+	ck_assert( !strcmp( "-", epts_from_pos_var( fen_str_to_pos_var(
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" ) ) ) );
+
+#tcase sq_bit_index_tests
+
+#test C_sq_bit_index_all_valid_inputs_test
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( sq_bit_index( SBA[ i ] ) == i );
+	}
+
+#tcase file_of_sq_tests
+
+#define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \
+const int START_VAL = file_char - 'a'; \
+for( int i = START_VAL; i <= START_VAL + 56; i += 8 ) { \
+	ck_assert( file_of_sq( SBA[ i ] ) == file_char ); }
+
+#test C_file_of_sq_test_on_file_a
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'a' )
+
+#test C_file_of_sq_test_on_file_b
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'b' )
+
+#test C_file_of_sq_test_on_file_c
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'c' )
+
+#test C_file_of_sq_test_on_file_d
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'd' )
+
+#test C_file_of_sq_test_on_file_e
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'e' )
+
+#test C_file_of_sq_test_on_file_f
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'f' )
+
+#test C_file_of_sq_test_on_file_g
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'g' )
+
+#test C_file_of_sq_test_on_file_h
+	SQ_BIT_FILE_TEST_FOR_LOOP( 'h' )
+
+#tcase rank_of_sq_tests
+
+#define SQ_BIT_RANK_TEST_FOR_LOOP( rank_char ) \
+const int START_VAL = ( rank_char - '1' ) * 8; \
+for( int i = START_VAL; i <= START_VAL + 7; i++ ) { \
+	ck_assert( rank_of_sq( SBA[ i ] ) == rank_char ); }
+
+#test C_rank_of_sq_test_on_rank_1
+	SQ_BIT_RANK_TEST_FOR_LOOP( '1' )
+
+#test C_rank_of_sq_test_on_rank_2
+	SQ_BIT_RANK_TEST_FOR_LOOP( '2' )
+
+#test C_rank_of_sq_test_on_rank_3
+	SQ_BIT_RANK_TEST_FOR_LOOP( '3' )
+
+#test C_rank_of_sq_test_on_rank_4
+	SQ_BIT_RANK_TEST_FOR_LOOP( '4' )
+
+#test C_rank_of_sq_test_on_rank_5
+	SQ_BIT_RANK_TEST_FOR_LOOP( '5' )
+
+#test C_rank_of_sq_test_on_rank_6
+	SQ_BIT_RANK_TEST_FOR_LOOP( '6' )
+
+#test C_rank_of_sq_test_on_rank_7
+	SQ_BIT_RANK_TEST_FOR_LOOP( '7' )
+
+#test C_rank_of_sq_test_on_rank_8
+	SQ_BIT_RANK_TEST_FOR_LOOP( '8' )
+
+#tcase str_matches_pattern_tests
+
+#test C_str_matches_pattern_returns_true
+	ck_assert( str_matches_pattern( "", "^$" ) );
+	ck_assert( str_matches_pattern( "abcdefghijklmnopqrstuvwxyz", "^[a-z]*$" ) );
+	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]*$" ) );
+	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]{7}$" ) );
+	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]{5,}$" ) );
+
+#test C_str_matches_pattern_returns_false
+	ck_assert( !str_matches_pattern( " ", "^$" ) );
+	ck_assert( !str_matches_pattern( "John", "^[a-z]*$" ) );
+	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]$" ) );
+	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]{8}$" ) );
+	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]{,5}$" ) );
+
+#tcase uint64_to_bin_str_tests
+
+#define UINT64_TO_BIN_STR_WORKS( uint64, str_constant ) \
+bin_str = uint64_to_bin_str( uint64 ); \
+ck_assert( !strcmp( str_constant, bin_str ) ); \
+free( bin_str );
+
+#test C_uint64_to_bin_str_works
+	char *bin_str;
+
+	UINT64_TO_BIN_STR_WORKS( 0u,
+		"0000000000000000000000000000000000000000000000000000000000000000" )
+	UINT64_TO_BIN_STR_WORKS( 1u,
+		"0000000000000000000000000000000000000000000000000000000000000001" )
+	UINT64_TO_BIN_STR_WORKS( 0xffffffffffffffffU,
+		"1111111111111111111111111111111111111111111111111111111111111111" )
+	UINT64_TO_BIN_STR_WORKS( 0xaaaaaaaaaaaaaaaaU,
+		"1010101010101010101010101010101010101010101010101010101010101010" )
+
+// Not that there's much to test with this function, really
+#tcase print_pos_var_tests
+
+#test C_print_pos_var_inspect_the_output_test
+	ck_assert( true );
+	// print_pos_var( fen_str_to_pos_var( STD_START_POS_FEN ) );
+
+#tcase sq_navigator_tests
+
+#test C_sq_navigator_returns_NULL
+	ck_assert( !sq_navigator( "a8", NORTH ) );
+	ck_assert( !sq_navigator( "e8", NORTH ) );
+	ck_assert( !sq_navigator( "h8", NORTH ) );
+	ck_assert( !sq_navigator( "g8", NORTHEAST ) );
+	ck_assert( !sq_navigator( "h7", NORTHEAST ) );
+
+#test C_sq_navigator_returns_e4
+	char *a[] = { "e3", "d3", "d4", "d5", "e5", "f5", "f4", "f3", "d2", "c3",
+		"c5", "d6", "f6", "g5", "g3", "f2", NULL };
+
+	for( enum sq_direction dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
+		// printf( "%s  %d\n", a[ dir ], dir );
+		const char *ret_sq_name = sq_navigator( a[ dir ], dir );
+		ck_assert( ret_sq_name );
+		ck_assert( !strcmp( "e4", ret_sq_name ) );
+	}
+
+#test C_sq_navigator_comprehensive_test_with_alt_impl
+	for( int i = 0; i < 64; i++ ) {
+		char *hps = hps_of_sq( SNA[ i ], false ),
+			*hps_from_alt_impl = hps_of_sq( SNA[ i ], true );
+		// printf( "PRI: %s: %s\n", SNA[ i ], hps );
+		// printf( "SEC: %s: %s\n\n", SNA[ i ], hps_from_alt_impl );
+		ck_assert( !strcmp( hps, hps_from_alt_impl ) );
+		free( hps );
+		free( hps_from_alt_impl );
+	}
+
+#tcase sq_name_index_tests
+
+#test C_sq_name_index_test_with_all_valid_inputs
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( i == sq_name_index( SNA[ i ] ) );
+	}
+
+#test C_sq_name_index_test_with_invalid_inputs
+	ck_assert( true );
+	// sq_name_index( NULL );
+	// sq_name_index( "" );
+	// sq_name_index( "a" );
+	// sq_name_index( "aa" );
+	// sq_name_index( "h9" );
+
+#tcase num_of_sqs_in_sq_set_tests
+
+#test C_num_of_sqs_in_sq_set_returns_0
+	ck_assert( !num_of_sqs_in_sq_set( 0u ) );
+
+#test C_num_of_sqs_in_sq_set_returns_1
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( 1 == num_of_sqs_in_sq_set( SBA[ i ] ) );
+	}
+
+#test C_num_of_sqs_in_sq_set_returns_8
+	for( int file = 'a'; file <= 'h'; file++ ) {
+		ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_file( file ) ) );
+	}
+	for( int rank = '1'; rank <= '8'; rank++ ) {
+		ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_rank( rank ) ) );
+	}
+
+#test C_num_of_sqs_in_sq_set_returns_64
+	ck_assert( 64 == num_of_sqs_in_sq_set( 0xffffffffffffffffU ) );
+
+#tcase file_and_rank_to_sq_name_tests
+
+#test C_file_and_rank_to_sq_name_works
+	ck_assert( !strcmp( "e4", file_and_rank_to_sq_name( 'e', '4' ) ) );
+	ck_assert( !strcmp( "a1", file_and_rank_to_sq_name( 'a', '1' ) ) );
+	ck_assert( !strcmp( "h1", file_and_rank_to_sq_name( 'h', '1' ) ) );
+	ck_assert( !strcmp( "a8", file_and_rank_to_sq_name( 'a', '8' ) ) );
+	ck_assert( !strcmp( "h8", file_and_rank_to_sq_name( 'h', '8' ) ) );
+
+#tcase sq_rectangle_tests
+
+#test C_sq_rectangle_manually_selected_assertions
+	// ck_assert( sq_rectangle( 0u, 0u ) );
+	ck_assert( !sq_rectangle( SB.h1, SB.a8 ) );
+	ck_assert( 0x3c3c3c3c0000U == sq_rectangle( SB.c6, SB.f3 ) );
+	ck_assert( 0x7e000000U == sq_rectangle( SB.b4, SB.g4 ) );
+	ck_assert( 0x1818000000U == sq_rectangle( SB.d5, SB.e4 ) );
+	ck_assert( UINT64_MAX == sq_rectangle( SB.a8, SB.h1 ) );
+	ck_assert( 0x303000000000000U == sq_rectangle( SB.a8, SB.b7 ) );
+	ck_assert( 0xc0c0000000000000U == sq_rectangle( SB.g8, SB.h7 ) );
+	ck_assert( 0x303U == sq_rectangle( SB.a2, SB.b1 ) );
+	ck_assert( 0xc0c0U == sq_rectangle( SB.g2, SB.h1 ) );
+	ck_assert( 0 == sq_rectangle( SB.e4, SB.d4 ) );
+	ck_assert( 0 == sq_rectangle( SB.c5, SB.c6 ) );
+	// ck_assert( ... == sq_rectangle( SB.??, SB.?? ) );
+
+#test C_sq_rectangle_upper_left_equals_lower_right
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( SBA[ i ] == sq_rectangle( SBA[ i ], SBA[ i ] ) );
+	}
+
+#test C_sq_rectangle_files_test
+	for( int i = 'a'; i <= 'h'; i++ ) {
+		ck_assert( sq_set_of_file( i ) ==
+			sq_rectangle(
+				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
+				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
+	}
+
+#test C_sq_rectangle_ranks_test
+	for( int i = '1'; i <= '8'; i++ ) {
+		ck_assert( sq_set_of_rank( i ) ==
+			sq_rectangle(
+				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
+				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );
+	}
+
+#test C_sq_rectangle_returns_empty_bitboard
+	const Bitboard upper_left = SB.h1;
+	Bitboard lower_right;
+	const char *lower_right_sq_name = "g2";
+	do {
+		lower_right = sq_name_to_sq_bit( lower_right_sq_name );
+		ck_assert( !sq_rectangle( upper_left, lower_right ) );
+	} while( lower_right_sq_name &&
+		( lower_right_sq_name =
+			sq_navigator( lower_right_sq_name, NORTHWEST ) ) );
+
+#tcase diag_of_sq_tests
+
+#test C_diag_of_sq_tested_with_squares_of_main_antidiagonal
+	ck_assert( diag_of_sq( SB.h1 ) == 0x80U );
+	ck_assert( diag_of_sq( SB.g2 ) == 0x804020U );
+	ck_assert( diag_of_sq( SB.f3 ) == 0x8040201008U );
+	ck_assert( diag_of_sq( SB.e4 ) == 0x80402010080402U );
+	ck_assert( diag_of_sq( SB.d5 ) == 0x4020100804020100U );
+	ck_assert( diag_of_sq( SB.c6 ) == 0x1008040201000000U );
+	ck_assert( diag_of_sq( SB.b7 ) == 0x402010000000000U );
+	ck_assert( diag_of_sq( SB.a8 ) == 0x100000000000000U );
+
+#test C_diag_of_sq_tested_with_squares_of_antidiagonal_g1a7
+	ck_assert( diag_of_sq( SB.g1 ) == 0x8040U );
+	ck_assert( diag_of_sq( SB.f2 ) == 0x80402010U );
+	ck_assert( diag_of_sq( SB.e3 ) == 0x804020100804U );
+	ck_assert( diag_of_sq( SB.d4 ) == 0x8040201008040201U );
+	ck_assert( diag_of_sq( SB.c5 ) == 0x2010080402010000U );
+	ck_assert( diag_of_sq( SB.b6 ) == 0x804020100000000U );
+	ck_assert( diag_of_sq( SB.a7 ) == 0x201000000000000U );
+
+#test C_diag_of_sq_tested_with_all_squares
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( diag_of_sq( SBA[ i ] ) );
+	}
+
+#tcase antidiag_of_sq_tests
+
+#test C_antidiag_of_sq_tested_with_squares_of_main_diagonal
+	ck_assert( antidiag_of_sq( SB.a1 ) == 0x1U );
+	ck_assert( antidiag_of_sq( SB.b2 ) == 0x10204U );
+	ck_assert( antidiag_of_sq( SB.c3 ) == 0x102040810U );
+	ck_assert( antidiag_of_sq( SB.d4 ) == 0x1020408102040U );
+	ck_assert( antidiag_of_sq( SB.e5 ) == 0x204081020408000U );
+	ck_assert( antidiag_of_sq( SB.f6 ) == 0x810204080000000U );
+	ck_assert( antidiag_of_sq( SB.g7 ) == 0x2040800000000000U );
+	ck_assert( antidiag_of_sq( SB.h8 ) == 0x8000000000000000U );
+
+#test C_antidiag_of_sq_tested_with_squares_of_diagonal_b1h7
+	ck_assert( antidiag_of_sq( SB.b1 ) == 0x102U );
+	ck_assert( antidiag_of_sq( SB.c2 ) == 0x1020408U );
+	ck_assert( antidiag_of_sq( SB.d3 ) == 0x10204081020U );
+	ck_assert( antidiag_of_sq( SB.e4 ) == 0x102040810204080U );
+	ck_assert( antidiag_of_sq( SB.f5 ) == 0x408102040800000U );
+	ck_assert( antidiag_of_sq( SB.g6 ) == 0x1020408000000000U );
+	ck_assert( antidiag_of_sq( SB.h7 ) == 0x4080000000000000U );
+
+#test C_antidiag_of_sq_tested_with_all_squares
+	for( int i = 0; i < 64; i++ ) {
+		ck_assert( antidiag_of_sq( SBA[ i ] ) );
+	}
+
+#tcase SQ_NAVIGATOR_tests
+
+#test C_SQ_NAVIGATOR_basic_integrity_test
+	int num_of_valid_elements = 0, num_of_valid_non_zero_elements = 0;
+
+	for( int i = 0; i < 64; i++ ) {
+		for( enum sq_direction d = NORTH; d <= ELEVEN_OCLOCK; d++ ) {
+			Bitboard bb = SQ_NAVIGATOR[ i ][ d ];
+			if( !bb || bb_is_sq_bit( bb ) ) {
+				++num_of_valid_elements;
+				if( bb )
+					++num_of_valid_non_zero_elements;
+
+				continue;
+			}
+
+			ck_assert( false );
+		}
+	}
+
+	if( num_of_valid_elements != 1024 || num_of_valid_non_zero_elements != 756 )
+		ck_assert( false );
+
+#test C_SQ_NAVIGATOR_comprehensive_test_with_ALT_sq_navigator
+	for( int row = 0; row < 64; row++ ) {
+		const char *origin_sq = SNA[ row ];
+		for( int col = 0; col < 16; col++ ) {
+			const char *sq_in_dir =
+				ALT_sq_navigator( origin_sq, (enum sq_direction) col );
+
+			const Bitboard sq_bit = sq_in_dir ? sq_name_to_sq_bit(
+				sq_in_dir ) : 0u;
+			ck_assert( SQ_NAVIGATOR[ row ][ col ] == sq_bit );
+		}
+	}
+
+#test C_SQ_NAVIGATOR_comprehensive_test_with_KING_SQS_and_KNIGHT_SQS
+	for( int row = 0; row < 64; row++ ) {
+		Bitboard bb = 0u;
+		for( int col = 0; col < 16; col++ ) {
+			bb |= SQ_NAVIGATOR[ row ][ col ];
+		}
+		ck_assert( bb == ( KING_SQS[ row ] | KNIGHT_SQS[ row ] ) );
+	}
