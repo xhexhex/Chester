@@ -23,6 +23,7 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
 	const int num_of_sqs_north, const int num_of_sqs_east,
 	const int num_of_sqs_south, const int num_of_sqs_west,
 	const Bitboard upper_left, const Bitboard lower_right );
+static Bitboard x_find_ac_army( const Pos *p );
 
 /***********************
  **** External data ****
@@ -310,18 +311,30 @@ const char *APM[] = {
  *************************************/
 
 int
-che_move_gen( const char *fen, char ***moves )
+che_move_gen( const char *fen, unsigned char ***moves, int *num_mv_cm )
 {
-	printf( "%s\n", fen );
+	assert( !che_validate_fen_str( fen ) );
+	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
-	char **char_ptr_array = (char **) malloc( 5 * sizeof(char *) );
-	char_ptr_array[ 0 ] = "one";
-	char_ptr_array[ 1 ] = "two";
-	char_ptr_array[ 2 ] = "three";
-	char_ptr_array[ 3 ] = "four";
+	printf( "%s\n", fen );
+	*num_mv_cm = 16;
+
+	Bitboard ac_army = x_find_ac_army( p ); // ac, active color
+	printf( "ac_army: %lx\n", ac_army );
+
+	/*
+	unsigned char **char_ptr_array =
+		(unsigned char **) malloc( 5 * sizeof(char *) );
+	char_ptr_array[ 0 ] = (unsigned char *) "one";
+	char_ptr_array[ 1 ] = (unsigned char *) "two";
+	char_ptr_array[ 2 ] = (unsigned char *) "three";
+	char_ptr_array[ 3 ] = (unsigned char *) "four";
 	char_ptr_array[ 4 ] = NULL;
 
 	*moves = char_ptr_array;
+	*/
+
+	free( (Pos *) p );
 
 	return 0;
 }
@@ -566,4 +579,23 @@ x_kerc_unset_corner_bits( Bitboard sq_rect,
 		sq_rect ^= upper_left;
 
 	return sq_rect;
+}
+
+static Bitboard
+x_find_ac_army( const Pos *p )
+{
+	Bitboard ac_army = 0u;
+
+	for( int i = 0; i < 64; i++ ) {
+		for( Chessman cm = whites_turn( p ) ? WHITE_KING : BLACK_KING;
+			( whites_turn( p ) && cm <= WHITE_PAWN ) ||
+				( !whites_turn( p ) && cm <= BLACK_PAWN ); cm++ ) {
+			if( p->pieces[ cm ] & SBA[ i ] ) {
+				ac_army |= SBA[ i ];
+				break;
+			}
+		}
+	}
+
+	return ac_army;
 }

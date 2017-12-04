@@ -37,11 +37,34 @@ typedef struct {
 	char *sqs[ 64 ];
 	size_t size;
 } Squares;
-
-enum fen_str_error che_validate_fen_str( const char *fen_str );
-int che_move_gen( const char *fen, char ***moves );
 // size_t che_Squares_add( /* var args */ ); // Returns size
 // size_t che_Squares_init( /* var args */ );
+
+enum fen_str_error che_validate_fen_str( const char *fen_str );
+
+int che_move_gen( const char *fen, unsigned char ***moves, int *num_mv_cm );
+/*
+unsigned char **moves;
+int num_mv_cm;
+int num_moves = che_move_gen( STD_START_POS, &moves, &num_mv_cm );
+After the function call moves should be like this:
+0 'R' '-' 255
+1 'N' '-'
+2 'B' '-'
+3 'Q' '-'
+4 'K' '-'
+5 'B' '-'
+6 'N' '-'
+7 'R' '-'
+8 'P' '-'
+9 'P' '-'
+10 'P' '-'
+11 'P' '-'
+12 'P' '-'
+13 'P' '-'
+14 'P' '-'
+15 'P' '-'
+*/
 
 #endif
 // end CHESTER_H

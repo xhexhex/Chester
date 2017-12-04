@@ -305,9 +305,26 @@ left_lesser_than_right( const char *left, const char *right )
 #tcase che_move_gen_tests
 
 #test C_che_move_gen_preparation
-	char **strings;
-	che_move_gen( "hello", &strings );
-	for( int i = 0; strings[ i ]; i++ )
-		printf( "%s\n", strings[ i ] );
-
-	free( strings );
+	unsigned char **moves;
+	int num_mv_cm;
+	// "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	int num_moves = che_move_gen( STD_START_POS_FEN, &moves, &num_mv_cm );
+/*
+After the function call moves should be like this:
+0 'R' '-' 255
+1 'N' '-' 255
+2 'B' '-' 255
+3 'Q' '-' 255
+4 'K' '-' 255
+5 'B' '-' 255
+6 'N' '-' 255
+7 'R' '-' 255
+8 'P' '-' 255
+9 'P' '-' 255
+10 'P' '-' 255
+11 'P' '-' 255
+12 'P' '-' 255
+13 'P' '-' 255
+14 'P' '-' 255
+15 'P' '-' 255
+*/
