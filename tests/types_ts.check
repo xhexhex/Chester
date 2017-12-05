@@ -367,12 +367,14 @@ while( true ) {
 #tcase ss_white_army_tests
 
 #test C_ss_white_army_std_start_pos
-	ck_assert( false );
+	ck_assert( ss_white_army( fen_str_to_pos_var( STD_START_POS_FEN ) ) ==
+		0xffffU );
 
 #tcase ss_black_army_tests
 
 #test C_ss_black_army_std_start_pos
-	ck_assert( false );
+	ck_assert( ss_black_army( fen_str_to_pos_var( STD_START_POS_FEN ) ) ==
+		0xffff000000000000U );
 
 #tcase misc_tests
 
