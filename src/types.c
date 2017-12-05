@@ -265,6 +265,26 @@ sq_set_of_antidiag( const int index )
 	return x_sq_set_of_antidiag( index );
 }
 
+// Returns the square set of the white army. That means all the squares
+// that contain a white chessman.
+Bitboard
+ss_white_army( const Pos *p )
+{
+	return p->pieces[ WHITE_KING ] | p->pieces[ WHITE_QUEEN ] |
+		p->pieces[ WHITE_ROOK ] | p->pieces[ WHITE_BISHOP ] |
+		p->pieces[ WHITE_KNIGHT ] | p->pieces[ WHITE_PAWN ];
+}
+
+// Returns the square set of the black army. That means all the squares
+// that contain a black chessman.
+Bitboard
+ss_black_army( const Pos *p )
+{
+	return p->pieces[ BLACK_KING ] | p->pieces[ BLACK_QUEEN ] |
+		p->pieces[ BLACK_ROOK ] | p->pieces[ BLACK_BISHOP ] |
+		p->pieces[ BLACK_KNIGHT ] | p->pieces[ BLACK_PAWN ];
+}
+
 /*
 // ...
 Bitboard

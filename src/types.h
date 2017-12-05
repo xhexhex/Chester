@@ -138,8 +138,12 @@ Bitboard sq_set_of_file( const char file );
 Bitboard sq_set_of_rank( const char rank );
 Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
-Bitboard Squares_to_bb( const Squares *s );
-Squares *bb_to_Squares( const Bitboard bb );
+Bitboard ss_white_army( const Pos *p );
+Bitboard ss_black_army( const Pos *p );
+
+// ???
+// Bitboard Squares_to_bb( const Squares *s );
+// Squares *bb_to_Squares( const Bitboard bb );
 
 #endif
 // end TYPES_H
