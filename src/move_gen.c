@@ -26,6 +26,7 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
 static Bitboard x_find_ac_army( const Pos *p );
 static uint16_t *x_che_move_gen_move_list_for_cm(
 	Bitboard origin_sq, Bitboard dest_sqs );
+static Bitboard x_dest_sqs_king( const Pos *p );
 
 /***********************
  **** External data ****
@@ -312,6 +313,7 @@ const char *APM[] = {
  **** Chester interface functions ****
  *************************************/
 
+// ...
 int
 che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 {
@@ -325,10 +327,10 @@ che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 	assert( ptr_array );
 
 	for( int bi = 0, i = 0; bi < 64; bi++ ) { // bi, bit index
-		Bitboard current_sq_bit = SBA[ bi ];
-		if( ac_army & current_sq_bit ) {
+		Bitboard cur_sq_bit = SBA[ bi ];
+		if( ac_army & cur_sq_bit ) {
 			ptr_array[ i ] = x_che_move_gen_move_list_for_cm(
-				current_sq_bit, 0x1818000000U );
+				cur_sq_bit, dest_sqs( p, cur_sq_bit ) );
 			++i;
 		}
 	}
@@ -386,6 +388,26 @@ kerc( const Bitboard sq_bit )
 
 	return x_kerc_unset_corner_bits( sq_rect, num_of_sqs_north, num_of_sqs_east,
 		num_of_sqs_south, num_of_sqs_west, upper_left, lower_right );
+}
+
+// Returns the destination squares of the origin square parameter in the
+// context of the position represented by 'p'. Another way of saying this
+// is that dest_sqs() finds the moves for the chessman on the square
+// indicated by 'origin_sq'. For example, if 'p' is the standard starting
+// position and 'origin_sq' is 0x40U (square g1), then dest_sqs() returns
+// the value 0xa00000U (squares f3 and h3).
+Bitboard
+dest_sqs( const Pos *p, Bitboard origin_sq )
+{
+	assert( bb_is_sq_bit( origin_sq ) );
+
+	Bitboard dest_sqs = 0;
+	Chessman cm = occupant_of_sq( p, sq_bit_to_sq_name( origin_sq ) );
+
+	if( cm == WHITE_KING || cm == BLACK_KING )
+		dest_sqs = x_dest_sqs_king( p );
+
+	return dest_sqs;
 }
 
 /**************************
@@ -614,8 +636,20 @@ x_che_move_gen_move_list_for_cm( Bitboard origin_sq, Bitboard dest_sqs )
 		Bitboard cur_dest_sq = next_sq_of_ss( &dest_sqs );
 		move_list[ i ] = sq_bit_index( cur_dest_sq );
 	}
-
 	assert( !dest_sqs );
 
 	return move_list;
+}
+
+static Bitboard
+x_dest_sqs_king( const Pos *p )
+{
+	Bitboard dest_sqs = 0;
+	int king_bi = sq_bit_index(
+		p->pieces[ whites_turn( p ) ? WHITE_KING : BLACK_KING ] );
+
+	dest_sqs = KING_SQS[ king_bi ];
+
+	printf( "%s(): About to return %lx\n", __func__, dest_sqs );
+	return dest_sqs;
 }
