@@ -315,12 +315,17 @@ left_lesser_than_right( const char *left, const char *right )
 #tcase che_move_gen_tests
 
 #test C_che_move_gen_preparation
-	unsigned char **moves;
+	uint16_t **moves;
 	int num_mov_cm;
-	// "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-	int num_moves = che_move_gen(
-		"rnbqkbnR/pppppppp/8/8/P6P/8/1PPPPPP1/RNBQKBNR w KQq - 0 1",
-		&moves, &num_mov_cm );
+	const char *fen = "rnbqkbnR/pppppppp/8/8/P6P/8/1PPPPPP1/RNBQKBNR w KQq - 0 1";
+	ck_assert( !che_validate_fen_str( fen ) );
+
+	int num_moves = che_move_gen( fen, &moves, &num_mov_cm );
 	printf( "%s(): %d\n", __func__, num_mov_cm );
-	//for( int i = 0; i < num_mov_cm; i++ )
-	//	printf( "BI: %d\n", moves[ i ][ 0 ] );
+	for( int i = 0; i < num_mov_cm; i++ ) {
+		for( int j = 0; j < moves[ i ][ 1 ] + 2; j++ )
+			printf( "%d ", moves[ i ][ j ] );
+		printf( "\n" );
+		free( moves[ i ] );
+	}
+	free( moves );

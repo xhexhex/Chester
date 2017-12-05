@@ -635,6 +635,25 @@ antidiag_of_sq( Bitboard sq_bit )
 	return 0u;
 }
 
+// Returns the next square in the square set parameter 'ss'. The square
+// returned is removed from 'ss'. This makes it convenient to call
+// next_sq_bit() repeatedly until 'ss' is empty.
+Bitboard
+next_sq_of_ss( Bitboard *ss )
+{
+	if( !( *ss ) )
+		return 0;
+
+	Bitboard sq = SB.a1;
+	while( !( ( *ss ) & sq ) ) {
+		sq <<= 1;
+	}
+	*ss ^= sq;
+
+	assert( bb_is_sq_bit( sq ) );
+	return sq;
+}
+
 /**************************
  **** Static functions ****
  **************************/

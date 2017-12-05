@@ -46,6 +46,7 @@ Bitboard sq_rectangle( const Bitboard upper_left, const Bitboard lower_right );
 const char *file_and_rank_to_sq_name( const char file, const char rank );
 Bitboard diag_of_sq( Bitboard sq_bit );
 Bitboard antidiag_of_sq( Bitboard sq_bit );
+Bitboard next_sq_of_ss( Bitboard *ss );
 
 #endif
 // end UTILS_H

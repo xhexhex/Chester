@@ -24,8 +24,8 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
 	const int num_of_sqs_south, const int num_of_sqs_west,
 	const Bitboard upper_left, const Bitboard lower_right );
 static Bitboard x_find_ac_army( const Pos *p );
-static unsigned char *x_che_move_gen_move_list_for_cm(
-	const Pos *p, Bitboard sq_bit );
+static uint16_t *x_che_move_gen_move_list_for_cm(
+	Bitboard origin_sq, Bitboard dest_sqs );
 
 /***********************
  **** External data ****
@@ -312,44 +312,30 @@ const char *APM[] = {
  **** Chester interface functions ****
  *************************************/
 
-// TODO: Document!
 int
-che_move_gen( const char *fen, unsigned char ***moves, int *num_mov_cm )
+che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 {
-	assert( !che_validate_fen_str( fen ) ); // Remove
 	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 	Bitboard ac_army = x_find_ac_army( p ); // TODO: Make reusable
 	*num_mov_cm = num_of_sqs_in_sq_set( ac_army );
 
-	// TODO: Check that malloc() succeeded
-	unsigned char **char_ptr_array =
-		(unsigned char **) malloc( ( *num_mov_cm ) * sizeof(char *) );
+	uint16_t **ptr_array = (uint16_t **) malloc(
+		( *num_mov_cm ) * sizeof(uint16_t *) );
+	assert( ptr_array );
 
 	for( int bi = 0, i = 0; bi < 64; bi++ ) { // bi, bit index
 		Bitboard current_sq_bit = SBA[ bi ];
 		if( ac_army & current_sq_bit ) {
-			printf( "%s\n", sq_bit_to_sq_name( current_sq_bit ) );
-			// Build the byte array here
-			char_ptr_array[ i ] =
-				x_che_move_gen_move_list_for_cm( p, current_sq_bit );
-			// char_ptr_array[ i ] = (unsigned char *) malloc( 1 );
-			// char_ptr_array[ i ][ 0 ] = (unsigned char) bi;
+			ptr_array[ i ] = x_che_move_gen_move_list_for_cm(
+				current_sq_bit, 0x1818000000U );
 			++i;
 		}
 	}
 
-	/*
-	–Byte 1: 7 bits for origin
-	–Byte 2: origin info
-	–Byte 3 onwards: dest squares + opt. info byte
-	–Zero signals end
-	 */
-
-	*moves = char_ptr_array;
-
 	free( (Pos *) p );
 
+	*moves = ptr_array;
 	return 0;
 }
 
@@ -614,8 +600,22 @@ x_find_ac_army( const Pos *p ) // ac, active color
 	return ac_army;
 }
 
-static unsigned char *
-x_che_move_gen_move_list_for_cm( const Pos *p, Bitboard sq_bit )
+static uint16_t *
+x_che_move_gen_move_list_for_cm( Bitboard origin_sq, Bitboard dest_sqs )
 {
-	return NULL;
+	uint16_t num_dest_sqs = (uint16_t) num_of_sqs_in_sq_set( dest_sqs );
+	uint16_t *move_list = (uint16_t *) malloc(
+		( num_dest_sqs + 2 ) * sizeof(uint16_t) );
+
+	move_list[ 0 ] = sq_bit_index( origin_sq );
+	move_list[ 1 ] = num_dest_sqs;
+
+	for( int i = 2; i < num_dest_sqs + 2; i++ ) {
+		Bitboard cur_dest_sq = next_sq_of_ss( &dest_sqs );
+		move_list[ i ] = sq_bit_index( cur_dest_sq );
+	}
+
+	assert( !dest_sqs );
+
+	return move_list;
 }
