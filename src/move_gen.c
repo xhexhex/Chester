@@ -24,6 +24,8 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
 	const int num_of_sqs_south, const int num_of_sqs_west,
 	const Bitboard upper_left, const Bitboard lower_right );
 static Bitboard x_find_ac_army( const Pos *p );
+static unsigned char *x_che_move_gen_move_list_for_cm(
+	const Pos *p, Bitboard sq_bit );
 
 /***********************
  **** External data ****
@@ -310,29 +312,41 @@ const char *APM[] = {
  **** Chester interface functions ****
  *************************************/
 
+// TODO: Document!
 int
-che_move_gen( const char *fen, unsigned char ***moves, int *num_mv_cm )
+che_move_gen( const char *fen, unsigned char ***moves, int *num_mov_cm )
 {
-	assert( !che_validate_fen_str( fen ) );
+	assert( !che_validate_fen_str( fen ) ); // Remove
 	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
-	printf( "%s\n", fen );
-	*num_mv_cm = 16;
+	Bitboard ac_army = x_find_ac_army( p ); // TODO: Make reusable
+	*num_mov_cm = num_of_sqs_in_sq_set( ac_army );
 
-	Bitboard ac_army = x_find_ac_army( p ); // ac, active color
-	printf( "ac_army: %lx\n", ac_army );
+	// TODO: Check that malloc() succeeded
+	unsigned char **char_ptr_array =
+		(unsigned char **) malloc( ( *num_mov_cm ) * sizeof(char *) );
+
+	for( int bi = 0, i = 0; bi < 64; bi++ ) { // bi, bit index
+		Bitboard current_sq_bit = SBA[ bi ];
+		if( ac_army & current_sq_bit ) {
+			printf( "%s\n", sq_bit_to_sq_name( current_sq_bit ) );
+			// Build the byte array here
+			char_ptr_array[ i ] =
+				x_che_move_gen_move_list_for_cm( p, current_sq_bit );
+			// char_ptr_array[ i ] = (unsigned char *) malloc( 1 );
+			// char_ptr_array[ i ][ 0 ] = (unsigned char) bi;
+			++i;
+		}
+	}
 
 	/*
-	unsigned char **char_ptr_array =
-		(unsigned char **) malloc( 5 * sizeof(char *) );
-	char_ptr_array[ 0 ] = (unsigned char *) "one";
-	char_ptr_array[ 1 ] = (unsigned char *) "two";
-	char_ptr_array[ 2 ] = (unsigned char *) "three";
-	char_ptr_array[ 3 ] = (unsigned char *) "four";
-	char_ptr_array[ 4 ] = NULL;
+	–Byte 1: 7 bits for origin
+	–Byte 2: origin info
+	–Byte 3 onwards: dest squares + opt. info byte
+	–Zero signals end
+	 */
 
 	*moves = char_ptr_array;
-	*/
 
 	free( (Pos *) p );
 
@@ -582,7 +596,7 @@ x_kerc_unset_corner_bits( Bitboard sq_rect,
 }
 
 static Bitboard
-x_find_ac_army( const Pos *p )
+x_find_ac_army( const Pos *p ) // ac, active color
 {
 	Bitboard ac_army = 0u;
 
@@ -598,4 +612,10 @@ x_find_ac_army( const Pos *p )
 	}
 
 	return ac_army;
+}
+
+static unsigned char *
+x_che_move_gen_move_list_for_cm( const Pos *p, Bitboard sq_bit )
+{
+	return NULL;
 }
