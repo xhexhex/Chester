@@ -410,6 +410,14 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
 	return dest_sqs;
 }
 
+// TODO: ...
+// "KQRBNPkqrbnp", "*", "+", "-"
+Bitboard
+cm_attacking_sq( const Pos *p, Bitboard sq, const char *hostiles )
+{
+	return 0;
+}
+
 /**************************
  **** Static functions ****
  **************************/

@@ -340,3 +340,8 @@ test C_che_move_gen_preparation
 	ck_assert( !che_validate_fen_str( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
 	p = fen_str_to_pos_var( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
 	ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
+
+#tcase cm_attacking_sq_tests
+
+#test C_cm_attacking_sq_unattacked_squares
+	ck_assert( false );
