@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "../src/types.h"
 #include "../src/utils.h"
+#include "../src/move_gen.h"
 
 #suite types_ts
 
@@ -375,6 +376,51 @@ while( true ) {
 #test C_ss_black_army_std_start_pos
 	ck_assert( ss_black_army( fen_str_to_pos_var( STD_START_POS_FEN ) ) ==
 		0xffff000000000000U );
+
+#tcase SQ_NAV_tests
+
+#test C_SQ_NAV_basic_integrity_test
+	int num_of_valid_elements = 0, num_of_valid_non_zero_elements = 0;
+
+	for( int i = 0; i < 64; i++ ) {
+		for( enum sq_direction d = NORTH; d <= ELEVEN_OCLOCK; d++ ) {
+			Bitboard bb = SQ_NAV[ i ][ d ];
+			if( !bb || bb_is_sq_bit( bb ) ) {
+				++num_of_valid_elements;
+				if( bb )
+					++num_of_valid_non_zero_elements;
+
+				continue;
+			}
+
+			ck_assert( false );
+		}
+	}
+
+	if( num_of_valid_elements != 1024 || num_of_valid_non_zero_elements != 756 )
+		ck_assert( false );
+
+#test C_SQ_NAV_comprehensive_test_with_ALT_sq_navigator
+	for( int row = 0; row < 64; row++ ) {
+		const char *origin_sq = SNA[ row ];
+		for( int col = 0; col < 16; col++ ) {
+			const char *sq_in_dir =
+				ALT_sq_navigator( origin_sq, (enum sq_direction) col );
+
+			const Bitboard sq_bit = sq_in_dir ? sq_name_to_sq_bit(
+				sq_in_dir ) : 0u;
+			ck_assert( SQ_NAV[ row ][ col ] == sq_bit );
+		}
+	}
+
+#test C_SQ_NAV_comprehensive_test_with_KING_SQS_and_KNIGHT_SQS
+	for( int row = 0; row < 64; row++ ) {
+		Bitboard bb = 0u;
+		for( int col = 0; col < 16; col++ ) {
+			bb |= SQ_NAV[ row ][ col ];
+		}
+		ck_assert( bb == ( KING_SQS[ row ] | KNIGHT_SQS[ row ] ) );
+	}
 
 #tcase misc_tests
 

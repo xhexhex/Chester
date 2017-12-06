@@ -56,6 +56,8 @@ extern const Bitboard SBA[];
 // SNA[ 0 ] is "a1", SNA[ 1 ] is "b1", ..., SNA[ 63 ] is "h8"
 extern const char *SNA[];
 
+extern const Bitboard SQ_NAV[][ 16 ];
+
 // The pieces array of Pos should be indexed with these, e.g.,
 // pos.pieces[ WHITE_KING ]
 typedef enum {

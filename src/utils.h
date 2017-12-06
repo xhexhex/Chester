@@ -18,8 +18,6 @@ enum sq_direction {
 	SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
 };
 
-extern const Bitboard SQ_NAVIGATOR[][ 16 ];
-
 bool str_matches_pattern( const char *str, const char *pattern );
 char *nth_field_of_fen_str( const char *fen_str, char *writable_mem, int field_num );
 char *nth_rank_of_ppf( const char *ppf, char *writable_mem, int rank_num );

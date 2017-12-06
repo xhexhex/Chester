@@ -9,3 +9,6 @@
   castling rules of Chess960 apply to the FEN string being validated.
 * Choose the bit index of a new bit flag in `Pos`. The flag indicates whether
   Chess960 castling rules are in effect.
+* Rename module `types.*` to `base.*`.
+* Add module `extra.*` for the things that shouldn't really be in Chester but
+  are still somehow useful.
