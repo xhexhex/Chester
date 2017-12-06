@@ -7,21 +7,6 @@
 
 #include "chester.h"
 
-// The shortest possible FEN string is something like
-// "k7/8/8/8/8/8/8/K7 w - - 0 1" which is 27 characters long
-#define FEN_STR_MIN_LENGTH 27
-// The following FEN string is 90 chars long:
-// "pppppppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP w KQkq - 4095 4095"
-// Allowing FENs longer than this wouldn't seem to make sense
-#define FEN_STR_MAX_LENGTH 90
-
-// The shortest possible PPF is "k7/8/8/8/8/8/8/K7" (17 chars)
-#define PPF_MIN_LENGTH 17
-// A PPF can be no longer than
-// "pppppppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP"
-// 8*8 + 7 = 71
-#define PPF_MAX_LENGTH 71
-
 // Bitboard, the fundamental (internal) data type of Chester. It is a 64-bit
 // unsigned integer used to deliver information that relates to the chessboard
 // in one way or another. Each bit corresponds to a particular square of
@@ -29,7 +14,7 @@
 typedef uint64_t Bitboard;
 
 // The following structure should have only one variable (or instance), the
-// one declared and initialized in types.c with the identifier SB. The constant
+// one declared and initialized in base.c with the identifier SB. The constant
 // struct variable SB serves as a mapping between a square name (such as "e4")
 // and its corresponding square bit (a Bitboard with exactly one bit set).
 struct const_single_var_struct_SB { // SB, square bit
@@ -44,18 +29,9 @@ struct const_single_var_struct_SB { // SB, square bit
 		a8, b8, c8, d8, e8, f8, g8, h8;
 };
 
-// The constant struct variable SB is declared and initialized in types.c
-// and should be available in any source file that includes types.h
 extern const struct const_single_var_struct_SB SB;
-
-// The 64 members of the struct variable SB as an array. SBA[ 0 ] is
-// SB.a1, SBA[ 63 ] is SB.h8.
 extern const Bitboard SBA[];
-
-// SNA, square names array
-// SNA[ 0 ] is "a1", SNA[ 1 ] is "b1", ..., SNA[ 63 ] is "h8"
 extern const char *SNA[];
-
 extern const Bitboard SQ_NAV[][ 16 ];
 
 // The pieces array of Pos should be indexed with these, e.g.,

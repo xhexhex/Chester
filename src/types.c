@@ -6,6 +6,7 @@
 
 #include "types.h"
 #include "utils.h"
+#include "validation.h"
 
 /***********************
  **** External data ****
@@ -29,10 +30,14 @@ const struct const_single_var_struct_SB SB = {
 	ALL_SQ_BIT_VALUES
 };
 
+// The 64 members of the struct variable SB as an array. SBA[ 0 ] is
+// SB.a1, SBA[ 63 ] is SB.h8.
 const Bitboard SBA[] = {
 	ALL_SQ_BIT_VALUES
 };
 
+// SNA, square names array. SNA[ 0 ] is "a1", SNA[ 1 ] is "b1", ...,
+// SNA[ 63 ] is "h8".
 const char *SNA[] = {
 	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
