@@ -466,6 +466,16 @@ ss_black_army( const Pos *p )
 		p->pieces[ BLACK_KNIGHT ] | p->pieces[ BLACK_PAWN ];
 }
 
+// The Square Navigator returns the square bit that is in direction 'dir'
+// of square bit 'sq'. For example, the call sq_nav( SB.e4, NORTHEAST )
+// would return SB.f5 and the call sq_nav( SB.e4, ONE_OCLOCK ) would
+// return SB.f6.
+Bitboard
+sq_nav( Bitboard sq, enum sq_direction dir )
+{
+	return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
+}
+
 /*
 // ...
 Bitboard

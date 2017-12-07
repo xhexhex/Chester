@@ -422,6 +422,17 @@ while( true ) {
 		ck_assert( bb == ( KING_SQS[ row ] | KNIGHT_SQS[ row ] ) );
 	}
 
+#tcase sq_nav_tests
+
+#test C_sq_nav_comprehensive_test_with_KING_SQS_and_KNIGHT_SQS
+	for( int i = 0; i < 64; i++ ) {
+		Bitboard bb = 0;
+		for( int dir = 0; dir < 16; dir++ ) {
+			bb |= sq_nav( SBA[ i ], dir );
+		}
+		ck_assert( bb == ( KING_SQS[ i ] | KNIGHT_SQS[ i ] ) );
+	}
+
 #tcase misc_tests
 
 #test C_left_shifting_gives_expected_results

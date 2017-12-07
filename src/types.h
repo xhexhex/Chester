@@ -100,10 +100,7 @@ extern const Bitboard
 	SS_ANTIDIAG_H3C8, SS_ANTIDIAG_H4D8, SS_ANTIDIAG_H5E8,
 	SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
 
-/*****************************
- **** Function prototypes ****
- *****************************/
-
+// Function prototypes
 Pos *fen_str_to_pos_var( const char *fen_str );
 char active_color( const Pos *p );
 bool whites_turn( const Pos *p );
@@ -114,7 +111,7 @@ Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );
 Bitboard ss_black_army( const Pos *p );
-// Bitboard sq_nav( Bitboard sq, enum sq_direction dir );
+Bitboard sq_nav( Bitboard sq, enum sq_direction dir );
 
 // ???
 // Bitboard Squares_to_bb( const Squares *s );
