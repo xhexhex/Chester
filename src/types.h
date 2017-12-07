@@ -33,6 +33,8 @@ extern const struct const_single_var_struct_SB SB;
 extern const Bitboard SBA[];
 extern const char *SNA[];
 extern const Bitboard SQ_NAV[][ 16 ];
+extern const char STD_START_POS_FEN[];
+extern const char FEN_PIECE_LETTERS[];
 
 // The pieces array of Pos should be indexed with these, e.g.,
 // pos.pieces[ WHITE_KING ]
@@ -42,6 +44,13 @@ typedef enum {
 	BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
 } Chessman;
 
+// TODO: Doc
+enum sq_direction {
+	NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST,
+	ONE_OCLOCK, TWO_OCLOCK, FOUR_OCLOCK, FIVE_OCLOCK,
+	SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
+};
+
 // Chester's internal representation of a position. The Pos type contains
 // the same information as a FEN string. See the the documention for a
 // comprehensive description of the Pos type.
@@ -49,19 +58,6 @@ typedef struct {
 	Bitboard pieces[ 13 ];
 	uint64_t info;
 } Pos;
-
-//
-// Misc. external data
-//
-
-// The FEN string for the (standard) starting position
-extern const char STD_START_POS_FEN[];
-
-// The 12 letters that identify the different chessmen in the PPF
-// of a FEN record. The first element of the array is '-' and as such
-// isn't one of the 12 letters. The order of the letters correspond
-// to the Chessman enum type.
-extern const char FEN_PIECE_LETTERS[];
 
 // Used for inspecting and manipulating the data in the 'info' member
 // of Pos variables. As the 'info' member corresponds to the last five
@@ -118,6 +114,7 @@ Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );
 Bitboard ss_black_army( const Pos *p );
+// Bitboard sq_nav( Bitboard sq, enum sq_direction dir );
 
 // ???
 // Bitboard Squares_to_bb( const Squares *s );

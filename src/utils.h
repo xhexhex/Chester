@@ -12,12 +12,6 @@ if( !srand_has_been_called ) { \
 
 extern bool srand_has_been_called;
 
-enum sq_direction {
-	NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST,
-	ONE_OCLOCK, TWO_OCLOCK, FOUR_OCLOCK, FIVE_OCLOCK,
-	SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
-};
-
 bool str_matches_pattern( const char *str, const char *pattern );
 char *nth_field_of_fen_str( const char *fen_str, char *writable_mem, int field_num );
 char *nth_rank_of_ppf( const char *ppf, char *writable_mem, int rank_num );

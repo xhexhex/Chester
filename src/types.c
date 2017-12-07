@@ -49,9 +49,14 @@ const char *SNA[] = {
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
 
+// The FEN string for the (standard) starting position
 const char STD_START_POS_FEN[] =
 	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+// The 12 letters that identify the different chessmen in the PPF
+// of a FEN record. The first element of the array is '-' and as such
+// isn't one of the 12 letters. The order of the letters correspond
+// to the Chessman enum type.
 const char FEN_PIECE_LETTERS[] = "-KQRBNPkqrbnp";
 
 // Square navigation or direction data for each of the 64 squares of the
