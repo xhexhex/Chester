@@ -284,6 +284,13 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 		ck_assert( sq_bit_index( SBA[ i ] ) == i );
 	}
 
+#test C_sq_bit_index_tested_with_odd_bb_values
+	for( Bitboard bb = 3; bb < 10000; bb += 2 ) {
+		// Won't work if the 'assert( false )' in sq_bit_index() is "live"
+		// ck_assert( sq_bit_index( bb ) == -1 );
+		ck_assert( true );
+	}
+
 #tcase file_of_sq_tests
 
 #define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \

@@ -305,7 +305,7 @@ sq_bit_index( Bitboard sq_bit )
 
 	assert( false );
 	return -1;
-}
+} // Reviewed: 2017-12-07
 
 // Converts the argument into a "binary string", that is, a string
 // consisting of 64 '0' and '1' chars
