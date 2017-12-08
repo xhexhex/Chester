@@ -32,6 +32,10 @@ static Bitboard x_dest_sqs_king( const Pos *p );
 static void x_cm_attacking_sq_debug_print_attackers( int attackers[] );
 static void x_cm_attacking_sq_prepare_attackers(
 	int attackers[], va_list arg_ptr, int num_arg );
+static Bitboard x_cm_attacking_sq_kings( const Pos *p, Bitboard sq,
+	bool color_is_white );
+static Bitboard x_cm_attacking_sq_rooks_or_queens( const Pos *p,
+	Bitboard sq, bool color_is_white, bool cm_is_queen );
 
 /***********************
  **** External data ****
@@ -428,10 +432,37 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 
 	int attackers[ 13 ] = { 0 };
 	x_cm_attacking_sq_prepare_attackers( attackers, arg_ptr, num_arg );
-	x_cm_attacking_sq_debug_print_attackers( attackers );
+	// x_cm_attacking_sq_debug_print_attackers( attackers );
+
+	Bitboard attackers_bb = 0;
+
+	if( attackers[ WHITE_KING ] )
+		attackers_bb |= x_cm_attacking_sq_kings( p, sq, true );
+	if( attackers[ WHITE_QUEEN ] )
+		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, true );
+	if( attackers[ WHITE_ROOK ] )
+		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, false );
+	if( attackers[ WHITE_BISHOP ] )
+		{}
+	if( attackers[ WHITE_KNIGHT ] )
+		{}
+	if( attackers[ WHITE_PAWN ] )
+		{}
+	if( attackers[ BLACK_KING ] )
+		attackers_bb |= x_cm_attacking_sq_kings( p, sq, false );
+	if( attackers[ BLACK_QUEEN ] )
+		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, true );
+	if( attackers[ BLACK_ROOK ] )
+		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, false );
+	if( attackers[ BLACK_BISHOP ] )
+		{}
+	if( attackers[ BLACK_KNIGHT ] )
+		{}
+	if( attackers[ BLACK_PAWN ] )
+		{}
 
 	va_end( arg_ptr );
-	return sq;
+	return attackers_bb;
 }
 
 /**************************
@@ -699,4 +730,38 @@ x_cm_attacking_sq_prepare_attackers(
 
 	for( int i = 0; i < 13; i++ )
 		assert( attackers[ i ] == 0 || attackers[ i ] == 1 );
+}
+
+static Bitboard
+x_cm_attacking_sq_kings( const Pos *p, Bitboard sq, bool color_is_white )
+{
+	Bitboard king = p->pieces[ color_is_white ? WHITE_KING : BLACK_KING ];
+	if( king & KING_SQS[ sq_bit_index( sq ) ] )
+		return king;
+
+	return 0;
+}
+
+static Bitboard
+x_cm_attacking_sq_rooks_or_queens( const Pos *p, Bitboard sq,
+	bool color_is_white, bool cm_is_queen )
+{
+	Bitboard rooks_or_queens, attackers = 0;
+
+	if( cm_is_queen )
+		rooks_or_queens = p->pieces[ color_is_white ? WHITE_QUEEN : BLACK_QUEEN ];
+	else
+		rooks_or_queens = p->pieces[ color_is_white ? WHITE_ROOK : BLACK_ROOK ];
+
+	for( enum sq_direction dir = NORTH; dir <= WEST; dir += 2 ) {
+		Bitboard sq_in_dir = sq;
+		while( ( sq_in_dir = sq_nav( sq_in_dir, dir ) ) ) {
+			if( sq_in_dir & rooks_or_queens )
+				attackers |= sq_in_dir;
+			else if( !( sq_in_dir & p->pieces[ EMPTY_SQUARE ] ) )
+				break;
+		}
+	}
+
+	return attackers;
 }
