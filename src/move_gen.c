@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
 
 #include "move_gen.h"
 #include "utils.h"
@@ -27,6 +29,9 @@ static Bitboard x_find_ac_army( const Pos *p );
 static uint16_t *x_che_move_gen_move_list_for_cm(
 	Bitboard origin_sq, Bitboard dest_sqs );
 static Bitboard x_dest_sqs_king( const Pos *p );
+static void x_cm_attacking_sq_debug_print_attackers( int attackers[] );
+static void x_cm_attacking_sq_prepare_attackers(
+	int attackers[], va_list arg_ptr, int num_arg );
 
 /***********************
  **** External data ****
@@ -410,15 +415,24 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
 	return dest_sqs;
 }
 
-// TODO: ...
-// "KQRBNPkqrbnp", "*", "+", "-"
-/*
+// Returns a bitboard of the chessmen attacking square 'sq'. The variable
+// part of the parameter list should consist of one or more Chessman enum
+// constants. This list of chessmen identify the attackers. For example,
+// the following call returns all the white and black pawns attacking
+// square e4: cm_attacking_sq( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
 Bitboard
-cm_attacking_sq( const Pos *p, Bitboard sq, const char *hostiles )
+cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 {
-	return 0;
+	va_list arg_ptr;
+	va_start( arg_ptr, num_arg );
+
+	int attackers[ 13 ] = { 0 };
+	x_cm_attacking_sq_prepare_attackers( attackers, arg_ptr, num_arg );
+	x_cm_attacking_sq_debug_print_attackers( attackers );
+
+	va_end( arg_ptr );
+	return sq;
 }
-*/
 
 /**************************
  **** Static functions ****
@@ -660,6 +674,29 @@ x_dest_sqs_king( const Pos *p )
 
 	dest_sqs = KING_SQS[ king_bi ];
 
-	printf( "%s(): About to return %lx\n", __func__, dest_sqs );
+	// printf( "%s(): About to return %lx\n", __func__, dest_sqs );
 	return dest_sqs;
+}
+
+static void
+x_cm_attacking_sq_debug_print_attackers( int attackers[] )
+{
+	printf( "%s():\n", __func__ );
+	for( int i = 0; i < 13; i++ ) {
+		printf( "\tattackers[ %2d ]: %d\n", i, attackers[ i ] );
+	}
+}
+
+static void
+x_cm_attacking_sq_prepare_attackers(
+	int attackers[], va_list arg_ptr, int num_arg )
+{
+	for( ; num_arg; num_arg-- ) {
+		Chessman cm = va_arg( arg_ptr, Chessman );
+		assert( cm >= 1 && cm <= 12 );
+		++attackers[ cm ];
+	}
+
+	for( int i = 0; i < 13; i++ )
+		assert( attackers[ i ] == 0 || attackers[ i ] == 1 );
 }

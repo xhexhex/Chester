@@ -29,7 +29,7 @@ extern const char *APM[];
 bool king_can_be_captured( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit ); // knight's effective range circle
 Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
-Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, const char *hostiles );
+Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
 
 #endif
 // end MOVE_GEN_H
