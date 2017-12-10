@@ -380,7 +380,7 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 	ck_assert( 0 ==
 		cm_attacking_sq( p, SB.h3, 2, WHITE_ROOK, BLACK_ROOK ) );
 
-#test C_cm_attacking_sq_tested_with_queens
+#test C_cm_attacking_sq_tested_with_queens_1
 	INIT_POS_PTR( "3Q4/7k/3q4/8/4q2q/8/3Q4/K2Q4 b - - 0 100" )
 
 	// ck_assert( 0 == cm_attacking_sq( p, SB.d4, _, XYZ ) );
@@ -399,5 +399,8 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		cm_attacking_sq( p, SB.a7, 2, WHITE_QUEEN, BLACK_QUEEN ) );
 	ck_assert( 0x800000000000000U ==
 		cm_attacking_sq( p, SB.a8, 1, WHITE_QUEEN ) );
-	ck_assert( 0 ==
+	ck_assert( 0x10000000U ==
 		cm_attacking_sq( p, SB.a8, 1, BLACK_QUEEN ) );
+
+#test C_cm_attacking_sq_tested_with_queens_2
+	ck_assert( false );
