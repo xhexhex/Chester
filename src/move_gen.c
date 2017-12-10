@@ -29,7 +29,7 @@ static Bitboard x_find_ac_army( const Pos *p );
 static uint16_t *x_che_move_gen_move_list_for_cm(
 	Bitboard origin_sq, Bitboard dest_sqs );
 static Bitboard x_dest_sqs_king( const Pos *p );
-static void x_cm_attacking_sq_debug_print_attackers( int attackers[] );
+// static void x_cm_attacking_sq_debug_print_attackers( int attackers[] );
 static void x_cm_attacking_sq_prepare_attackers(
 	int attackers[], va_list arg_ptr, int num_arg );
 static Bitboard x_cm_attacking_sq_kings( const Pos *p, Bitboard sq,
@@ -709,6 +709,7 @@ x_dest_sqs_king( const Pos *p )
 	return dest_sqs;
 }
 
+/*
 static void
 x_cm_attacking_sq_debug_print_attackers( int attackers[] )
 {
@@ -717,6 +718,7 @@ x_cm_attacking_sq_debug_print_attackers( int attackers[] )
 		printf( "\tattackers[ %2d ]: %d\n", i, attackers[ i ] );
 	}
 }
+*/
 
 static void
 x_cm_attacking_sq_prepare_attackers(
@@ -756,8 +758,10 @@ x_cm_attacking_sq_rooks_or_queens( const Pos *p, Bitboard sq,
 	for( enum sq_direction dir = NORTH; dir <= WEST; dir += 2 ) {
 		Bitboard sq_in_dir = sq;
 		while( ( sq_in_dir = sq_nav( sq_in_dir, dir ) ) ) {
-			if( sq_in_dir & rooks_or_queens )
+			if( sq_in_dir & rooks_or_queens ) {
 				attackers |= sq_in_dir;
+				break;
+			}
 			else if( !( sq_in_dir & p->pieces[ EMPTY_SQUARE ] ) )
 				break;
 		}

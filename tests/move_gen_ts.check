@@ -344,28 +344,60 @@ test C_che_move_gen_preparation
 
 #tcase cm_attacking_sq_tests
 
-#test C_cm_attacking_sq_tested_with_kings
-	const char *fen = "8/8/8/4k3/8/4K3/8/8 w - - 0 100";
-	ck_assert( !che_validate_fen_str( fen ) );
-	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
+#define INIT_POS_PTR( fen ) \
+ck_assert( !che_validate_fen_str( fen ) ); \
+const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
-	ck_assert( cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) == 0x100000U );
-	ck_assert( cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) == 0x1000000000U );
-	ck_assert( cm_attacking_sq( p, SB.e4, 2, WHITE_KING, BLACK_KING ) ==
-		0x1000100000U );
-	ck_assert( cm_attacking_sq( p, SB.d4, 2, WHITE_KING, BLACK_KING ) ==
-		0x1000100000U );
-	ck_assert( cm_attacking_sq( p, SB.c4, 2, WHITE_KING, BLACK_KING ) == 0 );
-	ck_assert( cm_attacking_sq( p, SB.e2, 2, WHITE_KING, BLACK_KING ) ==
-		0x100000U );
+#test C_cm_attacking_sq_tested_with_kings
+	INIT_POS_PTR( "8/8/8/4k3/8/4K3/8/8 w - - 0 100" )
+
+	ck_assert( 0x100000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
+	ck_assert( 0x1000000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
+	ck_assert( 0x1000100000U ==
+		cm_attacking_sq( p, SB.e4, 2, WHITE_KING, BLACK_KING ) );
+	ck_assert( 0x1000100000U ==
+		cm_attacking_sq( p, SB.d4, 2, WHITE_KING, BLACK_KING ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.c4, 2, WHITE_KING, BLACK_KING ) );
+	ck_assert( 0x100000U ==
+		cm_attacking_sq( p, SB.e2, 2, WHITE_KING, BLACK_KING ) );
 
 #test C_cm_attacking_sq_tested_with_rooks
-	const char *fen = "4r2k/8/8/8/R4r2/8/4R3/K7 w - - 0 100";
-	ck_assert( !che_validate_fen_str( fen ) );
-	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
+	INIT_POS_PTR( "4r2k/8/8/8/R4rR1/8/4R3/K3R3 w - - 0 100" )
 
-	// ck_assert( cm_attacking_sq( p, SB.e4, 1, XYZ ) == 0 );
-	ck_assert( cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) == 0x1001000U );
-	ck_assert( cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) == 0x1000000020000000U );
-	ck_assert( cm_attacking_sq( p, SB.e4, 2, WHITE_ROOK, BLACK_ROOK ) ==
-		0x1000000021001000U );
+	ck_assert( 0x1001000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
+	ck_assert( 0x1000000020000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
+	ck_assert( 0x1000000021001000U ==
+		cm_attacking_sq( p, SB.e4, 2, WHITE_ROOK, BLACK_ROOK ) );
+	ck_assert( 0x1001000U ==
+		cm_attacking_sq( p, SB.a2, 1, WHITE_ROOK ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.a2, 1, BLACK_ROOK ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.h3, 2, WHITE_ROOK, BLACK_ROOK ) );
+
+#test C_cm_attacking_sq_tested_with_queens
+	INIT_POS_PTR( "3Q4/7k/3q4/8/4q2q/8/3Q4/K2Q4 b - - 0 100" )
+
+	// ck_assert( 0 == cm_attacking_sq( p, SB.d4, _, XYZ ) );
+	ck_assert( 0x800U ==
+		cm_attacking_sq( p, SB.d4, 1, WHITE_QUEEN ) );
+	ck_assert( 0x80010000000U ==
+		cm_attacking_sq( p, SB.d4, 1, BLACK_QUEEN ) );
+	ck_assert( 0x80010000800U ==
+		cm_attacking_sq( p, SB.d4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+	ck_assert( 0x80010000800U ==
+		cm_attacking_sq( p, SB.d4, 12,
+			WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+			BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
+		) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.a7, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+	ck_assert( 0x800000000000000U ==
+		cm_attacking_sq( p, SB.a8, 1, WHITE_QUEEN ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.a8, 1, BLACK_QUEEN ) );
