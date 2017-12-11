@@ -476,6 +476,31 @@ sq_nav( Bitboard sq, enum sq_direction dir )
 	return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
 }
 
+// TODO
+bool
+white_has_a_side_castling_right( const Pos *p )
+{
+	return false;
+}
+
+bool
+white_has_h_side_castling_right( const Pos *p )
+{
+	return false;
+}
+
+bool
+black_has_a_side_castling_right( const Pos *p )
+{
+	return false;
+}
+
+bool
+black_has_h_side_castling_right( const Pos *p )
+{
+	return false;
+}
+
 /*
 // ...
 Bitboard

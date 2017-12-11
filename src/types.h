@@ -112,10 +112,10 @@ Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );
 Bitboard ss_black_army( const Pos *p );
 Bitboard sq_nav( Bitboard sq, enum sq_direction dir );
-
-// ???
-// Bitboard Squares_to_bb( const Squares *s );
-// Squares *bb_to_Squares( const Bitboard bb );
+bool white_has_a_side_castling_right( const Pos *p );
+bool white_has_h_side_castling_right( const Pos *p );
+bool black_has_a_side_castling_right( const Pos *p );
+bool black_has_h_side_castling_right( const Pos *p );
 
 #endif
 // end TYPES_H
