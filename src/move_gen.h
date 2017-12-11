@@ -32,6 +32,8 @@ Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
 Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
 Bitboard white_cm_attacking_sq( const Pos *p, Bitboard sq );
 Bitboard black_cm_attacking_sq( const Pos *p, Bitboard sq );
+bool a_side_castling_available( const Pos *p );
+bool h_side_castling_available( const Pos *p );
 
 #endif
 // end MOVE_GEN_H

@@ -504,3 +504,8 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		cm_attacking_sq( p, SB.c1, 1, BLACK_PAWN ) );
 	ck_assert( 0xa0000000000000U ==
 		cm_attacking_sq( p, SB.g8, 1, WHITE_PAWN ) );
+
+#tcase a_side_castling_available_tests
+
+#test a_side_castling_available_tested_with_std_start_pos
+	ck_assert( !a_side_castling_available( NULL ) );

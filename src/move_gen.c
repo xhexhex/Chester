@@ -486,6 +486,20 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 		BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
 }
 
+// ...
+bool
+a_side_castling_available( const Pos *p )
+{
+	return false;
+}
+
+// ...
+bool
+h_side_castling_available( const Pos *p )
+{
+	return false;
+}
+
 /**************************
  **** Static functions ****
  **************************/
