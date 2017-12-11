@@ -509,3 +509,35 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 #test a_side_castling_available_tested_with_std_start_pos
 	ck_assert( !a_side_castling_available( NULL ) );
+
+#tcase white_has_a_side_castling_right_tests
+#test C_white_has_a_side_castling_right_returns_true
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
+	ck_assert( white_has_a_side_castling_right( p ) );
+#test C_white_has_a_side_castling_right_returns_false
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 0 50" )
+	ck_assert( !white_has_a_side_castling_right( p ) );
+
+#tcase white_has_h_side_castling_right_tests
+#test C_white_has_h_side_castling_right_returns_true
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
+	ck_assert( white_has_h_side_castling_right( p ) );
+#test C_white_has_h_side_castling_right_returns_false
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 50" )
+	ck_assert( !white_has_h_side_castling_right( p ) );
+
+#tcase black_has_a_side_castling_right_tests
+#test C_black_has_a_side_castling_right_returns_true
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
+	ck_assert( black_has_a_side_castling_right( p ) );
+#test C_black_has_a_side_castling_right_returns_false
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQk - 0 50" )
+	ck_assert( !black_has_a_side_castling_right( p ) );
+
+#tcase black_has_h_side_castling_right_tests
+#test C_black_has_h_side_castling_right_returns_true
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
+	ck_assert( black_has_h_side_castling_right( p ) );
+#test C_black_has_h_side_castling_right_returns_false
+	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQq - 0 50" )
+	ck_assert( !black_has_h_side_castling_right( p ) );

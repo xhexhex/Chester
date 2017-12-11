@@ -13,11 +13,7 @@
 // the chessboard.
 typedef uint64_t Bitboard;
 
-// The following structure should have only one variable (or instance), the
-// one declared and initialized in base.c with the identifier SB. The constant
-// struct variable SB serves as a mapping between a square name (such as "e4")
-// and its corresponding square bit (a Bitboard with exactly one bit set).
-struct const_single_var_struct_SB { // SB, square bit
+struct const_single_var_struct_SB {
 	const Bitboard
 		a1, b1, c1, d1, e1, f1, g1, h1,
 		a2, b2, c2, d2, e2, f2, g2, h2,

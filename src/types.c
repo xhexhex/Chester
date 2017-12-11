@@ -26,6 +26,10 @@
 	0x400000000000000u, 0x800000000000000u, 0x1000000000000000u, 0x2000000000000000u, \
 	0x4000000000000000u, 0x8000000000000000u
 
+// The following should be the only variable of type struct const_single_var_struct_SB.
+// The variable 'SB' serves as a mapping between square names and square bits. This
+// is mainly for the sake of convenience. For example, it is more convenient to refer
+// to the square e8 with SB.e8 rather than 0x1000000000000000U.
 const struct const_single_var_struct_SB SB = {
 	ALL_SQ_BIT_VALUES
 };
@@ -476,29 +480,31 @@ sq_nav( Bitboard sq, enum sq_direction dir )
 	return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
 }
 
-// TODO
+// Having a castling right is different from being able to castle in a given
+// position. For example, all the castling rights are present in the standard
+// starting position, yet "O-O" or "O-O-O" are not available as moves.
 bool
 white_has_a_side_castling_right( const Pos *p )
 {
-	return false;
+	return p->info & SBA[ 2 ];
 }
 
 bool
 white_has_h_side_castling_right( const Pos *p )
 {
-	return false;
+	return p->info & SBA[ 1 ];
 }
 
 bool
 black_has_a_side_castling_right( const Pos *p )
 {
-	return false;
+	return p->info & SBA[ 4 ];
 }
 
 bool
 black_has_h_side_castling_right( const Pos *p )
 {
-	return false;
+	return p->info & SBA[ 3 ];
 }
 
 /*
