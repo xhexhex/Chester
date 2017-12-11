@@ -383,7 +383,6 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 #test C_cm_attacking_sq_tested_with_queens_1
 	INIT_POS_PTR( "3Q4/7k/3q4/8/4q2q/8/3Q4/K2Q4 b - - 0 100" )
 
-	// ck_assert( 0 == cm_attacking_sq( p, SB.d4, _, XYZ ) );
 	ck_assert( 0x800U ==
 		cm_attacking_sq( p, SB.d4, 1, WHITE_QUEEN ) );
 	ck_assert( 0x80010000000U ==
@@ -403,4 +402,49 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		cm_attacking_sq( p, SB.a8, 1, BLACK_QUEEN ) );
 
 #test C_cm_attacking_sq_tested_with_queens_2
-	ck_assert( false );
+	INIT_POS_PTR( "q3Q3/7Q/6q1/k7/1qQ3Qq/3qQ3/2Q1q1q1/2K4Q w - - 10 50" )
+
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.e4, 6, WHITE_KING, BLACK_KING,
+			WHITE_ROOK, BLACK_ROOK, WHITE_BISHOP, BLACK_BISHOP ) );
+	ck_assert( 0x1000000044100000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
+	ck_assert( 0x100400000084000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
+	ck_assert( 0x1100400044184000U ==
+		cm_attacking_sq( p, SB.e4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.a1, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+
+#test C_cm_attacking_sq_tested_with_bishops
+	INIT_POS_PTR( "b3B3/7B/6b1/k7/1bB3Bb/3bB3/2B1b1b1/2K4B w - - 10 50" )
+
+	ck_assert( 0x4000400U ==
+		cm_attacking_sq( p, SB.d3, 1, WHITE_BISHOP ) );
+	ck_assert( 0x400000001000U ==
+		cm_attacking_sq( p, SB.d3, 1, BLACK_BISHOP ) );
+	ck_assert( 0x400004001400U ==
+		cm_attacking_sq( p, SB.d3, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+	ck_assert( 0x2100000U ==
+		cm_attacking_sq( p, SB.d2, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.e5, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+
+#test C_cm_attacking_sq_tested_with_knights
+	INIT_POS_PTR( "7k/8/3n1N2/2N1N1n1/3nnn2/2n1N1N1/3N1n2/K7 b - - 20 60" )
+
+	// ck_assert( 0 == cm_attacking_sq( p, SB.e4, ?, XYZ ) );
+	ck_assert( 0x200400400800U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
+	ck_assert( 0x84000042000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
+	ck_assert( 0x284400442800U ==
+		cm_attacking_sq( p, SB.e4, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.b2, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
+	ck_assert( 0x400000U ==
+		cm_attacking_sq( p, SB.h1, 1, WHITE_KNIGHT ) );
+	ck_assert( 0x2000U ==
+		cm_attacking_sq( p, SB.h1, 1, BLACK_KNIGHT ) );
+	ck_assert( 0x402000U ==
+		cm_attacking_sq( p, SB.h1, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );

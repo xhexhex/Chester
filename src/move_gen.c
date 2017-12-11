@@ -38,6 +38,8 @@ static Bitboard x_cm_attacking_sq_rooks_or_queens( const Pos *p,
 	Bitboard sq, bool color_is_white, bool cm_is_queen );
 static Bitboard x_cm_attacking_sq_bishops_or_queens( const Pos *p,
 	Bitboard sq, bool color_is_white, bool cm_is_queen );
+static Bitboard x_cm_attacking_sq_knights( const Pos *p, Bitboard sq,
+	bool color_is_white );
 
 /***********************
  **** External data ****
@@ -449,7 +451,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 	if( attackers[ WHITE_BISHOP ] )
 		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, false );
 	if( attackers[ WHITE_KNIGHT ] )
-		{}
+		attackers_bb |= x_cm_attacking_sq_knights( p, sq, true );
 	if( attackers[ WHITE_PAWN ] )
 		{}
 	if( attackers[ BLACK_KING ] )
@@ -463,7 +465,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 	if( attackers[ BLACK_BISHOP ] )
 		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, false );
 	if( attackers[ BLACK_KNIGHT ] )
-		{}
+		attackers_bb |= x_cm_attacking_sq_knights( p, sq, false );
 	if( attackers[ BLACK_PAWN ] )
 		{}
 
@@ -792,4 +794,11 @@ x_cm_attacking_sq_bishops_or_queens( const Pos *p, Bitboard sq,
 	FOUR_DIRS_FOR_LOOP( NORTHEAST, NORTHWEST, bishops_or_queens )
 
 	return attackers;
+}
+
+static Bitboard
+x_cm_attacking_sq_knights( const Pos *p, Bitboard sq, bool color_is_white )
+{
+	return p->pieces[ color_is_white ? WHITE_KNIGHT : BLACK_KNIGHT ]
+		& KNIGHT_SQS[ sq_bit_index( sq ) ];
 }
