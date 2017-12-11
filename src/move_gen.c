@@ -7,10 +7,6 @@
 #include "move_gen.h"
 #include "utils.h"
 
-static bool x_king_can_be_captured_with_knight( const Pos *p );
-static bool x_king_can_be_captured_with_king( const Pos *p );
-static bool x_king_can_be_captured_with_ray_piece( const Pos *p );
-static bool x_king_can_be_captured_with_pawn( const Pos *p );
 static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
 	int *num_of_sqs_north, int *num_of_sqs_east,
 	int *num_of_sqs_south, int *num_of_sqs_west );
@@ -366,10 +362,9 @@ che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 bool
 king_can_be_captured( const Pos *p )
 {
-	return x_king_can_be_captured_with_knight( p ) ||
-		x_king_can_be_captured_with_king( p ) ||
-		x_king_can_be_captured_with_ray_piece( p ) ||
-		x_king_can_be_captured_with_pawn( p );
+	return whites_turn( p ) ?
+		white_cm_attacking_sq( p, p->pieces[ BLACK_KING ] ) :
+		black_cm_attacking_sq( p, p->pieces[ WHITE_KING ] );
 }
 
 // KERC, knight's effective range circle. The call kerc( SB.e4 ) would
@@ -446,8 +441,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 		attackers_bb |= x_cm_attacking_sq_kings( p, sq, true );
 	if( attackers[ WHITE_QUEEN ] ) {
 		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, true );
-		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, true );
-	}
+		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, true ); }
 	if( attackers[ WHITE_ROOK ] )
 		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, false );
 	if( attackers[ WHITE_BISHOP ] )
@@ -460,8 +454,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 		attackers_bb |= x_cm_attacking_sq_kings( p, sq, false );
 	if( attackers[ BLACK_QUEEN ] ) {
 		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, true );
-		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, true );
-	}
+		attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, true ); }
 	if( attackers[ BLACK_ROOK ] )
 		attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, false );
 	if( attackers[ BLACK_BISHOP ] )
@@ -496,80 +489,6 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 /**************************
  **** Static functions ****
  **************************/
-
-static bool
-x_king_can_be_captured_with_knight( const Pos *p )
-{
-	const char *sq_of_king = whites_turn( p ) ?
-		sq_bit_to_sq_name( p->pieces[ BLACK_KING ] ) :
-		sq_bit_to_sq_name( p->pieces[ WHITE_KING ] );
-
-	return KNIGHT_SQS[ sq_name_index( sq_of_king ) ] &
-		p->pieces[ whites_turn( p ) ? WHITE_KNIGHT : BLACK_KNIGHT ];
-}
-
-static bool
-x_king_can_be_captured_with_king( const Pos *p )
-{
-	Bitboard active_king = p->pieces[ whites_turn( p ) ? WHITE_KING : BLACK_KING ],
-		passive_king = p->pieces[ whites_turn( p ) ? BLACK_KING : WHITE_KING ];
-
-	return passive_king & KING_SQS[ sq_bit_index( active_king ) ];
-}
-
-static bool
-x_king_can_be_captured_with_ray_piece( const Pos *p )
-{
-	const Bitboard
-		passive_king = p->pieces[ whites_turn( p ) ? BLACK_KING : WHITE_KING ],
-		active_rooks = p->pieces[ whites_turn( p ) ? WHITE_ROOK : BLACK_ROOK ],
-		active_queens = p->pieces[ whites_turn( p ) ? WHITE_QUEEN : BLACK_QUEEN ],
-		active_bishops = p->pieces[ whites_turn( p ) ? WHITE_BISHOP : BLACK_BISHOP ];
-
-	for( enum sq_direction d = NORTH; d <= NORTHWEST; d++ ) {
-		bool moving_diagonally = ( d == NORTHEAST || d == SOUTHEAST ||
-			d == SOUTHWEST || d == NORTHWEST );
-		const char *sq = sq_bit_to_sq_name( passive_king );
-
-		while( ( sq = sq_navigator( sq, d ) ) ) {
-			Chessman cm = occupant_of_sq( p, sq );
-			Bitboard sq_bit = sq_name_to_sq_bit( sq );
-
-			if( !cm )
-				continue;
-			else if( ( sq_bit & active_queens ) ||
-					( !moving_diagonally && ( sq_bit & active_rooks ) ) ||
-					( moving_diagonally && ( sq_bit & active_bishops ) ) )
-				return true;
-			else
-				break;
-		}
-	}
-
-	return false;
-}
-
-static bool
-x_king_can_be_captured_with_pawn( const Pos *p )
-{
-	const Bitboard passive_king = p->pieces[ whites_turn( p ) ?
-		BLACK_KING : WHITE_KING ];
-	const char *sq = sq_bit_to_sq_name( passive_king ),
-		*sq_to_ne = sq_navigator( sq, NORTHEAST ),
-		*sq_to_se = sq_navigator( sq, SOUTHEAST ),
-		*sq_to_sw = sq_navigator( sq, SOUTHWEST ),
-		*sq_to_nw = sq_navigator( sq, NORTHWEST );
-
-	return
-		(	whites_turn( p ) && (
-				( sq_to_se && occupant_of_sq( p, sq_to_se ) == WHITE_PAWN ) ||
-				( sq_to_sw && occupant_of_sq( p, sq_to_sw ) == WHITE_PAWN ) )
-		) ||
-		(	!whites_turn( p ) && (
-				( sq_to_ne && occupant_of_sq( p, sq_to_ne ) == BLACK_PAWN ) ||
-				( sq_to_nw && occupant_of_sq( p, sq_to_nw ) == BLACK_PAWN ) )
-		);
-}
 
 static void
 x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
