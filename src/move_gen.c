@@ -40,6 +40,8 @@ static Bitboard x_cm_attacking_sq_bishops_or_queens( const Pos *p,
 	Bitboard sq, bool color_is_white, bool cm_is_queen );
 static Bitboard x_cm_attacking_sq_knights( const Pos *p, Bitboard sq,
 	bool color_is_white );
+static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
+	bool color_is_white );
 
 /***********************
  **** External data ****
@@ -453,7 +455,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 	if( attackers[ WHITE_KNIGHT ] )
 		attackers_bb |= x_cm_attacking_sq_knights( p, sq, true );
 	if( attackers[ WHITE_PAWN ] )
-		{}
+		attackers_bb |= x_cm_attacking_sq_pawns( p, sq, true );
 	if( attackers[ BLACK_KING ] )
 		attackers_bb |= x_cm_attacking_sq_kings( p, sq, false );
 	if( attackers[ BLACK_QUEEN ] ) {
@@ -467,7 +469,7 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 	if( attackers[ BLACK_KNIGHT ] )
 		attackers_bb |= x_cm_attacking_sq_knights( p, sq, false );
 	if( attackers[ BLACK_PAWN ] )
-		{}
+		attackers_bb |= x_cm_attacking_sq_pawns( p, sq, false );
 
 	va_end( arg_ptr );
 	return attackers_bb;
@@ -801,4 +803,12 @@ x_cm_attacking_sq_knights( const Pos *p, Bitboard sq, bool color_is_white )
 {
 	return p->pieces[ color_is_white ? WHITE_KNIGHT : BLACK_KNIGHT ]
 		& KNIGHT_SQS[ sq_bit_index( sq ) ];
+}
+
+static Bitboard
+x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq, bool color_is_white )
+{
+	return p->pieces[ color_is_white ? WHITE_PAWN : BLACK_PAWN ] &
+		( sq_nav( sq, color_is_white ? SOUTHEAST : NORTHEAST ) |
+		sq_nav( sq, color_is_white ? SOUTHWEST : NORTHWEST ) );
 }
