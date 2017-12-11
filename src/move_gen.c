@@ -475,6 +475,24 @@ cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 	return attackers_bb;
 }
 
+// A convenience function for cm_attacking_sq(). Returns a bitboard of all the
+// white chessmen attacking square 'sq'.
+Bitboard
+white_cm_attacking_sq( const Pos *p, Bitboard sq )
+{
+	return cm_attacking_sq( p, sq, 6, WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
+		WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN );
+}
+
+// A convenience function for cm_attacking_sq(). Returns a bitboard of all the
+// black chessmen attacking square 'sq'.
+Bitboard
+black_cm_attacking_sq( const Pos *p, Bitboard sq )
+{
+	return cm_attacking_sq( p, sq, 6, BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
+		BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
+}
+
 /**************************
  **** Static functions ****
  **************************/

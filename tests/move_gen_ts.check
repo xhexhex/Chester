@@ -465,3 +465,42 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		cm_attacking_sq( p, SB.b4, 1, WHITE_PAWN ) );
 	ck_assert( 0x500000000U ==
 		cm_attacking_sq( p, SB.b4, 1, BLACK_PAWN ) );
+
+#test C_cm_attacking_sq_tested_with_multiple_types_of_cm
+	C_INIT_POS_PTR( "q3R3/5P1P/3n1N2/8/1r3k2/3B4/1p2Q1b1/2K5 w - - 0 40" )
+
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
+	ck_assert( 0x1000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
+	ck_assert( 0x1000000000000000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
+	ck_assert( 0x80000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_BISHOP ) );
+	ck_assert( 0x200000000000U ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.e4, 1, WHITE_PAWN ) );
+
+	ck_assert( 0x20000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
+	ck_assert( 0x100000000000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
+	ck_assert( 0x2000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
+	ck_assert( 0x4000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_BISHOP ) );
+	ck_assert( 0x80000000000U ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
+	ck_assert( 0 ==
+		cm_attacking_sq( p, SB.e4, 1, BLACK_PAWN ) );
+
+	ck_assert( 0x1000200000081000U ==
+		white_cm_attacking_sq( p, SB.e4 ) );
+	ck_assert( 0x100080022004000U ==
+		black_cm_attacking_sq( p, SB.e4 ) );
+
+	ck_assert( 0x200U ==
+		cm_attacking_sq( p, SB.c1, 1, BLACK_PAWN ) );
+	ck_assert( 0xa0000000000000U ==
+		cm_attacking_sq( p, SB.g8, 1, WHITE_PAWN ) );

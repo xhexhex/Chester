@@ -30,6 +30,8 @@ bool king_can_be_captured( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit ); // knight's effective range circle
 Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
 Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
+Bitboard white_cm_attacking_sq( const Pos *p, Bitboard sq );
+Bitboard black_cm_attacking_sq( const Pos *p, Bitboard sq );
 
 #endif
 // end MOVE_GEN_H
