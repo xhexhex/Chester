@@ -13,3 +13,4 @@
 * Add module `extra.*` for the things that shouldn't really be in Chester but
   are still somehow useful.
 * Rename `enum sq_direction` to `enum sq_dir`.
+* Rename `pieces` of the Pos struct to `cm`.

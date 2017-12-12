@@ -38,6 +38,8 @@ static Bitboard x_cm_attacking_sq_knights( const Pos *p, Bitboard sq,
 	bool color_is_white );
 static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
 	bool color_is_white );
+static Bitboard x_a_side_castling_available_castling_rook( const Pos *p,
+	Bitboard castling_king );
 
 /***********************
  **** External data ****
@@ -490,6 +492,21 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 bool
 a_side_castling_available( const Pos *p )
 {
+	if( ( whites_turn( p ) && !white_has_a_side_castling_right( p ) ) ||
+		( !whites_turn( p ) && !black_has_a_side_castling_right( p ) ) )
+		return false;
+
+	Bitboard castling_king = whites_turn( p ) ? p->pieces[ WHITE_KING ] :
+		p->pieces[ BLACK_KING ], castling_rook =
+		x_a_side_castling_available_castling_rook( p, castling_king );
+
+	printf( "Castling king on %s, castling rook on %s\n",
+		sq_bit_to_sq_name( castling_king ), sq_bit_to_sq_name( castling_rook ) );
+
+	// Considering the cases:
+	// Is the king already on c[18]? If not, is it on the left of c[18]?
+	// If not so, it is on the right of c[18].
+
 	return false;
 }
 
@@ -762,4 +779,19 @@ x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq, bool color_is_white )
 	return p->pieces[ color_is_white ? WHITE_PAWN : BLACK_PAWN ] &
 		( sq_nav( sq, color_is_white ? SOUTHEAST : NORTHEAST ) |
 		sq_nav( sq, color_is_white ? SOUTHWEST : NORTHWEST ) );
+}
+
+static Bitboard
+x_a_side_castling_available_castling_rook( const Pos *p, Bitboard castling_king )
+{
+	Bitboard western_sq = castling_king;
+
+	while( ( western_sq = sq_nav( western_sq, WEST ) ) ) {
+		if( western_sq & ( whites_turn( p ) ? p->pieces[ WHITE_ROOK ] :
+			p->pieces[ BLACK_ROOK ] ) )
+			return western_sq;
+	}
+
+	assert( false );
+	return 0;
 }

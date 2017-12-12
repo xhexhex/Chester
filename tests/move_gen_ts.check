@@ -507,8 +507,19 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 #tcase a_side_castling_available_tests
 
-#test a_side_castling_available_tested_with_std_start_pos
-	ck_assert( !a_side_castling_available( NULL ) );
+#test C_a_side_castling_available_returns_true
+	const char *positions_with_a_side_castling_available[] = {
+		// King on square c1 or c8
+		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+		// King to the left (west) of square c1 or c8
+		// King to the right (east) of square c1 or c8
+		// Based on standard starting position
+		"r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
+		NULL };
+
+	for( int i = 0; positions_with_a_side_castling_available[ i ]; i++ ) {
+		printf( "[%d]: %s\n", i, positions_with_a_side_castling_available[ i ] );
+	}
 
 #tcase white_has_a_side_castling_right_tests
 #test C_white_has_a_side_castling_right_returns_true
