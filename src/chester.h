@@ -29,7 +29,8 @@ enum fen_str_error {
 	FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS,
 	FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS,
 	FEN_STR_WHITE_KING_CAN_BE_CAPTURED,
-	FEN_STR_BLACK_KING_CAN_BE_CAPTURED
+	FEN_STR_BLACK_KING_CAN_BE_CAPTURED,
+	FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR
 };
 
 // Chester's external representation of the square set. The main internal
@@ -41,7 +42,7 @@ typedef struct {
 // size_t che_Squares_add( /* var args */ ); // Returns size
 // size_t che_Squares_init( /* var args */ );
 
-enum fen_str_error che_validate_fen_str( const char *fen_str );
+enum fen_str_error che_validate_fen_str( const char *fen_str, const uint64_t settings );
 int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 
 #endif

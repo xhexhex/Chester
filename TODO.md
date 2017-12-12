@@ -14,3 +14,4 @@
   are still somehow useful.
 * Rename `enum sq_direction` to `enum sq_dir`.
 * Rename `pieces` of the Pos struct to `cm`.
+* Document `che_fen_str_validator()`.

@@ -5,11 +5,11 @@
 #define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
 for( int i = 0; str_array_name[ i ]; i++ ) { \
 	enum fen_str_error real_ret_val = \
-		che_validate_fen_str( (char *) str_array_name[ i ] ); \
+		che_validate_fen_str( (char *) str_array_name[ i ], 0 ); \
 	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
 		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
 
-#tcase che_validate_fen_str_tests
+#tcase che_fen_str_validator_main_tests
 
 #test C_che_validate_fen_str_returns_FEN_STR_NO_ERRORS
 	const char * const valid_fen_strs[] = {
@@ -482,6 +482,36 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_STR_ARRAY_FOR_LOOP( black_king_can_be_captured,
 		FEN_STR_BLACK_KING_CAN_BE_CAPTURED );
+
+//
+// Test case
+//
+#tcase che_fen_str_validator_chess960_tests
+
+#undef FEN_STR_ARRAY_FOR_LOOP
+#define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val, settings ) \
+for( int i = 0; str_array_name[ i ]; i++ ) { \
+	enum fen_str_error real_ret_val = \
+		che_validate_fen_str( (char *) str_array_name[ i ], settings ); \
+	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
+		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
+
+// All tests pass
+#test C_che_fen_str_validator_returns_FEN_STR_NO_ERRORS_chess960
+	const char *valid_chess960_fens[] = {
+		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_STR_NO_ERRORS, CFSV_BF_CHESS960 )
+
+// Test 24 fails
+#test C_che_fen_str_validator_returns_FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960
+	const char *chess960_fens_with_contradictory_ppf_and_caf[] = {
+		"7k/8/8/8/8/8/8/2KRNNBB w Q - 0 50",
+		NULL };
+
+	FEN_STR_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,
+		FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR, CFSV_BF_CHESS960 )
 
 #tcase valid_sq_name_tests
 

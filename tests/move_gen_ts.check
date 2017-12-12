@@ -4,6 +4,7 @@
 
 #include "../src/move_gen.h"
 #include "../src/utils.h"
+#include "../src/validation.h"
 
 // Used to check that the APM array is in ascending order. The parameters
 // 'left' and 'right' are APM array elements.
@@ -15,7 +16,7 @@ static bool left_lesser_than_right( const char *left, const char *right );
 
 #test C_king_can_be_captured_returns_true
 	// Test FENs moved to
-	// #test C_che_validate_fen_str_returns_FEN_STR_*_KING_CAN_BE_CAPTURED
+	// #test C_che_fen_str_validator_returns_FEN_STR_*_KING_CAN_BE_CAPTURED
 	const char *positions_in_which_king_can_be_captured[] = {
 		"Q6k/8/8/8/8/8/8/K7 w - - 0 1",
 		NULL };
@@ -26,7 +27,7 @@ static bool left_lesser_than_right( const char *left, const char *right );
 	}
 
 #test C_king_can_be_captured_returns_false
-	// Test FENs moved to #test C_che_validate_fen_str_returns_FEN_STR_NO_ERRORS
+	// Test FENs moved to #test C_che_fen_str_validator_returns_FEN_STR_NO_ERRORS
 	const char *positions_in_which_king_cannot_be_captured[] = {
 		STD_START_POS_FEN,
 		NULL };
@@ -320,7 +321,7 @@ test C_che_move_gen_preparation
 	uint16_t **moves;
 	int num_mov_cm;
 	const char *fen = "rnbqkbnR/pppppppp/8/8/P3P3/8/1PPPPPP1/RNBQKBNR w KQq - 0 1";
-	ck_assert( !che_validate_fen_str( fen ) );
+	ck_assert( !che_fen_str_validator( fen ) );
 
 	int num_moves = che_move_gen( fen, &moves, &num_mov_cm );
 	printf( "%s(): %d\n", __func__, num_mov_cm );
@@ -338,14 +339,14 @@ test C_che_move_gen_preparation
 #test C_dest_sqs_lone_kings
 	// Pos *p;
 
-	// ck_assert( !che_validate_fen_str( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
+	// ck_assert( !che_fen_str_validator( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
 	// p = fen_str_to_pos_var( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
 	// ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
 
 #tcase cm_attacking_sq_tests
 
 #define C_INIT_POS_PTR( fen ) \
-ck_assert( !che_validate_fen_str( fen ) ); \
+ck_assert( !che_validate_fen_str( fen, 0 ) ); \
 const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 #test C_cm_attacking_sq_tested_with_kings
@@ -518,7 +519,7 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		NULL };
 
 	for( int i = 0; positions_with_a_side_castling_available[ i ]; i++ ) {
-		printf( "[%d]: %s\n", i, positions_with_a_side_castling_available[ i ] );
+		// printf( "[%d]: %s\n", i, positions_with_a_side_castling_available[ i ] );
 	}
 
 #tcase white_has_a_side_castling_right_tests

@@ -1,11 +1,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "validation.h"
 #include "utils.h"
 #include "chester.h"
 #include "move_gen.h"
+
+// Bit flags for the 'settings' parameter of function che_fen_str_validator()
+const uint64_t
+	CFSV_BF_CHESS960 = 0x1U; // The FEN has Chess960 castling rules in effect
 
 static bool x_validate_fen_str_test_1( const char *fen_str );
 static bool x_validate_fen_str_test_2( const char *fen_str );
@@ -18,7 +23,7 @@ static bool x_validate_fen_str_test_8( const char *fen_str );
 static bool x_validate_fen_str_test_9( const char *fen_str );
 static bool x_validate_fen_str_test_10( const char *fen_str );
 static bool x_validate_fen_str_test_11( const char *fen_str );
-static bool x_validate_fen_str_test_12( const char *fen_str );
+static bool x_validate_fen_str_test_12( const char *fen_str, uint64_t settings );
 static bool x_validate_fen_str_test_13( const char *fen_str );
 static bool x_validate_fen_str_test_14( const char *fen_str );
 static bool x_validate_fen_str_test_15( const Pos *p );
@@ -30,6 +35,7 @@ static bool x_validate_fen_str_test_20( const Pos *p );
 static bool x_validate_fen_str_test_21( const Pos *p );
 static bool x_validate_fen_str_test_22( const Pos *p );
 static bool x_validate_fen_str_test_23( const Pos *p );
+static bool x_validate_fen_str_test_24( const Pos *p, uint64_t settings );
 static int x_calc_rank_sum( const char *rank );
 static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
 static char x_occupant_of_sq( const char *ppf, const char *sq );
@@ -42,7 +48,7 @@ static char x_writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
 
 // The function for FEN string validation
 enum fen_str_error
-che_validate_fen_str( const char *fen_str )
+che_validate_fen_str( const char *fen_str, const uint64_t settings )
 {
 	// Test 1
 	if( !x_validate_fen_str_test_1( fen_str ) )
@@ -78,7 +84,7 @@ che_validate_fen_str( const char *fen_str )
 	if( !x_validate_fen_str_test_11( fen_str ) )
 		return FEN_STR_FMNF_ERROR;
 	// Test 12
-	if( !x_validate_fen_str_test_12( fen_str ) )
+	if( !x_validate_fen_str_test_12( fen_str, settings ) )
 		return FEN_STR_PPF_CONTRADICTS_CAF_ERROR;
 	// Test 13
 	if( !x_validate_fen_str_test_13( fen_str ) )
@@ -118,6 +124,9 @@ che_validate_fen_str( const char *fen_str )
 	// Test 23
 	if( !x_validate_fen_str_test_23( p ) )
 		return FEN_STR_BLACK_KING_CAN_BE_CAPTURED;
+	// Test 24
+	if( !x_validate_fen_str_test_24( p, settings ) )
+		return FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
 	return FEN_STR_NO_ERRORS;
 }
@@ -265,8 +274,13 @@ x_validate_fen_str_test_11( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_12( const char *fen_str )
+x_validate_fen_str_test_12( const char *fen_str, uint64_t settings )
 {
+	if( settings & CFSV_BF_CHESS960 ) {
+		printf( "%s(): skipping test for %s\n", __func__, fen_str );
+		return true;
+	}
+
 	const char *ca = nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
 	// We want ca pointing somewhere else than writable_mem before
 	// reusing the array
@@ -373,6 +387,15 @@ static bool
 x_validate_fen_str_test_23( const Pos *p )
 {
 	return !whites_turn( p ) || !king_can_be_captured( p );
+}
+
+static bool
+x_validate_fen_str_test_24( const Pos *p, uint64_t settings )
+{
+	if( !( settings & CFSV_BF_CHESS960 ) )
+		return true;
+
+	return false;
 }
 
 // Returns the rank sum of a FEN string representation of a rank
