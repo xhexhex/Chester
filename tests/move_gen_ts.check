@@ -509,9 +509,10 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 //
 // Test case
 //
-#tcase a_side_castling_possible_tests
+/*
+_tcase a_side_castling_possible_tests
 
-#test C_a_side_castling_possible_returns_true
+_test C_a_side_castling_possible_returns_true
 	const char *a_side_castling_possible_fens[] = {
 		// King on square c1 or c8
 		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
@@ -531,6 +532,7 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 		ck_assert( true ? a_side_castling_possible( p ) :
 			!a_side_castling_possible( p ) );
 	}
+*/
 
 //
 // Test case
