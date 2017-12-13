@@ -38,7 +38,7 @@ static Bitboard x_cm_attacking_sq_knights( const Pos *p, Bitboard sq,
 	bool color_is_white );
 static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
 	bool color_is_white );
-static Bitboard x_a_side_castling_available_castling_rook( const Pos *p,
+static Bitboard x_a_side_castling_possible_castling_rook( const Pos *p,
 	Bitboard castling_king );
 
 /***********************
@@ -490,32 +490,58 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 
 // ...
 bool
-a_side_castling_available( const Pos *p )
+a_side_castling_possible( const Pos *p )
 {
 	if( ( whites_turn( p ) && !white_has_a_side_castling_right( p ) ) ||
 		( !whites_turn( p ) && !black_has_a_side_castling_right( p ) ) )
 		return false;
 
+	// As we are still here we can assume the following is true:
+	// * The king is on one of the squares b[18], c[18], d[18], e[18], f[18], g[18]
+	// * There's at least one rook to the left of the castling king
+
 	Bitboard castling_king = whites_turn( p ) ? p->pieces[ WHITE_KING ] :
 		p->pieces[ BLACK_KING ], castling_rook =
-		x_a_side_castling_available_castling_rook( p, castling_king );
+		x_a_side_castling_possible_castling_rook( p, castling_king );
 
 	printf( "Castling king on %s, castling rook on %s\n",
 		sq_bit_to_sq_name( castling_king ), sq_bit_to_sq_name( castling_rook ) );
 
-	// Considering the cases:
-	// Is the king already on c[18]? If not, is it on the left of c[18]?
-	// If not so, it is on the right of c[18].
+	// The king is already of the square c1 or c8
+	if( whites_turn( p ) ? ( castling_king & SB.c1 ) : ( castling_king & SB.c8 ) ) {
+		// King in check?
+		if( whites_turn( p ) ? black_cm_attacking_sq( p, SB.c1 ) :
+			white_cm_attacking_sq( p, SB.c8 ) )
+			return false;
+
+		if( whites_turn( p ) ? ( castling_rook & SB.a1 ) : ( castling_rook & SB.a8 ) )
+			return whites_turn( p ) ?
+				( ( SB.b1 & p->pieces[ EMPTY_SQUARE ] ) && ( SB.d1 & p->pieces[ EMPTY_SQUARE ] ) ) :
+				( ( SB.b8 & p->pieces[ EMPTY_SQUARE ] ) && ( SB.d8 & p->pieces[ EMPTY_SQUARE ] ) );
+		else // Castling rook on square b1
+			return whites_turn( p ) ? ( SB.d1 & p->pieces[ EMPTY_SQUARE ] ) :
+				( SB.d1 & p->pieces[ EMPTY_SQUARE ] );
+	}
+	else if( whites_turn( p ) ? ( castling_king & ( SB.a1 | SB.b1 ) ) :
+		( castling_king & ( SB.a8 | SB.b8 ) ) ) {
+
+	}
+	// The king is to the right of the square c1 or c8
+	else {
+
+	}
 
 	return false;
 }
 
+/*
 // ...
 bool
-h_side_castling_available( const Pos *p )
+h_side_castling_possible( const Pos *p )
 {
 	return false;
 }
+*/
 
 /**************************
  **** Static functions ****
@@ -782,7 +808,7 @@ x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq, bool color_is_white )
 }
 
 static Bitboard
-x_a_side_castling_available_castling_rook( const Pos *p, Bitboard castling_king )
+x_a_side_castling_possible_castling_rook( const Pos *p, Bitboard castling_king )
 {
 	Bitboard western_sq = castling_king;
 

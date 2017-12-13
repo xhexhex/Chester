@@ -506,22 +506,36 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 	ck_assert( 0xa0000000000000U ==
 		cm_attacking_sq( p, SB.g8, 1, WHITE_PAWN ) );
 
-#tcase a_side_castling_available_tests
+//
+// Test case
+//
+#tcase a_side_castling_possible_tests
 
-#test C_a_side_castling_available_returns_true
-	const char *positions_with_a_side_castling_available[] = {
+#test C_a_side_castling_possible_returns_true
+	const char *positions_with_a_side_castling_possible[] = {
 		// King on square c1 or c8
 		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+		"7k/8/8/8/8/8/8/R1K1NNBB w Q - 0 50",
 		// King to the left (west) of square c1 or c8
 		// King to the right (east) of square c1 or c8
 		// Based on standard starting position
-		"r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
+		// "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
+		// "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		NULL };
 
-	for( int i = 0; positions_with_a_side_castling_available[ i ]; i++ ) {
-		// printf( "[%d]: %s\n", i, positions_with_a_side_castling_available[ i ] );
+	const Pos *p;
+	for( int i = 0; positions_with_a_side_castling_possible[ i ]; i++ ) {
+		ck_assert( !che_validate_fen_str( positions_with_a_side_castling_possible[ i ],
+			CFSV_BF_CHESS960 ) );
+		p = (const Pos *) fen_str_to_pos_var(
+			positions_with_a_side_castling_possible[ i ] );
+
+		ck_assert( a_side_castling_possible( p ) );
 	}
 
+//
+// Test case
+//
 #tcase white_has_a_side_castling_right_tests
 #test C_white_has_a_side_castling_right_returns_true
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
@@ -530,6 +544,9 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 0 50" )
 	ck_assert( !white_has_a_side_castling_right( p ) );
 
+//
+// Test case
+//
 #tcase white_has_h_side_castling_right_tests
 #test C_white_has_h_side_castling_right_returns_true
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
@@ -538,6 +555,9 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 50" )
 	ck_assert( !white_has_h_side_castling_right( p ) );
 
+//
+// Test case
+//
 #tcase black_has_a_side_castling_right_tests
 #test C_black_has_a_side_castling_right_returns_true
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
@@ -546,6 +566,9 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQk - 0 50" )
 	ck_assert( !black_has_a_side_castling_right( p ) );
 
+//
+// Test case
+//
 #tcase black_has_h_side_castling_right_tests
 #test C_black_has_h_side_castling_right_returns_true
 	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
