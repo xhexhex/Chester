@@ -500,6 +500,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #test C_che_fen_str_validator_returns_FEN_STR_NO_ERRORS_chess960
 	const char *valid_chess960_fens[] = {
 		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+		"r3k2r/8/8/8/8/8/8/3RKR2 w KQkq - 0 50",
+		"r3k2r/8/8/8/8/8/8/2RRK3 b Qkq - 0 50",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w KQkq - 0 1",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w Qkq - 0 1",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w kq - 0 1",
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_STR_NO_ERRORS, CFSV_BF_CHESS960 )
@@ -508,6 +513,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #test C_che_fen_str_validator_returns_FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960
 	const char *chess960_fens_with_contradictory_ppf_and_caf[] = {
 		"7k/8/8/8/8/8/8/2KRNNBB w Q - 0 50",
+		"r6r/4k3/8/8/8/8/4K3/3R1R2 w KQkq - 0 50",
+		"r3k2r/8/8/8/8/8/5R2/3RK3 w KQkq - 0 50",
+		"r3k2r/8/8/8/8/8/8/2RRK3 w KQkq - 0 50",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w KQkq - 0 1",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w KQkq - 0 1",
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,

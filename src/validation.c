@@ -35,7 +35,7 @@ static bool x_validate_fen_str_test_20( const Pos *p );
 static bool x_validate_fen_str_test_21( const Pos *p );
 static bool x_validate_fen_str_test_22( const Pos *p );
 static bool x_validate_fen_str_test_23( const Pos *p );
-static bool x_validate_fen_str_test_24( const Pos *p, uint64_t settings );
+static bool x_validate_fen_str_test_24( const Pos *p );
 static int x_calc_rank_sum( const char *rank );
 static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
 static char x_occupant_of_sq( const char *ppf, const char *sq );
@@ -125,7 +125,7 @@ che_validate_fen_str( const char *fen_str, const uint64_t settings )
 	if( !x_validate_fen_str_test_23( p ) )
 		return FEN_STR_BLACK_KING_CAN_BE_CAPTURED;
 	// Test 24
-	if( !x_validate_fen_str_test_24( p, settings ) )
+	if( !x_validate_fen_str_test_24( p ) )
 		return FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
 	return FEN_STR_NO_ERRORS;
@@ -276,10 +276,8 @@ x_validate_fen_str_test_11( const char *fen_str )
 static bool
 x_validate_fen_str_test_12( const char *fen_str, uint64_t settings )
 {
-	if( settings & CFSV_BF_CHESS960 ) {
-		printf( "%s(): skipping test for %s\n", __func__, fen_str );
+	if( settings & CFSV_BF_CHESS960 )
 		return true;
-	}
 
 	const char *ca = nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
 	// We want ca pointing somewhere else than writable_mem before
@@ -389,14 +387,44 @@ x_validate_fen_str_test_23( const Pos *p )
 	return !whites_turn( p ) || !king_can_be_captured( p );
 }
 
-static bool
-x_validate_fen_str_test_24( const Pos *p, uint64_t settings )
-{
-	if( !( settings & CFSV_BF_CHESS960 ) )
-		return true;
+#define FIND_ROOKS_POSSIBLE_SQS( king, dir, bb ) \
+sq = p->pieces[ king ]; \
+while( ( sq = sq_nav( sq, dir ) ) ) \
+	bb |= sq;
 
-	return false;
+static bool
+x_validate_fen_str_test_24( const Pos *p )
+{
+	bool K = white_has_h_side_castling_right( p ),
+		Q = white_has_a_side_castling_right( p ),
+		k = black_has_h_side_castling_right( p ),
+		q = black_has_a_side_castling_right( p );
+
+	Bitboard
+		white_kings_possible_sqs = ( SB.b1 | SB.c1 | SB.d1 | SB.e1 | SB.f1 | SB.g1 ),
+		black_kings_possible_sqs = ( SB.b8 | SB.c8 | SB.d8 | SB.e8 | SB.f8 | SB.g8 );
+
+	if( ( ( K || Q ) && !( p->pieces[ WHITE_KING ] & white_kings_possible_sqs ) ) ||
+		( ( k || q ) && !( p->pieces[ BLACK_KING ] & black_kings_possible_sqs ) ) )
+		return false;
+
+	Bitboard sq,
+		white_rooks_possible_sqs_to_east = 0, white_rooks_possible_sqs_to_west = 0,
+		black_rooks_possible_sqs_to_east = 0, black_rooks_possible_sqs_to_west = 0;
+
+	FIND_ROOKS_POSSIBLE_SQS( WHITE_KING, EAST, white_rooks_possible_sqs_to_east )
+	FIND_ROOKS_POSSIBLE_SQS( WHITE_KING, WEST, white_rooks_possible_sqs_to_west )
+	FIND_ROOKS_POSSIBLE_SQS( BLACK_KING, EAST, black_rooks_possible_sqs_to_east )
+	FIND_ROOKS_POSSIBLE_SQS( BLACK_KING, WEST, black_rooks_possible_sqs_to_west )
+
+	return !(
+		( K && !( p->pieces[ WHITE_ROOK ] & white_rooks_possible_sqs_to_east ) ) ||
+		( Q && !( p->pieces[ WHITE_ROOK ] & white_rooks_possible_sqs_to_west ) ) ||
+		( k && !( p->pieces[ BLACK_ROOK ] & black_rooks_possible_sqs_to_east ) ) ||
+		( q && !( p->pieces[ BLACK_ROOK ] & black_rooks_possible_sqs_to_west ) ) );
 }
+
+#undef FIND_ROOKS_POSSIBLE_SQS
 
 // Returns the rank sum of a FEN string representation of a rank
 static int
