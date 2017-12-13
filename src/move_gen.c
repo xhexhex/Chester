@@ -40,11 +40,16 @@ static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
 	bool color_is_white );
 static Bitboard x_a_side_castling_possible_castling_rook( const Pos *p,
 	Bitboard castling_king );
+static bool x_castling_move_status_valid_castle_type( const char *castle_type );
+static Bitboard x_castling_move_status_castling_king( const Pos *p );
+static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
 
 /***********************
  **** External data ****
  ***********************/
 
+// Used for getting the "knight squares" of a particular square. For example,
+// the knight squares of square b1 is the set { d2, c3, a3 }.
 const Bitboard KNIGHT_SQS[] = {
 	0x20400u, 0x50800u, 0xa1100u, 0x142200u, 0x284400u, 0x508800u, 0xa01000u,
 	0x402000u, 0x2040004u, 0x5080008u, 0xa110011u, 0x14220022u, 0x28440044u,
@@ -63,6 +68,8 @@ const Bitboard KNIGHT_SQS[] = {
 	0x22140000000000u, 0x44280000000000u, 0x88500000000000u, 0x10a00000000000u,
 	0x20400000000000u };
 
+// The "king squares" of a given square. For example, KING_SQS[ 4 ] is the
+// Bitboard 0x3828u (which is the square set { d1, f1, d2, e2, f2 }).
 const Bitboard KING_SQS[] = {
 	0x302U, 0x705U, 0xe0aU, 0x1c14U, 0x3828U, 0x7050U, 0xe0a0U, 0xc040U, 0x30203U,
 	0x70507U, 0xe0a0eU, 0x1c141cU, 0x382838U, 0x705070U, 0xe0a0e0U, 0xc040c0U,
@@ -80,6 +87,9 @@ const Bitboard KING_SQS[] = {
 	0x2838000000000000U, 0x5070000000000000U, 0xa0e0000000000000U,
 	0x40c0000000000000U };
 
+// Example: ROOK_SQS[ 28 ] is 0x10101010ef101010U. That is, the rook squares
+// of the square e4 is the set { e1, e2, e3, a4, b4, c4, d4, f4, g4, h4, e5,
+// e6, e7, e8 }.
 const Bitboard ROOK_SQS[] = {
 	0x1010101010101feU, 0x2020202020202fdU, 0x4040404040404fbU, 0x8080808080808f7U,
 	0x10101010101010efU, 0x20202020202020dfU, 0x40404040404040bfU, 0x808080808080807fU,
@@ -98,6 +108,8 @@ const Bitboard ROOK_SQS[] = {
 	0xfe01010101010101U, 0xfd02020202020202U, 0xfb04040404040404U, 0xf708080808080808U,
 	0xef10101010101010U, 0xdf20202020202020U, 0xbf40404040404040U, 0x7f80808080808080U };
 
+// Example: BISHOP_SQS[ 28 ] is 0x182442800284482U. That is, the bishop squares
+// of e4 is the set { b1, c2, d3, f5, g6, h7, h1, g2, f3, d5, c6, b7, a8 }.
 const Bitboard BISHOP_SQS[] = {
 	0x8040201008040200U, 0x80402010080500U, 0x804020110a00U, 0x8041221400U,
 	0x182442800U, 0x10204885000U, 0x102040810a000U, 0x102040810204000U,
@@ -116,6 +128,8 @@ const Bitboard BISHOP_SQS[] = {
 	0x2040810204080U, 0x5081020408000U, 0xa112040800000U, 0x14224180000000U,
 	0x28448201000000U, 0x50880402010000U, 0xa0100804020100U, 0x40201008040201U };
 
+// APM, all possible moves. A move in this context means a valid source and
+// destination square such as "a1d1" or "e4f6" but not "d4d4", "h1g4" or "x1b2".
 #define ALL_POSSIBLE_MOVES \
 	"a1b1", "a1c1", "a1d1", "a1e1", "a1f1", "a1g1", "a1h1", "a1a2", "a1b2", \
 	"a1c2", "a1a3", "a1b3", "a1c3", "a1a4", "a1d4", "a1a5", "a1e5", "a1a6", \
@@ -489,6 +503,24 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 }
 
 // ...
+enum cms
+castling_move_status( const Pos *p, const char *castle_type )
+{
+	if( !x_castling_move_status_valid_castle_type( castle_type ) )
+		return CMS_INVALID_CASTLE_TYPE;
+	// Check CHESS960_IRP
+
+	bool kingside =
+		( !strcmp( castle_type, "kingside" ) || !strcmp( castle_type, "h_side" ) );
+	// Check CA
+
+	Bitboard castling_king = x_castling_move_status_castling_king( p ),
+		castling_rook = x_castling_move_status_castling_rook( p, kingside );
+
+	return CMS_AVAILABLE;
+}
+
+// DELETE
 bool
 a_side_castling_possible( const Pos *p )
 {
@@ -819,5 +851,25 @@ x_a_side_castling_possible_castling_rook( const Pos *p, Bitboard castling_king )
 	}
 
 	assert( false );
+	return 0;
+}
+
+static bool
+x_castling_move_status_valid_castle_type( const char *castle_type )
+{
+	return castle_type && (
+		!strcmp( castle_type, "kingside" ) || !strcmp( castle_type, "h-side" ) ||
+		!strcmp( castle_type, "queenside" ) || !strcmp( castle_type, "a-side" ) );
+}
+
+static Bitboard
+x_castling_move_status_castling_king( const Pos *p )
+{
+	return whites_turn( p ) ? p->pieces[ WHITE_KING ] : p->pieces[ BLACK_KING ];
+}
+
+static Bitboard
+x_castling_move_status_castling_rook( const Pos *p, bool kingside )
+{
 	return 0;
 }
