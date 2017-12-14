@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "types.h"
+#include "base.h"
 
 #define SRAND( seed ) \
 if( !srand_has_been_called ) { \

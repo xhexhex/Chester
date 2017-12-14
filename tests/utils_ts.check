@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
-#include "../src/types.h"
+#include "../src/base.h"
 #include "../src/utils.h"
 #include "../src/chester.h"
 #include "../src/move_gen.h"

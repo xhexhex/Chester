@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "../src/types.h"
+#include "../src/base.h"
 #include "../src/utils.h"
 #include "../src/move_gen.h"
 

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "types.h"
+#include "base.h"
 #include "utils.h"
 #include "validation.h"
 

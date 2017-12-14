@@ -6,7 +6,6 @@
 * Rename `che_validate_fen_str()` to `che_fen_str_validator()`.
 * Choose the bit index of a new bit flag in `Pos`. The flag indicates whether
   Chess960 castling rules are in effect.
-* Rename module `types.*` to `base.*`.
 * Add module `extra.*` for the things that shouldn't really be in Chester but
   are still somehow useful.
 * Rename `enum sq_direction` to `enum sq_dir`.

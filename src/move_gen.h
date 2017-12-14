@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "types.h"
+#include "base.h"
 
 // Return values of the function castling_move_status()
 enum cms {

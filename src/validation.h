@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "types.h"
+#include "base.h"
 
 // The shortest possible FEN is something like "k7/8/8/8/8/8/8/K7 w - - 0 1"
 // which is 27 characters long.

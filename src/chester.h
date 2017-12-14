@@ -34,7 +34,7 @@ enum fen_str_error {
 };
 
 // Chester's external representation of the square set. The main internal
-// representation is Bitboard (defined in types.h).
+// representation is Bitboard (defined in base.h).
 typedef struct {
 	char *sqs[ 64 ];
 	size_t size;
