@@ -518,6 +518,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"r3k2r/8/8/8/8/8/8/2RRK3 w KQkq - 0 50",
 		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w KQkq - 0 1",
 		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w KQkq - 0 1",
+		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w K - 0 1",
+		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w k - 0 1",
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,

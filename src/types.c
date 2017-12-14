@@ -335,12 +335,10 @@ fen_str_to_pos_var( const char *fen_str ) // Argument assumed to be valid
 	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
 	x_set_fullmove_number( p, fmn );
 
-	unset_bits( &p->info, BM_UNUSED_INFO_BITS );
+	unset_bits( &p->info, BM_UNUSED_INFO_BITS | BM_C960IRPF );
 
 	if( chess960_start_pos( p ) )
 		set_BM_C960IRPF( &p->info, p->pieces[ WHITE_ROOK ] );
-	else
-		unset_bits( &p->info, BM_C960IRPF );
 
 	assert( !pos_var_sq_integrity_check( p ) );
 	return p;
@@ -540,6 +538,7 @@ bool
 chess960_start_pos( const Pos *p )
 {
 	return
+		p->info == 0x200001fU &&
 		p->pieces[ EMPTY_SQUARE ] ==
 			( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6 ) &&
 		p->pieces[ WHITE_PAWN ] == SS_RANK_2 &&
@@ -803,5 +802,10 @@ x_chess960_start_pos_whites_first_rank( const Pos *p )
 static bool
 x_chess960_start_pos_blacks_first_rank( const Pos *p )
 {
-	return true;
+	return
+		( p->pieces[ WHITE_KING ] << 56 ) == p->pieces[ BLACK_KING ] &&
+		( p->pieces[ WHITE_QUEEN ] << 56 ) == p->pieces[ BLACK_QUEEN ] &&
+		( p->pieces[ WHITE_ROOK ] << 56 ) == p->pieces[ BLACK_ROOK ] &&
+		( p->pieces[ WHITE_BISHOP ] << 56 ) == p->pieces[ BLACK_BISHOP ] &&
+		( p->pieces[ WHITE_KNIGHT ] << 56 ) == p->pieces[ BLACK_KNIGHT ];
 }
