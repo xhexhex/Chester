@@ -42,6 +42,9 @@ typedef struct {
 // size_t che_Squares_add( /* var args */ ); // Returns size
 // size_t che_Squares_init( /* var args */ );
 
+extern const uint64_t CFSV_BF_CHESS960;
+
+// Function prototypes
 enum fen_str_error che_validate_fen_str( const char *fen_str, const uint64_t settings );
 int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 

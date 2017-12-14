@@ -64,7 +64,7 @@
 	// Fullmove number is 1
 	ck_assert( ( p->info & BM_FMN ) == 0x2000000u );
 
-	ck_assert( p->info == 0x200001fU );
+	ck_assert( p->info == 0x10200200001fU );
 
 	free( p );
 
@@ -88,6 +88,28 @@
 	ck_assert( p->info == 0xc8000212u );
 
 	free( p );
+
+#define CHESS960_START_POS_TEST( fen, expected_value ) \
+ck_assert( !che_validate_fen_str( fen, CFSV_BF_CHESS960 ) ); \
+p = fen_str_to_pos_var( fen ); \
+ck_assert( value_BM_C960IRPF( p ) == expected_value ); \
+free( (Pos *) p );
+
+#test C_fen_str_to_pos_var_tested_with_chess960_starting_positions
+	const Pos *p;
+
+	CHESS960_START_POS_TEST( STD_START_POS_FEN, 0x81U )
+	CHESS960_START_POS_TEST(
+		"nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0x24U )
+
+#test C_fen_str_to_pos_var_tested_with_NOT_chess960_starting_positions
+	const Pos *p;
+
+	CHESS960_START_POS_TEST( "4k3/8/8/8/8/8/8/4K3 w - - 0 50", 0 );
+	CHESS960_START_POS_TEST(
+		"nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w KQkq - 0 1", 0 )
+
+#undef CHESS960_START_POS_TEST
 
 #tcase active_color_tests
 
@@ -441,7 +463,7 @@ while( true ) {
 
 #test C_value_BM_C960IRPF_test
 	Pos *p = fen_str_to_pos_var( STD_START_POS_FEN );
-	ck_assert( !value_BM_C960IRPF( p ) );
+	ck_assert( value_BM_C960IRPF( p ) == 0x81U );
 	set_BM_C960IRPF( &p->info, 0xffU );
 	ck_assert( value_BM_C960IRPF( p ) == 255U );
 	set_BM_C960IRPF( &p->info, 0 );

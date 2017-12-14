@@ -279,19 +279,9 @@ left_lesser_than_right( const char *left, const char *right )
 	}
 
 #test C_APM_array_elements_are_in_ascending_order
-	// ===========================================================
-	if( true ) // TODO: Come up with the environment var mechanism
-		return;
-	// ===========================================================
-
 	PROCESS_ALL_PAIRS( left_lesser_than_right( APM[ left ], APM[ right ] ) )
 
 #test C_APM_array_each_move_has_an_inverse
-	// ===========================================================
-	if( true ) // TODO: Come up with the environment var mechanism
-		return;
-	// ===========================================================
-
 	// An "inverse" here means a move where the source and destination
 	// squares have been swapped. For example, the inverse of "e2e4" is "e4e2".
 	int i = 0, counter = 0, inverse_count;
@@ -512,11 +502,6 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 #tcase castling_move_status_tests
 
 #test C_castling_move_status_misc
-	printf( "BM_C960IRPF:\n%s\n", uint64_to_bin_str( BM_C960IRPF ) );
-	printf( "BM_UNUSED_INFO_BITS:\n%s\n", uint64_to_bin_str( (uint64_t) BM_UNUSED_INFO_BITS ) );
-	Pos *p = fen_str_to_pos_var( STD_START_POS_FEN );
-	p->info |= BM_C960IRPF;
-	printf( "value_BM_C960IRPF(): %lx\n", value_BM_C960IRPF( p ) );
 
 //
 // Test case

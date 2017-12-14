@@ -19,8 +19,6 @@
 // "pppppppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP"
 #define PPF_MAX_LENGTH 71
 
-extern const uint64_t CFSV_BF_CHESS960;
-
 bool valid_sq_name( const char *sq_name );
 
 #endif

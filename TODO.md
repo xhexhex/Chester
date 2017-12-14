@@ -17,3 +17,6 @@
   right side of the white king has moved to the left side of the white king. White can
   still castle a-side, yet now there are two rooks to the left of the king. It's not
   clear from the position which is the rook involved in castling.
+* fen_str_to_pos_var() involves a call to malloc(), and I've forgotten all about
+  this. No doubt there's a memory leak problem in Chester.
+* Rename function `num_of_sqs_in_sq_set()`.
