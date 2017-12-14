@@ -50,6 +50,7 @@ enum sq_direction {
 // Chester's internal representation of a position. The Pos type contains
 // the same information as a FEN string. See the the documention for a
 // comprehensive description of the Pos type.
+// TODO: Mention BM_C960IRPF.
 typedef struct {
 	Bitboard pieces[ 13 ];
 	uint64_t info;
@@ -66,7 +67,8 @@ extern const uint64_t
 	BM_EPTS_FILE_A, BM_EPTS_FILE_B, BM_EPTS_FILE_C, BM_EPTS_FILE_D,
 		BM_EPTS_FILE_E, BM_EPTS_FILE_F, BM_EPTS_FILE_G, BM_EPTS_FILE_H,
 	BM_HMC,
-	BM_FMN;
+	BM_FMN,
+	BM_C960IRPF;
 
 #define BM_CA_ALL ( BM_CA_WK | BM_CA_WQ | BM_CA_BK | BM_CA_BQ )
 
@@ -75,7 +77,7 @@ extern const uint64_t
 	BM_EPTS_FILE_E | BM_EPTS_FILE_F | BM_EPTS_FILE_G | BM_EPTS_FILE_H )
 
 #define BM_UNUSED_INFO_BITS \
-( ~( BM_AC | BM_CA_ALL | BM_EPTS_ALL | BM_HMC | BM_FMN ) )
+( ~( BM_AC | BM_CA_ALL | BM_EPTS_ALL | BM_HMC | BM_FMN | BM_C960IRPF ) )
 
 // The square sets that correspond to the eight files and
 // the eight ranks of the chessboard
@@ -112,6 +114,8 @@ bool white_has_a_side_castling_right( const Pos *p );
 bool white_has_h_side_castling_right( const Pos *p );
 bool black_has_a_side_castling_right( const Pos *p );
 bool black_has_h_side_castling_right( const Pos *p );
+uint64_t value_BM_C960IRPF( const Pos *p );
+void set_BM_C960IRPF( uint64_t *info, uint8_t irpf );
 
 #endif
 // end TYPES_H

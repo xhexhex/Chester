@@ -9,6 +9,7 @@
 enum cms {
 	CMS_AVAILABLE,
 	CMS_INVALID_CASTLE_TYPE,
+	CMS_INVALID_IRPF, // Initial rook placement/position field
 	CMS_CA_FLAG_UNSET,
 	CMS_KING_IN_CHECK
 };
@@ -25,8 +26,6 @@ Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
 Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
 Bitboard white_cm_attacking_sq( const Pos *p, Bitboard sq );
 Bitboard black_cm_attacking_sq( const Pos *p, Bitboard sq );
-// bool a_side_castling_possible( const Pos *p );
-// bool h_side_castling_possible( const Pos *p );
 enum cms castling_move_status( const Pos *p, const char *castle_type );
 
 #endif

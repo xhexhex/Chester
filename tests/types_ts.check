@@ -117,8 +117,8 @@
 #tcase bitmask_tests
 
 #test C_macro_BM_UNUSED_INFO_BITS_correctly_defined
-	ck_assert( BM_UNUSED_INFO_BITS == 0xffffffe000000000u );
-	ck_assert( BM_UNUSED_INFO_BITS == ( 0x7ffffffUL << 37 ) );
+	ck_assert( BM_UNUSED_INFO_BITS == 0xffffe00000000000U );
+	ck_assert( BM_UNUSED_INFO_BITS == ( 0x7ffffUL << 45 ) );
 
 #test C_BM_AC_correctly_defined
 	ck_assert( BM_AC == 1u );
@@ -433,6 +433,29 @@ while( true ) {
 		ck_assert( bb == ( KING_SQS[ i ] | KNIGHT_SQS[ i ] ) );
 	}
 
+//
+// Test case
+//
+// NOTE: Also set_BM_C960IRPF() gets tested along the way
+#tcase value_BM_C960IRPF_tests
+
+#test C_value_BM_C960IRPF_test
+	Pos *p = fen_str_to_pos_var( STD_START_POS_FEN );
+	ck_assert( !value_BM_C960IRPF( p ) );
+	set_BM_C960IRPF( &p->info, 0xffU );
+	ck_assert( value_BM_C960IRPF( p ) == 255U );
+	set_BM_C960IRPF( &p->info, 0 );
+	ck_assert( !value_BM_C960IRPF( p ) );
+	set_BM_C960IRPF( &p->info, 0xaaU );
+	ck_assert( value_BM_C960IRPF( p ) == 0xaaU );
+	set_BM_C960IRPF( &p->info, 0x8U );
+	ck_assert( value_BM_C960IRPF( p ) == 0x8U );
+	set_BM_C960IRPF( &p->info, 1 );
+	ck_assert( value_BM_C960IRPF( p ) == 1 );
+
+//
+// Test case
+//
 #tcase misc_tests
 
 #test C_left_shifting_gives_expected_results

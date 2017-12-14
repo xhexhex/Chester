@@ -242,7 +242,8 @@ const uint64_t
 		BM_EPTS_FILE_E = 0x200u, BM_EPTS_FILE_F = 0x400u,
 		BM_EPTS_FILE_G = 0x800u, BM_EPTS_FILE_H = 0x1000u,
 	BM_HMC = 0x1ffe000u,
-	BM_FMN = 0x1ffe000000u;
+	BM_FMN = 0x1ffe000000u,
+	BM_C960IRPF = 0x1fe000000000U;
 
 const Bitboard
 	SS_FILE_A = 0x101010101010101u, SS_FILE_B = 0x202020202020202u,
@@ -331,6 +332,13 @@ fen_str_to_pos_var( const char *fen_str ) // Argument assumed to be valid
 
 	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
 	x_set_fullmove_number( p, fmn );
+
+	if( false ) {
+		// If the FEN is a Chess960 starting position, set the appropriate
+		// bits in BM_C960IRPF
+	}
+	else
+		unset_bits( &p->info, BM_C960IRPF );
 
 	unset_bits( &p->info, BM_UNUSED_INFO_BITS );
 
@@ -507,21 +515,24 @@ black_has_h_side_castling_right( const Pos *p )
 	return p->info & SBA[ 3 ];
 }
 
-/*
-// ...
-Bitboard
-Squares_to_bb( const Squares *s )
+// Returns BM_C960IRPF of the 'info' member of 'p'. Note that the 8-bit field is
+// right-shifted all the way to the LSB. For example, if all of the bits of
+// BM_C960IRPF are set, value_BM_C960IRPF() returns 0xffU.
+uint64_t
+value_BM_C960IRPF( const Pos *p )
 {
-	return 0;
+	return ( p->info & BM_C960IRPF ) >> 37;
 }
 
-// ...
-Squares *
-bb_to_Squares( const Bitboard bb )
+// Sets the 8-bit BM_C960IRPF to 'irpf'. Parameter 'info' should be the namesake
+// member of a Pos variable.
+void
+set_BM_C960IRPF( uint64_t *info, uint8_t irpf )
 {
-	return NULL;
+	unset_bits( info, BM_C960IRPF );
+	uint64_t left_shifted_irpf = irpf;
+	*info |= ( left_shifted_irpf << 37 );
 }
-*/
 
 /**************************
  **** Static functions ****

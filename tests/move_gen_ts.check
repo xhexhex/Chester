@@ -509,6 +509,18 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 //
 // Test case
 //
+#tcase castling_move_status_tests
+
+#test C_castling_move_status_misc
+	printf( "BM_C960IRPF:\n%s\n", uint64_to_bin_str( BM_C960IRPF ) );
+	printf( "BM_UNUSED_INFO_BITS:\n%s\n", uint64_to_bin_str( (uint64_t) BM_UNUSED_INFO_BITS ) );
+	Pos *p = fen_str_to_pos_var( STD_START_POS_FEN );
+	p->info |= BM_C960IRPF;
+	printf( "value_BM_C960IRPF(): %lx\n", value_BM_C960IRPF( p ) );
+
+//
+// Test case
+//
 /*
 _tcase a_side_castling_possible_tests
 
