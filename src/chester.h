@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// The possible return values of the function che_validate_fen_str()
+// The possible return values of the function che_fen_validator()
 enum fen_str_error {
 	FEN_STR_NO_ERRORS,
 	FEN_STR_LENGTH_ERROR,
@@ -33,19 +33,10 @@ enum fen_str_error {
 	FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR
 };
 
-// Chester's external representation of the square set. The main internal
-// representation is Bitboard (defined in base.h).
-typedef struct {
-	char *sqs[ 64 ];
-	size_t size;
-} Squares;
-// size_t che_Squares_add( /* var args */ ); // Returns size
-// size_t che_Squares_init( /* var args */ );
-
 extern const uint64_t CFSV_BF_CHESS960;
 
 // Function prototypes
-enum fen_str_error che_validate_fen_str( const char *fen_str, const uint64_t settings );
+enum fen_str_error che_fen_validator( const char *fen_str, const uint64_t settings );
 int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 
 #endif

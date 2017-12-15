@@ -127,8 +127,6 @@ const Bitboard BISHOP_SQS[] = {
 	0x2040810204080U, 0x5081020408000U, 0xa112040800000U, 0x14224180000000U,
 	0x28448201000000U, 0x50880402010000U, 0xa0100804020100U, 0x40201008040201U };
 
-// APM, all possible moves. A move in this context means a valid source and
-// destination square such as "a1d1" or "e4f6" but not "d4d4", "h1g4" or "x1b2".
 #define ALL_POSSIBLE_MOVES \
 	"a1b1", "a1c1", "a1d1", "a1e1", "a1f1", "a1g1", "a1h1", "a1a2", "a1b2", \
 	"a1c2", "a1a3", "a1b3", "a1c3", "a1a4", "a1d4", "a1a5", "a1e5", "a1a6", \
@@ -331,6 +329,8 @@ const Bitboard BISHOP_SQS[] = {
 	"h8f7", "h8g7", "h8h7", "h8a8", "h8b8", "h8c8", "h8d8", "h8e8", "h8f8", \
 	"h8g8"
 
+// APM, all possible moves. A move in this context means a valid source and
+// destination square such as "a1d1" or "e4f6" but not "d4d4", "h1g4" or "x1b2".
 const char *APM[] = {
 	ALL_POSSIBLE_MOVES, NULL
 };

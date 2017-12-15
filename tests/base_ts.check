@@ -90,7 +90,7 @@
 	free( p );
 
 #define CHESS960_START_POS_TEST( fen, expected_value ) \
-ck_assert( !che_validate_fen_str( fen, CFSV_BF_CHESS960 ) ); \
+ck_assert( !che_fen_validator( fen, CFSV_BF_CHESS960 ) ); \
 p = fen_str_to_pos_var( fen ); \
 ck_assert( value_BM_C960IRPF( p ) == expected_value ); \
 free( (Pos *) p );

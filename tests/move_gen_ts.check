@@ -336,7 +336,7 @@ test C_che_move_gen_preparation
 #tcase cm_attacking_sq_tests
 
 #define C_INIT_POS_PTR( fen ) \
-ck_assert( !che_validate_fen_str( fen, 0 ) ); \
+ck_assert( !che_fen_validator( fen, 0 ) ); \
 const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 #test C_cm_attacking_sq_tested_with_kings
@@ -523,7 +523,7 @@ _test C_a_side_castling_possible_returns_true
 
 	const Pos *p;
 	for( int i = 0; a_side_castling_possible_fens[ i ]; i++ ) {
-		ck_assert( !che_validate_fen_str( a_side_castling_possible_fens[ i ],
+		ck_assert( !che_fen_validator( a_side_castling_possible_fens[ i ],
 			CFSV_BF_CHESS960 ) );
 		p = (const Pos *) fen_str_to_pos_var( a_side_castling_possible_fens[ i ] );
 		ck_assert( true ? a_side_castling_possible( p ) :
