@@ -501,7 +501,29 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 //
 #tcase castling_move_status_tests
 
-#test C_castling_move_status_misc
+#define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val ) \
+ck_assert( !che_fen_validator( fen, CFSV_BF_CHESS960 ) ); \
+ck_assert( p = fen_str_to_pos_var( fen ) ); \
+ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
+free( (Pos *) p );
+
+#test C_castling_move_status_returns_CMS_AVAILABLE
+
+#test C_castling_move_status_returns_CMS_INVALID_CASTLE_TYPE
+	const Pos *p;
+	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, NULL, CMS_INVALID_CASTLE_TYPE )
+	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "", CMS_INVALID_CASTLE_TYPE )
+	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "hello", CMS_INVALID_CASTLE_TYPE )
+	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "a_side", CMS_INVALID_CASTLE_TYPE )
+	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "kingside ", CMS_INVALID_CASTLE_TYPE )
+
+#test C_castling_move_status_returns_CMS_INVALID_IRPF
+
+#test C_castling_move_status_returns_CMS_CA_FLAG_UNSET
+
+#test C_castling_move_status_returns_CMS_KING_IN_CHECK
+
+#undef C_INIT_CHECK_AND_FREE
 
 //
 // Test case
