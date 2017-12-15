@@ -13,13 +13,13 @@
 #include "validation.h"
 
 static const char *x_sq_navigator_kings_sqs(
-	const char *sq_name, enum sq_direction dir );
+	const char *sq_name, enum sq_dir dir );
 static const char *x_sq_navigator_knights_sqs(
-	const char *sq_name, enum sq_direction dir );
+	const char *sq_name, enum sq_dir dir );
 static const char *x_ALT_sq_navigator_kings_sqs(
-	const char *sq_name, enum sq_direction dir );
+	const char *sq_name, enum sq_dir dir );
 static const char *x_ALT_sq_navigator_knights_sqs(
-	const char *sq_name, enum sq_direction dir );
+	const char *sq_name, enum sq_dir dir );
 static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
 
 /***********************
@@ -348,7 +348,7 @@ print_pos_var( const Pos *p )
 // return "f5" and the call sq_navigator( "e4", ONE_OCLOCK ) would
 // return "f6".
 const char *
-sq_navigator( const char *sq_name, enum sq_direction dir )
+sq_navigator( const char *sq_name, enum sq_dir dir )
 {
 	assert( valid_sq_name( sq_name ) );
 
@@ -361,7 +361,7 @@ sq_navigator( const char *sq_name, enum sq_direction dir )
 // A different implementation of sq_navigator(). Used for testing purposes.
 // Should produce exactly the same results as sq_navigator().
 const char *
-ALT_sq_navigator( const char *sq_name, enum sq_direction dir )
+ALT_sq_navigator( const char *sq_name, enum sq_dir dir )
 {
 	assert( valid_sq_name( sq_name ) );
 
@@ -494,7 +494,7 @@ if( dir == dir_constant ) { \
 	return SNA[ sq_bit_index( sq_bit ) + ( int_constant ) ]; }
 
 static const char *
-x_sq_navigator_kings_sqs( const char *sq_name, enum sq_direction dir )
+x_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
 {
 	Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
@@ -512,7 +512,7 @@ x_sq_navigator_kings_sqs( const char *sq_name, enum sq_direction dir )
 }
 
 static const char *
-x_sq_navigator_knights_sqs( const char *sq_name, enum sq_direction dir )
+x_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 {
 	Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
@@ -538,7 +538,7 @@ x_sq_navigator_knights_sqs( const char *sq_name, enum sq_direction dir )
 }
 
 static const char *
-x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_direction dir )
+x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
 {
 	char sq_name_copy[ 3 ] = { 0 };
 	strcpy( sq_name_copy, sq_name );
@@ -558,7 +558,7 @@ x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_direction dir )
 }
 
 static const char *
-x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_direction dir )
+x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 {
 	char sq_name_copy[ 3 ] = { 0 };
 	strcpy( sq_name_copy, sq_name );

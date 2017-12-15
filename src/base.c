@@ -67,7 +67,7 @@ const char FEN_PIECE_LETTERS[] = "-KQRBNPkqrbnp";
 // chessboard. A square either has or doesn't have another square near it it
 // a particular direction. For example, there's a square NORTH of e4 (namely
 // the square e5) but there's no square SOUTH of e1. The directions are
-// defined by enum sq_direction.
+// defined by enum sq_dir.
 const Bitboard SQ_NAV[][ 16 ] = {
 	{ 0x100U, 0x200U, 0x2U, 0x0U, 0x0U, 0x0U, 0x0U, 0x0U, 0x20000U, 0x400U, 0x0U,
 	0x0U, 0x0U, 0x0U, 0x0U, 0x0U }, { 0x200U, 0x400U, 0x4U, 0x0U, 0x0U, 0x0U, 0x1U,
@@ -481,7 +481,7 @@ ss_black_army( const Pos *p )
 // would return SB.f5 and the call sq_nav( SB.e4, ONE_OCLOCK ) would
 // return SB.f6.
 Bitboard
-sq_nav( Bitboard sq, enum sq_direction dir )
+sq_nav( Bitboard sq, enum sq_dir dir )
 {
 	return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
 }

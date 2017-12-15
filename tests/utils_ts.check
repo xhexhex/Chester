@@ -20,7 +20,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 	char *hps = (char *) malloc( 48 ); // 48 = 16 * 3
 	int current_pos = 0; // Indicates the current position in the char array
 
-	for( enum sq_direction dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
+	for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
 		assert( current_pos < 48 );
 
 		const char *sq_in_dir = use_alt_impl ?
@@ -408,8 +408,7 @@ free( bin_str );
 	char *a[] = { "e3", "d3", "d4", "d5", "e5", "f5", "f4", "f3", "d2", "c3",
 		"c5", "d6", "f6", "g5", "g3", "f2", NULL };
 
-	for( enum sq_direction dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
-		// printf( "%s  %d\n", a[ dir ], dir );
+	for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
 		const char *ret_sq_name = sq_navigator( a[ dir ], dir );
 		ck_assert( ret_sq_name );
 		ck_assert( !strcmp( "e4", ret_sq_name ) );

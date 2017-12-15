@@ -421,7 +421,7 @@ while( true ) {
 	int num_of_valid_elements = 0, num_of_valid_non_zero_elements = 0;
 
 	for( int i = 0; i < 64; i++ ) {
-		for( enum sq_direction d = NORTH; d <= ELEVEN_OCLOCK; d++ ) {
+		for( enum sq_dir d = NORTH; d <= ELEVEN_OCLOCK; d++ ) {
 			Bitboard bb = SQ_NAV[ i ][ d ];
 			if( !bb || bb_is_sq_bit( bb ) ) {
 				++num_of_valid_elements;
@@ -443,7 +443,7 @@ while( true ) {
 		const char *origin_sq = SNA[ row ];
 		for( int col = 0; col < 16; col++ ) {
 			const char *sq_in_dir =
-				ALT_sq_navigator( origin_sq, (enum sq_direction) col );
+				ALT_sq_navigator( origin_sq, (enum sq_dir) col );
 
 			const Bitboard sq_bit = sq_in_dir ? sq_name_to_sq_bit(
 				sq_in_dir ) : 0u;

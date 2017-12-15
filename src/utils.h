@@ -30,8 +30,8 @@ int sq_bit_index( Bitboard sq_bit );
 char *uint64_to_bin_str( uint64_t uint64 );
 void print_pos_var( const Pos *p );
 // Returns a square name or the null pointer
-const char *sq_navigator( const char *sq_name, enum sq_direction dir );
-const char *ALT_sq_navigator( const char *sq_name, enum sq_direction dir );
+const char *sq_navigator( const char *sq_name, enum sq_dir dir );
+const char *ALT_sq_navigator( const char *sq_name, enum sq_dir dir );
 int sq_name_index( const char *sq_name );
 int num_of_sqs_in_sq_set( Bitboard bb );
 Bitboard sq_rectangle( const Bitboard upper_left, const Bitboard lower_right );

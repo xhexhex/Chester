@@ -196,7 +196,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 	for( int i = 0; i < 64; i++ ) {
 		Bitboard bb = 0U;
 		const char *sq = SNA[ i ];
-		for( enum sq_direction dir = NORTH; dir <= WEST; dir += 2 ) {
+		for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
 			char *current_sq = (char *) sq;
 			while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
 				bb |= sq_name_to_sq_bit( current_sq );
@@ -216,7 +216,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 	for( int i = 0; i < 64; i++ ) {
 		Bitboard bb = 0U;
 		const char *sq = SNA[ i ];
-		for( enum sq_direction dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
+		for( enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
 			char *current_sq = (char *) sq;
 			while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
 				bb |= sq_name_to_sq_bit( current_sq );

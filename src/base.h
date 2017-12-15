@@ -41,7 +41,7 @@ typedef enum {
 } Chessman;
 
 // TODO: Doc
-enum sq_direction {
+enum sq_dir {
 	NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST,
 	ONE_OCLOCK, TWO_OCLOCK, FOUR_OCLOCK, FIVE_OCLOCK,
 	SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
@@ -109,7 +109,7 @@ Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );
 Bitboard ss_black_army( const Pos *p );
-Bitboard sq_nav( Bitboard sq, enum sq_direction dir );
+Bitboard sq_nav( Bitboard sq, enum sq_dir dir );
 bool white_has_a_side_castling_right( const Pos *p );
 bool white_has_h_side_castling_right( const Pos *p );
 bool black_has_a_side_castling_right( const Pos *p );

@@ -537,7 +537,7 @@ x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
 	*( eight_dirs[ NORTH ] ) = *( eight_dirs[ EAST ] ) =
 		*( eight_dirs[ SOUTH ] ) = *( eight_dirs[ WEST ] ) = 0;
 
-	for( enum sq_direction dir = NORTH; dir <= WEST; dir += 2 ) {
+	for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
 		if( sq_navigator( sq, dir ) )
 			**( eight_dirs + dir ) += 1;
 		else
@@ -733,7 +733,7 @@ else chessmen_of_interest = \
 		WHITE_ ## lesser_chessman_type : BLACK_ ## lesser_chessman_type ];
 
 #define FOUR_DIRS_FOR_LOOP( first_dir, fourth_dir, chessmen_of_interest ) \
-for( enum sq_direction dir = first_dir; dir <= fourth_dir; dir += 2 ) { \
+for( enum sq_dir dir = first_dir; dir <= fourth_dir; dir += 2 ) { \
 	Bitboard sq_in_dir = sq; \
 	while( ( sq_in_dir = sq_nav( sq_in_dir, dir ) ) ) { \
 		if( sq_in_dir & chessmen_of_interest ) { \
