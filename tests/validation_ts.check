@@ -505,6 +505,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w KQkq - 0 1",
 		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w Qkq - 0 1",
 		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w kq - 0 1",
+		"4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50",
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_STR_NO_ERRORS, CFSV_BF_CHESS960 )

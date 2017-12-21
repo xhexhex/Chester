@@ -517,8 +517,6 @@ free( (Pos *) p );
 	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "a_side", CMS_INVALID_CASTLE_TYPE )
 	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "kingside ", CMS_INVALID_CASTLE_TYPE )
 
-#test C_castling_move_status_returns_CMS_INVALID_IRPF
-
 #test C_castling_move_status_returns_CMS_CA_FLAG_UNSET
 
 #test C_castling_move_status_returns_CMS_KING_IN_CHECK

@@ -9,7 +9,6 @@
 enum cms {
 	CMS_AVAILABLE,
 	CMS_INVALID_CASTLE_TYPE,
-	CMS_INVALID_IRPF, // Initial rook placement/position field
 	CMS_CA_FLAG_UNSET,
 	CMS_KING_IN_CHECK
 };

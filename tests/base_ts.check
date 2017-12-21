@@ -85,7 +85,7 @@
 	ck_assert( p->pieces[ BLACK_KNIGHT ] == 0 );
 	ck_assert( p->pieces[ BLACK_PAWN ] == 0 );
 
-	ck_assert( p->info == 0xc8000212u );
+	ck_assert( p->info == 0x1020c8000212u );
 
 	free( p );
 
@@ -109,21 +109,21 @@ free( (Pos *) p );
 #test C_fen_str_to_pos_var_tested_with_NOT_chess960_starting_positions
 	const Pos *p;
 
-	CHESS960_START_POS_TEST( "4k3/8/8/8/8/8/8/4K3 w - - 0 50", 0 );
+	CHESS960_START_POS_TEST( "4k3/8/8/8/8/8/8/4K3 w - - 0 50", 0x81U );
 	CHESS960_START_POS_TEST(
-		"nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w KQkq - 0 1", 0 )
+		"nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w KQkq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
-		"nnrkbrbq/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0 )
+		"nnrkbrbq/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
-		"nrnkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0 )
+		"nrnkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
-		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w Qq - 0 1", 0 )
+		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w Qq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
-		"bqnrkrnb/pppppppp/8/8/8/8/PPPPPPPP/BQNRKRNB w KQkq - 0 2", 0 )
+		"bqnrkrnb/pppppppp/8/8/8/8/PPPPPPPP/BQNRKRNB w KQkq - 0 2", 0x81U )
 	CHESS960_START_POS_TEST(
-		"nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w Kkq - 0 1", 0 )
+		"nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w Kkq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
-		"qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR b KQkq - 0 1", 0 )
+		"qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR b KQkq - 0 1", 0x81U )
 
 #undef CHESS960_START_POS_TEST
 

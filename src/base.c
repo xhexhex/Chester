@@ -310,7 +310,7 @@ fen_str_to_pos_var( const char *fen_str ) // Argument assumed to be valid
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
 	char writable_array_of_65_bytes[ 64 + 1 ];
 
-	if( !p ) {
+	if( !p ) { // TODO: Logging system
 		fprintf( stderr, "%s(): malloc() returned a null pointer\n", __func__ );
 		abort();
 	}
@@ -335,10 +335,18 @@ fen_str_to_pos_var( const char *fen_str ) // Argument assumed to be valid
 	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
 	x_set_fullmove_number( p, fmn );
 
-	unset_bits( &p->info, BM_UNUSED_INFO_BITS | BM_C960IRPF );
-
 	if( chess960_start_pos( p ) )
 		set_BM_C960IRPF( &p->info, p->pieces[ WHITE_ROOK ] );
+	else
+		set_BM_C960IRPF( &p->info, 129 );
+
+	unset_bits( &p->info, BM_UNUSED_INFO_BITS );
+
+	// TODO: Move into an integrity check function
+	uint64_t irpf = value_BM_C960IRPF( p );
+	assert( num_of_sqs_in_sq_set( irpf ) == 2 &&
+		irpf != 3 && irpf != 6 && irpf != 12 && irpf != 24 &&
+		irpf != 48 && irpf != 96 && irpf != 192 );
 
 	assert( !pos_var_sq_integrity_check( p ) );
 	return p;

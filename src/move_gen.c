@@ -41,7 +41,6 @@ static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
 static bool x_castling_move_status_valid_castle_type( const char *castle_type );
 static Bitboard x_castling_move_status_castling_king( const Pos *p );
 static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
-static bool x_castling_move_status_valid_IRPF( const Pos *p );
 
 /***********************
  **** External data ****
@@ -507,8 +506,6 @@ castling_move_status( const Pos *p, const char *castle_type )
 {
 	if( !x_castling_move_status_valid_castle_type( castle_type ) )
 		return CMS_INVALID_CASTLE_TYPE;
-	if( !x_castling_move_status_valid_IRPF( p ) )
-		return CMS_INVALID_IRPF;
 
 	bool kingside =
 		( !strcmp( castle_type, "kingside" ) || !strcmp( castle_type, "h_side" ) );
@@ -805,12 +802,4 @@ static Bitboard
 x_castling_move_status_castling_rook( const Pos *p, bool kingside )
 {
 	return 0;
-}
-
-static bool
-x_castling_move_status_valid_IRPF( const Pos *p )
-{
-	Bitboard irpf = value_BM_C960IRPF( p );
-
-	return false;
 }
