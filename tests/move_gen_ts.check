@@ -501,23 +501,41 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 //
 #tcase castling_move_status_tests
 
-#define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val ) \
+#define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val, irp ) \
 ck_assert( !che_fen_validator( fen, CFSV_BF_CHESS960 ) ); \
 ck_assert( p = fen_str_to_pos_var( fen ) ); \
+set_BM_C960IRPF( &p->info, irp ); \
 ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
 free( (Pos *) p );
 
 #test C_castling_move_status_returns_CMS_AVAILABLE
+	Pos *p;
+	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "kingside",
+		CMS_AVAILABLE, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w Q - 0 50", "queenside",
+		CMS_AVAILABLE, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w KQ - 5 50", "kingside",
+		CMS_AVAILABLE, 8 + 32 )
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w KQ - 5 50", "queenside",
+		CMS_AVAILABLE, 8 + 32 )
+	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+		CMS_AVAILABLE, 1 + 64 )
 
-#test C_castling_move_status_returns_CMS_INVALID_CASTLE_TYPE
-	const Pos *p;
-	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, NULL, CMS_INVALID_CASTLE_TYPE )
-	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "", CMS_INVALID_CASTLE_TYPE )
-	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "hello", CMS_INVALID_CASTLE_TYPE )
-	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "a_side", CMS_INVALID_CASTLE_TYPE )
-	C_INIT_CHECK_AND_FREE( STD_START_POS_FEN, "kingside ", CMS_INVALID_CASTLE_TYPE )
+#test C_castling_move_status_returns_CMS_CA_BIT_UNSET
+	Pos *p;
+	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "queenside",
+		CMS_CA_BIT_UNSET, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "kingside",
+		CMS_CA_BIT_UNSET, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "queenside",
+		CMS_CA_BIT_UNSET, 1 + 128 )
 
-#test C_castling_move_status_returns_CMS_CA_FLAG_UNSET
+#test C_castling_move_status_returns_CMS_KINGS_PATH_BLOCKED
+	Pos *p;
+	C_INIT_CHECK_AND_FREE( "4kr1r/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
+	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
 
 #test C_castling_move_status_returns_CMS_KING_IN_CHECK
 

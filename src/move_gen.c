@@ -41,6 +41,8 @@ static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
 static bool x_castling_move_status_valid_castle_type( const char *castle_type );
 static Bitboard x_castling_move_status_castling_king( const Pos *p );
 static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
+static bool x_castling_move_status_ca_bit_set( const Pos *p, bool kingside );
+static bool x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside );
 
 /***********************
  **** External data ****
@@ -500,19 +502,20 @@ black_cm_attacking_sq( const Pos *p, Bitboard sq )
 		BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
 }
 
-// ...
+// TODO: ...
 enum cms
 castling_move_status( const Pos *p, const char *castle_type )
 {
-	if( !x_castling_move_status_valid_castle_type( castle_type ) )
-		return CMS_INVALID_CASTLE_TYPE;
+	assert( x_castling_move_status_valid_castle_type( castle_type ) );
 
 	bool kingside =
 		( !strcmp( castle_type, "kingside" ) || !strcmp( castle_type, "h_side" ) );
-	// Check CA
 
-	Bitboard castling_king = x_castling_move_status_castling_king( p ),
-		castling_rook = x_castling_move_status_castling_rook( p, kingside );
+	if( !x_castling_move_status_ca_bit_set( p, kingside ) )
+		return CMS_CA_BIT_UNSET;
+
+	if( !x_castling_move_status_kings_path_cleared( p, kingside ) )
+		return CMS_KINGS_PATH_BLOCKED;
 
 	return CMS_AVAILABLE;
 }
@@ -801,5 +804,52 @@ x_castling_move_status_castling_king( const Pos *p )
 static Bitboard
 x_castling_move_status_castling_rook( const Pos *p, bool kingside )
 {
-	return 0;
+	uint64_t irpf = value_BM_C960IRPF( p ), file_of_queenside_rook = 1,
+		file_of_kingside_rook;
+	while( !( irpf & file_of_queenside_rook ) )
+		file_of_queenside_rook <<= 1;
+	file_of_kingside_rook = irpf ^ file_of_queenside_rook;
+
+	assert( bb_is_sq_bit( file_of_queenside_rook ) && file_of_queenside_rook >= 1 &&
+		file_of_queenside_rook <= 32 );
+	assert( bb_is_sq_bit( file_of_kingside_rook ) && file_of_kingside_rook >= 4 &&
+		file_of_kingside_rook <= 128 );
+
+	Bitboard castling_rook = kingside ? file_of_kingside_rook : file_of_queenside_rook;
+	if( !whites_turn( p ) )
+		castling_rook <<= 56;
+
+	return castling_rook;
+}
+
+static bool
+x_castling_move_status_ca_bit_set( const Pos *p, bool kingside )
+{
+	bool wt = whites_turn( p );
+
+	return ( wt && kingside && white_has_h_side_castling_right( p ) ) ||
+		( wt && !kingside && white_has_a_side_castling_right( p ) ) ||
+		( !wt && kingside && black_has_h_side_castling_right( p ) ) ||
+		( !wt && !kingside && black_has_a_side_castling_right( p ) );
+}
+
+static bool
+x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside )
+{
+	Bitboard castling_king = x_castling_move_status_castling_king( p ),
+		kings_target_sq = kingside ? SB.g1 : SB.c1,
+		castling_rook = x_castling_move_status_castling_rook( p, kingside );
+
+	if( !whites_turn( p ) )
+		kings_target_sq <<= 56;
+
+	while( castling_king != kings_target_sq ) {
+		castling_king = ( castling_king < kings_target_sq ) ? ( castling_king << 1 ) :
+			( castling_king >> 1 );
+		if( !( castling_king & p->pieces[ EMPTY_SQUARE ] ) &&
+			!( castling_king & castling_rook ) )
+			return false;
+	}
+
+	return true;
 }

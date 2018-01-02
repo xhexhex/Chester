@@ -8,8 +8,8 @@
 // Return values of the function castling_move_status()
 enum cms {
 	CMS_AVAILABLE,
-	CMS_INVALID_CASTLE_TYPE,
-	CMS_CA_FLAG_UNSET,
+	CMS_CA_BIT_UNSET,
+	CMS_KINGS_PATH_BLOCKED,
 	CMS_KING_IN_CHECK
 };
 
