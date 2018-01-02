@@ -520,6 +520,8 @@ free( (Pos *) p );
 		CMS_AVAILABLE, 8 + 32 )
 	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
 		CMS_AVAILABLE, 1 + 64 )
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
+		CMS_AVAILABLE, 2 + 128 )
 
 #test C_castling_move_status_returns_CMS_CA_BIT_UNSET
 	Pos *p;
@@ -536,6 +538,25 @@ free( (Pos *) p );
 		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
 	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
 		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
+	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "kingside",
+		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "queenside",
+		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "kingside",
+		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "queenside",
+		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+
+#test C_castling_move_status_returns_CMS_ROOKS_PATH_BLOCKED
+	Pos *p;
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
+		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "rn3nkr/8/8/8/8/8/8/6K1 b kq - 0 50", "kingside",
+		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "rn4kr/8/8/8/8/8/8/6K1 b kq - 0 50", "queenside",
+		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "1k6/8/8/8/8/8/8/RK1N4 w Q - 0 50", "queenside",
+		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
 
 #test C_castling_move_status_returns_CMS_KING_IN_CHECK
 

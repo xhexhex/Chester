@@ -43,6 +43,7 @@ static Bitboard x_castling_move_status_castling_king( const Pos *p );
 static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
 static bool x_castling_move_status_ca_bit_set( const Pos *p, bool kingside );
 static bool x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside );
+static bool x_castling_move_status_rooks_path_cleared( const Pos *p, bool kingside );
 
 /***********************
  **** External data ****
@@ -513,9 +514,10 @@ castling_move_status( const Pos *p, const char *castle_type )
 
 	if( !x_castling_move_status_ca_bit_set( p, kingside ) )
 		return CMS_CA_BIT_UNSET;
-
 	if( !x_castling_move_status_kings_path_cleared( p, kingside ) )
 		return CMS_KINGS_PATH_BLOCKED;
+	if( !x_castling_move_status_rooks_path_cleared( p, kingside ) )
+		return CMS_ROOKS_PATH_BLOCKED;
 
 	return CMS_AVAILABLE;
 }
@@ -833,23 +835,38 @@ x_castling_move_status_ca_bit_set( const Pos *p, bool kingside )
 		( !wt && !kingside && black_has_a_side_castling_right( p ) );
 }
 
+#define INIT_CASTLING_CMEN_AND_TARGETS( king_or_rook, right_target_sq, left_target_sq ) \
+Bitboard castling_king = x_castling_move_status_castling_king( p ), \
+	castling_rook = x_castling_move_status_castling_rook( p, kingside ), \
+	king_or_rook ## s_target_sq = kingside ? right_target_sq : left_target_sq; \
+if( !whites_turn( p ) ) king_or_rook ## s_target_sq <<= 56;
+
+#define EXAMINE_CASTLING_CMANS_PATH_TO_TARGET_SQ( king_or_rook, other_castling_cman ) \
+while( castling_ ## king_or_rook != king_or_rook ## s_target_sq ) { \
+	castling_ ## king_or_rook = \
+		( castling_ ## king_or_rook < king_or_rook ## s_target_sq ) ? \
+		( castling_ ## king_or_rook << 1 ) : \
+		( castling_ ## king_or_rook >> 1 ); \
+	if( !( castling_ ## king_or_rook & p->pieces[ EMPTY_SQUARE ] ) && \
+		!( castling_ ## king_or_rook & other_castling_cman ) ) return false; }
+
 static bool
 x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside )
 {
-	Bitboard castling_king = x_castling_move_status_castling_king( p ),
-		kings_target_sq = kingside ? SB.g1 : SB.c1,
-		castling_rook = x_castling_move_status_castling_rook( p, kingside );
-
-	if( !whites_turn( p ) )
-		kings_target_sq <<= 56;
-
-	while( castling_king != kings_target_sq ) {
-		castling_king = ( castling_king < kings_target_sq ) ? ( castling_king << 1 ) :
-			( castling_king >> 1 );
-		if( !( castling_king & p->pieces[ EMPTY_SQUARE ] ) &&
-			!( castling_king & castling_rook ) )
-			return false;
-	}
+	INIT_CASTLING_CMEN_AND_TARGETS( king, SB.g1, SB.c1 )
+	EXAMINE_CASTLING_CMANS_PATH_TO_TARGET_SQ( king, castling_rook )
 
 	return true;
 }
+
+static bool
+x_castling_move_status_rooks_path_cleared( const Pos *p, bool kingside )
+{
+	INIT_CASTLING_CMEN_AND_TARGETS( rook, SB.f1, SB.d1 )
+	EXAMINE_CASTLING_CMANS_PATH_TO_TARGET_SQ( rook, castling_king )
+
+	return true;
+}
+
+#undef INIT_CASTLING_CMEN_AND_TARGETS
+#undef EXAMINE_CASTLING_CMANS_PATH_TO_TARGET_SQ
