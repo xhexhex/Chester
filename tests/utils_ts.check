@@ -470,10 +470,12 @@ free( bin_str );
 	ck_assert( !strcmp( "a8", file_and_rank_to_sq_name( 'a', '8' ) ) );
 	ck_assert( !strcmp( "h8", file_and_rank_to_sq_name( 'h', '8' ) ) );
 
+//
+// Test case
+//
 #tcase sq_rectangle_tests
 
 #test C_sq_rectangle_manually_selected_assertions
-	// ck_assert( sq_rectangle( 0u, 0u ) );
 	ck_assert( !sq_rectangle( SB.h1, SB.a8 ) );
 	ck_assert( 0x3c3c3c3c0000U == sq_rectangle( SB.c6, SB.f3 ) );
 	ck_assert( 0x7e000000U == sq_rectangle( SB.b4, SB.g4 ) );
@@ -485,28 +487,24 @@ free( bin_str );
 	ck_assert( 0xc0c0U == sq_rectangle( SB.g2, SB.h1 ) );
 	ck_assert( 0 == sq_rectangle( SB.e4, SB.d4 ) );
 	ck_assert( 0 == sq_rectangle( SB.c5, SB.c6 ) );
-	// ck_assert( ... == sq_rectangle( SB.??, SB.?? ) );
 
 #test C_sq_rectangle_upper_left_equals_lower_right
-	for( int i = 0; i < 64; i++ ) {
+	for( int i = 0; i < 64; i++ )
 		ck_assert( SBA[ i ] == sq_rectangle( SBA[ i ], SBA[ i ] ) );
-	}
 
 #test C_sq_rectangle_files_test
-	for( int i = 'a'; i <= 'h'; i++ ) {
+	for( int i = 'a'; i <= 'h'; i++ )
 		ck_assert( sq_set_of_file( i ) ==
 			sq_rectangle(
 				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
 				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
-	}
 
 #test C_sq_rectangle_ranks_test
-	for( int i = '1'; i <= '8'; i++ ) {
+	for( int i = '1'; i <= '8'; i++ )
 		ck_assert( sq_set_of_rank( i ) ==
 			sq_rectangle(
 				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
 				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );
-	}
 
 #test C_sq_rectangle_returns_empty_bitboard
 	const Bitboard upper_left = SB.h1;

@@ -305,7 +305,7 @@ sq_bit_index( Bitboard sq_bit )
 
 	assert( false );
 	return -1;
-} // Reviewed: 2017-12-07
+} // Review: 2017-12-07
 
 // Converts the argument into a "binary string", that is, a string
 // consisting of 64 '0' and '1' chars
@@ -401,6 +401,10 @@ num_of_sqs_in_sq_set( Bitboard bb )
 
 // Returns the square rectangle determined by the parameters. Any rectangle
 // on the chessboard can be defined by its upper left and lower right corners.
+// Here's an example of a square rectangle where the upper left and lower right
+// corners are marked with square brackets:
+// [c5]  d5   e5   f5
+//  c4   d4   e4  [f4]
 Bitboard
 sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
 {
@@ -420,8 +424,8 @@ sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
 		return x_sq_rectangle( ulc, lrc );
 	}
 
-	return 0u;
-}
+	return 0;
+} // Review: 2018-01-03
 
 // The call file_and_rank_to_sq_name( 'e', '4' ) would return "e4"
 const char *
