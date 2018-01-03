@@ -272,6 +272,9 @@ const Bitboard
 	SS_ANTIDIAG_H6F8 = 0x2040800000000000U, SS_ANTIDIAG_H7G8 = 0x4080000000000000U,
 	SS_ANTIDIAG_H8H8 = 0x8000000000000000U;
 
+// The minimum and maximum lengths for the PPF of a FEN record
+const int PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71;
+
 /************************************
  **** Static function prototypes ****
  ************************************/

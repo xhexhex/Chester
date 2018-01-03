@@ -26,11 +26,9 @@ struct const_single_var_struct_SB {
 };
 
 extern const struct const_single_var_struct_SB SB;
-extern const Bitboard SBA[];
-extern const char *SNA[];
-extern const Bitboard SQ_NAV[][ 16 ];
-extern const char STD_START_POS_FEN[];
-extern const char FEN_PIECE_LETTERS[];
+extern const Bitboard SBA[], SQ_NAV[][ 16 ];
+extern const char *SNA[], STD_START_POS_FEN[], FEN_PIECE_LETTERS[];
+extern const int PPF_MIN_LENGTH, PPF_MAX_LENGTH;
 
 // The pieces array of Pos should be indexed with these, e.g.,
 // pos.pieces[ WHITE_KING ]
