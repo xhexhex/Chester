@@ -30,6 +30,9 @@
 		ck_assert_msg( sum == ( (unsigned long) pow( 2, i + 1 ) - 1 ) );
 	}
 
+//
+// Test case
+//
 #tcase fen_to_pos_tests
 
 #test C_fen_to_pos_with_std_start_pos_fen
@@ -127,6 +130,17 @@ free( (Pos *) p );
 
 #undef CHESS960_START_POS_TEST
 
+//
+// Test case
+//
+#tcase pos_to_fen_tests
+
+#test C_fen_to_pos_to_fen_inverse_fn_test
+	ck_assert( false );
+
+//
+// Test case
+//
 #tcase active_color_tests
 
 #test C_active_color_works

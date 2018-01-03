@@ -352,6 +352,13 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 	return p;
 }
 
+// TODO: ...
+const char *
+pos_to_fen( const Pos *p )
+{
+	return NULL;
+}
+
 // Returns the active color of the given Pos variable
 inline char
 active_color( const Pos *p )
