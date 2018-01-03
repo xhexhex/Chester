@@ -359,6 +359,11 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 const char *
 pos_to_fen( const Pos *p )
 {
+	// 1. Create expanded PPF from p->pieces[] --> x_create_expanded_ppf()
+	// char eppf[ PPF_MAX_LENGTH + 1 ];
+	// x_create_expanded_ppf( p->pieces, eppf );
+	// 2. Use compress_expanded_ppf()
+
 	return NULL;
 }
 

@@ -487,6 +487,21 @@ next_sq_of_ss( Bitboard *ss )
 	return sq;
 }
 
+// TODO: ...
+char *
+compress_expanded_ppf( const char *eppf )
+{
+	return NULL;
+}
+
+// TODO: ...
+char *
+expand_ppf( const char *ppf )
+{
+	assert( false );
+	return (char *) ppf;
+}
+
 /**************************
  **** Static functions ****
  **************************/

@@ -39,6 +39,8 @@ const char *file_and_rank_to_sq_name( const char file, const char rank );
 Bitboard diag_of_sq( Bitboard sq_bit );
 Bitboard antidiag_of_sq( Bitboard sq_bit );
 Bitboard next_sq_of_ss( Bitboard *ss );
+char *compress_expanded_ppf( const char *eppf );
+char *expand_ppf( const char *ppf );
 
 #endif
 // end UTILS_H
