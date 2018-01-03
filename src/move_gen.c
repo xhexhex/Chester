@@ -44,6 +44,7 @@ static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingsid
 static bool x_castling_move_status_ca_bit_set( const Pos *p, bool kingside );
 static bool x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside );
 static bool x_castling_move_status_rooks_path_cleared( const Pos *p, bool kingside );
+static bool x_castling_move_status_kings_path_in_check( const Pos *p, bool kingside );
 
 /***********************
  **** External data ****
@@ -518,6 +519,10 @@ castling_move_status( const Pos *p, const char *castle_type )
 		return CMS_KINGS_PATH_BLOCKED;
 	if( !x_castling_move_status_rooks_path_cleared( p, kingside ) )
 		return CMS_ROOKS_PATH_BLOCKED;
+	if( x_castling_move_status_kings_path_in_check( p, kingside ) )
+		return CMS_KINGS_PATH_IN_CHECK;
+	if( false )
+		return CMS_CASTLED_KING_IN_CHECK;
 
 	return CMS_AVAILABLE;
 }
@@ -870,3 +875,24 @@ x_castling_move_status_rooks_path_cleared( const Pos *p, bool kingside )
 
 #undef INIT_CASTLING_CMEN_AND_TARGETS
 #undef EXAMINE_CASTLING_CMANS_PATH_TO_TARGET_SQ
+
+static bool
+x_castling_move_status_kings_path_in_check( const Pos *p, bool kingside )
+{
+	bool w = whites_turn( p );
+	Bitboard kings_origin_sq = x_castling_move_status_castling_king( p ),
+		kings_dest_sq = kingside ? ( w ? SB.g1 : SB.g8 ) : ( w ? SB.c1 : SB.c8 );
+	bool origin_on_the_left = kings_origin_sq < kings_dest_sq;
+	Bitboard kings_path = sq_rectangle(
+		origin_on_the_left ? kings_origin_sq : kings_dest_sq,
+		origin_on_the_left ? kings_dest_sq : kings_origin_sq );
+
+	for( int i = 0; i < 64; i++ ) {
+		Bitboard sq = SBA[ i ];
+		if( kings_path & sq && ( ( w && black_cm_attacking_sq( p, sq ) ) ||
+				( !w && white_cm_attacking_sq( p, sq ) ) ) )
+			return true;
+	}
+
+	return false;
+}

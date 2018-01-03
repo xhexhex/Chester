@@ -558,7 +558,16 @@ free( (Pos *) p );
 	C_INIT_CHECK_AND_FREE( "1k6/8/8/8/8/8/8/RK1N4 w Q - 0 50", "queenside",
 		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
 
-#test C_castling_move_status_returns_CMS_KING_IN_CHECK
+#test C_castling_move_status_returns_CMS_KINGS_PATH_IN_CHECK
+	Pos *p;
+	C_INIT_CHECK_AND_FREE( "4kr2/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
+		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "4k1r1/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
+		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "r5k1/7P/8/8/8/8/8/4K3 b q - 0 50", "queenside",
+		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+	C_INIT_CHECK_AND_FREE( "6kr/7P/8/8/8/8/8/4K3 b k - 0 50", "kingside",
+		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
 
 #undef C_INIT_CHECK_AND_FREE
 
