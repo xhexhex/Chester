@@ -99,7 +99,7 @@ extern const Bitboard
 	SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
 
 // Function prototypes
-Pos *fen_str_to_pos_var( const char *fen_str );
+Pos *fen_to_pos( const char *fen_str );
 char active_color( const Pos *p );
 bool whites_turn( const Pos *p );
 const char *pos_var_sq_integrity_check( const Pos *p );

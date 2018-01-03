@@ -213,7 +213,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #tcase occupant_of_sq_tests
 
-#define STD_START_POS fen_str_to_pos_var( STD_START_POS_FEN )
+#define STD_START_POS fen_to_pos( STD_START_POS_FEN )
 
 #test C_occupant_of_sq_returns_EMPTY_SQUARE
 	for( int i = 16; i <= 47; i++ ) {
@@ -270,11 +270,11 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #test C_epts_from_pos_var_quick_and_dirty_test
 	ck_assert( !strcmp( "-", epts_from_pos_var( STD_START_POS ) ) );
-	ck_assert( !strcmp( "e3", epts_from_pos_var( fen_str_to_pos_var(
+	ck_assert( !strcmp( "e3", epts_from_pos_var( fen_to_pos(
 		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" ) ) ) );
-	ck_assert( !strcmp( "c6", epts_from_pos_var( fen_str_to_pos_var(
+	ck_assert( !strcmp( "c6", epts_from_pos_var( fen_to_pos(
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2" ) ) ) );
-	ck_assert( !strcmp( "-", epts_from_pos_var( fen_str_to_pos_var(
+	ck_assert( !strcmp( "-", epts_from_pos_var( fen_to_pos(
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" ) ) ) );
 
 #tcase sq_bit_index_tests
@@ -393,7 +393,7 @@ free( bin_str );
 
 #test C_print_pos_var_inspect_the_output_test
 	ck_assert( true );
-	// print_pos_var( fen_str_to_pos_var( STD_START_POS_FEN ) );
+	// print_pos_var( fen_to_pos( STD_START_POS_FEN ) );
 
 #tcase sq_navigator_tests
 

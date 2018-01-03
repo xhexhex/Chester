@@ -22,7 +22,7 @@ static bool left_lesser_than_right( const char *left, const char *right );
 		NULL };
 
 	for( int i = 0; positions_in_which_king_can_be_captured[ i ]; i++ ) {
-		ck_assert( king_can_be_captured( fen_str_to_pos_var(
+		ck_assert( king_can_be_captured( fen_to_pos(
 			positions_in_which_king_can_be_captured[ i ] ) ) );
 	}
 
@@ -33,7 +33,7 @@ static bool left_lesser_than_right( const char *left, const char *right );
 		NULL };
 
 	for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {
-		ck_assert( !king_can_be_captured( fen_str_to_pos_var(
+		ck_assert( !king_can_be_captured( fen_to_pos(
 			positions_in_which_king_cannot_be_captured[ i ] ) ) );
 	}
 
@@ -330,14 +330,14 @@ test C_che_move_gen_preparation
 	// Pos *p;
 
 	// ck_assert( !che_fen_str_validator( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
-	// p = fen_str_to_pos_var( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
+	// p = fen_to_pos( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
 	// ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
 
 #tcase cm_attacking_sq_tests
 
 #define C_INIT_POS_PTR( fen ) \
 ck_assert( !che_fen_validator( fen, 0 ) ); \
-const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
+const Pos *p = (const Pos *) fen_to_pos( fen );
 
 #test C_cm_attacking_sq_tested_with_kings
 	C_INIT_POS_PTR( "8/8/8/4k3/8/4K3/8/8 w - - 0 100" )
@@ -503,7 +503,7 @@ const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
 
 #define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val, irp ) \
 ck_assert( !che_fen_validator( fen, CFSV_BF_CHESS960 ) ); \
-ck_assert( p = fen_str_to_pos_var( fen ) ); \
+ck_assert( p = fen_to_pos( fen ) ); \
 set_BM_C960IRPF( &p->info, irp ); \
 ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
 free( (Pos *) p );
@@ -593,7 +593,7 @@ _test C_a_side_castling_possible_returns_true
 	for( int i = 0; a_side_castling_possible_fens[ i ]; i++ ) {
 		ck_assert( !che_fen_validator( a_side_castling_possible_fens[ i ],
 			CFSV_BF_CHESS960 ) );
-		p = (const Pos *) fen_str_to_pos_var( a_side_castling_possible_fens[ i ] );
+		p = (const Pos *) fen_to_pos( a_side_castling_possible_fens[ i ] );
 		ck_assert( true ? a_side_castling_possible( p ) :
 			!a_side_castling_possible( p ) );
 	}

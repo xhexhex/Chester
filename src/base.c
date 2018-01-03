@@ -305,7 +305,7 @@ static char x_writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
 // Converts a FEN string to a Pos variable, the internal position
 // representation in Chester
 Pos *
-fen_str_to_pos_var( const char *fen_str ) // Argument assumed to be valid
+fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 {
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
 	char writable_array_of_65_bytes[ 64 + 1 ];
@@ -634,7 +634,7 @@ x_set_active_color( Pos *p, char color ) {
 }
 
 // Sets the castling availability bit field of a Pos variable. Should
-// only be called from fen_str_to_pos_var(). The ca argument is assumed
+// only be called from fen_to_pos(). The ca argument is assumed
 // to be valid.
 static void
 x_set_castling_availability( Pos *p, const char *ca )
@@ -657,7 +657,7 @@ x_set_castling_availability( Pos *p, const char *ca )
 		set_or_unset_bits( &p->info, BM_CA_BQ, 1 );
 }
 
-// Should only be called from fen_str_to_pos_var(). The 'epts' argument
+// Should only be called from fen_to_pos(). The 'epts' argument
 // is assumed to be valid.
 static void
 x_set_en_passant_target_square( Pos *p, const char *epts )
@@ -674,7 +674,7 @@ x_set_en_passant_target_square( Pos *p, const char *epts )
 	set_bits( &p->info, BM_EPTS_FILE_A << num_of_left_shifts );
 }
 
-// Should only be called from fen_str_to_pos_var(). The argument 'hmc'
+// Should only be called from fen_to_pos(). The argument 'hmc'
 // is assumed to be valid.
 static void
 x_set_halfmove_clock( Pos *p, const char *hmc )
@@ -683,7 +683,7 @@ x_set_halfmove_clock( Pos *p, const char *hmc )
 	set_bits( &p->info, ( (uint64_t) atoi( hmc ) ) << 13 );
 }
 
-// Should only be called from fen_str_to_pos_var(). The argument 'fmn'
+// Should only be called from fen_to_pos(). The argument 'fmn'
 // is assumed to be valid.
 static void
 x_set_fullmove_number( Pos *p, const char *fmn )

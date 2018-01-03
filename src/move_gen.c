@@ -346,7 +346,7 @@ const char *APM[] = {
 int
 che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 {
-	const Pos *p = (const Pos *) fen_str_to_pos_var( fen );
+	const Pos *p = (const Pos *) fen_to_pos( fen );
 
 	Bitboard ac_army = x_find_ac_army( p ); // TODO: Make reusable
 	*num_mov_cm = num_of_sqs_in_sq_set( ac_army );

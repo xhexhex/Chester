@@ -95,7 +95,7 @@ che_fen_validator( const char *fen_str, const uint64_t settings )
 
 	// At this point the FEN string is found to be "sufficiently valid"
 	// for the conversion to succeed
-	Pos *p = fen_str_to_pos_var( fen_str );
+	Pos *p = fen_to_pos( fen_str );
 
 	// Test 15
 	if( !x_validate_fen_str_test_15( p ) )
