@@ -30,8 +30,7 @@ extern const Bitboard SBA[], SQ_NAV[][ 16 ];
 extern const char *SNA[], STD_START_POS_FEN[], FEN_PIECE_LETTERS[];
 extern const int PPF_MIN_LENGTH, PPF_MAX_LENGTH;
 
-// The pieces array of Pos should be indexed with these, e.g.,
-// pos.pieces[ WHITE_KING ]
+// The cm array of Pos should be indexed with these, e.g., pos.cm[ WHITE_KING ]
 typedef enum {
 	EMPTY_SQUARE,
 	WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
@@ -50,7 +49,7 @@ enum sq_dir {
 // comprehensive description of the Pos type.
 // TODO: Mention BM_C960IRPF.
 typedef struct {
-	Bitboard pieces[ 13 ];
+	Bitboard cm[ 13 ];
 	uint64_t info;
 } Pos;
 

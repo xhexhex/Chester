@@ -165,7 +165,7 @@ occupant_of_sq( const Pos *p, const char *sq_name )
 	Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
 	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ )
-		if( sq_bit & p->pieces[ cm ] )
+		if( sq_bit & p->cm[ cm ] )
 			return cm;
 
 	return EMPTY_SQUARE;
@@ -333,7 +333,7 @@ print_pos_var( const Pos *p )
 	char* bin_str;
 
 	for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ ) {
-		bin_str = uint64_to_bin_str( p->pieces[ cm ] );
+		bin_str = uint64_to_bin_str( p->cm[ cm ] );
 		printf( "%s    %c\n", bin_str, FEN_PIECE_LETTERS[ cm ] );
 		free( bin_str );
 	}

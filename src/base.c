@@ -282,7 +282,7 @@ const int PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71;
 static void x_gen_slashless_constant_length_pp_str(
 	const char *fen_str, char * const target_array );
 static void x_init_empty_square_bb( Pos *p );
-static void x_init_pos_var_pieces_array(
+static void x_init_pos_var_cm_array(
 	Pos *p, const char *slashless_constant_length_pp_str );
 static void x_set_active_color( Pos *p, char color );
 static void x_set_castling_availability( Pos *p, const char *ca );
@@ -319,7 +319,7 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 	}
 
 	x_gen_slashless_constant_length_pp_str( fen_str, writable_array_of_65_bytes );
-	x_init_pos_var_pieces_array( p, writable_array_of_65_bytes );
+	x_init_pos_var_cm_array( p, writable_array_of_65_bytes );
 
 	char ac = ( !strcmp(
 		"w", nth_field_of_fen_str( fen_str, x_writable_mem, 2 )
@@ -339,7 +339,7 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 	x_set_fullmove_number( p, fmn );
 
 	if( chess960_start_pos( p ) )
-		set_BM_C960IRPF( &p->info, p->pieces[ WHITE_ROOK ] );
+		set_BM_C960IRPF( &p->info, p->cm[ WHITE_ROOK ] );
 	else
 		set_BM_C960IRPF( &p->info, 129 );
 
@@ -359,9 +359,9 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 const char *
 pos_to_fen( const Pos *p )
 {
-	// 1. Create expanded PPF from p->pieces[] --> x_create_expanded_ppf()
+	// 1. Create expanded PPF from p->cm[] --> x_create_expanded_ppf()
 	// char eppf[ PPF_MAX_LENGTH + 1 ];
-	// x_create_expanded_ppf( p->pieces, eppf );
+	// x_create_expanded_ppf( p->cm, eppf );
 	// 2. Use compress_expanded_ppf()
 
 	return NULL;
@@ -382,12 +382,12 @@ whites_turn( const Pos *p ) {
 	return active_color( p ) == 'w';
 }
 
-// In the pieces array of a Pos var, exactly one bit should be set per
+// In the cm array of a Pos var, exactly one bit should be set per
 // bit index. In logical terms this means that each square is either
 // empty or contains one of the twelve types of chessmen; a square cannot
 // be empty AND be occupied by a chessman, nor can it be occupied by more
 // than one type of chessman. The following function checks that exactly
-// one bit is set for each bit index of the pieces array.
+// one bit is set for each bit index of the cm array.
 const char *
 pos_var_sq_integrity_check( const Pos *p )
 {
@@ -395,7 +395,7 @@ pos_var_sq_integrity_check( const Pos *p )
 		int number_of_set_bits = 0;
 
 		for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
-			if( p->pieces[ cm ] & SBA[ bit_index ] )
+			if( p->cm[ cm ] & SBA[ bit_index ] )
 				++number_of_set_bits;
 
 		if( number_of_set_bits != 1 )
@@ -484,9 +484,9 @@ sq_set_of_antidiag( const int index )
 Bitboard
 ss_white_army( const Pos *p )
 {
-	return p->pieces[ WHITE_KING ] | p->pieces[ WHITE_QUEEN ] |
-		p->pieces[ WHITE_ROOK ] | p->pieces[ WHITE_BISHOP ] |
-		p->pieces[ WHITE_KNIGHT ] | p->pieces[ WHITE_PAWN ];
+	return p->cm[ WHITE_KING ] | p->cm[ WHITE_QUEEN ] |
+		p->cm[ WHITE_ROOK ] | p->cm[ WHITE_BISHOP ] |
+		p->cm[ WHITE_KNIGHT ] | p->cm[ WHITE_PAWN ];
 }
 
 // Returns the square set of the black army. That means all the squares
@@ -494,9 +494,9 @@ ss_white_army( const Pos *p )
 Bitboard
 ss_black_army( const Pos *p )
 {
-	return p->pieces[ BLACK_KING ] | p->pieces[ BLACK_QUEEN ] |
-		p->pieces[ BLACK_ROOK ] | p->pieces[ BLACK_BISHOP ] |
-		p->pieces[ BLACK_KNIGHT ] | p->pieces[ BLACK_PAWN ];
+	return p->cm[ BLACK_KING ] | p->cm[ BLACK_QUEEN ] |
+		p->cm[ BLACK_ROOK ] | p->cm[ BLACK_BISHOP ] |
+		p->cm[ BLACK_KNIGHT ] | p->cm[ BLACK_PAWN ];
 }
 
 // The Square Navigator returns the square bit that is in direction 'dir'
@@ -562,10 +562,10 @@ chess960_start_pos( const Pos *p )
 {
 	return
 		p->info == 0x200001fU &&
-		p->pieces[ EMPTY_SQUARE ] ==
+		p->cm[ EMPTY_SQUARE ] ==
 			( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6 ) &&
-		p->pieces[ WHITE_PAWN ] == SS_RANK_2 &&
-		p->pieces[ BLACK_PAWN ] == SS_RANK_7 &&
+		p->cm[ WHITE_PAWN ] == SS_RANK_2 &&
+		p->cm[ BLACK_PAWN ] == SS_RANK_7 &&
 		x_chess960_start_pos_whites_first_rank( p ) &&
 		x_chess960_start_pos_blacks_first_rank( p );
 }
@@ -605,19 +605,19 @@ x_gen_slashless_constant_length_pp_str( // pp, piece placement
 	assert( str_matches_pattern( target_array, "^[KQRBNPkqrbnp-]{64}$" ) );
 }
 
-// Initializes the pieces[] array of a Pos variable with the piece placement
+// Initializes the cm[] array of a Pos variable with the piece placement
 // specified in the second argument. For the standard starting position the
 // second argument would be
 // "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr".
 static void
-x_init_pos_var_pieces_array( Pos *p, const char *slashless_constant_length_pp_str )
+x_init_pos_var_cm_array( Pos *p, const char *slashless_constant_length_pp_str )
 {
 	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		p->pieces[ cm ] = 0u;
+		p->cm[ cm ] = 0u;
 
 		for( int i = 0; i < 64; i++ ) {
 			if( slashless_constant_length_pp_str[ i ] == FEN_PIECE_LETTERS[ cm ] ) {
-				p->pieces[ cm ] |= SBA[ i ];
+				p->cm[ cm ] |= SBA[ i ];
 			}
 		}
 	}
@@ -625,16 +625,16 @@ x_init_pos_var_pieces_array( Pos *p, const char *slashless_constant_length_pp_st
 	x_init_empty_square_bb( p );
 }
 
-// Called from x_init_pos_var_pieces_array()
+// Called from x_init_pos_var_cm_array()
 static void
 x_init_empty_square_bb( Pos *p )
 {
 	Bitboard occupied_squares = 0u;
 	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		occupied_squares |= p->pieces[ cm ];
+		occupied_squares |= p->cm[ cm ];
 	}
 
-	p->pieces[ EMPTY_SQUARE ] = ~occupied_squares;
+	p->cm[ EMPTY_SQUARE ] = ~occupied_squares;
 }
 
 // Used to set the active color (AC). The AC is 'w' if the BM_AC bit is set;
@@ -793,30 +793,30 @@ x_chess960_start_pos_whites_first_rank( const Pos *p )
 	const Bitboard not_rank_1 = ~SS_RANK_1;
 
 	if(
-		p->pieces[ WHITE_KING ] & not_rank_1 ||
-		p->pieces[ WHITE_QUEEN ] & not_rank_1 ||
-		p->pieces[ WHITE_ROOK ] & not_rank_1 ||
-		p->pieces[ WHITE_BISHOP ] & not_rank_1 ||
-		p->pieces[ WHITE_KNIGHT ] & not_rank_1 ||
-		num_of_sqs_in_sq_set( p->pieces[ WHITE_KING ] ) != 1 ||
-		num_of_sqs_in_sq_set( p->pieces[ WHITE_QUEEN ] ) != 1 ||
-		num_of_sqs_in_sq_set( p->pieces[ WHITE_ROOK ] ) != 2 ||
-		num_of_sqs_in_sq_set( p->pieces[ WHITE_BISHOP ] ) != 2 ||
-		num_of_sqs_in_sq_set( p->pieces[ WHITE_KNIGHT ] ) != 2
+		p->cm[ WHITE_KING ] & not_rank_1 ||
+		p->cm[ WHITE_QUEEN ] & not_rank_1 ||
+		p->cm[ WHITE_ROOK ] & not_rank_1 ||
+		p->cm[ WHITE_BISHOP ] & not_rank_1 ||
+		p->cm[ WHITE_KNIGHT ] & not_rank_1 ||
+		num_of_sqs_in_sq_set( p->cm[ WHITE_KING ] ) != 1 ||
+		num_of_sqs_in_sq_set( p->cm[ WHITE_QUEEN ] ) != 1 ||
+		num_of_sqs_in_sq_set( p->cm[ WHITE_ROOK ] ) != 2 ||
+		num_of_sqs_in_sq_set( p->cm[ WHITE_BISHOP ] ) != 2 ||
+		num_of_sqs_in_sq_set( p->cm[ WHITE_KNIGHT ] ) != 2
 	)
 		return false;
 
-	Bitboard western_rook = SB.a1, king = p->pieces[ WHITE_KING ];
-	while( !( western_rook & p->pieces[ WHITE_ROOK ] ) )
+	Bitboard western_rook = SB.a1, king = p->cm[ WHITE_KING ];
+	while( !( western_rook & p->cm[ WHITE_ROOK ] ) )
 		western_rook <<= 1;
-	Bitboard eastern_rook = ( western_rook ^ p->pieces[ WHITE_ROOK ] );
+	Bitboard eastern_rook = ( western_rook ^ p->cm[ WHITE_ROOK ] );
 
 	if( !( western_rook < king ) || !( king < eastern_rook ) )
 		return false;
 
 	Bitboard black_sqs_of_rank_1 = SB.a1 | SB.c1 | SB.e1 | SB.g1,
 		white_sqs_of_rank_1 = SB.b1 | SB.d1 | SB.f1 | SB.h1,
-		bishops = p->pieces[ WHITE_BISHOP ];
+		bishops = p->cm[ WHITE_BISHOP ];
 
 	return bishops & black_sqs_of_rank_1 &&
 		bishops & white_sqs_of_rank_1;
@@ -826,9 +826,9 @@ static bool
 x_chess960_start_pos_blacks_first_rank( const Pos *p )
 {
 	return
-		( p->pieces[ WHITE_KING ] << 56 ) == p->pieces[ BLACK_KING ] &&
-		( p->pieces[ WHITE_QUEEN ] << 56 ) == p->pieces[ BLACK_QUEEN ] &&
-		( p->pieces[ WHITE_ROOK ] << 56 ) == p->pieces[ BLACK_ROOK ] &&
-		( p->pieces[ WHITE_BISHOP ] << 56 ) == p->pieces[ BLACK_BISHOP ] &&
-		( p->pieces[ WHITE_KNIGHT ] << 56 ) == p->pieces[ BLACK_KNIGHT ];
+		( p->cm[ WHITE_KING ] << 56 ) == p->cm[ BLACK_KING ] &&
+		( p->cm[ WHITE_QUEEN ] << 56 ) == p->cm[ BLACK_QUEEN ] &&
+		( p->cm[ WHITE_ROOK ] << 56 ) == p->cm[ BLACK_ROOK ] &&
+		( p->cm[ WHITE_BISHOP ] << 56 ) == p->cm[ BLACK_BISHOP ] &&
+		( p->cm[ WHITE_KNIGHT ] << 56 ) == p->cm[ BLACK_KNIGHT ];
 }

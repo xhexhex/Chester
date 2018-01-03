@@ -342,37 +342,37 @@ x_validate_fen_str_test_15( const Pos *p )
 static bool
 x_validate_fen_str_test_16( const Pos *p )
 {
-	return !( p->pieces[ WHITE_PAWN ] & SS_RANK_1 );
+	return !( p->cm[ WHITE_PAWN ] & SS_RANK_1 );
 }
 
 static bool
 x_validate_fen_str_test_17( const Pos *p )
 {
-	return !( p->pieces[ BLACK_PAWN ] & SS_RANK_8 );
+	return !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
 x_validate_fen_str_test_18( const Pos *p )
 {
-	return !( p->pieces[ WHITE_PAWN ] & SS_RANK_8 );
+	return !( p->cm[ WHITE_PAWN ] & SS_RANK_8 );
 }
 
 static bool
 x_validate_fen_str_test_19( const Pos *p )
 {
-	return !( p->pieces[ BLACK_PAWN ] & SS_RANK_1 );
+	return !( p->cm[ BLACK_PAWN ] & SS_RANK_1 );
 }
 
 static bool
 x_validate_fen_str_test_20( const Pos *p )
 {
-	return bb_is_sq_bit( p->pieces[ WHITE_KING ] );
+	return bb_is_sq_bit( p->cm[ WHITE_KING ] );
 }
 
 static bool
 x_validate_fen_str_test_21( const Pos *p )
 {
-	return bb_is_sq_bit( p->pieces[ BLACK_KING ] );
+	return bb_is_sq_bit( p->cm[ BLACK_KING ] );
 }
 
 static bool
@@ -388,7 +388,7 @@ x_validate_fen_str_test_23( const Pos *p )
 }
 
 #define FIND_ROOKS_POSSIBLE_SQS( king, dir, bb ) \
-sq = p->pieces[ king ]; \
+sq = p->cm[ king ]; \
 while( ( sq = sq_nav( sq, dir ) ) ) \
 	bb |= sq;
 
@@ -404,8 +404,8 @@ x_validate_fen_str_test_24( const Pos *p )
 		white_kings_possible_sqs = ( SB.b1 | SB.c1 | SB.d1 | SB.e1 | SB.f1 | SB.g1 ),
 		black_kings_possible_sqs = ( SB.b8 | SB.c8 | SB.d8 | SB.e8 | SB.f8 | SB.g8 );
 
-	if( ( ( K || Q ) && !( p->pieces[ WHITE_KING ] & white_kings_possible_sqs ) ) ||
-		( ( k || q ) && !( p->pieces[ BLACK_KING ] & black_kings_possible_sqs ) ) )
+	if( ( ( K || Q ) && !( p->cm[ WHITE_KING ] & white_kings_possible_sqs ) ) ||
+		( ( k || q ) && !( p->cm[ BLACK_KING ] & black_kings_possible_sqs ) ) )
 		return false;
 
 	Bitboard sq,
@@ -418,10 +418,10 @@ x_validate_fen_str_test_24( const Pos *p )
 	FIND_ROOKS_POSSIBLE_SQS( BLACK_KING, WEST, black_rooks_possible_sqs_to_west )
 
 	return !(
-		( K && !( p->pieces[ WHITE_ROOK ] & white_rooks_possible_sqs_to_east ) ) ||
-		( Q && !( p->pieces[ WHITE_ROOK ] & white_rooks_possible_sqs_to_west ) ) ||
-		( k && !( p->pieces[ BLACK_ROOK ] & black_rooks_possible_sqs_to_east ) ) ||
-		( q && !( p->pieces[ BLACK_ROOK ] & black_rooks_possible_sqs_to_west ) ) );
+		( K && !( p->cm[ WHITE_ROOK ] & white_rooks_possible_sqs_to_east ) ) ||
+		( Q && !( p->cm[ WHITE_ROOK ] & white_rooks_possible_sqs_to_west ) ) ||
+		( k && !( p->cm[ BLACK_ROOK ] & black_rooks_possible_sqs_to_east ) ) ||
+		( q && !( p->cm[ BLACK_ROOK ] & black_rooks_possible_sqs_to_west ) ) );
 }
 
 #undef FIND_ROOKS_POSSIBLE_SQS
