@@ -115,6 +115,8 @@ bool black_has_h_side_castling_right( const Pos *p );
 uint64_t value_BM_C960IRPF( const Pos *p );
 void set_BM_C960IRPF( uint64_t *info, uint8_t irpf );
 bool chess960_start_pos( const Pos *p );
+void cma_to_eppf( const Bitboard *cm, char *eppf );
+void eppf_to_cma( const char *eppf, Bitboard *cm );
 
 #endif
 // end TYPES_H

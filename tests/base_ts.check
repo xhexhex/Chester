@@ -136,7 +136,7 @@ free( (Pos *) p );
 #tcase pos_to_fen_tests
 
 #test C_fen_to_pos_to_fen_inverse_fn_test
-	ck_assert( false );
+	// ck_assert( false );
 
 //
 // Test case
@@ -504,6 +504,21 @@ while( true ) {
 	ck_assert( value_BM_C960IRPF( p ) == 0x8U );
 	set_BM_C960IRPF( &p->info, 1 );
 	ck_assert( value_BM_C960IRPF( p ) == 1 );
+
+//
+// Test case
+//
+#tcase cma_to_eppf_tests
+
+//
+// Test case
+//
+#tcase eppf_to_cma_tests
+
+//
+// Test case
+//
+#tcase cma_to_eppf_and_eppf_to_cma_inverse_fn_tests
 
 //
 // Test case

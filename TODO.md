@@ -5,7 +5,6 @@
 * Investigate how to use Valgrind to check Chester for memory leaks and the like.
 * Add module `extra.*` for the things that shouldn't really be in Chester but
   are still somehow useful.
-* Rename `pieces` of the Pos struct to `cmen`.
 * Document `che_fen_validator()`.
 * `fen_str_to_pos_var()` involves a call to `malloc()`, and I've forgotten all about
   this. No doubt there's a memory leak problem in Chester.

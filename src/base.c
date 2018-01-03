@@ -360,6 +360,8 @@ const char *
 pos_to_fen( const Pos *p )
 {
 	// 1. Create expanded PPF from p->cm[] --> x_create_expanded_ppf()
+	// void cma_to_eppf( const Bitboard *cm, char *eppf );
+	// void eppf_to_cma( const char *eppf, Bitboard *cm );
 	// char eppf[ PPF_MAX_LENGTH + 1 ];
 	// x_create_expanded_ppf( p->cm, eppf );
 	// 2. Use compress_expanded_ppf()
@@ -568,6 +570,20 @@ chess960_start_pos( const Pos *p )
 		p->cm[ BLACK_PAWN ] == SS_RANK_7 &&
 		x_chess960_start_pos_whites_first_rank( p ) &&
 		x_chess960_start_pos_blacks_first_rank( p );
+}
+
+// TODO: ...
+void
+cma_to_eppf( const Bitboard *cm, char *eppf )
+{
+
+}
+
+// TODO: ...
+void
+eppf_to_cma( const char *eppf, Bitboard *cm )
+{
+
 }
 
 /**************************
