@@ -591,3 +591,11 @@ free( bin_str );
 	ck_assert( next_sq_of_ss( &ss ) == 0x800000000U );
 	ck_assert( next_sq_of_ss( &ss ) == 0x1000000000U );
 	ck_assert( next_sq_of_ss( &ss ) == 0 );
+
+//
+// Test case
+//
+#tcase expand_ppf_rank_tests
+
+#test C_expand_ppf_rank_quick_test
+	ck_assert( false );

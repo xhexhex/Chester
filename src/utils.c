@@ -111,7 +111,7 @@ nth_rank_of_ppf( const char *ppf, char *writable_mem_ptr, int rank_num )
 // whereas the length of the new string (the one with dashes) is always
 // eight.
 void
-convert_ppf_rank_digits_to_dashes( const char *rank, char *nine_bytes )
+expand_ppf_rank( const char *rank, char *nine_bytes )
 {
 	nine_bytes[ 8 ] = '\0'; // Last of the nine bytes
 	for( int i = 0; i < 8; i++ ) {

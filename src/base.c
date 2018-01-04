@@ -664,7 +664,7 @@ x_gen_slashless_constant_length_pp_str( // pp, piece placement
 		// This will copy eight non-null chars (plus a null char) somewhere
 		// into target_array. The eight non-null chars are a rank from
 		// the PPF with digits replaced by a corresponding number of dashes.
-		convert_ppf_rank_digits_to_dashes(
+		expand_ppf_rank(
 			nth_rank_of_ppf( ppf, x_writable_mem, rank ),
 			moving_ptr );
 

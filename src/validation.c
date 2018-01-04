@@ -499,7 +499,7 @@ x_occupant_of_sq( const char *ppf, const char *sq )
 		nth_rank_of_ppf( ppf, writable_mem_for_ppf, atoi( rank_num_str ) );
 	char constant_length_rank[ 8 + 1 ];
 
-	convert_ppf_rank_digits_to_dashes( rank, constant_length_rank );
+	expand_ppf_rank( rank, constant_length_rank );
 
 	char file = sq[ 0 ];
 	return constant_length_rank[ file - 97 ]; // 'a' - 97 = 0, 'h' - 97 = 7

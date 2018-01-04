@@ -13,3 +13,5 @@
 * Let's assume Chess960 castling rules are in effect and consider the position
   `4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50`. Does the list of available moves include O-O-O?
 * Work on the integrity test function(s) of `fen_to_pos()`.
+* Create `compress_eppf_rank()`
+* Rename `compress_expanded_ppf()` to `compress_eppf()`
