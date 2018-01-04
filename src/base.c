@@ -572,14 +572,47 @@ chess960_start_pos( const Pos *p )
 		x_chess960_start_pos_blacks_first_rank( p );
 }
 
-// TODO: ...
+// Convert piece placement data from 'cm' array to expanded PPF format. 'cm' is
+// the namesake member of the Pos struct. The following is an example of a PPF
+// in both standard ("compressed") and expanded form.
+//
+// rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R
+// rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R
+//
+// It is assumed that parameter 'eppf' is a writable array with a size of at least
+// PPF_MAX_LENGTH + 1 bytes.
 void
 cma_to_eppf( const Bitboard *cm, char *eppf )
 {
+	int eppf_index = -1;
 
+	for( int i = 56; i >= 0; i -= 8 )
+		for( int j = 0; j <= 7; j++ ) {
+			int bi = i + j;
+			Bitboard sq_bit = SBA[ bi ];
+			eppf_index += ( !( bi % 8 ) && bi != 56 ) ? 2 : 1;
+
+			if(      sq_bit & cm[ EMPTY_SQUARE ] ) eppf[ eppf_index ] = '-';
+			else if( sq_bit & cm[ WHITE_KING   ] ) eppf[ eppf_index ] = 'K';
+			else if( sq_bit & cm[ WHITE_QUEEN  ] ) eppf[ eppf_index ] = 'Q';
+			else if( sq_bit & cm[ WHITE_ROOK   ] ) eppf[ eppf_index ] = 'R';
+			else if( sq_bit & cm[ WHITE_BISHOP ] ) eppf[ eppf_index ] = 'B';
+			else if( sq_bit & cm[ WHITE_KNIGHT ] ) eppf[ eppf_index ] = 'N';
+			else if( sq_bit & cm[ WHITE_PAWN   ] ) eppf[ eppf_index ] = 'P';
+			else if( sq_bit & cm[ BLACK_KING   ] ) eppf[ eppf_index ] = 'k';
+			else if( sq_bit & cm[ BLACK_QUEEN  ] ) eppf[ eppf_index ] = 'q';
+			else if( sq_bit & cm[ BLACK_ROOK   ] ) eppf[ eppf_index ] = 'r';
+			else if( sq_bit & cm[ BLACK_BISHOP ] ) eppf[ eppf_index ] = 'b';
+			else if( sq_bit & cm[ BLACK_KNIGHT ] ) eppf[ eppf_index ] = 'n';
+			else if( sq_bit & cm[ BLACK_PAWN   ] ) eppf[ eppf_index ] = 'p';
+			else assert( false );
+		}
+
+	for( int i = 8; i <= 62; i += 9 ) eppf[ i ] = '/';
+	eppf[ PPF_MAX_LENGTH ] = '\0';
 }
 
-// TODO: ...
+// The inverse of cma_to_eppf()
 void
 eppf_to_cma( const char *eppf, Bitboard *cm )
 {
