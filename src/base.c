@@ -612,11 +612,34 @@ cma_to_eppf( const Bitboard *cm, char *eppf )
 	eppf[ PPF_MAX_LENGTH ] = '\0';
 }
 
-// The inverse of cma_to_eppf()
+// The inverse of cma_to_eppf(). Keep in mind that 'eppf' is assumed to be at least
+// PPF_MAX_LENGTH + 1 bytes and that the writable Bitboard array 'cm' should have
+// space for at least 13 elements.
 void
 eppf_to_cma( const char *eppf, Bitboard *cm )
 {
+	for( int i = 0; i < 13; i++ ) cm[ i ] = 0;
 
+	for( int i = 63, bi = 0; i >= 0; i -= 9 )
+		for( int j = 0; j <= 7; j++, bi++ ) {
+			int eppf_index = i + j;
+			Bitboard sq_bit = SBA[ bi ];
+
+			if(      eppf[ eppf_index ] == '-' ) cm[ EMPTY_SQUARE ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'K' ) cm[ WHITE_KING   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'Q' ) cm[ WHITE_QUEEN  ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'R' ) cm[ WHITE_ROOK   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'B' ) cm[ WHITE_BISHOP ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'N' ) cm[ WHITE_KNIGHT ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'P' ) cm[ WHITE_PAWN   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'k' ) cm[ BLACK_KING   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'q' ) cm[ BLACK_QUEEN  ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'r' ) cm[ BLACK_ROOK   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'b' ) cm[ BLACK_BISHOP ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'n' ) cm[ BLACK_KNIGHT ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'p' ) cm[ BLACK_PAWN   ] |= sq_bit;
+			else assert( false );
+		}
 }
 
 /**************************

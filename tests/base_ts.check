@@ -519,13 +519,13 @@ Bitboard cm[ 13 ]; Bitboard *p = cm; char eppf[ PPF_MAX_LENGTH + 1 ]; \
 cma_to_eppf( cm, eppf ); \
 ck_assert( !strcmp( eppf, expected_eppf ) );
 
-#test C_cma_to_eppf_test_with_std_start_pos_ppf
+#test C_cma_to_eppf_tested_with_std_start_pos_pp
 	CMA_TO_EPPF_TEST( 0xffffffff0000U, 0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U,
 		0x1000000000000000U, 0x800000000000000U, 0x8100000000000000U,
 		0x2400000000000000U, 0x4200000000000000U, 0xff000000000000U,
 		"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR" )
 
-#test C_cma_to_eppf_test_with_personally_significant_ppf
+#test C_cma_to_eppf_tested_with_personally_significant_pp
 	CMA_TO_EPPF_TEST( 0xbf6a3feeddfdd97bU, 0x4U, 0x400000000000U, 0x1000000080U, 0, 0,
 		0x800000022600U, 0x4000000000000000U, 0x4000000000000U, 0x1000000000000U,
 		0x10000000000000U, 0x80000000000000U, 0x122000000U,
@@ -537,6 +537,34 @@ ck_assert( !strcmp( eppf, expected_eppf ) );
 // Test case
 //
 #tcase eppf_to_cma_tests
+
+#define EPPF_TO_CMA_TEST( input_eppf, empty, wking, wqueen, wrook, wbishop, \
+	wknight, wpawn, bking, bqueen, brook, bbishop, bknight, bpawn ) \
+Bitboard cm[ 13 ]; \
+eppf_to_cma( input_eppf, cm ); \
+ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
+	cm[ WHITE_QUEEN ] == wqueen && cm[ WHITE_ROOK ] == wrook && \
+	cm[ WHITE_BISHOP ] == wbishop && cm[ WHITE_KNIGHT ] == wknight && \
+	cm[ WHITE_PAWN ] == wpawn && cm[ BLACK_KING ] == bking && \
+	cm[ BLACK_QUEEN ] == bqueen && cm[ BLACK_ROOK ] == brook && \
+	cm[ BLACK_BISHOP ] == bbishop && cm[ BLACK_KNIGHT ] == bknight && \
+	cm[ BLACK_PAWN ] == bpawn );
+
+#test C_eppf_to_cma_tested_with_std_start_pos_pp
+	EPPF_TO_CMA_TEST(
+		"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
+		0xffffffff0000U, 0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U, 0x1000000000000000U,
+		0x800000000000000U, 0x8100000000000000U, 0x2400000000000000U,
+		0x4200000000000000U, 0xff000000000000U )
+
+#test C_eppf_to_cma_tested_with_personally_significant_pp
+	EPPF_TO_CMA_TEST(
+		"------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
+		0xbf6a3feeddfdd97bU, 0x4U, 0x400000000000U, 0x1000000080U, 0, 0,
+		0x800000022600U, 0x4000000000000000U, 0x4000000000000U, 0x1000000000000U,
+		0x10000000000000U, 0x80000000000000U, 0x122000000U )
+
+#undef EPPF_TO_CMA_TEST
 
 //
 // Test case
