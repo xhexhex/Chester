@@ -571,6 +571,37 @@ ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
 //
 #tcase cma_to_eppf_and_eppf_to_cma_inverse_fn_tests
 
+#define GAME_OF_THE_CENTURY_EPPF \
+"r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R"
+
+#define GAME_OF_THE_CENTURY_CMA { 0xae1cb9fbb3da1e57U, 0x20U, 0x10000U, 0x88U, \
+0x404000000U, 0x200000U, 0x800e100U, 0x4000000000000000U, 0x20000000000U, \
+0x1100000000000000U, 0x40000040000000U, 0x40000U, 0xa3440000000000U }
+
+#test C_inner_fn_cma_to_eppf_outer_fn_eppf_to_cma
+	const Bitboard century_cma[] = GAME_OF_THE_CENTURY_CMA;
+	char writable_eppf[ PPF_MAX_LENGTH + 1 ];
+	Bitboard writable_cma[ 13 ];
+
+	cma_to_eppf( century_cma, writable_eppf );
+	eppf_to_cma( writable_eppf, writable_cma );
+
+	for( int i = 0; i < 13; i++ )
+		ck_assert( century_cma[ i ] == writable_cma[ i ] );
+
+#test C_inner_fn_eppf_to_cma_outer_fn_cma_to_eppf
+	const char century_eppf[] = GAME_OF_THE_CENTURY_EPPF;
+	char writable_eppf[ PPF_MAX_LENGTH + 1 ];
+	Bitboard writable_cma[ 13 ];
+
+	eppf_to_cma( century_eppf, writable_cma );
+	cma_to_eppf( writable_cma, writable_eppf );
+
+	ck_assert( !strcmp( GAME_OF_THE_CENTURY_EPPF, writable_eppf ) );
+
+#undef GAME_OF_THE_CENTURY_EPPF
+#undef GAME_OF_THE_CENTURY_CMA
+
 //
 // Test case
 //
