@@ -15,8 +15,6 @@ extern bool srand_has_been_called;
 bool str_matches_pattern( const char *str, const char *pattern );
 char *nth_field_of_fen_str( const char *fen_str, char *writable_mem, int field_num );
 char *nth_rank_of_ppf( const char *ppf, char *writable_mem, int rank_num );
-void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
-void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
 void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );
 void set_bits( uint64_t *bits, const uint64_t BITMASK );
 void unset_bits( uint64_t *bits, const uint64_t BITMASK );
@@ -40,8 +38,10 @@ const char *file_and_rank_to_sq_name( const char file, const char rank );
 Bitboard diag_of_sq( Bitboard sq_bit );
 Bitboard antidiag_of_sq( Bitboard sq_bit );
 Bitboard next_sq_of_ss( Bitboard *ss );
-char *compress_expanded_ppf( const char *eppf );
+void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
+void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
 char *expand_ppf( const char *ppf );
+char *compress_eppf( const char *eppf );
 
 #endif
 // end UTILS_H

@@ -514,7 +514,7 @@ next_sq_of_ss( Bitboard *ss )
 
 // TODO: ...
 char *
-compress_expanded_ppf( const char *eppf )
+compress_eppf( const char *eppf )
 {
 	return NULL;
 }

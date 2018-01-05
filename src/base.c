@@ -364,7 +364,7 @@ pos_to_fen( const Pos *p )
 	// void eppf_to_cma( const char *eppf, Bitboard *cm );
 	// char eppf[ PPF_MAX_LENGTH + 1 ];
 	// x_create_expanded_ppf( p->cm, eppf );
-	// 2. Use compress_expanded_ppf()
+	// 2. Use compress_eppf()
 
 	return NULL;
 }
