@@ -597,5 +597,28 @@ free( bin_str );
 //
 #tcase expand_ppf_rank_tests
 
-#test C_expand_ppf_rank_quick_test
-	ck_assert( false );
+#test C_expand_ppf_rank_test
+	char expanded_ppf_rank[ 8 + 1 ];
+	const char *ppf_ranks_and_expected_results[] = {
+		"8", "--------",
+		"pppppppp", "pppppppp",
+		"RNBQKBNR", "RNBQKBNR",
+		"7K", "-------K",
+		"K7", "K-------",
+		"q1q1q3", "q-q-q---",
+		// Personally significant PPF
+		"6k1", "------k-",
+		"r1q1b2n", "r-q-b--n",
+		"6QP", "------QP",
+		"p3R3", "p---R---",
+		"1p3p2", "-p---p--",
+		"1P6", "-P------",
+		"1PP2P2", "-PP--P--",
+		"2K4R", "--K----R",
+		NULL };
+
+	for( int i = 0; ppf_ranks_and_expected_results[ i ]; i += 2 ) {
+		expand_ppf_rank( ppf_ranks_and_expected_results[ i ], expanded_ppf_rank );
+		ck_assert( !strcmp( expanded_ppf_rank,
+			ppf_ranks_and_expected_results[ i + 1 ] ) );
+	}

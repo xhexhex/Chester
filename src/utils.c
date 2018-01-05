@@ -109,31 +109,30 @@ nth_rank_of_ppf( const char *ppf, char *writable_mem_ptr, int rank_num )
 // dashes. For example, "1p2p3" gets converted to "-p--p---". Note that
 // the length of the original rank string is *at most* eight chars,
 // whereas the length of the new string (the one with dashes) is always
-// eight.
+// eight. It is therefore assumed that the writable array 'expanded_rank'
+// is at least 8 + 1 bytes long.
 void
-expand_ppf_rank( const char *rank, char *nine_bytes )
+expand_ppf_rank( const char *rank, char *expanded_rank )
 {
-	nine_bytes[ 8 ] = '\0'; // Last of the nine bytes
-	for( int i = 0; i < 8; i++ ) {
-		nine_bytes[ i ] = '-'; // A dash means an empty square
-	}
+	expanded_rank[ 8 ] = '\0';
+	for( int i = 0; i < 8; i++ )
+		expanded_rank[ i ] = '-'; // A dash means an empty square
 
 	int i = 0, j = 0;
 	while( rank[ i ] ) {
 		if( !isdigit( rank[ i ] ) ) { // Copying non-digit chars into the empty rank
-			nine_bytes[ j ] = rank[ i ];
+			expanded_rank[ j ] = rank[ i ];
 			j++;
-		} else {
-			j += ( rank[ i ] - 48 ); // '1' - 48 = 1, '8' - 48 = 8
 		}
+		else j += ( rank[ i ] - 48 ); // '1' - 48 = 1, '8' - 48 = 8
 
 		i++;
 	}
 
 	assert( j == 8 );
-	assert( !nine_bytes[ j ] );
-	assert( strlen( nine_bytes ) == 8 );
-}
+	assert( !expanded_rank[ j ] );
+	assert( strlen( expanded_rank ) == 8 );
+} // Review: 2018-01-05
 
 // Sets or unsets the bits in 'bits' specified by 'BITMASK'. The bits are
 // set ("assigned" the value of 1) if BIT equals true; otherwise the
