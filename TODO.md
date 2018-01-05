@@ -12,5 +12,6 @@
 * Rename `enum fen_str_error` to `enum che_fen_error`
 * Let's assume Chess960 castling rules are in effect and consider the position
   `4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50`. Does the list of available moves include O-O-O?
+  https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation#FEN_adjustment_for_chess_variants_like_Chess960
 * Work on the integrity test function(s) of `fen_to_pos()`.
 * Rename `compress_expanded_ppf()` to `compress_eppf()`

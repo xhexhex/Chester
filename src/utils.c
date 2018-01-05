@@ -519,12 +519,40 @@ compress_eppf( const char *eppf )
 	return NULL;
 }
 
-// TODO: ...
-char *
-expand_ppf( const char *ppf )
+// Expands the 'ppf' argument and stores the result in 'eppf'. The size of an
+// expanded PPF is always PPF_MAX_LENGTH, and thus 'eppf' is assumed to point
+// to a writable array of at least PPF_MAX_LENGTH + 1 bytes. Expanding a PPF
+// means replacing each digit with the corresponding number of dashes. The following
+// is an example of a PPF in both standard ("compressed") and expanded form.
+//
+// rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R
+// rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R
+void
+expand_ppf( const char *ppf, char *eppf )
 {
-	assert( false );
-	return (char *) ppf;
+	eppf[ PPF_MAX_LENGTH ] = '\0';
+	for( int i = 8; i <= 62; i += 9 ) eppf[ i ] = '/';
+
+	char ppf_rank[ 8 + 1 ], eppf_rank[ 8 + 1 ];
+	const char *ppf_ptr = ppf;
+	int ei = 0, pri = 0; // Indexes for 'eppf' and 'ppf_rank'
+	do {
+		char c = *ppf_ptr;
+		if( !c || c == '/' ) {
+			ppf_rank[ pri ] = '\0';
+			pri = 0;
+			assert( strlen( ppf_rank ) >= 1 && strlen( ppf_rank ) <= 8 );
+			expand_ppf_rank( ppf_rank, eppf_rank );
+			assert( strlen( eppf_rank ) == 8 );
+			for( int i = 0; i < 8; i++ ) eppf[ ei++ ] = eppf_rank[ i ];
+			++ei;
+		} else {
+			ppf_rank[ pri ] = c;
+			++pri;
+		}
+	} while( *ppf_ptr++ );
+
+	assert( strlen( eppf ) == (size_t) PPF_MAX_LENGTH );
 }
 
 /**************************

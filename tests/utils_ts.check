@@ -659,3 +659,29 @@ free( bin_str );
 		compress_eppf_rank( eppf_ranks_and_er[ i ], comp_ppf_rank );
 		ck_assert( !strcmp( comp_ppf_rank, eppf_ranks_and_er[ i + 1 ] ) );
 	}
+
+//
+// Test case
+//
+#tcase expand_ppf_tests
+
+#test C_expand_ppf_test
+	char eppf[ PPF_MAX_LENGTH + 1 ];
+	const char *input_and_exp_output[] = {
+		"8/8/8/8/8/8/8/8",
+			"--------/--------/--------/--------/--------/--------/--------/--------",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+			"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
+		"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
+			"rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R",
+		"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+			"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+		// Personally significant PPF
+		"6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
+			"------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
+		NULL };
+
+	for( int i = 0; input_and_exp_output[ i ]; i += 2 ) {
+		expand_ppf( input_and_exp_output[ i ], eppf );
+		ck_assert( !strcmp( eppf, input_and_exp_output[ i + 1 ] ) );
+	}

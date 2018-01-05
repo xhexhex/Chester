@@ -28,7 +28,6 @@ const char *epts_from_pos_var( const Pos *p );
 int sq_bit_index( Bitboard sq_bit );
 char *uint64_to_bin_str( uint64_t uint64 );
 void print_pos_var( const Pos *p );
-// Returns a square name or the null pointer
 const char *sq_navigator( const char *sq_name, enum sq_dir dir );
 const char *ALT_sq_navigator( const char *sq_name, enum sq_dir dir );
 int sq_name_index( const char *sq_name );
@@ -40,7 +39,7 @@ Bitboard antidiag_of_sq( Bitboard sq_bit );
 Bitboard next_sq_of_ss( Bitboard *ss );
 void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
 void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
-char *expand_ppf( const char *ppf );
+void expand_ppf( const char *ppf, char *eppf );
 char *compress_eppf( const char *eppf );
 
 #endif
