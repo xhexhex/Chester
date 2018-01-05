@@ -622,3 +622,40 @@ free( bin_str );
 		ck_assert( !strcmp( expanded_ppf_rank,
 			ppf_ranks_and_expected_results[ i + 1 ] ) );
 	}
+
+//
+// Test case
+//
+#tcase compress_eppf_rank_tests
+
+#test C_compress_eppf_rank_test
+	char comp_ppf_rank[ 8 + 1 ];
+	const char *eppf_ranks_and_er[] = { // er, expected results
+		"--------", "8",
+		"pppppppp", "pppppppp",
+		"PPPPPPPP", "PPPPPPPP",
+		"rnbqkbnr", "rnbqkbnr",
+		"RNBQKBNR", "RNBQKBNR",
+		"K-------", "K7",
+		"-------K", "7K",
+		"p-p-----", "p1p5",
+		"-p-p----", "1p1p4",
+		"--p-p---", "2p1p3",
+		"---p-p--", "3p1p2",
+		"----p-p-", "4p1p1",
+		"-----p-p", "5p1p",
+		// Personally significant PPF
+		"------k-", "6k1",
+		"r-q-b--n", "r1q1b2n",
+		"------QP", "6QP",
+		"p---R---", "p3R3",
+		"-p---p--", "1p3p2",
+		"-P------", "1P6",
+		"-PP--P--", "1PP2P2",
+		"--K----R", "2K4R",
+		NULL };
+
+	for( int i = 0; eppf_ranks_and_er[ i ]; i += 2 ) {
+		compress_eppf_rank( eppf_ranks_and_er[ i ], comp_ppf_rank );
+		ck_assert( !strcmp( comp_ppf_rank, eppf_ranks_and_er[ i + 1 ] ) );
+	}

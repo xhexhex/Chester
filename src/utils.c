@@ -21,6 +21,8 @@ static const char *x_ALT_sq_navigator_kings_sqs(
 static const char *x_ALT_sq_navigator_knights_sqs(
 	const char *sq_name, enum sq_dir dir );
 static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
+static void x_compress_eppf_rank_dashes_to_digit(
+	int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank );
 
 /***********************
  **** External data ****
@@ -112,19 +114,19 @@ nth_rank_of_ppf( const char *ppf, char *writable_mem_ptr, int rank_num )
 // eight. It is therefore assumed that the writable array 'expanded_rank'
 // is at least 8 + 1 bytes long.
 void
-expand_ppf_rank( const char *rank, char *expanded_rank )
+expand_ppf_rank( const char *ppf_rank, char *expanded_rank )
 {
 	expanded_rank[ 8 ] = '\0';
 	for( int i = 0; i < 8; i++ )
 		expanded_rank[ i ] = '-'; // A dash means an empty square
 
 	int i = 0, j = 0;
-	while( rank[ i ] ) {
-		if( !isdigit( rank[ i ] ) ) { // Copying non-digit chars into the empty rank
-			expanded_rank[ j ] = rank[ i ];
+	while( ppf_rank[ i ] ) {
+		if( !isdigit( ppf_rank[ i ] ) ) { // Copying non-digit chars into the empty rank
+			expanded_rank[ j ] = ppf_rank[ i ];
 			j++;
 		}
-		else j += ( rank[ i ] - 48 ); // '1' - 48 = 1, '8' - 48 = 8
+		else j += ( ppf_rank[ i ] - 48 ); // '1' - 48 = 1, '8' - 48 = 8
 
 		i++;
 	}
@@ -133,6 +135,30 @@ expand_ppf_rank( const char *rank, char *expanded_rank )
 	assert( !expanded_rank[ j ] );
 	assert( strlen( expanded_rank ) == 8 );
 } // Review: 2018-01-05
+
+// Does the opposite of expand_ppf_rank(). The length of a PPF rank is between one
+// to eight chars, and thus the writable array 'compressed_rank' is assumed to be
+// at least 8 + 1 chars long.
+void
+compress_eppf_rank( const char *eppf_rank, char *compressed_rank )
+{
+	int cri = 0; // cri, compressed rank index
+
+	for( int eri = 0; eri < 8; eri++, cri++ ) { // eri, EPPF rank index
+		char c = eppf_rank[ eri ];
+		if( c == 'K' || c == 'Q' || c == 'R' || c == 'B' || c == 'N' || c == 'P' ||
+			c == 'k' || c == 'q' || c == 'r' || c == 'b' || c == 'n' || c == 'p'
+		) compressed_rank[ cri ] = c;
+		else if( c == '-' ) x_compress_eppf_rank_dashes_to_digit(
+			&eri, cri, eppf_rank, compressed_rank );
+		else assert( false );
+	}
+
+	compressed_rank[ cri ] = '\0';
+
+	assert( strlen( compressed_rank ) >= 1 && strlen( compressed_rank ) <= 8 );
+	assert( str_matches_pattern( compressed_rank, "^[KQRBNPkqrbnp12345678]*$" ) );
+}
 
 // Sets or unsets the bits in 'bits' specified by 'BITMASK'. The bits are
 // set ("assigned" the value of 1) if BIT equals true; otherwise the
@@ -635,4 +661,16 @@ x_sq_rectangle( const char *ulc, const char *lrc )
 	}
 
 	return bb;
+}
+
+static void
+x_compress_eppf_rank_dashes_to_digit(
+	int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank )
+{
+	char digit = '1';
+	while( eppf_rank[ *eri_ptr + 1 ] == '-' ) {
+		*eri_ptr += 1;
+		++digit;
+	}
+	compressed_rank[ cri ] = digit;
 }
