@@ -1,4 +1,4 @@
-## FEN string validation
+## The Chester FEN string validation scheme
 
 FEN string validation involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done of the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
 
@@ -7,9 +7,10 @@ enum fen_str_error che_validate_fen_str( const char *fen_str );
 
 Apart from FEN_STR_NO_ERRORS, each of the enum fen_str_error constants represents the failure of a particular test. The test failure associated with each of the constants is described in the following. This also serves as a description of the tests themselves (a test is a success if and only if its associated error conditions are not fulfilled).
 
-1.	FEN_STR_LENGTH_ERROR
-	The string is either less than FEN_STR_MIN_LENGTH chars long or more
-	than FEN_STR_MAX_LENGTH chars long (see types.h).
+1.  `FEN_STR_LENGTH_ERROR`  
+    The string is either less than `FEN_STR_MIN_LENGTH` chars long or more
+    than `FEN_STR_MAX_LENGTH` chars long (see `types.h`). The error is generated
+    also when `che_fen_validator()` receives a null pointer.
 2.	FEN_STR_CHARS_ERROR
 	The string contains characters that cannot occur in any FEN string.
 	In more exact terms the string doesn't match the following regex:
@@ -88,7 +89,7 @@ Apart from FEN_STR_NO_ERRORS, each of the enum fen_str_error constants represent
 23.	FEN_STR_BLACK_KING_CAN_BE_CAPTURED
 	It is White's turn to move and the black king is on an attacked square.
 24.	FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR
-	The Chess960 version of FEN_STR_PPF_CONTRADICTS_CAF_ERROR. The test is done
+    The Chess960 version of FEN_STR_PPF_CONTRADICTS_CAF_ERROR. The test is done
 	only if CFSV_BF_CHESS960 is set. If the a-side castling right "Q" or "q"
 	is available, it means that the king is on one of the squares b1 to g1
 	(or b8 to g8) inclusive and that there is a rook of the same color one or
