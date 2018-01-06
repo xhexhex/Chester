@@ -6,6 +6,7 @@
 #include "../src/base.h"
 #include "../src/utils.h"
 #include "../src/move_gen.h"
+#include "../src/extra.h"
 
 #suite types_ts
 

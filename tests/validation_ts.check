@@ -1,4 +1,5 @@
 #include "../src/validation.h"
+#include "../src/extra.h"
 
 #suite validation_ts
 

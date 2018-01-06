@@ -5,6 +5,7 @@
 #include "../src/move_gen.h"
 #include "../src/utils.h"
 #include "../src/validation.h"
+#include "../src/extra.h"
 
 // Used to check that the APM array is in ascending order. The parameters
 // 'left' and 'right' are APM array elements.

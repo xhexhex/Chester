@@ -8,6 +8,7 @@
 #include "../src/chester.h"
 #include "../src/move_gen.h"
 #include "../src/validation.h"
+#include "../src/extra.h"
 
 // Returns the hash pattern squares of the square argument. For example,
 // hps_of_sq( "e4" ) returns the following string:
