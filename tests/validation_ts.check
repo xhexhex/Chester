@@ -5,7 +5,7 @@
 
 #define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
 for( int i = 0; str_array_name[ i ]; i++ ) { \
-	enum fen_str_error real_ret_val = \
+	enum che_fen_error real_ret_val = \
 		che_fen_validator( (char *) str_array_name[ i ], 0 ); \
 	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
 		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
@@ -492,7 +492,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #undef FEN_STR_ARRAY_FOR_LOOP
 #define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val, settings ) \
 for( int i = 0; str_array_name[ i ]; i++ ) { \
-	enum fen_str_error real_ret_val = \
+	enum che_fen_error real_ret_val = \
 		che_fen_validator( (char *) str_array_name[ i ], settings ); \
 	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
 		"[ %d ] produced invalid return value %d", i, real_ret_val ); }

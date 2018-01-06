@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 // The possible return values of the function che_fen_validator()
-enum fen_str_error {
+enum che_fen_error {
 	FEN_STR_NO_ERRORS,
 	FEN_STR_LENGTH_ERROR,
 	FEN_STR_CHARS_ERROR,
@@ -36,7 +36,7 @@ enum fen_str_error {
 extern const uint64_t CFSV_BF_CHESS960;
 
 // Function prototypes
-enum fen_str_error che_fen_validator( const char *fen_str, const uint64_t settings );
+enum che_fen_error che_fen_validator( const char *fen_str, const uint64_t settings );
 int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 
 #endif

@@ -47,7 +47,7 @@ static char x_writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
  ***************************/
 
 // The function for FEN string validation
-enum fen_str_error
+enum che_fen_error
 che_fen_validator( const char *fen_str, const uint64_t settings )
 {
 	// Test 1
