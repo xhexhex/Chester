@@ -357,7 +357,7 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 
 // TODO: ...
 const char *
-pos_to_fen( const Pos *p )
+pos_to_fen( /* const Pos *p */ )
 {
 	// 1. Create expanded PPF from p->cm[] --> x_create_expanded_ppf()
 	// void cma_to_eppf( const Bitboard *cm, char *eppf );

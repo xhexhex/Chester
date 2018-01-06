@@ -512,11 +512,39 @@ next_sq_of_ss( Bitboard *ss )
 	return sq;
 }
 
-// TODO: ...
+// Does the opposite of expand_ppf(). The function returns a pointer to a dynamically
+// allocated string which is the result of "compressing" the 'eppf' argument. It's
+// the caller's responsibility to release the allocated memory with free().
 char *
 compress_eppf( const char *eppf )
 {
-	return NULL;
+	assert( strlen( eppf ) == (size_t) PPF_MAX_LENGTH );
+	char *ppf = (char *) malloc( PPF_MAX_LENGTH + 1 );
+	assert( ppf );
+
+	char eppf_rank[ 8 + 1 ], ppf_rank[ 8 + 1 ];
+
+	int pi = 0, eri = 0; // Indexes for 'ppf', 'eppf_rank'
+	for( int i = 0; i <= PPF_MAX_LENGTH; i++ ) {
+		char c = eppf[ i ];
+		if( !c || c == '/' ) {
+			eppf_rank[ eri ] = '\0';
+			assert( eri == 8 && strlen( eppf_rank ) == 8 );
+			eri = 0;
+			compress_eppf_rank( eppf_rank, ppf_rank );
+			assert( strlen( ppf_rank ) >= 1 && strlen( ppf_rank ) <= 8 );
+			for( int i = 0; ppf_rank[ i ]; i++ ) ppf[ pi++ ] = ppf_rank[ i ];
+			ppf[ pi++ ] = c ? '/' : '\0';
+		} else {
+			eppf_rank[ eri ] = c;
+			++eri;
+		}
+	}
+
+	int ppf_size = (int) strlen( ppf );
+	if( !( ppf = realloc( ppf, ppf_size + 1 ) ) ) assert( false );
+	assert( ppf_size >= PPF_MIN_LENGTH && ppf_size <= PPF_MAX_LENGTH );
+	return ppf;
 }
 
 // Expands the 'ppf' argument and stores the result in 'eppf'. The size of an
