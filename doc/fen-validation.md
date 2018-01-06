@@ -7,10 +7,10 @@ enum fen_str_error che_validate_fen_str( const char *fen_str );
 
 Apart from FEN_STR_NO_ERRORS, each of the enum fen_str_error constants represents the failure of a particular test. The test failure associated with each of the constants is described in the following. This also serves as a description of the tests themselves (a test is a success if and only if its associated error conditions are not fulfilled).
 
-1.  `FEN_STR_LENGTH_ERROR`  
-    The string is either less than `FEN_STR_MIN_LENGTH` chars long or more
-    than `FEN_STR_MAX_LENGTH` chars long (see `types.h`). The error is generated
-    also when `che_fen_validator()` receives a null pointer.
+1.  `FEN_LENGTH_ERROR`  
+    The string is either less than `FEN_MIN_LENGTH` chars or more than
+    `FEN_MAX_LENGTH` chars long. The error is generated also when
+    `che_fen_validator()` receives a null pointer.
 2.	FEN_STR_CHARS_ERROR
 	The string contains characters that cannot occur in any FEN string.
 	In more exact terms the string doesn't match the following regex:

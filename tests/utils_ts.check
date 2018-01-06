@@ -55,7 +55,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 	char start_pos_fen[] =
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 	const int NUM_OF_FIELDS = 6;
-	char writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
+	char writable_mem[ FEN_MAX_LENGTH + 1 ];
 	char *tok_start_pos_fen[] = { // tok, tokenized
 		// Note that index 0 contains the empty string
 		"", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq",

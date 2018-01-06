@@ -268,8 +268,14 @@ const Bitboard
 	SS_ANTIDIAG_H6F8 = 0x2040800000000000U, SS_ANTIDIAG_H7G8 = 0x4080000000000000U,
 	SS_ANTIDIAG_H8H8 = 0x8000000000000000U;
 
-// The minimum and maximum lengths for the PPF of a FEN record
-const int PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71;
+const size_t
+	// The minimum and maximum lengths for the PPF of a FEN string
+	PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71,
+	// The shortest possible FEN is something like "k7/8/8/8/8/8/8/K7 w - - 0 1"
+	// which is 27 characters long. The following FEN is 90 chars long:
+	// "rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w KQkq - 9999 9999"
+	// Allowing FENs longer than this wouldn't seem to make sense.
+	FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 90;
 
 /************************************
  **** Static function prototypes ****
@@ -294,8 +300,9 @@ static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
  **** Static global variables ****
  *********************************/
 
-// Used by nth_field_of_fen_str() of utils.c
-static char x_writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
+// Used by nth_field_of_fen_str() of utils.c. The size of the array should be
+// at least FEN_MAX_LENGTH + 1 bytes.
+static char x_writable_mem[ 120 + 1 ];
 
 /****************************
  **** External functions ****

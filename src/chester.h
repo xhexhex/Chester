@@ -7,7 +7,7 @@
 // The possible return values of the function che_fen_validator()
 enum che_fen_error {
 	FEN_STR_NO_ERRORS,
-	FEN_STR_LENGTH_ERROR,
+	FEN_LENGTH_ERROR,
 	FEN_STR_CHARS_ERROR,
 	FEN_STR_FIELD_STRUCTURE_ERROR,
 	FEN_STR_PPF_STRUCTURE_ERROR,

@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "chester.h"
 #include "move_gen.h"
+#include "base.h"
 
 // Bit flags for the 'settings' parameter of function che_fen_str_validator()
 const uint64_t
@@ -40,7 +41,8 @@ static int x_calc_rank_sum( const char *rank );
 static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
 static char x_occupant_of_sq( const char *ppf, const char *sq );
 
-static char x_writable_mem[ FEN_STR_MAX_LENGTH + 1 ];
+// The size of the array should be at least FEN_MAX_LENGTH + 1 bytes
+static char x_writable_mem[ 120 + 1 ];
 
 /***************************
  **** Chester interface ****
@@ -52,7 +54,7 @@ che_fen_validator( const char *fen_str, const uint64_t settings )
 {
 	// Test 1
 	if( !x_validate_fen_str_test_1( fen_str ) )
-		return FEN_STR_LENGTH_ERROR;
+		return FEN_LENGTH_ERROR;
 	// Test 2
 	if( !x_validate_fen_str_test_2( fen_str ) )
 		return FEN_STR_CHARS_ERROR;
@@ -152,8 +154,8 @@ x_validate_fen_str_test_1( const char *fen_str )
 {
 	size_t fen_string_length = strlen( fen_str );
 
-	return ( fen_string_length < FEN_STR_MIN_LENGTH ||
-		fen_string_length > FEN_STR_MAX_LENGTH ) ? false : true;
+	return ( fen_string_length < FEN_MIN_LENGTH ||
+		fen_string_length > FEN_MAX_LENGTH ) ? false : true;
 }
 
 static bool

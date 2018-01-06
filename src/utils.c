@@ -68,7 +68,7 @@ str_matches_pattern( const char *str, const char *pattern )
 // A FEN string such as "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 // consists of six fields. The following function returns the nth field of a FEN.
 // It is assumed  that the size of the memory area pointed to by 'writable_mem_ptr'
-// is FEN_STR_MAX_LENGTH + 1.
+// is FEN_MAX_LENGTH + 1.
 char *
 nth_field_of_fen_str( const char *fen_str, char *writable_mem_ptr, int field_num )
 {
@@ -525,7 +525,7 @@ compress_eppf( const char *eppf )
 	char eppf_rank[ 8 + 1 ], ppf_rank[ 8 + 1 ];
 
 	int pi = 0, eri = 0; // Indexes for 'ppf', 'eppf_rank'
-	for( int i = 0; i <= PPF_MAX_LENGTH; i++ ) {
+	for( int i = 0; i <= (int) PPF_MAX_LENGTH; i++ ) {
 		char c = eppf[ i ];
 		if( !c || c == '/' ) {
 			eppf_rank[ eri ] = '\0';
@@ -541,7 +541,7 @@ compress_eppf( const char *eppf )
 		}
 	}
 
-	int ppf_size = (int) strlen( ppf );
+	size_t ppf_size = strlen( ppf );
 	if( !( ppf = realloc( ppf, ppf_size + 1 ) ) ) assert( false );
 	assert( ppf_size >= PPF_MIN_LENGTH && ppf_size <= PPF_MAX_LENGTH );
 	return ppf;
