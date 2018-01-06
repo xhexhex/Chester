@@ -1,5 +1,4 @@
-FEN string validation
----------------------
+## FEN string validation
 
 FEN string validation involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done of the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
 

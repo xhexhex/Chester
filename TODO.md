@@ -6,3 +6,6 @@
 * Document `che_fen_validator()`.
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`.
 * Rename `enum fen_str_error` to `enum che_fen_error`
+* Add getter and setter methods for the FEN fields of the Pos struct
+* Reimplement whites_turn() as a macro
+* Update `fen-validation.md`
