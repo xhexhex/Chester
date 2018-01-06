@@ -711,3 +711,42 @@ free( bin_str );
 		ck_assert( !strcmp( ppf, input_and_exp_output[ i + 1 ] ) );
 		free( ppf );
 	}
+
+//
+// Test case
+//
+#tcase compress_eppf_and_expand_ppf_inverse_fn_tests
+
+#test C_inner_fn_compress_eppf_outer_fn_expand_ppf
+	char computed_eppf[ PPF_MAX_LENGTH + 1 ];
+	const char *input_eppf[] = {
+		"r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R",
+		// Opera game position. PPF equivalent:
+		// "3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R"
+		"---rkb-r/p--nqppp/-----n--/-B--p-B-/----P---/-Q------/PPP--PPP/--KR---R",
+		// Equivalent PPF: "8/8/8/8/7k/6pq/R1R5/4K3"
+		"--------/--------/--------/--------/-------k/------pq/R-R-----/----K---",
+		NULL };
+
+	for( int i = 0; input_eppf[ i ]; i++ ) {
+		char *ppf = compress_eppf( input_eppf[ i ] );
+		expand_ppf( ppf, computed_eppf );
+		ck_assert( !strcmp( computed_eppf, input_eppf[ i ] ) );
+		free( ppf );
+	}
+
+#test C_inner_fn_expand_ppf_outer_fn_compress_eppf
+	char computed_eppf[ PPF_MAX_LENGTH + 1 ];
+	const char *input_ppf[] = {
+		"3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R",
+		"8/8/8/8/7k/6pq/R1R5/4K3",
+		// Personally significant PPF
+		"6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
+		NULL };
+
+	for( int i = 0; input_ppf[ i ]; i++ ) {
+		expand_ppf( input_ppf[ i ], computed_eppf );
+		char *output_ppf = compress_eppf( computed_eppf );
+		ck_assert( !strcmp( input_ppf[ i ], output_ppf ) );
+		free( output_ppf );
+	}
