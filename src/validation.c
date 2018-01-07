@@ -57,7 +57,7 @@ che_fen_validator( const char *fen, const uint64_t settings )
 		return FEN_LENGTH_ERROR;
 	// Test 2
 	if( !x_validate_fen_str_test_2( fen ) )
-		return FEN_STR_CHARS_ERROR;
+		return FEN_CHARS_ERROR;
 	// Test 3
 	if( !x_validate_fen_str_test_3( fen ) )
 		return FEN_STR_FIELD_STRUCTURE_ERROR;

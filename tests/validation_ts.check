@@ -111,7 +111,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_STR_ARRAY_FOR_LOOP( invalid_length_fen_strs, FEN_LENGTH_ERROR );
 
 // Test 2 fails
-#test C_che_fen_validator_returns_FEN_STR_CHARS_ERROR
+#test C_che_fen_validator_returns_FEN_CHARS_ERROR
 	const char * const fen_strs_with_invalid_chars[] = {
 		"k7/8/8/8/8/8/8/K7 w - - 0\\1", // backslash
 		"k7/8/8/8/8/8/8/K7 w - - 0\n1", // newline
@@ -123,7 +123,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq å3 0 1", // 'å'
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_STR_CHARS_ERROR );
+	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_CHARS_ERROR );
 
 // Test 3 fails
 #test C_che_fen_validator_returns_FEN_STR_FIELD_STRUCTURE_ERROR
