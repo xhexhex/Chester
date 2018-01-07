@@ -126,7 +126,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_CHARS_ERROR );
 
 // Test 3 fails
-#test C_che_fen_validator_returns_FEN_STR_FIELD_STRUCTURE_ERROR
+#test C_che_fen_validator_returns_FEN_FIELD_STRUCTURE_ERROR
 	const char * const fen_strs_with_invalid_field_structure[] = {
 		"k7/8/8/8/8/8/8/K7  w - - 0 1", // two spaces between 1st and 2nd field
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR wKQkq - 0 1", // only five fields
@@ -136,10 +136,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_field_structure,
-		FEN_STR_FIELD_STRUCTURE_ERROR );
+		FEN_FIELD_STRUCTURE_ERROR );
 
 // Test 4 fails
-#test C_che_fen_validator_returns_FEN_STR_PPF_STRUCTURE_ERROR
+#test C_che_fen_validator_returns_FEN_PPF_STRUCTURE_ERROR
 	const char * const fen_strs_with_ppfs_with_invalid_ranks[] = {
 		"k7/8/8/9/8/8/8/K7 w - - 0 1", // invalid char '9'
 		"k7/8/8/0/8/8/8/K7 w - - 0 1", // invalid char '0'
@@ -155,7 +155,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_ppfs_with_invalid_ranks,
-		FEN_STR_PPF_STRUCTURE_ERROR );
+		FEN_PPF_STRUCTURE_ERROR );
 
 // Test 5 fails
 #test C_che_fen_validator_returns_FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR

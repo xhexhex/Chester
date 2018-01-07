@@ -1,8 +1,8 @@
 ## The Chester FEN string validation scheme
 
-(There should be a document that describes what a FEN string is in Chester.)
+*(TODO: There should be a document that describes what a FEN string is in Chester.)*
 
-FEN string validation in Chester involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done of the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
+FEN string validation in Chester involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done on the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
 
 The prototype of the function for FEN string validation is defined in `chester.h` as follows:  
 `enum che_fen_error che_fen_validator( const char *fen );`
@@ -16,14 +16,15 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
 2.  `FEN_CHARS_ERROR`  
     The string contains characters that cannot occur in any (Shredder-)FEN string.
     More specifically the string doesn't match the following regex:  
-    `"^[KkQqRrBbNnPp/AaCcDdEeFfGgHhw 0123456789-]*$"`
-3.	FEN_STR_FIELD_STRUCTURE_ERROR
-	The string doesn't consist of six fields separated by single space
-	characters. That is, the string doesn't match the regex
-	"^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$"
-4.	FEN_STR_PPF_STRUCTURE_ERROR
-	The piece placement field (the first of the six fields) doesn't match
-	the regex "^r/r/r/r/r/r/r/r$" where r = "[KkQqRrBbNnPp12345678]{1,8}".
+    `^[KkQqRrBbNnPp/AaCcDdEeFfGgHhw 0123456789-]*$`
+3.  `FEN_FIELD_STRUCTURE_ERROR`  
+    The string doesn't consist of six fields separated by single space
+    characters. That is, the string doesn't match the following regex:  
+    `^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$`
+4.  `FEN_PPF_STRUCTURE_ERROR`  
+    The PPF (piece placement field, the first of the six FEN string fields)
+    doesn't match the regex `^r/r/r/r/r/r/r/r$` where `r` stands for
+    `[KkQqRrBbNnPp12345678]{1,8}`.
 5.	FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR
 	The PPF contains consecutive digits such as "12". As digits in a PPF
 	represent consecutive empty squares and the maximum number of empty
