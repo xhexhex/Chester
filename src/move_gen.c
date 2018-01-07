@@ -131,12 +131,6 @@ const Bitboard BISHOP_SQS[] = {
 	0x2040810204080U, 0x5081020408000U, 0xa112040800000U, 0x14224180000000U,
 	0x28448201000000U, 0x50880402010000U, 0xa0100804020100U, 0x40201008040201U };
 
-// APM, all possible moves. A move in this context means a valid source and
-// destination square such as "a1d1" or "e4f6" but not "d4d4", "h1g4" or "x1b2".
-const char *APM[] = {
-	ALL_POSSIBLE_MOVES, NULL
-};
-
 /*************************************
  **** Chester interface functions ****
  *************************************/

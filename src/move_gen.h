@@ -19,7 +19,6 @@ extern const Bitboard KNIGHT_SQS[];
 extern const Bitboard KING_SQS[];
 extern const Bitboard ROOK_SQS[];
 extern const Bitboard BISHOP_SQS[];
-extern const char *APM[];
 
 bool king_can_be_captured( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit ); // knight's effective range circle

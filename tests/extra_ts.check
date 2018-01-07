@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "../src/base.h"
+#include "../src/utils.h"
+#include "../src/extra.h"
+
+static bool left_lesser_than_right( const char *left, const char *right );
+
+#suite extra_ts
+
+#tcase APM_array_tests
+
+#define PROCESS_ALL_PAIRS( ck_assert_condition ) \
+int left = 0, right = 1, pair_count = 0; \
+bool done = false; \
+while( !done ) { \
+	while( APM[ right ] ) { \
+		++pair_count; \
+		ck_assert( ck_assert_condition ); \
+		++right; } \
+	++left; \
+	right = left + 1; \
+	if( !APM[ right ] ) { \
+		done = true; \
+		break; } } \
+ck_assert( pair_count == 1604736 );
+// 1792C2 = 1604736
+
+// Used to check that the APM array is in ascending order. The parameters
+// 'left' and 'right' are APM array elements.
+static bool
+left_lesser_than_right( const char *left, const char *right )
+{
+	if( left[ 1 ] < right[ 1 ] )
+		return true;
+	if( left[ 1 ] > right[ 1 ] )
+		return false;
+	if( left[ 0 ] < right[ 0 ] )
+		return true;
+	if( left[ 0 ] > right[ 0 ] )
+		return false;
+	// By now we know that the source squares of 'left' and 'right'
+	// are the same
+
+	if( left[ 3 ] < right[ 3 ] )
+		return true;
+	if( left[ 3 ] > right[ 3 ] )
+		return false;
+	if( left[ 2 ] < right[ 2 ] )
+		return true;
+
+	return false;
+}
+
+#test C_APM_array_testing_for_non_unique_elements
+	PROCESS_ALL_PAIRS( strcmp( APM[ left ], APM[ right ] ) )
+
+#test C_APM_array_regex_test
+	int i = 0;
+	while( APM[ i ] ) {
+		ck_assert( str_matches_pattern( APM[ i ],
+			"^[abcdefgh][12345678][abcdefgh][12345678]$" ) );
+		++i;
+	}
+
+#test C_APM_array_elements_are_in_ascending_order
+	PROCESS_ALL_PAIRS( left_lesser_than_right( APM[ left ], APM[ right ] ) )
+
+#test C_APM_array_each_move_has_an_inverse
+	// An "inverse" here means a move where the source and destination
+	// squares have been swapped. For example, the inverse of "e2e4" is "e4e2".
+	int i = 0, counter = 0, inverse_count;
+	while( APM[ i ] ) {
+		int j = 0;
+		char inverse[] = { APM[ i ][ 2 ], APM[ i ][ 3 ],
+			APM[ i ][ 0 ], APM[ i ][ 1 ], '\0' };
+		inverse_count = 0;
+		while( APM[ j ] ) {
+			if( !strcmp( APM[ j ], inverse ) )
+				++inverse_count;
+
+			++counter;
+			++j;
+		}
+
+		ck_assert( inverse_count == 1 );
+		++i;
+	}
+
+	ck_assert( counter == 3211264 ); // 1792^2
