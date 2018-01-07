@@ -66,13 +66,13 @@ che_fen_validator( const char *fen, const uint64_t settings )
 		return FEN_PPF_STRUCTURE_ERROR;
 	// Test 5
 	if( !x_validate_fen_str_test_5( fen ) )
-		return FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR;
+		return FEN_PPF_CONSECUTIVE_DIGITS_ERROR;
 	// Test 6
 	if( !x_validate_fen_str_test_6( fen ) )
-		return FEN_STR_PPF_RANK_SUM_ERROR;
+		return FEN_PPF_RANK_SUM_ERROR;
 	// Test 7
 	if( !x_validate_fen_str_test_7( fen ) )
-		return FEN_STR_ACF_ERROR;
+		return FEN_ACF_ERROR;
 	// Test 8
 	if( !x_validate_fen_str_test_8( fen ) )
 		return FEN_STR_CAF_ERROR;

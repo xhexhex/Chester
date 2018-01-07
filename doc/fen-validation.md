@@ -25,16 +25,17 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     The PPF (piece placement field, the first of the six FEN string fields)
     doesn't match the regex `^r/r/r/r/r/r/r/r$` where `r` stands for
     `[KkQqRrBbNnPp12345678]{1,8}`.
-5.	FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR
-	The PPF contains consecutive digits such as "12". As digits in a PPF
-	represent consecutive empty squares and the maximum number of empty
-	squares in a rank is eight, only one digit is needed to express a
-	particular number of consecutive empty squares.
-6.	FEN_STR_PPF_RANK_SUM_ERROR
-	One (or more) of the ranks of the PPF has a rank sum not equal to eight.
-7.	FEN_STR_ACF_ERROR
-	The active color field (the second of the six fields) is something
-	else than "w" or "b".
+5.  `FEN_PPF_CONSECUTIVE_DIGITS_ERROR`  
+    The PPF contains consecutive digits such as "12". As digits in a PPF
+    represent consecutive empty squares and the maximum number of empty
+    squares in a rank is eight, only one digit is needed to express a
+    particular number of consecutive empty squares.
+6.  `FEN_PPF_RANK_SUM_ERROR`  
+    One (or more) of the ranks of the PPF has a rank sum not equal to eight.
+    The rank sum means the square count of the rank. The PPF ranks "8", "RNBQKBNR"
+    and "r1q1b2n" all have a rank sum of eight whereas the rank sum of "pp2pp" is 6.
+7.  `FEN_ACF_ERROR`  
+    The ACF (active color field) is something else than "w" or "b".
 8.	FEN_STR_CAF_ERROR
 	The castling availability field (the third of the six fields) is
 	a string not included in the following 16-element set:

@@ -158,7 +158,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		FEN_PPF_STRUCTURE_ERROR );
 
 // Test 5 fails
-#test C_che_fen_validator_returns_FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR
+#test C_che_fen_validator_returns_FEN_PPF_CONSECUTIVE_DIGITS_ERROR
 	const char * const piece_placement_fields_with_consecutive_digits[] = {
 		"rnbqkbnr/ppp11ppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // "11"
 		"k7/8/8/17/8/8/8/K7 w - - 0 1", // "17"
@@ -170,10 +170,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_consecutive_digits,
-		FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR );
+		FEN_PPF_CONSECUTIVE_DIGITS_ERROR );
 
 // Test 6 fails
-#test C_che_fen_validator_returns_FEN_STR_PPF_RANK_SUM_ERROR
+#test C_che_fen_validator_returns_FEN_PPF_RANK_SUM_ERROR
 	const char * const piece_placement_fields_with_invalid_rank_sums[] = {
 		// Rank sum of 8th rank is 10
 		"rnb3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -190,10 +190,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_invalid_rank_sums,
-		FEN_STR_PPF_RANK_SUM_ERROR );
+		FEN_PPF_RANK_SUM_ERROR );
 
 // Test 7 fails
-#test C_che_fen_validator_returns_FEN_STR_ACF_ERROR
+#test C_che_fen_validator_returns_FEN_ACF_ERROR
 	const char * const fens_with_invalid_active_color[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR K KQkq - 0 1", // Active color "K"
 		"k7/8/8/8/8/8/8/K7 1 - - 0 1", // Active color "1"
@@ -204,7 +204,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w/b KQkq - 0 1", // Active color "w/b"
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_STR_ACF_ERROR );
+	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_ACF_ERROR );
 
 // Test 8 fails
 #test C_che_fen_validator_returns_FEN_STR_CAF_ERROR
