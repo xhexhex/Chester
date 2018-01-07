@@ -7,7 +7,10 @@
 #include "../src/utils.h"
 #include "../src/extra.h"
 
+// DISABLED, DO NOT REMOVE!
+/*
 static bool left_lesser_than_right( const char *left, const char *right );
+*/
 
 #suite extra_ts
 
@@ -29,6 +32,8 @@ while( !done ) { \
 ck_assert( pair_count == 1604736 );
 // 1792C2 = 1604736
 
+// DISABLED, DO NOT REMOVE!
+/*
 // Used to check that the APM array is in ascending order. The parameters
 // 'left' and 'right' are APM array elements.
 static bool
@@ -54,9 +59,13 @@ left_lesser_than_right( const char *left, const char *right )
 
 	return false;
 }
+*/
 
 #test C_APM_array_testing_for_non_unique_elements
+	// DISABLED, DO NOT REMOVE!
+	/*
 	PROCESS_ALL_PAIRS( strcmp( APM[ left ], APM[ right ] ) )
+	*/
 
 #test C_APM_array_regex_test
 	int i = 0;
@@ -67,7 +76,12 @@ left_lesser_than_right( const char *left, const char *right )
 	}
 
 #test C_APM_array_elements_are_in_ascending_order
+	// DISABLED, DO NOT REMOVE!
+	/*
 	PROCESS_ALL_PAIRS( left_lesser_than_right( APM[ left ], APM[ right ] ) )
+	*/
+
+#undef PROCESS_ALL_PAIRS
 
 #test C_APM_array_each_move_has_an_inverse
 	// An "inverse" here means a move where the source and destination
