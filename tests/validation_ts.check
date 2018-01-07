@@ -13,7 +13,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 #tcase che_fen_str_validator_main_tests
 
-#test C_che_fen_validator_returns_FEN_STR_NO_ERRORS
+#test C_che_fen_validator_returns_FEN_NO_ERRORS
 	const char * const valid_fen_strs[] = {
 		STD_START_POS_FEN,
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -94,7 +94,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/3N4/8/Q1rk4/8/4PK2/8/3R3B b - - 0 123",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( valid_fen_strs, FEN_STR_NO_ERRORS );
+	FEN_STR_ARRAY_FOR_LOOP( valid_fen_strs, FEN_NO_ERRORS );
 
 // Test 1 fails
 #test C_che_fen_validator_returns_FEN_LENGTH_ERROR
@@ -499,7 +499,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
 
 // All tests pass
-#test C_che_fen_str_validator_returns_FEN_STR_NO_ERRORS_chess960
+#test C_che_fen_str_validator_returns_FEN_NO_ERRORS_chess960
 	const char *valid_chess960_fens[] = {
 		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
 		"r3k2r/8/8/8/8/8/8/3RKR2 w KQkq - 0 50",
@@ -510,7 +510,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_STR_NO_ERRORS, CFSV_BF_CHESS960 )
+	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_NO_ERRORS, CFSV_BF_CHESS960 )
 
 // Test 24 fails
 #test C_che_fen_str_validator_returns_FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960

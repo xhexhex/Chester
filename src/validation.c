@@ -50,54 +50,54 @@ static char x_writable_mem[ 120 + 1 ];
 
 // The function for FEN string validation
 enum che_fen_error
-che_fen_validator( const char *fen_str, const uint64_t settings )
+che_fen_validator( const char *fen, const uint64_t settings )
 {
 	// Test 1
-	if( !x_validate_fen_str_test_1( fen_str ) )
+	if( !x_validate_fen_str_test_1( fen ) )
 		return FEN_LENGTH_ERROR;
 	// Test 2
-	if( !x_validate_fen_str_test_2( fen_str ) )
+	if( !x_validate_fen_str_test_2( fen ) )
 		return FEN_STR_CHARS_ERROR;
 	// Test 3
-	if( !x_validate_fen_str_test_3( fen_str ) )
+	if( !x_validate_fen_str_test_3( fen ) )
 		return FEN_STR_FIELD_STRUCTURE_ERROR;
 	// Test 4
-	if( !x_validate_fen_str_test_4( fen_str ) )
+	if( !x_validate_fen_str_test_4( fen ) )
 		return FEN_STR_PPF_STRUCTURE_ERROR;
 	// Test 5
-	if( !x_validate_fen_str_test_5( fen_str ) )
+	if( !x_validate_fen_str_test_5( fen ) )
 		return FEN_STR_PPF_CONSECUTIVE_DIGITS_ERROR;
 	// Test 6
-	if( !x_validate_fen_str_test_6( fen_str ) )
+	if( !x_validate_fen_str_test_6( fen ) )
 		return FEN_STR_PPF_RANK_SUM_ERROR;
 	// Test 7
-	if( !x_validate_fen_str_test_7( fen_str ) )
+	if( !x_validate_fen_str_test_7( fen ) )
 		return FEN_STR_ACF_ERROR;
 	// Test 8
-	if( !x_validate_fen_str_test_8( fen_str ) )
+	if( !x_validate_fen_str_test_8( fen ) )
 		return FEN_STR_CAF_ERROR;
 	// Test 9
-	if( !x_validate_fen_str_test_9( fen_str ) )
+	if( !x_validate_fen_str_test_9( fen ) )
 		return FEN_STR_EPTSF_ERROR;
 	// Test 10
-	if( !x_validate_fen_str_test_10( fen_str ) )
+	if( !x_validate_fen_str_test_10( fen ) )
 		return FEN_STR_HMCF_ERROR;
 	// Test 11
-	if( !x_validate_fen_str_test_11( fen_str ) )
+	if( !x_validate_fen_str_test_11( fen ) )
 		return FEN_STR_FMNF_ERROR;
 	// Test 12
-	if( !x_validate_fen_str_test_12( fen_str, settings ) )
+	if( !x_validate_fen_str_test_12( fen, settings ) )
 		return FEN_STR_PPF_CONTRADICTS_CAF_ERROR;
 	// Test 13
-	if( !x_validate_fen_str_test_13( fen_str ) )
+	if( !x_validate_fen_str_test_13( fen ) )
 		return FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR;
 	// Test 14
-	if( !x_validate_fen_str_test_14( fen_str ) )
+	if( !x_validate_fen_str_test_14( fen ) )
 		return FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR;
 
 	// At this point the FEN string is found to be "sufficiently valid"
 	// for the conversion to succeed
-	Pos *p = fen_to_pos( fen_str );
+	Pos *p = fen_to_pos( fen );
 
 	// Test 15
 	if( !x_validate_fen_str_test_15( p ) )
@@ -130,7 +130,7 @@ che_fen_validator( const char *fen_str, const uint64_t settings )
 	if( !x_validate_fen_str_test_24( p ) )
 		return FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
-	return FEN_STR_NO_ERRORS;
+	return FEN_NO_ERRORS;
 }
 
 /****************************

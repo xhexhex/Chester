@@ -1,11 +1,11 @@
 ## The Chester FEN string validation scheme
 
-FEN string validation involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done of the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
+FEN string validation in Chester involves a number of tests which are numbered starting from one. The tests should be performed in order and one after the other, and if a particular test fails, no further tests should be done of the prospective FEN string. For example, if test 3 is done on a string, it implies that the string has already passed tests 1 and 2.
 
-The prototype of the function for FEN string validation is defined in chester.h as follows:
-enum fen_str_error che_validate_fen_str( const char *fen_str );
+The prototype of the function for FEN string validation is defined in `chester.h` as follows:  
+`enum che_fen_error che_fen_validator( const char *fen );`
 
-Apart from FEN_STR_NO_ERRORS, each of the enum fen_str_error constants represents the failure of a particular test. The test failure associated with each of the constants is described in the following. This also serves as a description of the tests themselves (a test is a success if and only if its associated error conditions are not fulfilled).
+Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represents the failure of a particular test. The test failure associated with each of the constants is described in the following. This also serves as a description of the tests themselves (a test is a success if and only if its associated error conditions are not fulfilled).
 
 1.  `FEN_LENGTH_ERROR`  
     The string is either less than `FEN_MIN_LENGTH` chars or more than
