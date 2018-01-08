@@ -75,16 +75,16 @@ che_fen_validator( const char *fen, const uint64_t settings )
 		return FEN_ACF_ERROR;
 	// Test 8
 	if( !x_validate_fen_str_test_8( fen ) )
-		return FEN_STR_CAF_ERROR;
+		return FEN_CAF_ERROR;
 	// Test 9
 	if( !x_validate_fen_str_test_9( fen ) )
-		return FEN_STR_EPTSF_ERROR;
+		return FEN_EPTSF_ERROR;
 	// Test 10
 	if( !x_validate_fen_str_test_10( fen ) )
-		return FEN_STR_HMCF_ERROR;
+		return FEN_HMCF_ERROR;
 	// Test 11
 	if( !x_validate_fen_str_test_11( fen ) )
-		return FEN_STR_FMNF_ERROR;
+		return FEN_FMNF_ERROR;
 	// Test 12
 	if( !x_validate_fen_str_test_12( fen, settings ) )
 		return FEN_STR_PPF_CONTRADICTS_CAF_ERROR;

@@ -277,6 +277,24 @@ const size_t
 	// Allowing FENs longer than this wouldn't seem to make sense.
 	FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 90;
 
+// The 21 ways rooks can be placed in a Chess960 starting position. Each of the values
+// is an 8-bit unsigned integer with exactly two bits set. The two set bits correspond
+// to the files on which the rooks are located. The LSB is file a and the MSB is
+// file h. As an example, here's the diagram for the value 2 + 16:
+//
+//   h    g    f    e    d    c    b    a
+// [   ][   ][   ][ x ][   ][   ][ x ][   ]
+//                                     LSB
+//
+const size_t POSSIBLE_IRPF_VALUES_COUNT = 21;
+const uint8_t POSSIBLE_IRPF_VALUES[] = {
+	1 + 4, 1 + 8, 1 + 16, 1 + 32, 1 + 64, 1 + 128,
+	2 + 8, 2 + 16, 2 + 32, 2 + 64, 2 + 128,
+	4 + 16, 4 + 32, 4 + 64, 4 + 128,
+	8 + 32, 8 + 64, 8 + 128,
+	16 + 64, 16 + 128,
+	32 + 128 };
+
 /************************************
  **** Static function prototypes ****
  ************************************/

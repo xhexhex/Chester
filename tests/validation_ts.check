@@ -207,7 +207,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_ACF_ERROR );
 
 // Test 8 fails
-#test C_che_fen_validator_returns_FEN_STR_CAF_ERROR
+#test C_che_fen_validator_returns_FEN_CAF_ERROR
 	const char * const fens_with_invalid_castling_availability[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w QKkq - 0 1", // Q before K
 		"k7/8/8/8/8/8/8/K7 w / - 0 1", // "/" as CA field
@@ -218,10 +218,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_castling_availability,
-		FEN_STR_CAF_ERROR );
+		FEN_CAF_ERROR );
 
 // Test 9 fails
-#test C_che_fen_validator_returns_FEN_STR_EPTSF_ERROR
+#test C_che_fen_validator_returns_FEN_EPTSF_ERROR
 	const char * const fens_with_invalid_en_passant_target_squares[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -- 0 1",
 		"k7/8/8/8/8/8/8/K7 b - / 0 1",
@@ -234,10 +234,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_en_passant_target_squares,
-		FEN_STR_EPTSF_ERROR );
+		FEN_EPTSF_ERROR );
 
 // Test 10 fails
-#test C_che_fen_validator_returns_FEN_STR_HMCF_ERROR
+#test C_che_fen_validator_returns_FEN_HMCF_ERROR
 	const char * const fens_with_invalid_halfmove_clock[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - - 1", // "-"
 		"k7/8/8/8/8/8/8/K7 w - - / 1", // "/"
@@ -254,10 +254,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_halfmove_clock,
-		FEN_STR_HMCF_ERROR );
+		FEN_HMCF_ERROR );
 
 // Test 11 fails
-#test C_che_fen_validator_returns_FEN_STR_FMNF_ERROR
+#test C_che_fen_validator_returns_FEN_FMNF_ERROR
 	const char * const fens_with_invalid_fullmove_number[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0", // "0"
 		"k7/8/8/8/8/8/8/K7 w - - 0 4096", // "4096"
@@ -273,7 +273,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_fullmove_number,
-		FEN_STR_FMNF_ERROR );
+		FEN_FMNF_ERROR );
 
 // Test 12 fails
 #test C_che_fen_validator_returns_FEN_STR_PPF_CONTRADICTS_CAF_ERROR

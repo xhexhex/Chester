@@ -36,25 +36,25 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     and "r1q1b2n" all have a rank sum of eight whereas the rank sum of "pp2pp" is 6.
 7.  `FEN_ACF_ERROR`  
     The ACF (active color field) is something else than "w" or "b".
-8.	FEN_STR_CAF_ERROR
-	The castling availability field (the third of the six fields) is
-	a string not included in the following 16-element set:
-	{ "-", "K", "Q", "k", "q", "KQ", "Kk", "Kq", "Qk", "Qq", "kq",
-	"Qkq", "Kkq", "KQq", "KQk", "KQkq" }
-9.	FEN_STR_EPTSF_ERROR
-	The en passant target square field (the fourth of the six fields) is
-	a string that does not match the regex "^[a-h][36]$" and is not the
-	string "-".
-10.	FEN_STR_HMCF_ERROR
-	The halfmove clock field (the fifth of the six fields) is not a
-	decimal integer string with a value between 0 and 2^12 - 1 = 4095.
-	Note that the only acceptable characters in the string are
-	decimal digits.
-11.	FEN_STR_FMNF_ERROR
-	The fullmove number field (the last of the six fields) is not a
-	decimal integer string with a value between 1 and 2^12 - 1 = 4095.
-	Note that the only acceptable characters in the string are
-	decimal digits.
+8.  `FEN_CAF_ERROR`  
+    The CAF (castling availability field) is not valid. Examples of valid CAF
+    values include "-", "KQkq", "Kq", "k", "AHah", "HAha", "CEce", "CEc" and "Ce".  
+    *(TODO: Provide a link to the comprehensive description of the CAF in Chester.)*  
+    ~~The castling availability field (the third of the six fields) is
+    a string not included in the following 16-element set:
+    { "-", "K", "Q", "k", "q", "KQ", "Kk", "Kq", "Qk", "Qq", "kq",
+    "Qkq", "Kkq", "KQq", "KQk", "KQkq" }~~
+9.  `FEN_EPTSF_ERROR`  
+    The EPTSF (en passant target square field) is a string that does not match
+    the regex `^[a-h][36]$` and is not the string "-".
+10. `FEN_HMCF_ERROR`  
+    The HMCF (halfmove clock field) is not a decimal integer string with a value
+    between 0 and 9999. Note that the only acceptable characters in the string are
+    decimal digits.
+11. `FEN_FMNF_ERROR`  
+    The FMNF (fullmove number field) is not a decimal integer string with a value
+    between 1 and 9999. Note that the only acceptable characters in the string are
+    decimal digits.
 12.	FEN_STR_PPF_CONTRADICTS_CAF_ERROR
 	The piece placement and castling availability fields don't make
 	sense when considered together. For each of the four castling
