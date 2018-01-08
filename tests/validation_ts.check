@@ -4,7 +4,7 @@
 
 #suite validation_ts
 
-#define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
+#define FEN_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
 for( int i = 0; str_array_name[ i ]; i++ ) { \
 	enum che_fen_error real_ret_val = \
 		che_fen_validator( (char *) str_array_name[ i ], 0 ); \
@@ -94,7 +94,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/3N4/8/Q1rk4/8/4PK2/8/3R3B b - - 0 123",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( valid_fen_strs, FEN_NO_ERRORS );
+	FEN_ARRAY_FOR_LOOP( valid_fen_strs, FEN_NO_ERRORS );
 
 // Test 1 fails
 #test C_che_fen_validator_returns_FEN_LENGTH_ERROR
@@ -108,7 +108,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 			"w KQkq - 9999 9999",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( invalid_length_fen_strs, FEN_LENGTH_ERROR );
+	FEN_ARRAY_FOR_LOOP( invalid_length_fen_strs, FEN_LENGTH_ERROR );
 
 // Test 2 fails
 #test C_che_fen_validator_returns_FEN_CHARS_ERROR
@@ -123,7 +123,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq å3 0 1", // 'å'
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_CHARS_ERROR );
+	FEN_ARRAY_FOR_LOOP( fen_strs_with_invalid_chars, FEN_CHARS_ERROR );
 
 // Test 3 fails
 #test C_che_fen_validator_returns_FEN_FIELD_STRUCTURE_ERROR
@@ -135,7 +135,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 w - - 0 1 ", // space at end
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_invalid_field_structure,
+	FEN_ARRAY_FOR_LOOP( fen_strs_with_invalid_field_structure,
 		FEN_FIELD_STRUCTURE_ERROR );
 
 // Test 4 fails
@@ -154,7 +154,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"---k7/8/8/8/8/8/8/K7--- w - - 0 1", // PPF starts and ends with dashes
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fen_strs_with_ppfs_with_invalid_ranks,
+	FEN_ARRAY_FOR_LOOP( fen_strs_with_ppfs_with_invalid_ranks,
 		FEN_PPF_STRUCTURE_ERROR );
 
 // Test 5 fails
@@ -169,7 +169,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/11111111/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // "11111111"
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_consecutive_digits,
+	FEN_ARRAY_FOR_LOOP( piece_placement_fields_with_consecutive_digits,
 		FEN_PPF_CONSECUTIVE_DIGITS_ERROR );
 
 // Test 6 fails
@@ -189,7 +189,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/8 w KQ - 1 8",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( piece_placement_fields_with_invalid_rank_sums,
+	FEN_ARRAY_FOR_LOOP( piece_placement_fields_with_invalid_rank_sums,
 		FEN_PPF_RANK_SUM_ERROR );
 
 // Test 7 fails
@@ -204,7 +204,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w/b KQkq - 0 1", // Active color "w/b"
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_ACF_ERROR );
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_active_color, FEN_ACF_ERROR );
 
 // Test 8 fails
 #test C_che_fen_validator_returns_FEN_CAF_ERROR
@@ -217,7 +217,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 w 1234 - 0 1", // "1234" as CA field
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_castling_availability,
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_castling_availability,
 		FEN_CAF_ERROR );
 
 // Test 9 fails
@@ -233,7 +233,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 w - h8 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_en_passant_target_squares,
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_en_passant_target_squares,
 		FEN_EPTSF_ERROR );
 
 // Test 10 fails
@@ -253,7 +253,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 w - - 123hehe 1", // "123hehe"
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_halfmove_clock,
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_halfmove_clock,
 		FEN_HMCF_ERROR );
 
 // Test 11 fails
@@ -272,11 +272,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 w - - 0 -/",  // "-/"
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( fens_with_invalid_fullmove_number,
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_fullmove_number,
 		FEN_FMNF_ERROR );
 
 // Test 12 fails
-#test C_che_fen_validator_returns_FEN_STR_PPF_CONTRADICTS_CAF_ERROR
+#test C_che_fen_validator_returns_FEN_PPF_CONTRADICTS_CAF_ERROR
 	const char * const contradictory_ppf_and_caf[] = {
 		// In the following FENs we see a rookless board, yet the castling
 		// availability field is something else than "-".
@@ -304,11 +304,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
-		FEN_STR_PPF_CONTRADICTS_CAF_ERROR );
+	FEN_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
+		FEN_PPF_CONTRADICTS_CAF_ERROR );
 
 // Test 13 fails
-#test C_che_fen_validator_returns_FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR
+#test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_HMCF_ERROR
 	const char * const contradictory_epts_and_hmc_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 1 1",
 		"k7/8/8/8/8/8/8/K7 b - e3 2 1",
@@ -318,11 +318,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/K7 b - h3 4095 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_hmc_fields,
-		FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR );
+	FEN_ARRAY_FOR_LOOP( contradictory_epts_and_hmc_fields,
+		FEN_EPTSF_CONTRADICTS_HMCF_ERROR );
 
 // Test 14 fails
-#test C_che_fen_validator_returns_FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR
+#test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_ACF_ERROR
 	const char * const contradictory_epts_and_ac_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1",
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR b KQkq c6 0 2",
@@ -331,11 +331,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e6 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_ac_fields,
-		FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR );
+	FEN_ARRAY_FOR_LOOP( contradictory_epts_and_ac_fields,
+		FEN_EPTSF_CONTRADICTS_ACF_ERROR );
 
 // Test 15 fails
-#test C_che_fen_validator_returns_FEN_STR_EPTSF_CONTRADICTS_PPF_ERROR
+#test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_PPF_ERROR
 	const char * const contradictory_epts_and_pp_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
 		"rnbqkbnr/pp1ppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
@@ -344,11 +344,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/4P3/4p3/8/8/4K3 w - e6 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( contradictory_epts_and_pp_fields,
-		FEN_STR_EPTSF_CONTRADICTS_PPF_ERROR );
+	FEN_ARRAY_FOR_LOOP( contradictory_epts_and_pp_fields,
+		FEN_EPTSF_CONTRADICTS_PPF_ERROR );
 
 // Test 16 fails
-#test C_che_fen_validator_returns_FEN_STR_WHITE_PAWN_ON_FIRST_RANK
+#test C_che_fen_validator_returns_FEN_WHITE_PAWN_ON_FIRST_RANK
 	const char * const white_pawn_on_first_rank[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBPKBNR w KQkq - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/RNBQKBNR/PPPPPPPP w kq - 0 1",
@@ -357,11 +357,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/8/8/8/8/4K2P w - - 0 50",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( white_pawn_on_first_rank,
-		FEN_STR_WHITE_PAWN_ON_FIRST_RANK );
+	FEN_ARRAY_FOR_LOOP( white_pawn_on_first_rank,
+		FEN_WHITE_PAWN_ON_FIRST_RANK );
 
 // Test 17 fails
-#test C_che_fen_validator_returns_FEN_STR_BLACK_PAWN_ON_FIRST_RANK
+#test C_che_fen_validator_returns_FEN_BLACK_PAWN_ON_FIRST_RANK
 	const char * const black_pawn_on_first_rank[] = {
 		"rnbpkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 		"pppppppp/rnbqkbnr/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
@@ -370,11 +370,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"p7/8/8/8/8/8/8/K7 w - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( black_pawn_on_first_rank,
-		FEN_STR_BLACK_PAWN_ON_FIRST_RANK );
+	FEN_ARRAY_FOR_LOOP( black_pawn_on_first_rank,
+		FEN_BLACK_PAWN_ON_FIRST_RANK );
 
 // Test 18 fails
-#test C_che_fen_validator_returns_FEN_STR_WHITE_PAWN_ON_LAST_RANK
+#test C_che_fen_validator_returns_FEN_WHITE_PAWN_ON_LAST_RANK
 	const char * const white_pawn_on_last_rank[] = {
 		"rnbPkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 		"rPbqkbnr/2pppppp/8/8/8/8/P1PPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -383,11 +383,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"P6P/8/k7/8/8/8/8/K7 w - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( white_pawn_on_last_rank,
-		FEN_STR_WHITE_PAWN_ON_LAST_RANK );
+	FEN_ARRAY_FOR_LOOP( white_pawn_on_last_rank,
+		FEN_WHITE_PAWN_ON_LAST_RANK );
 
 // Test 19 fails
-#test C_che_fen_validator_returns_FEN_STR_BLACK_PAWN_ON_LAST_RANK
+#test C_che_fen_validator_returns_FEN_BLACK_PAWN_ON_LAST_RANK
 	const char * const black_pawn_on_last_rank[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBpKBNR w KQkq - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RpBQKBpR w KQkq - 0 1",
@@ -396,11 +396,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/8/8/8/8/pppppppp w - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( black_pawn_on_last_rank,
-		FEN_STR_BLACK_PAWN_ON_LAST_RANK );
+	FEN_ARRAY_FOR_LOOP( black_pawn_on_last_rank,
+		FEN_BLACK_PAWN_ON_LAST_RANK );
 
 // Test 20 fails
-#test C_che_fen_validator_returns_FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS
+#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_WHITE_KINGS
 	const char * const invalid_number_of_white_kings[] = {
 		"b7/8/8/8/8/8/8/B7 w - - 0 1",
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w - - 0 1",
@@ -409,11 +409,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/KKKKKKKK w - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( invalid_number_of_white_kings,
-		FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS );
+	FEN_ARRAY_FOR_LOOP( invalid_number_of_white_kings,
+		FEN_INVALID_NUMBER_OF_WHITE_KINGS );
 
 // Test 21 fails
-#test C_che_fen_validator_returns_FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS
+#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_BLACK_KINGS
 	const char * const invalid_number_of_black_kings[] = {
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
 		"8/p7/8/8/8/8/8/K7 w - - 0 1",
@@ -422,11 +422,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkKkkk w - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
-		FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS );
+	FEN_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
+		FEN_INVALID_NUMBER_OF_BLACK_KINGS );
 
 // Test 22 fails
-#test C_che_fen_validator_returns_FEN_STR_WHITE_KING_CAN_BE_CAPTURED
+#test C_che_fen_validator_returns_FEN_WHITE_KING_CAN_BE_CAPTURED
 	const char * const white_king_can_be_captured[] = {
 		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
 		"8/8/4k3/2n3n1/4K3/8/8/8 b - - 30 100",
@@ -451,11 +451,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/8/8/8/5kp1/7K b - - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( white_king_can_be_captured,
-		FEN_STR_WHITE_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( white_king_can_be_captured,
+		FEN_WHITE_KING_CAN_BE_CAPTURED );
 
 // Test 23 fails
-#test C_che_fen_validator_returns_FEN_STR_BLACK_KING_CAN_BE_CAPTURED
+#test C_che_fen_validator_returns_FEN_BLACK_KING_CAN_BE_CAPTURED
 	const char * const black_king_can_be_captured[] = {
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
 		"k6K/8/1N6/8/8/8/8/8 w - - 0 100",
@@ -482,16 +482,16 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/3N4/8/Q1rk4/3PP3/5K2/8/3R3B w - - 0 123",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( black_king_can_be_captured,
-		FEN_STR_BLACK_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( black_king_can_be_captured,
+		FEN_BLACK_KING_CAN_BE_CAPTURED );
 
 //
 // Test case
 //
 #tcase che_fen_str_validator_chess960_tests
 
-#undef FEN_STR_ARRAY_FOR_LOOP
-#define FEN_STR_ARRAY_FOR_LOOP( str_array_name, expected_ret_val, settings ) \
+#undef FEN_ARRAY_FOR_LOOP
+#define FEN_ARRAY_FOR_LOOP( str_array_name, expected_ret_val, settings ) \
 for( int i = 0; str_array_name[ i ]; i++ ) { \
 	enum che_fen_error real_ret_val = \
 		che_fen_validator( (char *) str_array_name[ i ], settings ); \
@@ -510,10 +510,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_NO_ERRORS, CFSV_BF_CHESS960 )
+	FEN_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_NO_ERRORS, CFSV_BF_CHESS960 )
 
 // Test 24 fails
-#test C_che_fen_str_validator_returns_FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960
+#test C_che_fen_str_validator_returns_FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960
 	const char *chess960_fens_with_contradictory_ppf_and_caf[] = {
 		"7k/8/8/8/8/8/8/2KRNNBB w Q - 0 50",
 		"r6r/4k3/8/8/8/8/4K3/3R1R2 w KQkq - 0 50",
@@ -525,8 +525,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w k - 0 1",
 		NULL };
 
-	FEN_STR_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,
-		FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR, CFSV_BF_CHESS960 )
+	FEN_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,
+		FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR, CFSV_BF_CHESS960 )
 
 #tcase valid_sq_name_tests
 

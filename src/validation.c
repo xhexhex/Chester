@@ -87,13 +87,13 @@ che_fen_validator( const char *fen, const uint64_t settings )
 		return FEN_FMNF_ERROR;
 	// Test 12
 	if( !x_validate_fen_str_test_12( fen, settings ) )
-		return FEN_STR_PPF_CONTRADICTS_CAF_ERROR;
+		return FEN_PPF_CONTRADICTS_CAF_ERROR;
 	// Test 13
 	if( !x_validate_fen_str_test_13( fen ) )
-		return FEN_STR_EPTSF_CONTRADICTS_HMCF_ERROR;
+		return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
 	// Test 14
 	if( !x_validate_fen_str_test_14( fen ) )
-		return FEN_STR_EPTSF_CONTRADICTS_ACF_ERROR;
+		return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
 
 	// At this point the FEN string is found to be "sufficiently valid"
 	// for the conversion to succeed
@@ -101,34 +101,34 @@ che_fen_validator( const char *fen, const uint64_t settings )
 
 	// Test 15
 	if( !x_validate_fen_str_test_15( p ) )
-		return FEN_STR_EPTSF_CONTRADICTS_PPF_ERROR;
+		return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
 	// Test 16
 	if( !x_validate_fen_str_test_16( p ) )
-		return FEN_STR_WHITE_PAWN_ON_FIRST_RANK;
+		return FEN_WHITE_PAWN_ON_FIRST_RANK;
 	// Test 17
 	if( !x_validate_fen_str_test_17( p ) )
-		return FEN_STR_BLACK_PAWN_ON_FIRST_RANK;
+		return FEN_BLACK_PAWN_ON_FIRST_RANK;
 	// Test 18
 	if( !x_validate_fen_str_test_18( p ) )
-		return FEN_STR_WHITE_PAWN_ON_LAST_RANK;
+		return FEN_WHITE_PAWN_ON_LAST_RANK;
 	// Test 19
 	if( !x_validate_fen_str_test_19( p ) )
-		return FEN_STR_BLACK_PAWN_ON_LAST_RANK;
+		return FEN_BLACK_PAWN_ON_LAST_RANK;
 	// Test 20
 	if( !x_validate_fen_str_test_20( p ) )
-		return FEN_STR_INVALID_NUMBER_OF_WHITE_KINGS;
+		return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
 	// Test 21
 	if( !x_validate_fen_str_test_21( p ) )
-		return FEN_STR_INVALID_NUMBER_OF_BLACK_KINGS;
+		return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
 	// Test 22
 	if( !x_validate_fen_str_test_22( p ) )
-		return FEN_STR_WHITE_KING_CAN_BE_CAPTURED;
+		return FEN_WHITE_KING_CAN_BE_CAPTURED;
 	// Test 23
 	if( !x_validate_fen_str_test_23( p ) )
-		return FEN_STR_BLACK_KING_CAN_BE_CAPTURED;
+		return FEN_BLACK_KING_CAN_BE_CAPTURED;
 	// Test 24
 	if( !x_validate_fen_str_test_24( p ) )
-		return FEN_STR_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
+		return FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
 	return FEN_NO_ERRORS;
 }

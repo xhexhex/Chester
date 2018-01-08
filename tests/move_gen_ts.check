@@ -13,7 +13,7 @@
 
 #test C_king_can_be_captured_returns_true
 	// Test FENs moved to
-	// #test C_che_fen_str_validator_returns_FEN_STR_*_KING_CAN_BE_CAPTURED
+	// #test C_che_fen_str_validator_returns_FEN_*_KING_CAN_BE_CAPTURED
 	const char *positions_in_which_king_can_be_captured[] = {
 		"Q6k/8/8/8/8/8/8/K7 w - - 0 1",
 		NULL };
