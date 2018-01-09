@@ -41,6 +41,8 @@ void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
 void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
 void expand_ppf( const char *ppf, char *eppf );
 char *compress_eppf( const char *eppf );
+char **fen_fields( const char *fen );
+void free_fen_fields( char **ff );
 
 #endif
 // end UTILS_H

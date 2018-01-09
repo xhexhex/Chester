@@ -751,3 +751,38 @@ free( bin_str );
 		ck_assert( !strcmp( input_ppf[ i ], output_ppf ) );
 		free( output_ppf );
 	}
+
+//
+// Test case
+//
+#tcase fen_fields_tests
+
+#define FEN_FIELDS_WORKS( fen, exp_ppf, exp_acf, exp_caf, exp_eptsf, \
+	exp_hmcf, exp_fmnf ) \
+ck_assert( !che_fen_validator( fen, 0 ) ); \
+ff = fen_fields( fen ); \
+ck_assert( ff ); \
+exp_vals[ 0 ] = exp_ppf, exp_vals[ 1 ] = exp_acf, exp_vals[ 2 ] = exp_caf, \
+	exp_vals[ 3 ] = exp_eptsf, exp_vals[ 4 ] = exp_hmcf, exp_vals[ 5 ] = exp_fmnf; \
+for( int i = 0; i < 6; i++ ) ck_assert( !strcmp( ff[ i ], exp_vals[ i ] ) ); \
+free_fen_fields( ff );
+
+#test C_fen_fields_works
+	char **ff, *exp_vals[ 6 ];
+	ff = fen_fields( STD_START_POS_FEN );
+	FEN_FIELDS_WORKS( STD_START_POS_FEN,
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq", "-", "0", "1" )
+	FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R w KQkq - 0 6",
+		"rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R", "w", "KQkq", "-", "0", "6" )
+	FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R b KQkq - 1 6",
+		"rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R", "b", "KQkq", "-", "1", "6" )
+	FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R w KQkq - 2 7",
+		"rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R", "w", "KQkq", "-", "2", "7" )
+	FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R b KQkq - 3 7",
+		"rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "b", "KQkq", "-", "3", "7" )
+	FEN_FIELDS_WORKS( "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R w KQkq - 4 8",
+		"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "w", "KQkq", "-", "4", "8" )
+	FEN_FIELDS_WORKS( "4k3/8/8/8/8/8/8/4K3 w - - 1337 54321",
+		"4k3/8/8/8/8/8/8/4K3", "w", "-", "-", "1337", "54321" )
+
+#undef FEN_FIELDS_WORKS

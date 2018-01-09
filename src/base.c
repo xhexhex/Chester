@@ -334,30 +334,30 @@ static char x_writable_mem[ 120 + 1 ];
 // Converts a FEN string to a Pos variable, the internal position
 // representation in Chester
 Pos *
-fen_to_pos( const char *fen_str ) // Argument assumed to be valid
+fen_to_pos( const char *fen ) // Argument assumed to be valid
 {
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
 	assert( p );
 	char writable_array_of_65_bytes[ 64 + 1 ];
 
-	x_gen_slashless_constant_length_pp_str( fen_str, writable_array_of_65_bytes );
+	x_gen_slashless_constant_length_pp_str( fen, writable_array_of_65_bytes );
 	x_init_pos_var_cm_array( p, writable_array_of_65_bytes );
 
 	char ac = ( !strcmp(
-		"w", nth_field_of_fen_str( fen_str, x_writable_mem, 2 )
+		"w", nth_field_of_fen_str( fen, x_writable_mem, 2 )
 	) ) ? 'w' : 'b';
 	x_set_active_color( p, ac );
 
-	const char *ca = nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
+	const char *ca = nth_field_of_fen_str( fen, x_writable_mem, 3 );
 	x_set_castling_availability( p, ca );
 
-	const char *epts = nth_field_of_fen_str( fen_str, x_writable_mem, 4 );
+	const char *epts = nth_field_of_fen_str( fen, x_writable_mem, 4 );
 	x_set_en_passant_target_square( p, epts );
 
-	const char *hmc = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
+	const char *hmc = nth_field_of_fen_str( fen, x_writable_mem, 5 );
 	x_set_halfmove_clock( p, hmc );
 
-	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
+	const char *fmn = nth_field_of_fen_str( fen, x_writable_mem, 6 );
 	x_set_fullmove_number( p, fmn );
 
 	if( chess960_start_pos( p ) )
@@ -367,11 +367,13 @@ fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 
 	unset_bits( &p->info, BM_UNUSED_INFO_BITS );
 
+	/*
 	// TODO: Move into an integrity check function
 	uint64_t irpf = value_BM_C960IRPF( p );
 	assert( num_of_sqs_in_sq_set( irpf ) == 2 &&
 		irpf != 3 && irpf != 6 && irpf != 12 && irpf != 24 &&
 		irpf != 48 && irpf != 96 && irpf != 192 );
+	*/
 
 	assert( !pos_var_sq_integrity_check( p ) );
 	return p;

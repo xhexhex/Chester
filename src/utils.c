@@ -583,9 +583,57 @@ expand_ppf( const char *ppf, char *eppf )
 	assert( strlen( eppf ) == (size_t) PPF_MAX_LENGTH );
 }
 
-/**************************
- **** Static functions ****
- **************************/
+// Returns the six fields of the 'fen' parameter as an array of strings. The first
+// element of the array is the PPF and the last the FMN.
+char **
+fen_fields( const char *fen )
+{
+	char **ff = (char **) malloc( 6 * sizeof( char * ) ),
+		*ppf = (char *) malloc( PPF_MAX_LENGTH + 1 ), *acf   = (char *) malloc( 1 + 1 ),
+		*caf   = (char *) malloc( 4 + 1 ), *eptsf = (char *) malloc( 2 + 1 ),
+		*hmcf  = (char *) malloc( 5 + 1 ), *fmnf  = (char *) malloc( 5 + 1 );
+	assert( ff && ppf && acf && caf && eptsf && hmcf && fmnf );
+	int cs_i = 0, fen_i = 0; // cs_i, current string index
+	ff[ 0 ] = ppf, ff[ 1 ] = acf, ff[ 2 ] = caf,
+		ff[ 3 ] = eptsf, ff[ 4 ] = hmcf, ff[ 5 ] = fmnf;
+
+	for( int ff_i = 0; ff_i < 6; ff_i++ ) { // ff_i, fen fields index
+		char c;
+		while( true ) {
+			c = fen[ fen_i++ ];
+			if( c && c != ' ' ) ff[ ff_i ][ cs_i++ ] = c;
+			else break; }
+
+		ff[ ff_i ][ cs_i ] = '\0';
+		cs_i = 0;
+		
+		char *ff_e = ff[ ff_i ]; // ff_e, ff element
+		ff_e = realloc( ff_e, strlen( ff_e ) + 1 );
+		assert( ff_e ); }
+
+	size_t l1 = strlen( ff[ 0 ] ), l2 = strlen( ff[ 1 ] ), l3 = strlen( ff[ 2 ] ),
+		l4 = strlen( ff[ 3 ] ), l5 = strlen( ff[ 4 ] ), l6 = strlen( ff[ 5 ] );
+	assert( l1 >= PPF_MIN_LENGTH && l1 <= PPF_MAX_LENGTH && l2 == 1 && l3 >= 1 &&
+		l3 <= 4 && l4 >= 1 && l4 <= 2 && l5 >= 1 && l5 <= 5 && l6 >= 1 && l6 <= 5 );
+
+	return ff;
+}
+
+// Releases the memory reserved for the dynamically allocated string array 'ff'. Should
+// be called when the string array returned by fen_fields() is no longer needed.
+void
+free_fen_fields( char **ff )
+{
+	for( int ff_i = 0; ff_i < 6; ff_i++ ) free( ff[ ff_i ] );
+
+	free( ff );
+}
+
+/****************************
+ ****                    ****
+ ****  Static functions  ****
+ ****                    ****
+ ****************************/
 
 #define FIND_SQUARE_IN_DIRECTION( dir_constant, ss_file_or_rank, int_constant ) \
 if( dir == dir_constant ) { \

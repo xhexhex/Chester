@@ -102,7 +102,7 @@ extern const Bitboard
 #define whites_turn( pos_var ) ( pos_var->info % 2 )
 
 // Function prototypes
-Pos *fen_to_pos( const char *fen_str );
+Pos *fen_to_pos( const char *fen );
 const char *pos_to_fen( /* const Pos *p */ );
 const char *pos_var_sq_integrity_check( const Pos *p );
 Bitboard sq_set_of_file( const char file );
