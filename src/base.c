@@ -400,11 +400,13 @@ active_color( const Pos *p )
 	return ( p->info % 2 ) ? 'w' : 'b';
 }
 
+/*
 // Using this one might be a bit more convenient than using active_color()
 inline bool
 whites_turn( const Pos *p ) {
 	return active_color( p ) == 'w';
 }
+*/
 
 // In the cm array of a Pos var, exactly one bit should be set per
 // bit index. In logical terms this means that each square is either

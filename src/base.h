@@ -98,11 +98,14 @@ extern const Bitboard
 	SS_ANTIDIAG_H3C8, SS_ANTIDIAG_H4D8, SS_ANTIDIAG_H5E8,
 	SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
 
+// The expression evaluates to true if it is White's turn to move.
+#define whites_turn( pos_var ) ( pos_var->info % 2 )
+
 // Function prototypes
 Pos *fen_to_pos( const char *fen_str );
 const char *pos_to_fen( /* const Pos *p */ );
 char active_color( const Pos *p );
-bool whites_turn( const Pos *p );
+// bool whites_turn( const Pos *p );
 const char *pos_var_sq_integrity_check( const Pos *p );
 Bitboard sq_set_of_file( const char file );
 Bitboard sq_set_of_rank( const char rank );
