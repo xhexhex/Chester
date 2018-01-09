@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "validation.h"
 #include "utils.h"
@@ -13,86 +14,88 @@
 const uint64_t
 	CFSV_BF_CHESS960 = 0x1U; // The FEN has Chess960 castling rules in effect
 
-static bool x_validate_fen_str_test_1( const char *fen_str );
-static bool x_validate_fen_str_test_2( const char *fen_str );
-static bool x_validate_fen_str_test_3( const char *fen_str );
-static bool x_validate_fen_str_test_4( const char *fen_str );
-static bool x_validate_fen_str_test_5( const char *fen_str );
-static bool x_validate_fen_str_test_6( const char *fen_str );
-static bool x_validate_fen_str_test_7( const char *fen_str );
-static bool x_validate_fen_str_test_8( const char *fen_str );
-static bool x_validate_fen_str_test_9( const char *fen_str );
-static bool x_validate_fen_str_test_10( const char *fen_str );
-static bool x_validate_fen_str_test_11( const char *fen_str );
-static bool x_validate_fen_str_test_12( const char *fen_str, uint64_t settings );
-static bool x_validate_fen_str_test_13( const char *fen_str );
-static bool x_validate_fen_str_test_14( const char *fen_str );
-static bool x_validate_fen_str_test_15( const Pos *p );
-static bool x_validate_fen_str_test_16( const Pos *p );
-static bool x_validate_fen_str_test_17( const Pos *p );
-static bool x_validate_fen_str_test_18( const Pos *p );
-static bool x_validate_fen_str_test_19( const Pos *p );
-static bool x_validate_fen_str_test_20( const Pos *p );
-static bool x_validate_fen_str_test_21( const Pos *p );
-static bool x_validate_fen_str_test_22( const Pos *p );
-static bool x_validate_fen_str_test_23( const Pos *p );
-static bool x_validate_fen_str_test_24( const Pos *p );
-static int x_calc_rank_sum( const char *rank );
+static bool x_validate_fen_test_1( const char *fen );
+static bool x_validate_fen_test_2( const char *fen );
+static bool x_validate_fen_test_3( const char *fen );
+static bool x_validate_fen_test_4( const char *fen );
+static bool x_validate_fen_test_5( const char *fen );
+static bool x_validate_fen_test_6( const char *fen );
+static bool x_validate_fen_test_7( const char *fen );
+static bool x_validate_fen_test_8( const char *fen );
+static bool x_validate_fen_test_9( const char *fen );
+static bool x_validate_fen_test_10( const char *fen );
+static bool x_validate_fen_test_11( const char *fen );
+static bool x_validate_fen_test_12( const char *fen, uint64_t settings );
+static bool x_validate_fen_test_13( const char *fen );
+static bool x_validate_fen_test_14( const char *fen );
+static bool x_validate_fen_test_15( const Pos *p );
+static bool x_validate_fen_test_16( const Pos *p );
+static bool x_validate_fen_test_17( const Pos *p );
+static bool x_validate_fen_test_18( const Pos *p );
+static bool x_validate_fen_test_19( const Pos *p );
+static bool x_validate_fen_test_20( const Pos *p );
+static bool x_validate_fen_test_21( const Pos *p );
+static bool x_validate_fen_test_22( const Pos *p );
+static bool x_validate_fen_test_23( const Pos *p );
+static bool x_validate_fen_test_24( const Pos *p );
+// static int x_calc_rank_sum( const char *rank );
 static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
 static char x_occupant_of_sq( const char *ppf, const char *sq );
 
 // The size of the array should be at least FEN_MAX_LENGTH + 1 bytes
 static char x_writable_mem[ 120 + 1 ];
 
-/***************************
- **** Chester interface ****
- ***************************/
+/*****************************
+ ****                     ****
+ ****  Chester interface  ****
+ ****                     ****
+ *****************************/
 
 // The function for FEN string validation
 enum che_fen_error
 che_fen_validator( const char *fen, const uint64_t settings )
 {
 	// Test 1
-	if( !x_validate_fen_str_test_1( fen ) )
+	if( !x_validate_fen_test_1( fen ) )
 		return FEN_LENGTH_ERROR;
 	// Test 2
-	if( !x_validate_fen_str_test_2( fen ) )
+	if( !x_validate_fen_test_2( fen ) )
 		return FEN_CHARS_ERROR;
 	// Test 3
-	if( !x_validate_fen_str_test_3( fen ) )
+	if( !x_validate_fen_test_3( fen ) )
 		return FEN_FIELD_STRUCTURE_ERROR;
 	// Test 4
-	if( !x_validate_fen_str_test_4( fen ) )
+	if( !x_validate_fen_test_4( fen ) )
 		return FEN_PPF_STRUCTURE_ERROR;
 	// Test 5
-	if( !x_validate_fen_str_test_5( fen ) )
+	if( !x_validate_fen_test_5( fen ) )
 		return FEN_PPF_CONSECUTIVE_DIGITS_ERROR;
 	// Test 6
-	if( !x_validate_fen_str_test_6( fen ) )
+	if( !x_validate_fen_test_6( fen ) )
 		return FEN_PPF_RANK_SUM_ERROR;
 	// Test 7
-	if( !x_validate_fen_str_test_7( fen ) )
+	if( !x_validate_fen_test_7( fen ) )
 		return FEN_ACF_ERROR;
 	// Test 8
-	if( !x_validate_fen_str_test_8( fen ) )
+	if( !x_validate_fen_test_8( fen ) )
 		return FEN_CAF_ERROR;
 	// Test 9
-	if( !x_validate_fen_str_test_9( fen ) )
+	if( !x_validate_fen_test_9( fen ) )
 		return FEN_EPTSF_ERROR;
 	// Test 10
-	if( !x_validate_fen_str_test_10( fen ) )
+	if( !x_validate_fen_test_10( fen ) )
 		return FEN_HMCF_ERROR;
 	// Test 11
-	if( !x_validate_fen_str_test_11( fen ) )
+	if( !x_validate_fen_test_11( fen ) )
 		return FEN_FMNF_ERROR;
 	// Test 12
-	if( !x_validate_fen_str_test_12( fen, settings ) )
+	if( !x_validate_fen_test_12( fen, settings ) )
 		return FEN_PPF_CONTRADICTS_CAF_ERROR;
 	// Test 13
-	if( !x_validate_fen_str_test_13( fen ) )
+	if( !x_validate_fen_test_13( fen ) )
 		return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
 	// Test 14
-	if( !x_validate_fen_str_test_14( fen ) )
+	if( !x_validate_fen_test_14( fen ) )
 		return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
 
 	// At this point the FEN string is found to be "sufficiently valid"
@@ -100,42 +103,44 @@ che_fen_validator( const char *fen, const uint64_t settings )
 	Pos *p = fen_to_pos( fen );
 
 	// Test 15
-	if( !x_validate_fen_str_test_15( p ) )
+	if( !x_validate_fen_test_15( p ) )
 		return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
 	// Test 16
-	if( !x_validate_fen_str_test_16( p ) )
+	if( !x_validate_fen_test_16( p ) )
 		return FEN_WHITE_PAWN_ON_FIRST_RANK;
 	// Test 17
-	if( !x_validate_fen_str_test_17( p ) )
+	if( !x_validate_fen_test_17( p ) )
 		return FEN_BLACK_PAWN_ON_FIRST_RANK;
 	// Test 18
-	if( !x_validate_fen_str_test_18( p ) )
+	if( !x_validate_fen_test_18( p ) )
 		return FEN_WHITE_PAWN_ON_LAST_RANK;
 	// Test 19
-	if( !x_validate_fen_str_test_19( p ) )
+	if( !x_validate_fen_test_19( p ) )
 		return FEN_BLACK_PAWN_ON_LAST_RANK;
 	// Test 20
-	if( !x_validate_fen_str_test_20( p ) )
+	if( !x_validate_fen_test_20( p ) )
 		return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
 	// Test 21
-	if( !x_validate_fen_str_test_21( p ) )
+	if( !x_validate_fen_test_21( p ) )
 		return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
 	// Test 22
-	if( !x_validate_fen_str_test_22( p ) )
+	if( !x_validate_fen_test_22( p ) )
 		return FEN_WHITE_KING_CAN_BE_CAPTURED;
 	// Test 23
-	if( !x_validate_fen_str_test_23( p ) )
+	if( !x_validate_fen_test_23( p ) )
 		return FEN_BLACK_KING_CAN_BE_CAPTURED;
 	// Test 24
-	if( !x_validate_fen_str_test_24( p ) )
+	if( !x_validate_fen_test_24( p ) )
 		return FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
 	return FEN_NO_ERRORS;
 }
 
-/****************************
- **** External functions ****
- ****************************/
+/******************************
+ ****                      ****
+ ****  External functions  ****
+ ****                      ****
+ ******************************/
 
 // Validates a square name such as "a1" or "e4"
 bool
@@ -145,75 +150,65 @@ valid_sq_name( const char *sq_name )
 		str_matches_pattern( sq_name, "^[abcdefgh][12345678]$" );
 }
 
-/**************************
- **** Static functions ****
- **************************/
+/****************************
+ ****                    ****
+ ****  Static functions  ****
+ ****                    ****
+ ****************************/
 
 static bool
-x_validate_fen_str_test_1( const char *fen_str )
+x_validate_fen_test_1( const char *fen )
 {
-	size_t fen_string_length = strlen( fen_str );
-
-	return ( fen_string_length < FEN_MIN_LENGTH ||
-		fen_string_length > FEN_MAX_LENGTH ) ? false : true;
+	size_t length = strlen( fen );
+	return ( length < FEN_MIN_LENGTH || length > FEN_MAX_LENGTH ) ? false : true;
 }
 
 static bool
-x_validate_fen_str_test_2( const char *fen_str )
+x_validate_fen_test_2( const char *fen )
 {
-	return str_matches_pattern(
-		fen_str, "^[KkQqRrBbNnPp/acdefghw 0123456789-]*$" );
+	return str_matches_pattern( fen, "^[KkQqRrBbNnPp/acdefghw 0123456789-]*$" );
 }
 
 static bool
-x_validate_fen_str_test_3( const char *fen_str )
+x_validate_fen_test_3( const char *fen )
 {
-	return str_matches_pattern(
-		fen_str, "^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$" );
+	return str_matches_pattern( fen, "^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$" );
 }
 
 static bool
-x_validate_fen_str_test_4( const char *fen_str )
+x_validate_fen_test_4( const char *fen )
 {
-// RRE, row regex
 #define RRE "[KkQqRrBbNnPp12345678]{1,8}"
-
-	char *ppf_structure_regex =
-		"^"
-			RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE
-		"$";
-	char *ppf = nth_field_of_fen_str( fen_str, x_writable_mem, 1 );
-
-	return str_matches_pattern( ppf, ppf_structure_regex );
+	return str_matches_pattern( fen,
+		"^" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE " .*$" );
+#undef RRE
 }
 
 static bool
-x_validate_fen_str_test_5( const char *fen_str )
+x_validate_fen_test_5( const char *fen )
 {
-	char *ppf = nth_field_of_fen_str( fen_str, x_writable_mem, 1 );
-
-	return ! str_matches_pattern( ppf, "^.*[12345678]{2,}.*$" );
+	return !str_matches_pattern( fen, "^[^ ]*[12345678]{2,}.*$" );
 }
 
 static bool
-x_validate_fen_str_test_6( const char *fen_str )
+x_validate_fen_test_6( const char *fen )
 {
-	const char *ppf = nth_field_of_fen_str( fen_str, x_writable_mem, 1 );
-
-	char more_writable_mem[ PPF_MAX_LENGTH + 1 ];
-	for( int i = 1; i <= 8; i++ ) {
-		const char *rank = nth_rank_of_ppf( ppf, more_writable_mem, i );
-		int rank_sum = x_calc_rank_sum( rank );
-		if( rank_sum != 8 ) {
-			return false;
-		}
-	}
+	int i = 0, rank_sum = 0;
+	while( true ) {
+		char c = fen[ i++ ];
+		if( c == '/' || c == ' ' ) {
+			if( rank_sum != 8 ) return false;
+			if( c == ' ' ) break;
+			rank_sum = 0;
+		} else {
+			if( isalpha( c ) ) ++rank_sum;
+			else rank_sum += c - 48; } }
 
 	return true;
 }
 
 static bool
-x_validate_fen_str_test_7( const char *fen_str )
+x_validate_fen_test_7( const char *fen_str )
 {
 	char *active_color = nth_field_of_fen_str( fen_str, x_writable_mem, 2 );
 
@@ -225,7 +220,7 @@ x_validate_fen_str_test_7( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_8( const char *fen_str )
+x_validate_fen_test_8( const char *fen_str )
 {
 	const char *ca = // ca, castling availability
 		nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
@@ -242,7 +237,7 @@ x_validate_fen_str_test_8( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_9( const char *fen_str )
+x_validate_fen_test_9( const char *fen_str )
 {
 	const char *epts = nth_field_of_fen_str( fen_str, x_writable_mem, 4 );
 
@@ -251,7 +246,7 @@ x_validate_fen_str_test_9( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_10( const char *fen_str )
+x_validate_fen_test_10( const char *fen_str )
 {
 	const char *hmc = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
 
@@ -265,7 +260,7 @@ x_validate_fen_str_test_10( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_11( const char *fen_str )
+x_validate_fen_test_11( const char *fen_str )
 {
 	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
 
@@ -276,7 +271,7 @@ x_validate_fen_str_test_11( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_12( const char *fen_str, uint64_t settings )
+x_validate_fen_test_12( const char *fen_str, uint64_t settings )
 {
 	if( settings & CFSV_BF_CHESS960 )
 		return true;
@@ -294,7 +289,7 @@ x_validate_fen_str_test_12( const char *fen_str, uint64_t settings )
 }
 
 static bool
-x_validate_fen_str_test_13( const char *fen_str )
+x_validate_fen_test_13( const char *fen_str )
 {
 	const char *eptsf = nth_field_of_fen_str( fen_str, x_writable_mem, 4 ),
 		*hmcf = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
@@ -309,7 +304,7 @@ x_validate_fen_str_test_13( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_14( const char *fen_str )
+x_validate_fen_test_14( const char *fen_str )
 {
 	const char *eptsf = nth_field_of_fen_str( fen_str, x_writable_mem, 4 );
 	char three_bytes[ 2 + 1 ];
@@ -325,7 +320,7 @@ x_validate_fen_str_test_14( const char *fen_str )
 }
 
 static bool
-x_validate_fen_str_test_15( const Pos *p )
+x_validate_fen_test_15( const Pos *p )
 {
 	const char *epts = epts_from_pos_var( p );
 	char sq_of_double_advanced_pawn[ 3 ] = { 0 };
@@ -342,49 +337,49 @@ x_validate_fen_str_test_15( const Pos *p )
 }
 
 static bool
-x_validate_fen_str_test_16( const Pos *p )
+x_validate_fen_test_16( const Pos *p )
 {
 	return !( p->cm[ WHITE_PAWN ] & SS_RANK_1 );
 }
 
 static bool
-x_validate_fen_str_test_17( const Pos *p )
+x_validate_fen_test_17( const Pos *p )
 {
 	return !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
-x_validate_fen_str_test_18( const Pos *p )
+x_validate_fen_test_18( const Pos *p )
 {
 	return !( p->cm[ WHITE_PAWN ] & SS_RANK_8 );
 }
 
 static bool
-x_validate_fen_str_test_19( const Pos *p )
+x_validate_fen_test_19( const Pos *p )
 {
 	return !( p->cm[ BLACK_PAWN ] & SS_RANK_1 );
 }
 
 static bool
-x_validate_fen_str_test_20( const Pos *p )
+x_validate_fen_test_20( const Pos *p )
 {
 	return bb_is_sq_bit( p->cm[ WHITE_KING ] );
 }
 
 static bool
-x_validate_fen_str_test_21( const Pos *p )
+x_validate_fen_test_21( const Pos *p )
 {
 	return bb_is_sq_bit( p->cm[ BLACK_KING ] );
 }
 
 static bool
-x_validate_fen_str_test_22( const Pos *p )
+x_validate_fen_test_22( const Pos *p )
 {
 	return whites_turn( p ) || !king_can_be_captured( p );
 }
 
 static bool
-x_validate_fen_str_test_23( const Pos *p )
+x_validate_fen_test_23( const Pos *p )
 {
 	return !whites_turn( p ) || !king_can_be_captured( p );
 }
@@ -395,7 +390,7 @@ while( ( sq = sq_nav( sq, dir ) ) ) \
 	bb |= sq;
 
 static bool
-x_validate_fen_str_test_24( const Pos *p )
+x_validate_fen_test_24( const Pos *p )
 {
 	bool K = white_has_h_side_castling_right( p ),
 		Q = white_has_a_side_castling_right( p ),
@@ -428,6 +423,7 @@ x_validate_fen_str_test_24( const Pos *p )
 
 #undef FIND_ROOKS_POSSIBLE_SQS
 
+/*
 // Returns the rank sum of a FEN string representation of a rank
 static int
 x_calc_rank_sum( const char *rank )
@@ -453,6 +449,7 @@ x_calc_rank_sum( const char *rank )
 
 	return rank_sum;
 }
+*/
 
 // Checks that castling rights make sense what comes to king and rook
 // placement. For example, if the castling availability field is "K",
