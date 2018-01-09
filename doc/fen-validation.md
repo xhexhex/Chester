@@ -22,9 +22,8 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     characters. That is, the string doesn't match the following regex:  
     `^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$`
 4.  `FEN_PPF_STRUCTURE_ERROR`  
-    The PPF (piece placement field, the first of the six FEN string fields)
-    doesn't match the regex `^r/r/r/r/r/r/r/r$` where `r` stands for
-    `[KkQqRrBbNnPp12345678]{1,8}`.
+    The PPF (piece placement field) doesn't match the regex `^r/r/r/r/r/r/r/r$`
+    where `r` stands for `[KkQqRrBbNnPp12345678]{1,8}`.
 5.  `FEN_PPF_CONSECUTIVE_DIGITS_ERROR`  
     The PPF contains consecutive digits such as "12". As digits in a PPF
     represent consecutive empty squares and the maximum number of empty
@@ -33,7 +32,7 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
 6.  `FEN_PPF_RANK_SUM_ERROR`  
     One (or more) of the ranks of the PPF has a rank sum not equal to eight.
     The rank sum means the square count of the rank. The PPF ranks "8", "RNBQKBNR"
-    and "r1q1b2n" all have a rank sum of eight whereas the rank sum of "pp2pp" is 6.
+    and "r1q1b2n" all have a rank sum of eight whereas the rank sum of "pp2pp" is six.
 7.  `FEN_ACF_ERROR`  
     The ACF (active color field) is something else than "w" or "b".
 8.  `FEN_CAF_ERROR`  
@@ -45,12 +44,12 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     the regex `^[a-h][36]$` and is not the string "-".
 10. `FEN_HMCF_ERROR`  
     The HMCF (halfmove clock field) is not a decimal integer string with a value
-    between 0 and 9999. Note that the only acceptable characters in the string are
-    decimal digits.
+    between 0 and `FEN_NUMERIC_FIELD_MAX`. Note that the only acceptable characters
+    in the string are decimal digits.
 11. `FEN_FMNF_ERROR`  
     The FMNF (fullmove number field) is not a decimal integer string with a value
-    between 1 and 9999. Note that the only acceptable characters in the string are
-    decimal digits.
+    between 1 and `FEN_NUMERIC_FIELD_MAX`. Note that the only acceptable characters
+    in the string are decimal digits.
 12. `FEN_PPF_CONTRADICTS_CAF_ERROR`  
     The piece placement and castling availability fields don't make sense when
     considered together. For each of the four castling availabilities to make

@@ -258,9 +258,9 @@ x_validate_fen_str_test_10( const char *fen_str )
 	return
 		!strcmp( hmc, "0" ) ||
 		(
-			str_matches_pattern( hmc, "^[123456789][0123456789]{0,3}$" ) &&
+			str_matches_pattern( hmc, "^[123456789][0123456789]{0,4}$" ) &&
 			atoi( hmc ) > 0 &&
-			atoi( hmc ) < 4096
+			atoi( hmc ) <= (int) FEN_NUMERIC_FIELD_MAX
 		);
 }
 
@@ -270,9 +270,9 @@ x_validate_fen_str_test_11( const char *fen_str )
 	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
 
 	return
-		str_matches_pattern( fmn, "^[123456789][0123456789]{0,3}$" ) &&
+		str_matches_pattern( fmn, "^[123456789][0123456789]{0,4}$" ) &&
 		atoi( fmn ) > 0 &&
-		atoi( fmn ) < 4096;
+		atoi( fmn ) <= (int) FEN_NUMERIC_FIELD_MAX;
 }
 
 static bool
@@ -300,7 +300,7 @@ x_validate_fen_str_test_13( const char *fen_str )
 		*hmcf = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
 
 	assert( strlen( eptsf ) > 0 && strlen( eptsf ) < 3 &&
-		strlen( hmcf ) > 0 && strlen( hmcf ) < 5 );
+		strlen( hmcf ) > 0 && strlen( hmcf ) < 6 );
 
 	// ( ( EPTS field is something else than "-" ) --> ( HMC field is "0" ) )
 	// <=>

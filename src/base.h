@@ -31,6 +31,7 @@ extern const char *SNA[], FEN_PIECE_LETTERS[];
 extern const size_t PPF_MIN_LENGTH, PPF_MAX_LENGTH, FEN_MIN_LENGTH, FEN_MAX_LENGTH,
 	POSSIBLE_IRPF_VALUES_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
+extern const uint64_t FEN_NUMERIC_FIELD_MAX;
 
 // The cm array of Pos should be indexed with these, e.g., pos.cm[ WHITE_KING ]
 typedef enum {
@@ -49,10 +50,10 @@ enum sq_dir {
 // Chester's internal representation of a position. The Pos type contains
 // the same information as a FEN string. See the the documention for a
 // comprehensive description of the Pos type.
-// TODO: Mention BM_C960IRPF.
 typedef struct {
-	Bitboard cm[ 13 ];
+	Bitboard cm[ 13 ]; // Rename to ppa
 	uint64_t info;
+	uint16_t hmc, fmn;
 } Pos;
 
 // Used for inspecting and manipulating the data in the 'info' member
@@ -119,6 +120,8 @@ void set_BM_C960IRPF( uint64_t *info, uint8_t irpf );
 bool chess960_start_pos( const Pos *p );
 void cma_to_eppf( const Bitboard *cm, char *eppf );
 void eppf_to_cma( const char *eppf, Bitboard *cm );
+uint16_t fen_hmcf( const char *fen );
+uint16_t fen_fmnf( const char *fen );
 
 #endif
 // end TYPES_H

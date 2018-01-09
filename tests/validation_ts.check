@@ -102,10 +102,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"",
 		"hello",
 		"The quick brown fox jumps over the lazy dog, THE QUICK BROWN FOX "
-			"JUMPS OVER THE LAZY DOG!!!",
+			"JUMPS OVER THE LAZY DOG!!!!!",
 		"k7/8/8/8/8/8/8/8 w - - 0 1",
 		"ppppXpppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP "
-			"w KQkq - 9999 9999",
+			"w KQkq - 99999 99999",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( invalid_length_fen_strs, FEN_LENGTH_ERROR );
@@ -246,9 +246,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 00 1", // "00"
 		"k7/8/8/8/8/8/8/K7 w - - 07 1", // "07"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 007 1", // 007
-		"k7/8/8/8/8/8/8/K7 w - - 4096 1", // "4096"
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 12345 1", // "12345"
-		"k7/8/8/8/8/8/8/K7 w - - 9999 1", // "9999"
+		"k7/8/8/8/8/8/8/K7 w - - 65536 1", // "65536"
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 123456 1", // "123456"
+		"k7/8/8/8/8/8/8/K7 w - - 99999 1", // "99999"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - -123 1", // "-123"
 		"k7/8/8/8/8/8/8/K7 w - - 123hehe 1", // "123hehe"
 		NULL };
@@ -260,13 +260,13 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #test C_che_fen_validator_returns_FEN_FMNF_ERROR
 	const char * const fens_with_invalid_fullmove_number[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0", // "0"
-		"k7/8/8/8/8/8/8/K7 w - - 0 4096", // "4096"
+		"k7/8/8/8/8/8/8/K7 w - - 0 65536", // "65536"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 -1",  // "-1"
-		"k7/8/8/8/8/8/8/K7 w - - 0 4097",  // "4097"
+		"k7/8/8/8/8/8/8/K7 w - - 0 65537",  // "65537"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 -123",  // "-123"
-		"k7/8/8/8/8/8/8/K7 w - - 0 5000",  // "5000"
+		"k7/8/8/8/8/8/8/K7 w - - 0 70000",  // "70000"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 ab",  // "ab"
-		"k7/8/8/8/8/8/8/K7 w - - 0 12345",  // "12345"
+		"k7/8/8/8/8/8/8/K7 w - - 0 123456",  // "123456"
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 hehe",  // "hehe"
 		"k7/8/8/8/8/8/8/K7 w - - 0 -",  // "-"
 		"k7/8/8/8/8/8/8/K7 w - - 0 -/",  // "-/"

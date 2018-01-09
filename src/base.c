@@ -273,9 +273,9 @@ const size_t
 	PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71,
 	// The shortest possible FEN is something like "k7/8/8/8/8/8/8/K7 w - - 0 1"
 	// which is 27 characters long. The following FEN is 90 chars long:
-	// "rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w KQkq - 9999 9999"
+	// "rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w KQkq - 65535 65535"
 	// Allowing FENs longer than this wouldn't seem to make sense.
-	FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 90;
+	FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 92;
 
 // The 21 ways rooks can be placed in a Chess960 starting position. Each of the values
 // is an 8-bit unsigned integer with exactly two bits set. The two set bits correspond
@@ -295,6 +295,9 @@ const uint8_t POSSIBLE_IRPF_VALUES[] = {
 	16 + 64, 16 + 128,
 	32 + 128 };
 
+// The maximum value for the numeric FEN fields (HMCF and FMNF)
+const uint64_t FEN_NUMERIC_FIELD_MAX = 0xffffU; // 65535
+
 /************************************
  **** Static function prototypes ****
  ************************************/
@@ -313,6 +316,8 @@ static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
 static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
+static void x_fen_numeric_fields(
+	const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
 
 /*********************************
  **** Static global variables ****
@@ -332,12 +337,8 @@ Pos *
 fen_to_pos( const char *fen_str ) // Argument assumed to be valid
 {
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
+	assert( p );
 	char writable_array_of_65_bytes[ 64 + 1 ];
-
-	if( !p ) { // TODO: Logging system
-		fprintf( stderr, "%s(): malloc() returned a null pointer\n", __func__ );
-		abort();
-	}
 
 	x_gen_slashless_constant_length_pp_str( fen_str, writable_array_of_65_bytes );
 	x_init_pos_var_cm_array( p, writable_array_of_65_bytes );
@@ -663,9 +664,31 @@ eppf_to_cma( const char *eppf, Bitboard *cm )
 		}
 }
 
-/**************************
- **** Static functions ****
- **************************/
+// Returns the integer equivalent of the FEN parameter's HMCF.
+uint16_t
+fen_hmcf( const char *fen )
+{
+	uint16_t i_hmc, unused;
+	x_fen_numeric_fields( fen, &i_hmc, &unused );
+
+	return i_hmc;
+}
+
+// Returns the integer equivalent of the FEN parameter's FMNF.
+uint16_t
+fen_fmnf( const char *fen )
+{
+	uint16_t i_fmn, unused;
+	x_fen_numeric_fields( fen, &unused, &i_fmn );
+
+	return i_fmn;
+}
+
+/****************************
+ ****                    ****
+ ****  Static functions  ****
+ ****                    ****
+ ****************************/
 
 // If the first argument is the FEN for the standard starting position,
 // then (after the function call completes), target_array will contain the
@@ -924,4 +947,28 @@ x_chess960_start_pos_blacks_first_rank( const Pos *p )
 		( p->cm[ WHITE_ROOK ] << 56 ) == p->cm[ BLACK_ROOK ] &&
 		( p->cm[ WHITE_BISHOP ] << 56 ) == p->cm[ BLACK_BISHOP ] &&
 		( p->cm[ WHITE_KNIGHT ] << 56 ) == p->cm[ BLACK_KNIGHT ];
+}
+
+static void
+x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
+{
+	int si = 0, space_count = 0, i = 0; // si, starting index
+	while( space_count < 4 ) if( fen[ si++ ] == ' ' ) ++space_count;
+
+	char s_hmc[ 5 + 1 ] = { '\0' }, s_fmn[ 5 + 1 ] = { '\0' };
+	bool first = true;
+	do {
+		if( fen[ si ] == ' ' ) {
+			first = false;
+			i = 0;
+			continue; }
+
+		if( first ) s_hmc[ i++ ] = fen[ si ];
+		else s_fmn[ i++ ] = fen[ si ];
+	} while( fen[ ++si ] );
+
+	size_t l1 = strlen( s_hmc ), l2 = strlen( s_fmn );
+	assert( l1 >= 1 && l1 <= 5 && l2 >= 1 && l2 <= 5 );
+
+	*i_hmc = atoi( s_hmc ), *i_fmn = atoi( s_fmn );
 }

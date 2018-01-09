@@ -606,8 +606,27 @@ ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
 //
 // Test case
 //
-#tcase misc_tests
+#tcase fen_hmcf_and_fen_fmnf_tests
 
-#test C_left_shifting_gives_expected_results
-	// 10952704 = 1337 * 2^13
-	ck_assert( 10952704 == ( 1337u << 13 ) );
+#define FEN_HMCF_AND_FEN_FMNF_TEST( fen, exp_hmc_i, exp_fmn_i ) \
+ck_assert( !che_fen_validator( fen, 0 ) ); \
+ck_assert( fen_hmcf( fen ) == exp_hmc_i ); \
+ck_assert( fen_fmnf( fen ) == exp_fmn_i );
+
+#test C_fen_hmcf_and_fen_fmnf_test
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		STD_START_POS_FEN, 0, 1 )
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", 0, 1 )
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2", 1, 2 )
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		"4k3/8/8/8/8/8/8/4K3 b - - 0 65535", 0, 0xffffU )
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		"4k3/8/8/8/8/8/8/4K3 b - - 65535 1", 0xffffU, 1 )
+	FEN_HMCF_AND_FEN_FMNF_TEST(
+		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR "
+			"w KQkq - 1337 54321",
+		1337, 54321 )
+
+#undef FEN_HMCF_AND_FEN_FMNF_TEST
