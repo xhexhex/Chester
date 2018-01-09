@@ -104,8 +104,6 @@ extern const Bitboard
 // Function prototypes
 Pos *fen_to_pos( const char *fen_str );
 const char *pos_to_fen( /* const Pos *p */ );
-char active_color( const Pos *p );
-// bool whites_turn( const Pos *p );
 const char *pos_var_sq_integrity_check( const Pos *p );
 Bitboard sq_set_of_file( const char file );
 Bitboard sq_set_of_rank( const char rank );

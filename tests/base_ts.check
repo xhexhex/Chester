@@ -54,7 +54,7 @@
 	ck_assert( p->cm[ BLACK_PAWN ] == 0xff000000000000u );
 
 	// Should be White's turn
-	ck_assert( active_color( p ) == 'w' );
+	ck_assert( whites_turn( p ) );
 	// Castling availability "KQkq"
 	ck_assert(
 		( p->info & BM_CA_WK ) &&
@@ -142,30 +142,19 @@ free( (Pos *) p );
 //
 // Test case
 //
-#tcase active_color_tests
+#tcase whites_turn_tests
 
-#test C_active_color_works
+#test C_whites_turn_works
 	Pos *p;
 
 	p = fen_to_pos( STD_START_POS_FEN );
-	ck_assert( active_color( p ) == 'w' );
+	ck_assert( whites_turn( p ) );
 	free( p );
 
 	p = fen_to_pos(
 		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" );
-	ck_assert( active_color( p ) == 'b' );
+	ck_assert( !whites_turn( p ) );
 	free( p );
-
-	Pos pos_var;
-
-	// The following two tests rely on the implementation detail of
-	// BM_AC being the least significant digit of the 'info' uint64_t.
-	for( pos_var.info = 0; pos_var.info <= 100; pos_var.info += 2 ) {
-		ck_assert( active_color( &pos_var ) == 'b' );
-	}
-	for( pos_var.info = 1; pos_var.info <= 101; pos_var.info += 2 ) {
-		ck_assert( active_color( &pos_var ) == 'w' );
-	}
 
 #tcase bitmask_tests
 
