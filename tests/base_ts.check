@@ -94,7 +94,7 @@
 	free( p );
 
 #define CHESS960_START_POS_TEST( fen, expected_value ) \
-ck_assert( !che_fen_validator( fen, CFSV_BF_CHESS960 ) ); \
+ck_assert( !che_fen_validator( fen ) ); \
 p = fen_to_pos( fen ); \
 ck_assert( value_BM_C960IRPF( p ) == expected_value ); \
 free( (Pos *) p );
@@ -598,7 +598,7 @@ ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
 #tcase fen_hmcf_and_fen_fmnf_tests
 
 #define FEN_HMCF_AND_FEN_FMNF_TEST( fen, exp_hmc_i, exp_fmn_i ) \
-ck_assert( !che_fen_validator( fen, 0 ) ); \
+ck_assert( !che_fen_validator( fen ) ); \
 ck_assert( fen_hmcf( fen ) == exp_hmc_i ); \
 ck_assert( fen_fmnf( fen ) == exp_fmn_i );
 

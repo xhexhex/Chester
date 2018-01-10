@@ -10,10 +10,6 @@
 #include "move_gen.h"
 #include "base.h"
 
-// Bit flags for the 'settings' parameter of function che_fen_str_validator()
-const uint64_t
-	CFSV_BF_CHESS960 = 0x1U; // The FEN has Chess960 castling rules in effect
-
 static bool x_validate_fen_test_1( const char *fen );
 static bool x_validate_fen_test_2( const char *fen );
 static bool x_validate_fen_test_3( const char *fen );
@@ -22,10 +18,11 @@ static bool x_validate_fen_test_5( const char *fen );
 static bool x_validate_fen_test_6( const char *fen );
 static bool x_validate_fen_test_7( const char *fen );
 static bool x_validate_fen_test_8( const char *fen );
+static bool x_validate_fen_test_8_valid_chess960_caf( const char *caf );
 static bool x_validate_fen_test_9( const char *fen );
 static bool x_validate_fen_test_10( const char *fen );
 static bool x_validate_fen_test_11( const char *fen );
-static bool x_validate_fen_test_12( const char *fen, uint64_t settings );
+static bool x_validate_fen_test_12( const char *fen );
 static bool x_validate_fen_test_13( const char *fen );
 static bool x_validate_fen_test_14( const char *fen );
 static bool x_validate_fen_test_15( const Pos *p );
@@ -37,10 +34,10 @@ static bool x_validate_fen_test_20( const Pos *p );
 static bool x_validate_fen_test_21( const Pos *p );
 static bool x_validate_fen_test_22( const Pos *p );
 static bool x_validate_fen_test_23( const Pos *p );
-static bool x_validate_fen_test_24( const Pos *p );
+// static bool x_validate_fen_test_24( const Pos *p );
 // static int x_calc_rank_sum( const char *rank );
-static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
-static char x_occupant_of_sq( const char *ppf, const char *sq );
+// static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
+// static char x_occupant_of_sq( const char *ppf, const char *sq );
 
 // The size of the array should be at least FEN_MAX_LENGTH + 1 bytes
 static char x_writable_mem[ 120 + 1 ];
@@ -53,50 +50,22 @@ static char x_writable_mem[ 120 + 1 ];
 
 // The function for FEN string validation
 enum che_fen_error
-che_fen_validator( const char *fen, const uint64_t settings )
+che_fen_validator( const char *fen )
 {
-	// Test 1
-	if( !x_validate_fen_test_1( fen ) )
-		return FEN_LENGTH_ERROR;
-	// Test 2
-	if( !x_validate_fen_test_2( fen ) )
-		return FEN_CHARS_ERROR;
-	// Test 3
-	if( !x_validate_fen_test_3( fen ) )
-		return FEN_FIELD_STRUCTURE_ERROR;
-	// Test 4
-	if( !x_validate_fen_test_4( fen ) )
-		return FEN_PPF_STRUCTURE_ERROR;
-	// Test 5
-	if( !x_validate_fen_test_5( fen ) )
-		return FEN_PPF_CONSECUTIVE_DIGITS_ERROR;
-	// Test 6
-	if( !x_validate_fen_test_6( fen ) )
-		return FEN_PPF_RANK_SUM_ERROR;
-	// Test 7
-	if( !x_validate_fen_test_7( fen ) )
-		return FEN_ACF_ERROR;
-	// Test 8
-	if( !x_validate_fen_test_8( fen ) )
-		return FEN_CAF_ERROR;
-	// Test 9
-	if( !x_validate_fen_test_9( fen ) )
-		return FEN_EPTSF_ERROR;
-	// Test 10
-	if( !x_validate_fen_test_10( fen ) )
-		return FEN_HMCF_ERROR;
-	// Test 11
-	if( !x_validate_fen_test_11( fen ) )
-		return FEN_FMNF_ERROR;
-	// Test 12
-	if( !x_validate_fen_test_12( fen, settings ) )
-		return FEN_PPF_CONTRADICTS_CAF_ERROR;
-	// Test 13
-	if( !x_validate_fen_test_13( fen ) )
-		return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
-	// Test 14
-	if( !x_validate_fen_test_14( fen ) )
-		return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
+	if( !x_validate_fen_test_1(  fen ) ) return FEN_LENGTH_ERROR;
+	if( !x_validate_fen_test_2(  fen ) ) return FEN_CHARS_ERROR;
+	if( !x_validate_fen_test_3(  fen ) ) return FEN_FIELD_STRUCTURE_ERROR;
+	if( !x_validate_fen_test_4(  fen ) ) return FEN_PPF_STRUCTURE_ERROR;
+	if( !x_validate_fen_test_5(  fen ) ) return FEN_PPF_CONSECUTIVE_DIGITS_ERROR;
+	if( !x_validate_fen_test_6(  fen ) ) return FEN_PPF_RANK_SUM_ERROR;
+	if( !x_validate_fen_test_7(  fen ) ) return FEN_ACF_ERROR;
+	if( !x_validate_fen_test_8(  fen ) ) return FEN_CAF_ERROR;
+	if( !x_validate_fen_test_9(  fen ) ) return FEN_EPTSF_ERROR;
+	if( !x_validate_fen_test_10( fen ) ) return FEN_HMCF_ERROR;
+	if( !x_validate_fen_test_11( fen ) ) return FEN_FMNF_ERROR;
+	if( !x_validate_fen_test_12( fen ) ) return FEN_PPF_CONTRADICTS_CAF_ERROR;
+	if( !x_validate_fen_test_13( fen ) ) return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
+	if( !x_validate_fen_test_14( fen ) ) return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
 
 	// At this point the FEN string is found to be "sufficiently valid"
 	// for the conversion to succeed
@@ -129,9 +98,6 @@ che_fen_validator( const char *fen, const uint64_t settings )
 	// Test 23
 	if( !x_validate_fen_test_23( p ) )
 		return FEN_BLACK_KING_CAN_BE_CAPTURED;
-	// Test 24
-	if( !x_validate_fen_test_24( p ) )
-		return FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR;
 
 	return FEN_NO_ERRORS;
 }
@@ -166,7 +132,7 @@ x_validate_fen_test_1( const char *fen )
 static bool
 x_validate_fen_test_2( const char *fen )
 {
-	return str_matches_pattern( fen, "^[KkQqRrBbNnPp/acdefghw 0123456789-]*$" );
+	return str_matches_pattern( fen, "^[KkQqRrBbNnPp/AaCcDdEeFfGgHhw 0123456789-]*$" );
 }
 
 static bool
@@ -208,34 +174,69 @@ x_validate_fen_test_6( const char *fen )
 }
 
 static bool
-x_validate_fen_test_7( const char *fen_str )
+x_validate_fen_test_7( const char *fen )
 {
-	char *active_color = nth_field_of_fen_str( fen_str, x_writable_mem, 2 );
-
-	if( !strcmp( active_color, "w" ) || !strcmp( active_color, "b" ) ) {
-		return true;
-	}
-
-	return false;
+	int i = 0;
+	while( fen[ i++ ] != ' ' );
+	return ( fen[ i ] == 'w' || fen[ i ] == 'b' ) && fen[ i + 1 ] == ' ';
 }
 
 static bool
-x_validate_fen_test_8( const char *fen_str )
+x_validate_fen_test_8( const char *fen )
 {
-	const char *ca = // ca, castling availability
-		nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
-
+	char caf[ 4 + 1 ] = { '\0' };
+	int i = 0, space_count = 0, ca_i = 0;
+	// rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+	while( space_count < 2 ) if( fen[ ++i ] == ' ' ) ++space_count;
+	while( fen[ ++i ] != ' ' ) caf[ ca_i++ ] = fen[ i ];
+	
+	assert( strlen( caf ) > 0 );
+	if( strlen( caf ) > 4 ) return false;
+	
 	return
-		!strcmp( ca,   "-" ) || !strcmp( ca,    "K" ) ||
-		!strcmp( ca,   "Q" ) || !strcmp( ca,    "k" ) ||
-		!strcmp( ca,   "q" ) || !strcmp( ca,   "KQ" ) ||
-		!strcmp( ca,  "Kk" ) || !strcmp( ca,   "Kq" ) ||
-		!strcmp( ca,  "Qk" ) || !strcmp( ca,   "Qq" ) ||
-		!strcmp( ca,  "kq" ) || !strcmp( ca,  "KQk" ) ||
-		!strcmp( ca, "KQq" ) || !strcmp( ca,  "Kkq" ) ||
-		!strcmp( ca, "Qkq" ) || !strcmp( ca, "KQkq" );
+		!strcmp( caf, "-" ) || str_matches_pattern( caf, "^K?Q?k?q?$" ) ||
+		x_validate_fen_test_8_valid_chess960_caf( caf );
 }
 
+static bool
+x_validate_fen_test_8_valid_chess960_caf( const char *caf )
+{
+	// If 'caf' is "BEb", it contains the files b and e. This corresponds to the
+	// binary string "00010010" or the uint 2 + 16.
+	uint8_t files = 0;
+
+	for( int i = 0; caf[ i ]; i++ )
+		switch( caf[ i ] ) {
+			case 'a':
+			case 'A': files |= 1U; break;
+			case 'b':
+			case 'B': files |= 2U; break;
+			case 'c':
+			case 'C': files |= 41U; break;
+			case 'd':
+			case 'D': files |= 8U; break;
+			case 'e':
+			case 'E': files |= 16U; break;
+			case 'f':
+			case 'F': files |= 32U; break;
+			case 'g':
+			case 'G': files |= 64U; break;
+			case 'h':
+			case 'H': files |= 128U; break;
+			default: 
+				return false; }
+
+	bool files_is_valid = false;
+	for( int i = 0; (size_t) i < POSSIBLE_IRPF_VALUES_COUNT; i++ )
+		if( files == POSSIBLE_IRPF_VALUES[ i ] ) {
+			files_is_valid = true;
+			break; }
+	if( !files_is_valid ) return false;
+
+	return str_matches_pattern( caf, "^[ABCDEFGH]?[ABCDEFGH]?[abcdefgh]?[abcdefgh]?$" );
+}
+
+// UPDATE MARKER
 static bool
 x_validate_fen_test_9( const char *fen_str )
 {
@@ -270,22 +271,20 @@ x_validate_fen_test_11( const char *fen_str )
 		atoi( fmn ) <= (int) FEN_NUMERIC_FIELD_MAX;
 }
 
+/*
+12. `FEN_PPF_CONTRADICTS_CAF_ERROR`  
+    The piece placement and castling availability fields don't make sense when
+    considered together. For each of the four castling availabilities to make
+    sense, there has to be a king and a rook on the appropriate squares. For
+    example, if the CAF is "K" (which in Chester is a synonym for "H"), there
+    should be a white rook on h1 and a white king somewhere else on the first
+    rank excluding square a1. Another example: if the CAF is "BD", there should
+    be white rooks on b1 and d1 and a white king on c1.
+*/
 static bool
-x_validate_fen_test_12( const char *fen_str, uint64_t settings )
+x_validate_fen_test_12( const char *fen )
 {
-	if( settings & CFSV_BF_CHESS960 )
-		return true;
-
-	const char *ca = nth_field_of_fen_str( fen_str, x_writable_mem, 3 );
-	// We want ca pointing somewhere else than writable_mem before
-	// reusing the array
-	char five_bytes[ 4 + 1 ];
-	strcpy( five_bytes, ca );
-	ca = five_bytes;
-
-	const char *ppf = nth_field_of_fen_str( fen_str, x_writable_mem, 1 );
-
-	return x_ppf_and_caf_agree( ppf, ca );
+	return fen;
 }
 
 static bool
@@ -384,7 +383,8 @@ x_validate_fen_test_23( const Pos *p )
 	return !whites_turn( p ) || !king_can_be_captured( p );
 }
 
-#define FIND_ROOKS_POSSIBLE_SQS( king, dir, bb ) \
+/*
+_define FIND_ROOKS_POSSIBLE_SQS( king, dir, bb ) \
 sq = p->cm[ king ]; \
 while( ( sq = sq_nav( sq, dir ) ) ) \
 	bb |= sq;
@@ -421,7 +421,8 @@ x_validate_fen_test_24( const Pos *p )
 		( q && !( p->cm[ BLACK_ROOK ] & black_rooks_possible_sqs_to_west ) ) );
 }
 
-#undef FIND_ROOKS_POSSIBLE_SQS
+_undef FIND_ROOKS_POSSIBLE_SQS
+*/
 
 /*
 // Returns the rank sum of a FEN string representation of a rank
@@ -451,13 +452,14 @@ x_calc_rank_sum( const char *rank )
 }
 */
 
+/*
 // Checks that castling rights make sense what comes to king and rook
 // placement. For example, if the castling availability field is "K",
 // then there must be a white king on e1 and a white rook on h1.
 static bool
 x_ppf_and_caf_agree( const char *ppf, const char *ca )
 {
-	assert( strlen( ca ) > 0 && str_matches_pattern( ca, "^(-|K?Q?k?q?)$" ) );
+	// assert( strlen( ca ) > 0 && str_matches_pattern( ca, "^(-|K?Q?k?q?)$" ) );
 
 	bool white_has_kingside_castling = str_matches_pattern( ca, "^KQ?k?q?$" ),
 		white_has_queenside_castling = str_matches_pattern( ca, "^K?Qk?q?$" ),
@@ -483,7 +485,9 @@ x_ppf_and_caf_agree( const char *ppf, const char *ca )
 	return white_kingside_castling_is_valid && white_queenside_castling_is_valid &&
 		black_kingside_castling_is_valid && black_queenside_castling_is_valid;
 }
+*/
 
+/*
 // Returns the type of chessman on square 'sq'. For example, if there is
 // a white king on square e1, then x_occupant_of_sq( ppf, "e1" ) returns "K".
 // For an empty square "-" is returned.
@@ -503,3 +507,4 @@ x_occupant_of_sq( const char *ppf, const char *sq )
 	char file = sq[ 0 ];
 	return constant_length_rank[ file - 97 ]; // 'a' - 97 = 0, 'h' - 97 = 7
 }
+*/

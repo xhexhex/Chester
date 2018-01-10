@@ -759,7 +759,7 @@ free( bin_str );
 
 #define FEN_FIELDS_WORKS( fen, exp_ppf, exp_acf, exp_caf, exp_eptsf, \
 	exp_hmcf, exp_fmnf ) \
-ck_assert( !che_fen_validator( fen, 0 ) ); \
+ck_assert( !che_fen_validator( fen ) ); \
 ff = fen_fields( fen ); \
 ck_assert( ff ); \
 exp_vals[ 0 ] = exp_ppf, exp_vals[ 1 ] = exp_acf, exp_vals[ 2 ] = exp_caf, \

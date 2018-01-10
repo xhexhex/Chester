@@ -29,14 +29,11 @@ enum che_fen_error {
 	FEN_INVALID_NUMBER_OF_WHITE_KINGS,
 	FEN_INVALID_NUMBER_OF_BLACK_KINGS,
 	FEN_WHITE_KING_CAN_BE_CAPTURED,
-	FEN_BLACK_KING_CAN_BE_CAPTURED,
-	FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR
+	FEN_BLACK_KING_CAN_BE_CAPTURED
 };
 
-extern const uint64_t CFSV_BF_CHESS960;
-
 // Function prototypes
-enum che_fen_error che_fen_validator( const char *fen, const uint64_t settings );
+enum che_fen_error che_fen_validator( const char *fen );
 int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 
 #endif
