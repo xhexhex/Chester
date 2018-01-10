@@ -23,6 +23,10 @@ static bool x_validate_fen_test_9( const char *fen );
 static bool x_validate_fen_test_10( const char *fen );
 static bool x_validate_fen_test_11( const char *fen );
 static bool x_validate_fen_test_12( const char *fen );
+static void x_validate_fen_test_12_remove_irrelevant_chessmen( char *rank );
+static bool x_validate_fen_test_12_king_placement_contradicts_caf(
+	const char *r1, const char *r8, const char *caf );
+static void x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf );
 static bool x_validate_fen_test_13( const char *fen );
 static bool x_validate_fen_test_14( const char *fen );
 static bool x_validate_fen_test_15( const Pos *p );
@@ -291,7 +295,95 @@ x_validate_fen_test_11( const char *fen )
 static bool
 x_validate_fen_test_12( const char *fen )
 {
-	return fen;
+	char **ff = fen_fields( fen ), eppf[ PPF_MAX_LENGTH + 1 ],
+		r1[ 8 + 1 ] = { '\0' }, r8[ 8 + 1 ] = { '\0' }, // Rank 1, 8
+		*caf = ff[ 2 ], ecaf[ 4 + 1 ] = { '\0' }; // ecaf, expanded CAF
+	if( !strcmp( caf, "-" ) ) return true;
+	expand_ppf( ff[ 0 ], eppf );
+
+	// rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R
+	for( int i = PPF_MAX_LENGTH - 1, j = 7; j >= 0; i--, j-- ) r1[ j ] = eppf[ i ];
+	for( int i = 0, j = 0; j < 8; i++, j++ ) r8[ j ] = eppf[ i ];
+	x_validate_fen_test_12_remove_irrelevant_chessmen( r1 );
+	x_validate_fen_test_12_remove_irrelevant_chessmen( r8 );
+
+	assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 );
+	assert( str_matches_pattern( r1, "^[-KkRr]*$" ) );
+	assert( str_matches_pattern( r8, "^[-KkRr]*$" ) );
+
+	if( x_validate_fen_test_12_king_placement_contradicts_caf( r1, r8, caf ) )
+		return false;
+	
+	x_validate_fen_test_12_expand_caf( caf, ecaf );
+	// printf( "### \"%s\" --> \"%s\"\n", caf, ecaf );
+
+	free_fen_fields( ff );
+	return true;
+}
+
+static void
+x_validate_fen_test_12_remove_irrelevant_chessmen( char *rank )
+{
+	for( int i = 0; i < 8; i++ ) {
+		char c = rank[ i ];
+		if( c != 'K' && c != 'k' && c != 'R' && c != 'r' ) rank[ i ] = '-'; }
+}
+
+static bool
+x_validate_fen_test_12_king_placement_contradicts_caf(
+	const char *r1, const char *r8, const char *caf )
+{
+	bool wk_on_suitable_sq = false, bk_on_suitable_sq = false; // wk, bk; white, black king
+	for( int i = 1; i < 7; i++ ) {
+		if( r1[ i ] == 'K' ) wk_on_suitable_sq = true;
+		if( r8[ i ] == 'k' ) bk_on_suitable_sq = true; }
+
+	return ( !wk_on_suitable_sq && str_matches_pattern( caf, "^.*[ABCDEFGHKQ].*$" ) ) ||
+		( !bk_on_suitable_sq && str_matches_pattern( caf, "^.*[abcdefghkq].*$" ) );
+}
+
+static void // It's not possible for 'caf' to have the value "-"
+x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf )
+{
+	for( int i = 0; i < 4; i++ ) ecaf[ i ] = '-';
+	size_t ca_count = strlen( caf );
+	
+	if( ca_count == 1 ) {
+		ecaf[ isupper( caf[ 0 ] ) ? 0 : 2 ] = caf[ 0 ];
+	} else if( ca_count == 2 ) {
+		bool upper_1st = isupper( caf[ 0 ] ), upper_2nd = isupper( caf[ 1 ] );
+		if( !upper_1st ) {
+			ecaf[ 2 ] = caf[ 0 ];
+			ecaf[ 3 ] = caf[ 1 ];
+		} else if( !upper_2nd ) {
+			ecaf[ 0 ] = caf[ 0 ];
+			ecaf[ 2 ] = caf[ 1 ];
+		} else {
+			ecaf[ 0 ] = caf[ 0 ];
+			ecaf[ 1 ] = caf[ 1 ]; }
+	} else if( ca_count == 3 ) {
+		int uc_count = 0;
+		for( int i = 0; i < 3; i++ ) if( isupper( caf[ i ] ) ) ++uc_count;
+		ecaf[ 0 ] = caf[ 0 ];
+		ecaf[ uc_count == 2 ? 1 : 2 ] = caf[ 1 ];
+		ecaf[ uc_count == 2 ? 2 : 3 ] = caf[ 2 ];
+		// Avoiding the erratic conversion "Qkq" --> "Q-kq"
+		if( uc_count == 1 && tolower( ecaf[ 0 ] ) != ecaf[ 0 ] ) {
+			char tmp = ecaf[ 0 ];
+			ecaf[ 0 ] = ecaf[ 1 ];
+			ecaf[ 1 ] = tmp; }
+		/*
+			MORE PROBLEMS:
+			"Kkq" --> "-Kkq"
+			"Kq" --> "K-q-"
+			"KQq" --> "KQq-"
+			"Qk" --> "Q-k-"
+		 */
+	} else if( ca_count == 4 ) {
+		strcpy( ecaf, caf );
+	} else assert( false );
+	
+	assert( strlen( ecaf ) >= 1 && strlen( ecaf ) <= 4 );
 }
 
 static bool
