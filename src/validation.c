@@ -18,7 +18,7 @@ static bool x_validate_fen_test_5( const char *fen );
 static bool x_validate_fen_test_6( const char *fen );
 static bool x_validate_fen_test_7( const char *fen );
 static bool x_validate_fen_test_8( const char *fen );
-static bool x_validate_fen_test_8_valid_chess960_caf( const char *caf );
+static bool x_validate_fen_test_8_valid_shredder_fen_caf( const char *caf );
 static bool x_validate_fen_test_9( const char *fen );
 static bool x_validate_fen_test_10( const char *fen );
 static bool x_validate_fen_test_11( const char *fen );
@@ -40,7 +40,7 @@ static bool x_validate_fen_test_23( const Pos *p );
 // static char x_occupant_of_sq( const char *ppf, const char *sq );
 
 // The size of the array should be at least FEN_MAX_LENGTH + 1 bytes
-static char x_writable_mem[ 120 + 1 ];
+// static char x_writable_mem[ 120 + 1 ];
 
 /*****************************
  ****                     ****
@@ -67,8 +67,7 @@ che_fen_validator( const char *fen )
 	if( !x_validate_fen_test_13( fen ) ) return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
 	if( !x_validate_fen_test_14( fen ) ) return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
 
-	// At this point the FEN string is found to be "sufficiently valid"
-	// for the conversion to succeed
+	// At this point it should be safe to do the conversion
 	Pos *p = fen_to_pos( fen );
 
 	// Test 15
@@ -125,6 +124,8 @@ valid_sq_name( const char *sq_name )
 static bool
 x_validate_fen_test_1( const char *fen )
 {
+	if( !fen ) return false;
+
 	size_t length = strlen( fen );
 	return ( length < FEN_MIN_LENGTH || length > FEN_MAX_LENGTH ) ? false : true;
 }
@@ -184,22 +185,21 @@ x_validate_fen_test_7( const char *fen )
 static bool
 x_validate_fen_test_8( const char *fen )
 {
-	char caf[ 4 + 1 ] = { '\0' };
-	int i = 0, space_count = 0, ca_i = 0;
-	// rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+	char caf[ 5 + 1 ] = { '\0' }; // One char longer than a valid max-length CAF
+	int i = 0, space_count = 0, caf_i = 0;
 	while( space_count < 2 ) if( fen[ ++i ] == ' ' ) ++space_count;
-	while( fen[ ++i ] != ' ' ) caf[ ca_i++ ] = fen[ i ];
-	
-	assert( strlen( caf ) > 0 );
-	if( strlen( caf ) > 4 ) return false;
-	
+	while( fen[ ++i ] != ' ' && caf_i < 5 ) caf[ caf_i++ ] = fen[ i ];
+
+	assert( strlen( caf ) >= 1 && strlen( caf ) <= 5 );
+	if( strlen( caf ) == 5 ) return false;
+
 	return
 		!strcmp( caf, "-" ) || str_matches_pattern( caf, "^K?Q?k?q?$" ) ||
-		x_validate_fen_test_8_valid_chess960_caf( caf );
+		x_validate_fen_test_8_valid_shredder_fen_caf( caf );
 }
 
 static bool
-x_validate_fen_test_8_valid_chess960_caf( const char *caf )
+x_validate_fen_test_8_valid_shredder_fen_caf( const char *caf )
 {
 	// If 'caf' is "BEb", it contains the files b and e. This corresponds to the
 	// binary string "00010010" or the uint 2 + 16.
@@ -236,40 +236,47 @@ x_validate_fen_test_8_valid_chess960_caf( const char *caf )
 	return str_matches_pattern( caf, "^[ABCDEFGH]?[ABCDEFGH]?[abcdefgh]?[abcdefgh]?$" );
 }
 
+static bool
+x_validate_fen_test_9( const char *fen )
+{
+	int i = 0, space_count = 0;
+	while( space_count < 3 ) if( fen[ i++ ] == ' ' ) ++space_count;
+
+	return ( fen[ i ] == '-' && fen[ i + 1 ] == ' ' ) || (
+		fen[ i ] >= 'a' && fen[ i ] <= 'h' && (
+			fen[ i + 1 ] == '3' || fen[ i + 1 ] == '6'
+		) && fen[ i + 2 ] == ' ' );
+}
+
+#define COPY_NUMERIC_FIELD( name, sc_limit ) \
+char name[ 6 + 1 ] = { '\0' }; \
+int i = 0, space_count = 0; \
+while( space_count < sc_limit ) if( fen[ i++ ] == ' ' ) ++space_count; \
+for( int j = 0; j < 6 && fen[ i + j ] != ' '; j++ ) name[ j ] = fen[ i + j ]; \
+assert( strlen( name ) >= 1 && strlen( name ) <= 6 );
+
+#define NUM_FIELD_REGEX "^[123456789][0123456789]{0,4}$"
+
+static bool
+x_validate_fen_test_10( const char *fen )
+{
+	COPY_NUMERIC_FIELD( hmcf, 4 )
+	return !strcmp( hmcf, "0" ) || ( str_matches_pattern( hmcf, NUM_FIELD_REGEX ) &&
+		atoi( hmcf ) > 0 && atoi( hmcf ) <= (int) FEN_NUMERIC_FIELD_MAX );
+}
+
+static bool
+x_validate_fen_test_11( const char *fen )
+{
+	COPY_NUMERIC_FIELD( fmnf, 5 )
+	return str_matches_pattern( fmnf, NUM_FIELD_REGEX ) && atoi( fmnf ) > 0 &&
+		atoi( fmnf ) <= (int) FEN_NUMERIC_FIELD_MAX;
+}
+
+#undef COPY_NUMERIC_FIELD
+#undef NUM_FIELD_REGEX
+
 // UPDATE MARKER
-static bool
-x_validate_fen_test_9( const char *fen_str )
-{
-	const char *epts = nth_field_of_fen_str( fen_str, x_writable_mem, 4 );
-
-	return !strcmp( epts, "-" ) ||
-		str_matches_pattern( epts, "^[abcdefgh][36]$" );
-}
-
-static bool
-x_validate_fen_test_10( const char *fen_str )
-{
-	const char *hmc = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
-
-	return
-		!strcmp( hmc, "0" ) ||
-		(
-			str_matches_pattern( hmc, "^[123456789][0123456789]{0,4}$" ) &&
-			atoi( hmc ) > 0 &&
-			atoi( hmc ) <= (int) FEN_NUMERIC_FIELD_MAX
-		);
-}
-
-static bool
-x_validate_fen_test_11( const char *fen_str )
-{
-	const char *fmn = nth_field_of_fen_str( fen_str, x_writable_mem, 6 );
-
-	return
-		str_matches_pattern( fmn, "^[123456789][0123456789]{0,4}$" ) &&
-		atoi( fmn ) > 0 &&
-		atoi( fmn ) <= (int) FEN_NUMERIC_FIELD_MAX;
-}
 
 /*
 12. `FEN_PPF_CONTRADICTS_CAF_ERROR`  
@@ -288,34 +295,31 @@ x_validate_fen_test_12( const char *fen )
 }
 
 static bool
-x_validate_fen_test_13( const char *fen_str )
+x_validate_fen_test_13( const char *fen )
 {
-	const char *eptsf = nth_field_of_fen_str( fen_str, x_writable_mem, 4 ),
-		*hmcf = nth_field_of_fen_str( fen_str, x_writable_mem, 5 );
-
-	assert( strlen( eptsf ) > 0 && strlen( eptsf ) < 3 &&
-		strlen( hmcf ) > 0 && strlen( hmcf ) < 6 );
-
+	char **ff = fen_fields( fen ), *eptsf = ff[ 3 ], *hmcf = ff[ 4 ];
+	assert( strlen( eptsf ) >= 1 && strlen( eptsf ) <= 2 &&
+		strlen( hmcf ) >= 1 && strlen( hmcf ) <= 5 );
+	
 	// ( ( EPTS field is something else than "-" ) --> ( HMC field is "0" ) )
 	// <=>
 	// ( ( EPTS field is "-" ) OR ( HMC field is "0" ) )
-	return !strcmp( eptsf, "-" ) || !strcmp( hmcf, "0" );
+	bool result = !strcmp( eptsf, "-" ) || !strcmp( hmcf, "0" );
+	free_fen_fields( ff );
+
+	return result;
 }
 
 static bool
-x_validate_fen_test_14( const char *fen_str )
+x_validate_fen_test_14( const char *fen )
 {
-	const char *eptsf = nth_field_of_fen_str( fen_str, x_writable_mem, 4 );
-	char three_bytes[ 2 + 1 ];
-	strcpy( three_bytes, eptsf );
-	eptsf = three_bytes;
+	char **ff = fen_fields( fen ), *acf = ff[ 1 ], *eptsf = ff[ 3 ];
+	bool result = !strcmp( eptsf, "-" ) ||
+		( !strcmp( acf, "w" ) && str_matches_pattern( eptsf, "^[abcdefgh]6$" ) ) ||
+		( !strcmp( acf, "b" ) && str_matches_pattern( eptsf, "^[abcdefgh]3$" ) );
+	free_fen_fields( ff );
 
-	const char *ac = nth_field_of_fen_str( fen_str, x_writable_mem, 2 );
-
-	return
-		!strcmp( eptsf, "-" ) ||
-		( !strcmp( ac, "w" ) && str_matches_pattern( eptsf, "^[abcdefgh]6$" ) ) ||
-		( !strcmp( ac, "b" ) && str_matches_pattern( eptsf, "^[abcdefgh]3$" ) );
+	return result;
 }
 
 static bool
