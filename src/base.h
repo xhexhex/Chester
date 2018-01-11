@@ -27,11 +27,13 @@ struct const_single_var_struct_SB {
 
 extern const struct const_single_var_struct_SB SB;
 extern const Bitboard SBA[], SQ_NAV[][ 16 ];
-extern const char *SNA[], FEN_PIECE_LETTERS[];
+extern const char FEN_PIECE_LETTERS[];
 extern const size_t PPF_MIN_LENGTH, PPF_MAX_LENGTH, FEN_MIN_LENGTH, FEN_MAX_LENGTH,
-	POSSIBLE_IRPF_VALUES_COUNT;
+	POSSIBLE_IRPF_VALUES_COUNT, SHREDDER_FEN_CAFS_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
 extern const uint64_t FEN_NUMERIC_FIELD_MAX;
+extern const char * const SNA[];
+extern const char * const SHREDDER_FEN_CAFS[];
 
 // The cm array of Pos should be indexed with these, e.g., pos.cm[ WHITE_KING ]
 typedef enum {

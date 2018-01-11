@@ -619,3 +619,34 @@ ck_assert( fen_fmnf( fen ) == exp_fmn_i );
 		1337, 54321 )
 
 #undef FEN_HMCF_AND_FEN_FMNF_TEST
+
+//
+// Test case
+//
+#tcase str_array_SHREDDER_FEN_CAFS_tests
+
+#test C_SHREDDER_FEN_CAFS_array_size_test
+	int counter = 0;
+	for( ; SHREDDER_FEN_CAFS[ counter ]; counter++ ) {}
+	ck_assert( counter == (int) SHREDDER_FEN_CAFS_COUNT );
+	
+#define N_CHAR_ELEMENTS_COUNT( length, exp_count ) \
+int counter = 0; \
+for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) \
+	if( strlen( SHREDDER_FEN_CAFS[ i ] ) == length ) ++counter; \
+ck_assert( counter == exp_count );
+
+// 1c, one-character
+#test C_SHREDDER_FEN_CAFS_array_1c_elements_test
+	N_CHAR_ELEMENTS_COUNT( 1, 17 ) // "abcdefgh", "ABCDEFGH", "-"
+
+#test C_SHREDDER_FEN_CAFS_array_2c_elements_test
+	N_CHAR_ELEMENTS_COUNT( 2, 6 * (int) POSSIBLE_IRPF_VALUES_COUNT + 8 )
+
+#test C_SHREDDER_FEN_CAFS_array_3c_elements_test
+	N_CHAR_ELEMENTS_COUNT( 3, 8 * (int) POSSIBLE_IRPF_VALUES_COUNT )
+
+#test C_SHREDDER_FEN_CAFS_array_4c_elements_test
+	N_CHAR_ELEMENTS_COUNT( 4, 2 * (int) POSSIBLE_IRPF_VALUES_COUNT )
+
+#undef N_CHAR_ELEMENTS_COUNT

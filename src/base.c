@@ -8,9 +8,11 @@
 #include "utils.h"
 #include "validation.h"
 
-/***********************
- **** External data ****
- ***********************/
+/*************************
+ ****                 ****
+ ****  External data  ****
+ ****                 ****
+ *************************/
 
 #define ALL_SQ_BIT_VALUES \
 	0x1u, 0x2u, 0x4u, 0x8u, 0x10u, 0x20u, 0x40u, 0x80u, 0x100u, 0x200u, 0x400u, \
@@ -42,7 +44,7 @@ const Bitboard SBA[] = {
 
 // SNA, square names array. SNA[ 0 ] is "a1", SNA[ 1 ] is "b1", ...,
 // SNA[ 63 ] is "h8".
-const char *SNA[] = {
+const char * const SNA[] = {
 	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
 	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
@@ -297,6 +299,40 @@ const uint8_t POSSIBLE_IRPF_VALUES[] = {
 
 // The maximum value for the numeric FEN fields (HMCF and FMNF)
 const uint64_t FEN_NUMERIC_FIELD_MAX = 0xffffU; // 65535
+
+// All the possible Shredder-FEN castling availability fields along with their number
+const size_t SHREDDER_FEN_CAFS_COUNT = 361;
+const char * const SHREDDER_FEN_CAFS[] = {
+	"-", "a", "A", "Aa", "Aac", "Aad", "Aae", "Aaf", "Aag", "Aah", "ac", "Ac", "AC",
+	"Aca", "ACa", "ACac", "ACc", "ad", "Ad", "AD", "Ada", "ADa", "ADad", "ADd", "ae",
+	"Ae", "AE", "Aea", "AEa", "AEae", "AEe", "af", "Af", "AF", "Afa", "AFa", "AFaf",
+	"AFf", "ag", "Ag", "AG", "Aga", "AGa", "AGag", "AGg", "ah", "Ah", "AH", "Aha",
+	"AHa", "AHah", "AHh", "b", "B", "Bb", "Bbd", "Bbe", "Bbf", "Bbg", "Bbh", "bd",
+	"Bd", "BD", "Bdb", "BDb", "BDbd", "BDd", "be", "Be", "BE", "Beb", "BEb", "BEbe",
+	"BEe", "bf", "Bf", "BF", "Bfb", "BFb", "BFbf", "BFf", "bg", "Bg", "BG", "Bgb",
+	"BGb", "BGbg", "BGg", "bh", "Bh", "BH", "Bhb", "BHb", "BHbh", "BHh", "c", "C",
+	"ca", "Ca", "CA", "CAa", "Cac", "CAc", "CAca", "Cc", "Cca", "Cce", "Ccf", "Ccg",
+	"Cch", "ce", "Ce", "CE", "Cec", "CEc", "CEce", "CEe", "cf", "Cf", "CF", "Cfc",
+	"CFc", "CFcf", "CFf", "cg", "Cg", "CG", "Cgc", "CGc", "CGcg", "CGg", "ch", "Ch",
+	"CH", "Chc", "CHc", "CHch", "CHh", "d", "D", "da", "Da", "DA", "DAa", "Dad", "DAd",
+	"DAda", "db", "Db", "DB", "DBb", "Dbd", "DBd", "DBdb", "Dd", "Dda", "Ddb", "Ddf",
+	"Ddg", "Ddh", "df", "Df", "DF", "Dfd", "DFd", "DFdf", "DFf", "dg", "Dg", "DG",
+	"Dgd", "DGd", "DGdg", "DGg", "dh", "Dh", "DH", "Dhd", "DHd", "DHdh", "DHh", "e",
+	"E", "ea", "Ea", "EA", "EAa", "Eae", "EAe", "EAea", "eb", "Eb", "EB", "EBb", "Ebe",
+	"EBe", "EBeb", "ec", "Ec", "EC", "ECc", "Ece", "ECe", "ECec", "Ee", "Eea", "Eeb",
+	"Eec", "Eeg", "Eeh", "eg", "Eg", "EG", "Ege", "EGe", "EGeg", "EGg", "eh", "Eh",
+	"EH", "Ehe", "EHe", "EHeh", "EHh", "f", "F", "fa", "Fa", "FA", "FAa", "Faf",
+	"FAf", "FAfa", "fb", "Fb", "FB", "FBb", "Fbf", "FBf", "FBfb", "fc", "Fc", "FC",
+	"FCc", "Fcf", "FCf", "FCfc", "fd", "Fd", "FD", "FDd", "Fdf", "FDf", "FDfd", "Ff",
+	"Ffa", "Ffb", "Ffc", "Ffd", "Ffh", "fh", "Fh", "FH", "Fhf", "FHf", "FHfh", "FHh",
+	"g", "G", "ga", "Ga", "GA", "GAa", "Gag", "GAg", "GAga", "gb", "Gb", "GB", "GBb",
+	"Gbg", "GBg", "GBgb", "gc", "Gc", "GC", "GCc", "Gcg", "GCg", "GCgc", "gd", "Gd",
+	"GD", "GDd", "Gdg", "GDg", "GDgd", "ge", "Ge", "GE", "GEe", "Geg", "GEg", "GEge",
+	"Gg", "Gga", "Ggb", "Ggc", "Ggd", "Gge", "h", "H", "ha", "Ha", "HA", "HAa", "Hah",
+	"HAh", "HAha", "hb", "Hb", "HB", "HBb", "Hbh", "HBh", "HBhb", "hc", "Hc", "HC",
+	"HCc", "Hch", "HCh", "HChc", "hd", "Hd", "HD", "HDd", "Hdh", "HDh", "HDhd", "he",
+	"He", "HE", "HEe", "Heh", "HEh", "HEhe", "hf", "Hf", "HF", "HFf", "Hfh", "HFh",
+	"HFhf", "Hh", "Hha", "Hhb", "Hhc", "Hhd", "Hhe", "Hhf", NULL };
 
 /************************************
  **** Static function prototypes ****
