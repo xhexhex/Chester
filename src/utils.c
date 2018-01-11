@@ -24,7 +24,9 @@ static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
 static void x_compress_eppf_rank_dashes_to_digit(
 	int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank );
 static void x_expand_caf_convert_std_caf_to_shredder_caf( char *caf );
-static void x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf );
+static void x_expand_caf_sort_3_char_ecaf( char *caf );
+static void x_expand_caf_sort_4_char_ecaf( const char *caf, char *ecaf );
+static int x_expand_caf_find_missing_char_index( const char *caf );
 
 /***********************
  **** External data ****
@@ -664,10 +666,42 @@ expand_caf( const char *caf, char *ecaf, bool a_side )
 		x_expand_caf_sort_4_char_ecaf( caf_c, ecaf );
 		return;
 	} else if( len == 3 ) {
+		x_expand_caf_sort_3_char_ecaf( caf_c );
+		int mci = x_expand_caf_find_missing_char_index( caf_c );
+		ecaf[ mci ] = '-';
+		int i = 0, j = -1;
+		while( i < 3 ) if( ++j != mci ) ecaf[ j ] = caf_c[ i++ ];
+	} else if( len == 2 ) {
+		// *** CONTINUE FROM HERE ***
 	}
 
 	// printf( "\"%s\" (%lu)\n", copy, strlen( copy ) );
 }
+
+static int
+x_expand_caf_find_missing_char_index( const char *caf )
+{
+	if( isupper( caf[ 1 ] ) ) return ( tolower( caf[ 0 ] ) == caf[ 2 ] ) ? 3 : 2;
+	return ( tolower( caf[ 0 ] ) == caf[ 1 ] ) ? 1 : 0;
+}
+
+#define SWAP_CHARS( first, second ) \
+char tmp = first; \
+first = second; \
+second = tmp;
+
+static void
+x_expand_caf_sort_3_char_ecaf( char *caf_c )
+{
+	if( isupper( caf_c[ 1 ] ) && caf_c[ 0 ] > caf_c[ 1 ] ) {
+		SWAP_CHARS( caf_c[ 0 ], caf_c[ 1 ] )
+	} else if( islower( caf_c[ 1 ] ) && caf_c[ 1 ] > caf_c[ 2 ] ) {
+		SWAP_CHARS( caf_c[ 1 ], caf_c[ 2 ] ) }
+
+	assert( strlen( caf_c ) == 3 );
+}
+
+#undef SWAP_CHARS
 
 static void
 x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf )
