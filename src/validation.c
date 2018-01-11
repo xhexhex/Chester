@@ -197,47 +197,18 @@ x_validate_fen_test_8( const char *fen )
 	assert( strlen( caf ) >= 1 && strlen( caf ) <= 5 );
 	if( strlen( caf ) == 5 ) return false;
 
-	return
-		!strcmp( caf, "-" ) || str_matches_pattern( caf, "^K?Q?k?q?$" ) ||
+	return  str_matches_pattern( caf, STD_FEN_CAF_REGEX ) ||
 		x_validate_fen_test_8_valid_shredder_fen_caf( caf );
 }
 
 static bool
 x_validate_fen_test_8_valid_shredder_fen_caf( const char *caf )
 {
-	// If 'caf' is "BEb", it contains the files b and e. This corresponds to the
-	// binary string "00010010" or the uint 2 + 16.
-	uint8_t files = 0;
-
-	for( int i = 0; caf[ i ]; i++ )
-		switch( caf[ i ] ) {
-			case 'a':
-			case 'A': files |= 1U; break;
-			case 'b':
-			case 'B': files |= 2U; break;
-			case 'c':
-			case 'C': files |= 41U; break;
-			case 'd':
-			case 'D': files |= 8U; break;
-			case 'e':
-			case 'E': files |= 16U; break;
-			case 'f':
-			case 'F': files |= 32U; break;
-			case 'g':
-			case 'G': files |= 64U; break;
-			case 'h':
-			case 'H': files |= 128U; break;
-			default: 
-				return false; }
-
-	bool files_is_valid = false;
-	for( int i = 0; (size_t) i < POSSIBLE_IRPF_VALUES_COUNT; i++ )
-		if( files == POSSIBLE_IRPF_VALUES[ i ] ) {
-			files_is_valid = true;
-			break; }
-	if( !files_is_valid ) return false;
-
-	return str_matches_pattern( caf, "^[ABCDEFGH]?[ABCDEFGH]?[abcdefgh]?[abcdefgh]?$" );
+	for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ )
+		if( !strcmp( caf, SHREDDER_FEN_CAFS[ i ] ) )
+			return true;
+	
+	return false;
 }
 
 static bool

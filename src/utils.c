@@ -23,6 +23,8 @@ static const char *x_ALT_sq_navigator_knights_sqs(
 static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
 static void x_compress_eppf_rank_dashes_to_digit(
 	int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank );
+static void x_expand_caf_convert_std_caf_to_shredder_caf( char *caf );
+static void x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf );
 
 /***********************
  **** External data ****
@@ -627,6 +629,65 @@ free_fen_fields( char **ff )
 	for( int ff_i = 0; ff_i < 6; ff_i++ ) free( ff[ ff_i ] );
 
 	free( ff );
+}
+
+// Expands 'caf' and stores the result in 'ecaf' (which is assumed to be a writable
+// array of at least five bytes). Expanding a CAF means adding dashes where there
+// are "missing" characters and arranging the letters so that uppercase comes
+// before lowercase and that letters of the same case are in alphabetical order.
+// A few examples:
+//
+// "HAh" --> "AH-h", "Hah" --> "-Hah", "bd" --> "--bd", "Eg" --> "E--g", "CA" --> "AC--"
+//
+// The parameter 'a_side' is needed in some cases to avoid ambiguity. For example,
+// if the CAF is "E", it's not clear whether it means a-side or h-side castling
+// availability for White. If 'a_side' is true, the conversion is "E" --> "E---",
+// and otherwise "E" --> "-E--". If there is no ambiguity, the value of 'a_side'
+// has no effect.
+//
+// If 'caf' is a standard FEN CAF such as "KQkq" or "k", it is converted into
+// a Shredder-FEN before expansion. (Remember that Chester considers "KQkq" to be
+// a synonym for "AHah" or "HAha".)
+//
+// 'caf' is assumed to be a valid standard FEN or Shredder-FEN CAF.
+void
+expand_caf( const char *caf, char *ecaf, bool a_side )
+{
+	for( int i = 0; i < 5; i++ ) ecaf[ i ] = '\0';
+	char caf_c[ 4 + 1 ]; // 'caf' copy
+	strcpy( caf_c, caf );
+	caf = NULL;
+	x_expand_caf_convert_std_caf_to_shredder_caf( caf_c );
+
+	size_t len = strlen( caf_c );
+	if( len == 4 ) {
+		x_expand_caf_sort_4_char_ecaf( caf_c, ecaf );
+		return;
+	} else if( len == 3 ) {
+	}
+
+	// printf( "\"%s\" (%lu)\n", copy, strlen( copy ) );
+}
+
+static void
+x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf )
+{
+	bool flip_letters = caf_c[ 0 ] > caf_c[ 1 ];
+	ecaf[ 0 ] = caf_c[ flip_letters ? 1 : 0 ];
+	ecaf[ 1 ] = caf_c[ flip_letters ? 0 : 1 ];
+	ecaf[ 2 ] = caf_c[ flip_letters ? 3 : 2 ];
+	ecaf[ 3 ] = caf_c[ flip_letters ? 2 : 3 ];
+	assert( strlen( ecaf ) == 4 );
+}
+
+static void
+x_expand_caf_convert_std_caf_to_shredder_caf( char *caf )
+{
+	for( int i = 0; i < 4; i++ )
+		if( caf[ i ] == 'K' ) caf[ i ] = 'H';
+		else if( caf[ i ] == 'Q' ) caf[ i ] = 'A';
+		else if( caf[ i ] == 'k' ) caf[ i ] = 'h';
+		else if( caf[ i ] == 'q' ) caf[ i ] = 'a';
 }
 
 /****************************

@@ -334,6 +334,11 @@ const char * const SHREDDER_FEN_CAFS[] = {
 	"He", "HE", "HEe", "Heh", "HEh", "HEhe", "hf", "Hf", "HF", "HFf", "Hfh", "HFh",
 	"HFhf", "Hh", "Hha", "Hhb", "Hhc", "Hhd", "Hhe", "Hhf", NULL };
 
+// Matches any of the 16 standard FEN castling availability fields. Note that the
+// regex also matches the empty string so be sure to check that the string length
+// is greater than zero when using the regex.
+const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
+
 /************************************
  **** Static function prototypes ****
  ************************************/

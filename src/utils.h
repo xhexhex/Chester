@@ -43,6 +43,7 @@ void expand_ppf( const char *ppf, char *eppf );
 char *compress_eppf( const char *eppf );
 char **fen_fields( const char *fen );
 void free_fen_fields( char **ff );
+void expand_caf( const char *caf, char *ecaf, bool a_side );
 
 #endif
 // end UTILS_H
