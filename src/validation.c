@@ -9,6 +9,7 @@
 #include "chester.h"
 #include "move_gen.h"
 #include "base.h"
+#include "extra.h"
 
 static bool x_validate_fen_test_1( const char *fen );
 static bool x_validate_fen_test_2( const char *fen );
@@ -23,10 +24,11 @@ static bool x_validate_fen_test_9( const char *fen );
 static bool x_validate_fen_test_10( const char *fen );
 static bool x_validate_fen_test_11( const char *fen );
 static bool x_validate_fen_test_12( const char *fen );
-static void x_validate_fen_test_12_remove_irrelevant_chessmen( char *rank );
+static void x_validate_fen_test_12_remove_irrelevant_chessmen(
+	char *rank, bool rank_1 );
 static bool x_validate_fen_test_12_king_placement_contradicts_caf(
 	const char *r1, const char *r8, const char *caf );
-static void x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf );
+static char x_validate_fen_test_12_file_of_king( const char *rank );
 static bool x_validate_fen_test_13( const char *fen );
 static bool x_validate_fen_test_14( const char *fen );
 static bool x_validate_fen_test_15( const Pos *p );
@@ -74,33 +76,15 @@ che_fen_validator( const char *fen )
 	// At this point it should be safe to do the conversion
 	Pos *p = fen_to_pos( fen );
 
-	// Test 15
-	if( !x_validate_fen_test_15( p ) )
-		return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
-	// Test 16
-	if( !x_validate_fen_test_16( p ) )
-		return FEN_WHITE_PAWN_ON_FIRST_RANK;
-	// Test 17
-	if( !x_validate_fen_test_17( p ) )
-		return FEN_BLACK_PAWN_ON_FIRST_RANK;
-	// Test 18
-	if( !x_validate_fen_test_18( p ) )
-		return FEN_WHITE_PAWN_ON_LAST_RANK;
-	// Test 19
-	if( !x_validate_fen_test_19( p ) )
-		return FEN_BLACK_PAWN_ON_LAST_RANK;
-	// Test 20
-	if( !x_validate_fen_test_20( p ) )
-		return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
-	// Test 21
-	if( !x_validate_fen_test_21( p ) )
-		return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
-	// Test 22
-	if( !x_validate_fen_test_22( p ) )
-		return FEN_WHITE_KING_CAN_BE_CAPTURED;
-	// Test 23
-	if( !x_validate_fen_test_23( p ) )
-		return FEN_BLACK_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_15( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
+	if( !x_validate_fen_test_16( p ) ) return FEN_WHITE_PAWN_ON_FIRST_RANK;
+	if( !x_validate_fen_test_17( p ) ) return FEN_BLACK_PAWN_ON_FIRST_RANK;
+	if( !x_validate_fen_test_18( p ) ) return FEN_WHITE_PAWN_ON_LAST_RANK;
+	if( !x_validate_fen_test_19( p ) ) return FEN_BLACK_PAWN_ON_LAST_RANK;
+	if( !x_validate_fen_test_20( p ) ) return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
+	if( !x_validate_fen_test_21( p ) ) return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
+	if( !x_validate_fen_test_22( p ) ) return FEN_WHITE_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_23( p ) ) return FEN_BLACK_KING_CAN_BE_CAPTURED;
 
 	return FEN_NO_ERRORS;
 }
@@ -115,8 +99,7 @@ che_fen_validator( const char *fen )
 bool
 valid_sq_name( const char *sq_name )
 {
-	return sq_name &&
-		str_matches_pattern( sq_name, "^[abcdefgh][12345678]$" );
+	return sq_name && str_matches_pattern( sq_name, "^[abcdefgh][12345678]$" );
 }
 
 /****************************
@@ -266,53 +249,95 @@ x_validate_fen_test_11( const char *fen )
 static bool
 x_validate_fen_test_12( const char *fen )
 {
+	// if( strcmp( fen, "2r1k3/8/8/8/4P3/8/8/4K2R b Hc e3 0 100" ) ) return true;
+	
+	if( str_matches_pattern( fen, "^[^ ]+ [wb] - .+$" ) ) return true;
+	
 	char **ff = fen_fields( fen ), eppf[ PPF_MAX_LENGTH + 1 ],
 		r1[ 8 + 1 ] = { '\0' }, r8[ 8 + 1 ] = { '\0' }, // Rank 1, 8
-		*caf = ff[ 2 ], ecaf[ 4 + 1 ] = { '\0' }; // ecaf, expanded CAF
-	if( !strcmp( caf, "-" ) ) return true;
+		*caf = ff[ 2 ], ecaf[ 9 + 1 ] = { '\0' }; // ecaf, expanded CAF
+	
 	expand_ppf( ff[ 0 ], eppf );
-
-	// rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R
 	for( int i = PPF_MAX_LENGTH - 1, j = 7; j >= 0; i--, j-- ) r1[ j ] = eppf[ i ];
 	for( int i = 0, j = 0; j < 8; i++, j++ ) r8[ j ] = eppf[ i ];
-	x_validate_fen_test_12_remove_irrelevant_chessmen( r1 );
-	x_validate_fen_test_12_remove_irrelevant_chessmen( r8 );
 
+	x_validate_fen_test_12_remove_irrelevant_chessmen( r1, true );
+	x_validate_fen_test_12_remove_irrelevant_chessmen( r8, false );
 	assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 );
-	assert( str_matches_pattern( r1, "^[-KkRr]*$" ) );
-	assert( str_matches_pattern( r8, "^[-KkRr]*$" ) );
+	assert( str_matches_pattern( r1, "^[-KR]*$" ) );
+	assert( str_matches_pattern( r8, "^[-kr]*$" ) );
 
-	if( x_validate_fen_test_12_king_placement_contradicts_caf( r1, r8, caf ) )
-		return false;
-	
-	x_validate_fen_test_12_expand_caf( caf, ecaf );
-	// printf( "### \"%s\" --> \"%s\"\n", caf, ecaf );
-
+	bool early_return =
+		x_validate_fen_test_12_king_placement_contradicts_caf( r1, r8, caf );
+	expand_caf( caf, ecaf );
 	free_fen_fields( ff );
+	if( early_return ) return false;
+
+	bool K = ( ecaf[ 1 ] != '-' ), Q = ( ecaf[ 0 ] != '-' ),
+		k = ( ecaf[ 3 ] != '-' ), q = ( ecaf[ 2 ] != '-' );
+	char file_of_wk = x_validate_fen_test_12_file_of_king( r1 ),
+		file_of_bk = x_validate_fen_test_12_file_of_king( r8 );
+	if( file_of_wk != file_of_bk && ( K || Q ) && ( k || q ) ) return false;
+	// Same kind of test should be done on the rooks
+	
+	char *rook_left_or_right_of_king[] = {
+		"^.*R.*K[-R]+$", "^[-R]+K.*R.*$", "^.*r.*k[-r]+$", "^[-r]+k.*r.*$" };
+	for( int i = 0; i < 4; i++ )
+		if( ecaf[ i ] != '-' && !str_matches_pattern(
+				i < 2 ? r1 : r8, rook_left_or_right_of_king[ i ] ) ) {
+			// printf( "### i, ecaf[ i ]: %d %c\n", i, ecaf[ i ] );
+			return false;
+		}
+		
+	for( int i = 0; i < 4; i++ ) {
+		if( ecaf[ i ] == '-' ) continue;
+		// printf( "### \"%s\" %d\n", i < 2 ? r1 : r8, ecaf[ i ] - ( i < 2 ? 'A' : 'a' ) );
+		int rrri = ecaf[ i ] - ( i < 2 ? 'A' : 'a' ); // rrri, relevant rook rank index
+		if( ( i < 2 && r1[ rrri ] != 'R' ) || ( i >= 2 && r8[ rrri ] != 'r' ) )
+		{
+			// "nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w KQkq - 0 1"
+			// printf( "### \"%s\"\n", fen );
+			// printf( "### r1, r8, i, rrri, r1[ rrri ]: \"%s\"  \"%s\"  %d  %d  %c\n",
+			//	r1, r8, i, rrri, r1[ rrri ] );
+			// printf( "\n" );
+			return false;
+		}
+	}
+
 	return true;
 }
 
+static char x_validate_fen_test_12_file_of_king( const char *rank )
+{
+	for( int i = 0; i < 8; i++ )
+		if( rank[ i ] == 'K' || rank[ i ] == 'k' ) return 'a' + i;
+
+	return '\0'; // Should not happen
+}
+
 static void
-x_validate_fen_test_12_remove_irrelevant_chessmen( char *rank )
+x_validate_fen_test_12_remove_irrelevant_chessmen( char *rank, bool rank_1 )
 {
 	for( int i = 0; i < 8; i++ ) {
 		char c = rank[ i ];
-		if( c != 'K' && c != 'k' && c != 'R' && c != 'r' ) rank[ i ] = '-'; }
+		if( ( rank_1 && c != 'K' && c != 'R' ) || ( !rank_1 && c != 'k' && c != 'r' ) )
+			rank[ i ] = '-'; }
 }
 
 static bool
 x_validate_fen_test_12_king_placement_contradicts_caf(
 	const char *r1, const char *r8, const char *caf )
 {
-	bool wk_on_suitable_sq = false, bk_on_suitable_sq = false; // wk, bk; white, black king
+	bool wk_on_suitable_sq = false, bk_on_suitable_sq = false;
 	for( int i = 1; i < 7; i++ ) {
 		if( r1[ i ] == 'K' ) wk_on_suitable_sq = true;
 		if( r8[ i ] == 'k' ) bk_on_suitable_sq = true; }
 
-	return ( !wk_on_suitable_sq && str_matches_pattern( caf, "^.*[ABCDEFGHKQ].*$" ) ) ||
-		( !bk_on_suitable_sq && str_matches_pattern( caf, "^.*[abcdefghkq].*$" ) );
+	return ( !wk_on_suitable_sq && str_matches_pattern( caf, "^[ABCDEFGHKQ].*$" ) ) ||
+		( !bk_on_suitable_sq && str_matches_pattern( caf, "^.*[abcdefghkq]$" ) );
 }
 
+/*
 static void // It's not possible for 'caf' to have the value "-"
 x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf )
 {
@@ -343,19 +368,18 @@ x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf )
 			char tmp = ecaf[ 0 ];
 			ecaf[ 0 ] = ecaf[ 1 ];
 			ecaf[ 1 ] = tmp; }
-		/*
 			MORE PROBLEMS:
 			"Kkq" --> "-Kkq"
 			"Kq" --> "K-q-"
 			"KQq" --> "KQq-"
 			"Qk" --> "Q-k-"
-		 */
 	} else if( ca_count == 4 ) {
 		strcpy( ecaf, caf );
 	} else assert( false );
 	
 	assert( strlen( ecaf ) >= 1 && strlen( ecaf ) <= 4 );
 }
+*/
 
 static bool
 x_validate_fen_test_13( const char *fen )

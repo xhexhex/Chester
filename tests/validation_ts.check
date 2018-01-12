@@ -40,7 +40,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/8/P7/8/8/4K3 b - a3 0 1",
 		"4k3/8/8/p7/8/8/8/4K3 w - a6 0 1",
 		"4r3/8/8/8/4k3/8/8/4K3 b - - 0 1",
-		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+		"7k/8/8/8/8/8/8/1RK1NNBB w B - 0 50",
 		"7k/8/8/8/8/8/8/QK6 b - - 0 1",
 		"7k/8/8/8/8/8/8/R3K3 w Q - 0 3",
 		"8/1K6/8/3B4/8/8/6bk/8 b - - 0 1",
@@ -67,18 +67,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/qK5k/8/8/8/8 w - - 0 1",
 		"k7/8/8/8/8/8/8/4K2R w K - 0 2",
 		"k7/8/8/8/8/8/8/K6B b - - 0 1",
-		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w KQkq - 0 1",
-		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w kq - 0 1",
-		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w Qkq - 0 1",
+		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1",
 		"q6K/8/8/8/8/8/8/k7 w - - 0 1",
-		"r3k2r/8/8/8/8/8/8/2RRK3 b Qkq - 0 50",
-		"r3k2r/8/8/8/8/8/8/3RKR2 w KQkq - 0 50",
-		"r3k2r/8/8/8/8/8/8/4K2R w Kkq - 0 1",
-		"r3k2r/8/8/8/8/8/8/K7 w kq - 0 1",
-		"r3k2r/8/8/8/8/8/8/R3K2R w - - 0 1",
-		"r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
-		"r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 1",
-		"r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100",
+		"2r1k2r/8/8/8/8/8/8/2RRK3 b Cch - 0 50",
+		"3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 50",
+		"2r1k3/8/8/8/4P3/8/8/4K2R b Hc e3 0 100",
 		"r3k3/8/8/8/8/8/8/4K2R w Kq - 0 2017",
 		"r3k3/8/8/8/8/8/8/K7 w q - 0 50",
 		"r3k3/8/8/8/8/8/8/R3K2R w KQq - 0 1",
@@ -308,7 +301,6 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 // Test 12 fails
 #test C_che_fen_validator_returns_FEN_PPF_CONTRADICTS_CAF_ERROR
 	const char * const contradictory_ppf_and_caf[] = {
-		/*
 		// In the following FENs we see a rookless board, yet the castling
 		// availability field is something else than "-".
 		"k7/8/8/8/8/8/8/K7 w K - 0 1",
@@ -333,7 +325,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1",
-		*/
+		// Shredder-FEN era
+		"3rkr2/8/8/8/8/8/8/3RKR2 w C - 0 50", // DFdf
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
@@ -440,7 +433,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"b7/8/8/8/8/8/8/B7 w - - 0 1",
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w - - 0 1",
 		"k7/8/8/8/8/8/8/B7 w - - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1",
+		"rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1",
 		"k7/8/8/8/8/8/8/KKKKKKKK w - - 0 1",
 		NULL };
 
@@ -452,7 +445,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	const char * const invalid_number_of_black_kings[] = {
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
 		"8/p7/8/8/8/8/8/K7 w - - 0 1",
-		"rnbkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"rnbkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w KQkq - 0 1",
 		"kkkkkkkk/8/8/8/8/8/8/7K w - - 0 1",
 		"kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkKkkk w - - 0 1",
 		NULL };

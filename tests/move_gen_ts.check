@@ -432,10 +432,12 @@ free( (Pos *) p );
 		CMS_AVAILABLE, 1 + 128 )
 	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w Q - 0 50", "queenside",
 		CMS_AVAILABLE, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w KQ - 5 50", "kingside",
+	/*
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "kingside",
 		CMS_AVAILABLE, 8 + 32 )
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w KQ - 5 50", "queenside",
+	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "queenside",
 		CMS_AVAILABLE, 8 + 32 )
+	*/
 	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
 		CMS_AVAILABLE, 1 + 64 )
 	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
