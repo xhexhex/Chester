@@ -24,9 +24,13 @@ static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
 static void x_compress_eppf_rank_dashes_to_digit(
 	int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank );
 static void x_expand_caf_convert_std_caf_to_shredder_caf( char *caf );
+static void x_expand_caf_sort_2_char_ecaf( char *caf );
 static void x_expand_caf_sort_3_char_ecaf( char *caf );
 static void x_expand_caf_sort_4_char_ecaf( const char *caf, char *ecaf );
 static int x_expand_caf_find_missing_char_index( const char *caf );
+static void x_expand_caf_handle_2_char_caf_cases(
+	char *ecaf, const char *first, const char *second );
+static void x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr );
 
 /***********************
  **** External data ****
@@ -634,37 +638,44 @@ free_fen_fields( char **ff )
 }
 
 // Expands 'caf' and stores the result in 'ecaf' (which is assumed to be a writable
-// array of at least five bytes). Expanding a CAF means adding dashes where there
+// array of at least *ten* bytes). Expanding a CAF means adding dashes where there
 // are "missing" characters and arranging the letters so that uppercase comes
 // before lowercase and that letters of the same case are in alphabetical order.
 // A few examples:
 //
-// "HAh" --> "AH-h", "Hah" --> "-Hah", "bd" --> "--bd", "Eg" --> "E--g", "CA" --> "AC--"
+// "HAh" --> "AH-h"      "Hah" --> "-Hah"      "bd" --> "--bd"
+// "Eg"  --> "E--g"      "CA"  --> "AC--"      "Hb" --> "-Hb-"
 //
-// The parameter 'a_side' is needed in some cases to avoid ambiguity. For example,
-// if the CAF is "E", it's not clear whether it means a-side or h-side castling
-// availability for White. If 'a_side' is true, the conversion is "E" --> "E---",
-// and otherwise "E" --> "-E--". If there is no ambiguity, the value of 'a_side'
-// has no effect.
+// In some cases the meaning of 'caf' is ambiguous. For example, if 'caf' is "E",
+// it's not clear whether it means a-side or h-side castling availability for White.
+// If it were known that "E" meant a-side CA for White, the conversion would be
+// "E" --> "E---", and if it were known that "E" meant h-side CA for White,
+// the conversion would be "E" --> "-E--". The solution to the ambiguity is to
+// include both of the conversions in 'ecaf' with the a-side version placed before
+// the h-side version. A few examples:
+//
+// "E" --> "E--- -E--"      "c" --> "--c- ---c"      "Dd" --> "D-d- -D-d"
+//
+// The caller can tell if the result is ambiguous by inspecting the length of
+// 'ecaf'. Resolving the ambiguity is the caller's responsibility.
 //
 // If 'caf' is a standard FEN CAF such as "KQkq" or "k", it is converted into
 // a Shredder-FEN before expansion. (Remember that Chester considers "KQkq" to be
 // a synonym for "AHah" or "HAha".)
 //
-// 'caf' is assumed to be a valid standard FEN or Shredder-FEN CAF.
+// 'caf' is assumed to be a *valid* standard FEN or Shredder-FEN CAF.
 void
-expand_caf( const char *caf, char *ecaf, bool a_side )
+expand_caf( const char *caf, char *ecaf )
 {
-	for( int i = 0; i < 5; i++ ) ecaf[ i ] = '\0';
+	for( int i = 0; i < 10; i++ ) ecaf[ i ] = '\0';
 	char caf_c[ 4 + 1 ]; // 'caf' copy
 	strcpy( caf_c, caf );
-	caf = NULL;
 	x_expand_caf_convert_std_caf_to_shredder_caf( caf_c );
 
 	size_t len = strlen( caf_c );
+	assert( len >= 1 && len <= 4 );
 	if( len == 4 ) {
 		x_expand_caf_sort_4_char_ecaf( caf_c, ecaf );
-		return;
 	} else if( len == 3 ) {
 		x_expand_caf_sort_3_char_ecaf( caf_c );
 		int mci = x_expand_caf_find_missing_char_index( caf_c );
@@ -672,56 +683,12 @@ expand_caf( const char *caf, char *ecaf, bool a_side )
 		int i = 0, j = -1;
 		while( i < 3 ) if( ++j != mci ) ecaf[ j ] = caf_c[ i++ ];
 	} else if( len == 2 ) {
-		// *** CONTINUE FROM HERE ***
-	}
-
-	// printf( "\"%s\" (%lu)\n", copy, strlen( copy ) );
-}
-
-static int
-x_expand_caf_find_missing_char_index( const char *caf )
-{
-	if( isupper( caf[ 1 ] ) ) return ( tolower( caf[ 0 ] ) == caf[ 2 ] ) ? 3 : 2;
-	return ( tolower( caf[ 0 ] ) == caf[ 1 ] ) ? 1 : 0;
-}
-
-#define SWAP_CHARS( first, second ) \
-char tmp = first; \
-first = second; \
-second = tmp;
-
-static void
-x_expand_caf_sort_3_char_ecaf( char *caf_c )
-{
-	if( isupper( caf_c[ 1 ] ) && caf_c[ 0 ] > caf_c[ 1 ] ) {
-		SWAP_CHARS( caf_c[ 0 ], caf_c[ 1 ] )
-	} else if( islower( caf_c[ 1 ] ) && caf_c[ 1 ] > caf_c[ 2 ] ) {
-		SWAP_CHARS( caf_c[ 1 ], caf_c[ 2 ] ) }
-
-	assert( strlen( caf_c ) == 3 );
-}
-
-#undef SWAP_CHARS
-
-static void
-x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf )
-{
-	bool flip_letters = caf_c[ 0 ] > caf_c[ 1 ];
-	ecaf[ 0 ] = caf_c[ flip_letters ? 1 : 0 ];
-	ecaf[ 1 ] = caf_c[ flip_letters ? 0 : 1 ];
-	ecaf[ 2 ] = caf_c[ flip_letters ? 3 : 2 ];
-	ecaf[ 3 ] = caf_c[ flip_letters ? 2 : 3 ];
-	assert( strlen( ecaf ) == 4 );
-}
-
-static void
-x_expand_caf_convert_std_caf_to_shredder_caf( char *caf )
-{
-	for( int i = 0; i < 4; i++ )
-		if( caf[ i ] == 'K' ) caf[ i ] = 'H';
-		else if( caf[ i ] == 'Q' ) caf[ i ] = 'A';
-		else if( caf[ i ] == 'k' ) caf[ i ] = 'h';
-		else if( caf[ i ] == 'q' ) caf[ i ] = 'a';
+		x_expand_caf_sort_2_char_ecaf( caf_c );
+		char *first = &caf_c[ 0 ], *second = &caf_c[ 1 ];
+		x_expand_caf_handle_2_char_caf_cases( ecaf, first, second );
+	} else {
+		char *cptr = &caf_c[ 0 ];
+		x_expand_caf_handle_1_char_caf_cases( ecaf, cptr ); }
 }
 
 /****************************
@@ -872,4 +839,112 @@ x_compress_eppf_rank_dashes_to_digit(
 		++digit;
 	}
 	compressed_rank[ cri ] = digit;
+}
+
+static void
+x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr )
+{
+	strcpy( ecaf, "---- ----" );
+	if( *cptr == '-' ) {
+		ecaf[ 4 ] = '\0';
+	} else if( toupper( *cptr ) == 'A' || toupper( *cptr ) == 'B' ) {
+		ecaf[ isupper( *cptr ) ? 0 : 2 ] = *cptr;
+		ecaf[ 4 ] = '\0';
+	} else if( toupper( *cptr ) == 'G' || toupper( *cptr ) == 'H' ) {
+		ecaf[ isupper( *cptr ) ? 1 : 3 ] = *cptr;
+		ecaf[ 4 ] = '\0';
+	} else {
+		ecaf[ isupper( *cptr ) ? 0 : 2 ] = *cptr;
+		ecaf[ isupper( *cptr ) ? 6 : 8 ] = *cptr; }
+}
+
+static void
+x_expand_caf_handle_2_char_caf_cases(
+	char *ecaf, const char *first, const char *second )
+{
+	if( isupper( *first ) && isupper( *second ) ) {
+		ecaf[ 0 ] = *first;
+		ecaf[ 1 ] = *second;
+		for( int i = 2; i <= 3; i++ ) ecaf[ i ] = '-';
+	} else if( islower( *first ) && islower( *second ) ) {
+		for( int i = 0; i <= 1; i++ ) ecaf[ i ] = '-';
+		ecaf[ 2 ] = *first;
+		ecaf[ 3 ] = *second;
+	} else if( tolower( *first ) < *second ) {
+		ecaf[ 0 ] = *first;
+		for( int i = 1; i <= 2; i++ ) ecaf[ i ] = '-';
+		ecaf[ 3 ] = *second;
+	} else if( tolower( *first ) > *second ) {
+		for( int i = 0; i <= 3; i += 3 ) ecaf[ i ] = '-';
+		ecaf[ 1 ] = *first;
+		ecaf[ 2 ] = *second;
+	} else if( *first == 'A' || *first == 'B' ) {
+		ecaf[ 0 ] = *first;
+		ecaf[ 2 ] = *second;
+		for( int i = 1; i <= 3; i += 2 ) ecaf[ i ] = '-';
+	} else if( *first == 'G' || *first == 'H' ) {
+		for( int i = 0; i <= 2; i += 2 ) ecaf[ i ] = '-';
+		ecaf[ 1 ] = *first;
+		ecaf[ 3 ] = *second;
+	} else { // The ambiguous 2-character CAF case
+		strcpy( ecaf, "?-?- -?-?" );
+		for( int i = 0; i <= 6; i += 6 ) {
+			ecaf[ i ] = *first;
+			ecaf[ i + 2 ] = *second; } }
+}
+
+#define SWAP_CHARS( first, second ) { \
+char tmp = first; \
+first = second; \
+second = tmp; }
+
+static void
+x_expand_caf_sort_2_char_ecaf( char *caf )
+{
+	char *c1 = &caf[ 0 ], *c2 = &caf[ 1 ];
+	if( ( isupper( *c1 ) && isupper( *c2 ) ) ||
+		( islower( *c1 ) && islower( *c2 ) ) )
+		if( *c1 > *c2 ) SWAP_CHARS( *c1, *c2 )
+}
+
+static void
+x_expand_caf_sort_3_char_ecaf( char *caf_c )
+{
+	if( isupper( caf_c[ 1 ] ) && caf_c[ 0 ] > caf_c[ 1 ] )
+		SWAP_CHARS( caf_c[ 0 ], caf_c[ 1 ] )
+	else if( islower( caf_c[ 1 ] ) && caf_c[ 1 ] > caf_c[ 2 ] )
+		SWAP_CHARS( caf_c[ 1 ], caf_c[ 2 ] )
+
+	assert( strlen( caf_c ) == 3 );
+}
+
+#undef SWAP_CHARS
+
+static void
+x_expand_caf_sort_4_char_ecaf( const char *caf_c, char *ecaf )
+{
+	bool flip_letters = caf_c[ 0 ] > caf_c[ 1 ];
+	ecaf[ 0 ] = caf_c[ flip_letters ? 1 : 0 ];
+	ecaf[ 1 ] = caf_c[ flip_letters ? 0 : 1 ];
+	ecaf[ 2 ] = caf_c[ flip_letters ? 3 : 2 ];
+	ecaf[ 3 ] = caf_c[ flip_letters ? 2 : 3 ];
+
+	assert( strlen( ecaf ) == 4 );
+}
+
+static int
+x_expand_caf_find_missing_char_index( const char *caf )
+{
+	if( isupper( caf[ 1 ] ) ) return ( tolower( caf[ 0 ] ) == caf[ 2 ] ) ? 3 : 2;
+	return ( tolower( caf[ 0 ] ) == caf[ 1 ] ) ? 1 : 0;
+}
+
+static void
+x_expand_caf_convert_std_caf_to_shredder_caf( char *caf )
+{
+	for( int i = 0; i < 4; i++ )
+		if( caf[ i ] == 'K' ) caf[ i ] = 'H';
+		else if( caf[ i ] == 'Q' ) caf[ i ] = 'A';
+		else if( caf[ i ] == 'k' ) caf[ i ] = 'h';
+		else if( caf[ i ] == 'q' ) caf[ i ] = 'a';
 }
