@@ -299,7 +299,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 //
 
 // Test 12 fails
-#test C_che_fen_validator_returns_FEN_PPF_CONTRADICTS_CAF_ERROR
+#test C_che_fen_validator_returns_FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR
 	const char * const contradictory_ppf_and_caf[] = {
 		// In the following FENs we see a rookless board, yet the castling
 		// availability field is something else than "-".
@@ -330,9 +330,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
-		FEN_PPF_CONTRADICTS_CAF_ERROR );
+		FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR );
 
-// Test 13 fails
+// Test 14 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_HMCF_ERROR
 	const char *contradictory_EPTSF_and_HMCF[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e6 1 1",
@@ -346,7 +346,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( contradictory_EPTSF_and_HMCF, FEN_EPTSF_CONTRADICTS_HMCF_ERROR );
 
-// Test 14 fails
+// Test 15 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_ACF_ERROR
 	const char *contradictory_EPTSF_and_ACF[] = {
 		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 1",
@@ -362,7 +362,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 // Uncharted territory --->
 
 
-// Test 15 fails
+// Test 16 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_PPF_ERROR
 	const char * const contradictory_epts_and_pp_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
@@ -375,7 +375,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( contradictory_epts_and_pp_fields,
 		FEN_EPTSF_CONTRADICTS_PPF_ERROR );
 
-// Test 16 fails
+// Test 17 fails
 #test C_che_fen_validator_returns_FEN_WHITE_PAWN_ON_FIRST_RANK
 	const char * const white_pawn_on_first_rank[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBPKBNR w KQkq - 0 1",
@@ -388,7 +388,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( white_pawn_on_first_rank,
 		FEN_WHITE_PAWN_ON_FIRST_RANK );
 
-// Test 17 fails
+// Test 18 fails
 #test C_che_fen_validator_returns_FEN_BLACK_PAWN_ON_FIRST_RANK
 	const char * const black_pawn_on_first_rank[] = {
 		"rnbpkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -401,7 +401,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( black_pawn_on_first_rank,
 		FEN_BLACK_PAWN_ON_FIRST_RANK );
 
-// Test 18 fails
+// Test 19 fails
 #test C_che_fen_validator_returns_FEN_WHITE_PAWN_ON_LAST_RANK
 	const char * const white_pawn_on_last_rank[] = {
 		"rnbPkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -414,7 +414,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( white_pawn_on_last_rank,
 		FEN_WHITE_PAWN_ON_LAST_RANK );
 
-// Test 19 fails
+// Test 20 fails
 #test C_che_fen_validator_returns_FEN_BLACK_PAWN_ON_LAST_RANK
 	const char * const black_pawn_on_last_rank[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBpKBNR w KQkq - 0 1",
@@ -427,7 +427,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( black_pawn_on_last_rank,
 		FEN_BLACK_PAWN_ON_LAST_RANK );
 
-// Test 20 fails
+// Test 21 fails
 #test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_WHITE_KINGS
 	const char * const invalid_number_of_white_kings[] = {
 		"b7/8/8/8/8/8/8/B7 w - - 0 1",
@@ -440,7 +440,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( invalid_number_of_white_kings,
 		FEN_INVALID_NUMBER_OF_WHITE_KINGS );
 
-// Test 21 fails
+// Test 22 fails
 #test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_BLACK_KINGS
 	const char * const invalid_number_of_black_kings[] = {
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
@@ -453,7 +453,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
 		FEN_INVALID_NUMBER_OF_BLACK_KINGS );
 
-// Test 22 fails
+// Test 23 fails
 #test C_che_fen_validator_returns_FEN_WHITE_KING_CAN_BE_CAPTURED
 	const char * const white_king_can_be_captured[] = {
 		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
@@ -482,7 +482,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( white_king_can_be_captured,
 		FEN_WHITE_KING_CAN_BE_CAPTURED );
 
-// Test 23 fails
+// Test 24 fails
 #test C_che_fen_validator_returns_FEN_BLACK_KING_CAN_BE_CAPTURED
 	const char * const black_king_can_be_captured[] = {
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
@@ -513,53 +513,13 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( black_king_can_be_captured,
 		FEN_BLACK_KING_CAN_BE_CAPTURED );
 
-/*
-//
-// Test case
-//
-_tcase che_fen_str_validator_chess960_tests
-
-_undef FEN_ARRAY_FOR_LOOP
-_define FEN_ARRAY_FOR_LOOP( str_array_name, expected_ret_val, settings ) \
-for( int i = 0; str_array_name[ i ]; i++ ) { \
-	enum che_fen_error real_ret_val = \
-		che_fen_validator( (char *) str_array_name[ i ], settings ); \
-	ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
-		"[ %d ] produced invalid return value %d", i, real_ret_val ); }
-
-// All tests pass
-_test C_che_fen_str_validator_returns_FEN_NO_ERRORS_chess960
-	const char *valid_chess960_fens[] = {
-		NULL };
-
-	FEN_ARRAY_FOR_LOOP( valid_chess960_fens, FEN_NO_ERRORS )
-
-// Test 24 fails
-_test C_che_fen_str_validator_returns_FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR_chess960
-	const char *chess960_fens_with_contradictory_ppf_and_caf[] = {
-		"7k/8/8/8/8/8/8/2KRNNBB w Q - 0 50",
-		"r6r/4k3/8/8/8/8/4K3/3R1R2 w KQkq - 0 50",
-		"r3k2r/8/8/8/8/8/5R2/3RK3 w KQkq - 0 50",
-		"r3k2r/8/8/8/8/8/8/2RRK3 w KQkq - 0 50",
-		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBRKB w KQkq - 0 1",
-		"nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBRK w KQkq - 0 1",
-		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w K - 0 1",
-		"nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w k - 0 1",
-		NULL };
-
-	FEN_ARRAY_FOR_LOOP( chess960_fens_with_contradictory_ppf_and_caf,
-		FEN_CHESS960_PPF_CONTRADICTS_CAF_ERROR )
-*/
-
 //
 // Test case
 //
 #tcase valid_sq_name_tests
 
 #test C_valid_sq_name_works_with_all_valid_inputs
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( valid_sq_name( SNA[ i ] ) );
-	}
+	for( int i = 0; i < 64; i++ ) ck_assert( valid_sq_name( SNA[ i ] ) );
 
 #test C_valid_sq_name_returns_false
 	ck_assert( !valid_sq_name( NULL ) );

@@ -50,40 +50,50 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     The FMNF (fullmove number field) is not a decimal integer string with a value
     between 1 and `FEN_NUMERIC_FIELD_MAX`. Note that the only acceptable characters
     in the string are decimal digits.
-12. `FEN_PPF_CONTRADICTS_CAF_ERROR`  
-    The piece placement and castling availability fields don't make sense when
-    considered together. For each of the four castling availabilities to make
-    sense, there has to be a king and a rook on the appropriate squares. For
-    example, if the CAF is "K" (which in Chester is a synonym for "H"), there
-    should be a white rook on h1 and a white king somewhere else on the first
-    rank excluding square a1. Another example: if the CAF is "BD", there should
-    be white rooks on b1 and d1 and a white king on c1.
-13. `FEN_EPTSF_CONTRADICTS_HMCF_ERROR`  
+12. `FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR`  
+    One or both of the kings are placed in a manner that contradicts the fact that
+    certain types of castling availabilities are present. The error cannot occur if
+    the CAF is "-". The error occurs if either (1) the white king is on a square other
+    than one in the set { b1, c1, d1, e1, f1, g1 } and White has an a-side or h-side
+    castling availability or (2) the black king is on a square other than one in the
+    set { b8, c8, d8, e8, f8, g8 } and Black has an a-side or h-side castling
+    availability. The error also occurs if (3) both sides have at least one castling
+    availability (either a-side or h-side) and the kings are not on the same file
+    (if both sides have castling availability, it follows that neither of the kings
+    have been moved during the game).
+13. `FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR`  
+	The placement of one or more of the rooks contradicts the fact that certain
+	types of castling availabilities are present. For example, if the CAF is "CF",
+	then there should be white rooks on the squares c1 and f1 and the white king
+	should be on either of the squares d1 or e1. Another example: if the CAF is "g",
+	then there should be a black rook on g8 and the black king should be located on
+	one of the squares in the set { b8, c8, d8, e8, f8 }.
+14. `FEN_EPTSF_CONTRADICTS_HMCF_ERROR`  
     The EPTSF is something else than "-" while the HMCF is something else than "0".
     For example, if the EPTSF is "e3", it follows that the HMCF is "0"; any other
     value is a contradiction.
-14. `FEN_EPTSF_CONTRADICTS_ACF_ERROR`  
+15. `FEN_EPTSF_CONTRADICTS_ACF_ERROR`  
     This error occurs if (1) EPTSF matches the regex `^[a-h]3$` and
     AC is "w" or (2) EPTSF matches the regex `^[a-h]6$` and AC is "b".
-15. `FEN_EPTSF_CONTRADICTS_PPF_ERROR`  
+16. `FEN_EPTSF_CONTRADICTS_PPF_ERROR`  
     The EPTSF is not "-" and yet there is no pawn of the appropriate color on the
     square after the EPTS. For example, if the EPTS is "e3", then the pawn on e2
     has just made a double advance to e4. So it follows from EPTS being "e3" that
     there is a white pawn on e4.
-16. `FEN_WHITE_PAWN_ON_FIRST_RANK`  
+17. `FEN_WHITE_PAWN_ON_FIRST_RANK`  
     There are one or more white pawns on rank 1.
-17. `FEN_BLACK_PAWN_ON_FIRST_RANK`  
+18. `FEN_BLACK_PAWN_ON_FIRST_RANK`  
     There are one or more black pawns on rank 8 (which is the first rank
     from Black's perspective).
-18. `FEN_WHITE_PAWN_ON_LAST_RANK`  
+19. `FEN_WHITE_PAWN_ON_LAST_RANK`  
     There are one or more white pawns on rank 8.
-19. `FEN_BLACK_PAWN_ON_LAST_RANK`  
+20. `FEN_BLACK_PAWN_ON_LAST_RANK`  
     There are one or more black pawns on rank 1.
-20. `FEN_INVALID_NUMBER_OF_WHITE_KINGS`  
+21. `FEN_INVALID_NUMBER_OF_WHITE_KINGS`  
     There is either no white king on the chessboard or multiple white kings.
-21. `FEN_INVALID_NUMBER_OF_BLACK_KINGS`  
+22. `FEN_INVALID_NUMBER_OF_BLACK_KINGS`  
     There is either no black king on the chessboard or multiple black kings.
-22. `FEN_WHITE_KING_CAN_BE_CAPTURED`  
+23. `FEN_WHITE_KING_CAN_BE_CAPTURED`  
     It is Black's turn to move and the white king is on an attacked square.
-23. `FEN_BLACK_KING_CAN_BE_CAPTURED`  
+24. `FEN_BLACK_KING_CAN_BE_CAPTURED`  
     It is White's turn to move and the black king is on an attacked square.

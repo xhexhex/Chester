@@ -29,9 +29,9 @@ static void x_validate_fen_test_12_remove_irrelevant_chessmen(
 static bool x_validate_fen_test_12_king_placement_contradicts_caf(
 	const char *r1, const char *r8, const char *caf );
 static char x_validate_fen_test_12_file_of_king( const char *rank );
-static bool x_validate_fen_test_13( const char *fen );
+// static bool x_validate_fen_test_13( const char *fen );
 static bool x_validate_fen_test_14( const char *fen );
-static bool x_validate_fen_test_15( const Pos *p );
+static bool x_validate_fen_test_15( const char *fen );
 static bool x_validate_fen_test_16( const Pos *p );
 static bool x_validate_fen_test_17( const Pos *p );
 static bool x_validate_fen_test_18( const Pos *p );
@@ -40,13 +40,7 @@ static bool x_validate_fen_test_20( const Pos *p );
 static bool x_validate_fen_test_21( const Pos *p );
 static bool x_validate_fen_test_22( const Pos *p );
 static bool x_validate_fen_test_23( const Pos *p );
-// static bool x_validate_fen_test_24( const Pos *p );
-// static int x_calc_rank_sum( const char *rank );
-// static bool x_ppf_and_caf_agree( const char *ppf, const char *ca );
-// static char x_occupant_of_sq( const char *ppf, const char *sq );
-
-// The size of the array should be at least FEN_MAX_LENGTH + 1 bytes
-// static char x_writable_mem[ 120 + 1 ];
+static bool x_validate_fen_test_24( const Pos *p );
 
 /*****************************
  ****                     ****
@@ -69,22 +63,23 @@ che_fen_validator( const char *fen )
 	if( !x_validate_fen_test_9(  fen ) ) return FEN_EPTSF_ERROR;
 	if( !x_validate_fen_test_10( fen ) ) return FEN_HMCF_ERROR;
 	if( !x_validate_fen_test_11( fen ) ) return FEN_FMNF_ERROR;
-	if( !x_validate_fen_test_12( fen ) ) return FEN_PPF_CONTRADICTS_CAF_ERROR;
-	if( !x_validate_fen_test_13( fen ) ) return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
-	if( !x_validate_fen_test_14( fen ) ) return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
+	if( !x_validate_fen_test_12( fen ) ) return FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR;
+
+	if( !x_validate_fen_test_14( fen ) ) return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
+	if( !x_validate_fen_test_15( fen ) ) return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
 
 	// At this point it should be safe to do the conversion
 	Pos *p = fen_to_pos( fen );
 
-	if( !x_validate_fen_test_15( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
-	if( !x_validate_fen_test_16( p ) ) return FEN_WHITE_PAWN_ON_FIRST_RANK;
-	if( !x_validate_fen_test_17( p ) ) return FEN_BLACK_PAWN_ON_FIRST_RANK;
-	if( !x_validate_fen_test_18( p ) ) return FEN_WHITE_PAWN_ON_LAST_RANK;
-	if( !x_validate_fen_test_19( p ) ) return FEN_BLACK_PAWN_ON_LAST_RANK;
-	if( !x_validate_fen_test_20( p ) ) return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
-	if( !x_validate_fen_test_21( p ) ) return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
-	if( !x_validate_fen_test_22( p ) ) return FEN_WHITE_KING_CAN_BE_CAPTURED;
-	if( !x_validate_fen_test_23( p ) ) return FEN_BLACK_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_16( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
+	if( !x_validate_fen_test_17( p ) ) return FEN_WHITE_PAWN_ON_FIRST_RANK;
+	if( !x_validate_fen_test_18( p ) ) return FEN_BLACK_PAWN_ON_FIRST_RANK;
+	if( !x_validate_fen_test_19( p ) ) return FEN_WHITE_PAWN_ON_LAST_RANK;
+	if( !x_validate_fen_test_20( p ) ) return FEN_BLACK_PAWN_ON_LAST_RANK;
+	if( !x_validate_fen_test_21( p ) ) return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
+	if( !x_validate_fen_test_22( p ) ) return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
+	if( !x_validate_fen_test_23( p ) ) return FEN_WHITE_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_24( p ) ) return FEN_BLACK_KING_CAN_BE_CAPTURED;
 
 	return FEN_NO_ERRORS;
 }
@@ -236,16 +231,6 @@ x_validate_fen_test_11( const char *fen )
 
 // UPDATE MARKER
 
-/*
-12. `FEN_PPF_CONTRADICTS_CAF_ERROR`  
-    The piece placement and castling availability fields don't make sense when
-    considered together. For each of the four castling availabilities to make
-    sense, there has to be a king and a rook on the appropriate squares. For
-    example, if the CAF is "K" (which in Chester is a synonym for "H"), there
-    should be a white rook on h1 and a white king somewhere else on the first
-    rank excluding square a1. Another example: if the CAF is "BD", there should
-    be white rooks on b1 and d1 and a white king on c1.
-*/
 static bool
 x_validate_fen_test_12( const char *fen )
 {
@@ -267,6 +252,7 @@ x_validate_fen_test_12( const char *fen )
 	assert( str_matches_pattern( r1, "^[-KR]*$" ) );
 	assert( str_matches_pattern( r8, "^[-kr]*$" ) );
 
+	// FEN_KP_CONTRADICTS_CAF_ERROR ... king placement
 	bool early_return =
 		x_validate_fen_test_12_king_placement_contradicts_caf( r1, r8, caf );
 	expand_caf( caf, ecaf );
@@ -277,8 +263,8 @@ x_validate_fen_test_12( const char *fen )
 		k = ( ecaf[ 3 ] != '-' ), q = ( ecaf[ 2 ] != '-' );
 	char file_of_wk = x_validate_fen_test_12_file_of_king( r1 ),
 		file_of_bk = x_validate_fen_test_12_file_of_king( r8 );
+	// FEN_KMA_CONTRADICTS_CAF_ERROR ... king misalignment
 	if( file_of_wk != file_of_bk && ( K || Q ) && ( k || q ) ) return false;
-	// Same kind of test should be done on the rooks
 	
 	char *rook_left_or_right_of_king[] = {
 		"^.*R.*K[-R]+$", "^[-R]+K.*R.*$", "^.*r.*k[-r]+$", "^[-r]+k.*r.*$" };
@@ -287,6 +273,7 @@ x_validate_fen_test_12( const char *fen )
 				i < 2 ? r1 : r8, rook_left_or_right_of_king[ i ] ) ) {
 			// printf( "### i, ecaf[ i ]: %d %c\n", i, ecaf[ i ] );
 			return false;
+			// FEN_ROOK_ABS_CONTRADICTS_CAF_ERROR
 		}
 		
 	for( int i = 0; i < 4; i++ ) {
@@ -301,6 +288,7 @@ x_validate_fen_test_12( const char *fen )
 			//	r1, r8, i, rrri, r1[ rrri ] );
 			// printf( "\n" );
 			return false;
+			// FEN_ROOK_P_CONTRADICTS_CAF_ERROR
 		}
 	}
 
@@ -337,52 +325,8 @@ x_validate_fen_test_12_king_placement_contradicts_caf(
 		( !bk_on_suitable_sq && str_matches_pattern( caf, "^.*[abcdefghkq]$" ) );
 }
 
-/*
-static void // It's not possible for 'caf' to have the value "-"
-x_validate_fen_test_12_expand_caf( const char *caf, char *ecaf )
-{
-	for( int i = 0; i < 4; i++ ) ecaf[ i ] = '-';
-	size_t ca_count = strlen( caf );
-	
-	if( ca_count == 1 ) {
-		ecaf[ isupper( caf[ 0 ] ) ? 0 : 2 ] = caf[ 0 ];
-	} else if( ca_count == 2 ) {
-		bool upper_1st = isupper( caf[ 0 ] ), upper_2nd = isupper( caf[ 1 ] );
-		if( !upper_1st ) {
-			ecaf[ 2 ] = caf[ 0 ];
-			ecaf[ 3 ] = caf[ 1 ];
-		} else if( !upper_2nd ) {
-			ecaf[ 0 ] = caf[ 0 ];
-			ecaf[ 2 ] = caf[ 1 ];
-		} else {
-			ecaf[ 0 ] = caf[ 0 ];
-			ecaf[ 1 ] = caf[ 1 ]; }
-	} else if( ca_count == 3 ) {
-		int uc_count = 0;
-		for( int i = 0; i < 3; i++ ) if( isupper( caf[ i ] ) ) ++uc_count;
-		ecaf[ 0 ] = caf[ 0 ];
-		ecaf[ uc_count == 2 ? 1 : 2 ] = caf[ 1 ];
-		ecaf[ uc_count == 2 ? 2 : 3 ] = caf[ 2 ];
-		// Avoiding the erratic conversion "Qkq" --> "Q-kq"
-		if( uc_count == 1 && tolower( ecaf[ 0 ] ) != ecaf[ 0 ] ) {
-			char tmp = ecaf[ 0 ];
-			ecaf[ 0 ] = ecaf[ 1 ];
-			ecaf[ 1 ] = tmp; }
-			MORE PROBLEMS:
-			"Kkq" --> "-Kkq"
-			"Kq" --> "K-q-"
-			"KQq" --> "KQq-"
-			"Qk" --> "Q-k-"
-	} else if( ca_count == 4 ) {
-		strcpy( ecaf, caf );
-	} else assert( false );
-	
-	assert( strlen( ecaf ) >= 1 && strlen( ecaf ) <= 4 );
-}
-*/
-
 static bool
-x_validate_fen_test_13( const char *fen )
+x_validate_fen_test_14( const char *fen )
 {
 	char **ff = fen_fields( fen ), *eptsf = ff[ 3 ], *hmcf = ff[ 4 ];
 	assert( strlen( eptsf ) >= 1 && strlen( eptsf ) <= 2 &&
@@ -398,7 +342,7 @@ x_validate_fen_test_13( const char *fen )
 }
 
 static bool
-x_validate_fen_test_14( const char *fen )
+x_validate_fen_test_15( const char *fen )
 {
 	char **ff = fen_fields( fen ), *acf = ff[ 1 ], *eptsf = ff[ 3 ];
 	bool result = !strcmp( eptsf, "-" ) ||
@@ -410,7 +354,7 @@ x_validate_fen_test_14( const char *fen )
 }
 
 static bool
-x_validate_fen_test_15( const Pos *p )
+x_validate_fen_test_16( const Pos *p )
 {
 	const char *epts = epts_from_pos_var( p );
 	char sq_of_double_advanced_pawn[ 3 ] = { 0 };
@@ -427,175 +371,49 @@ x_validate_fen_test_15( const Pos *p )
 }
 
 static bool
-x_validate_fen_test_16( const Pos *p )
+x_validate_fen_test_17( const Pos *p )
 {
 	return !( p->cm[ WHITE_PAWN ] & SS_RANK_1 );
 }
 
 static bool
-x_validate_fen_test_17( const Pos *p )
+x_validate_fen_test_18( const Pos *p )
 {
 	return !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
-x_validate_fen_test_18( const Pos *p )
+x_validate_fen_test_19( const Pos *p )
 {
 	return !( p->cm[ WHITE_PAWN ] & SS_RANK_8 );
 }
 
 static bool
-x_validate_fen_test_19( const Pos *p )
+x_validate_fen_test_20( const Pos *p )
 {
 	return !( p->cm[ BLACK_PAWN ] & SS_RANK_1 );
 }
 
 static bool
-x_validate_fen_test_20( const Pos *p )
+x_validate_fen_test_21( const Pos *p )
 {
 	return bb_is_sq_bit( p->cm[ WHITE_KING ] );
 }
 
 static bool
-x_validate_fen_test_21( const Pos *p )
+x_validate_fen_test_22( const Pos *p )
 {
 	return bb_is_sq_bit( p->cm[ BLACK_KING ] );
 }
 
 static bool
-x_validate_fen_test_22( const Pos *p )
+x_validate_fen_test_23( const Pos *p )
 {
 	return whites_turn( p ) || !king_can_be_captured( p );
 }
 
 static bool
-x_validate_fen_test_23( const Pos *p )
+x_validate_fen_test_24( const Pos *p )
 {
 	return !whites_turn( p ) || !king_can_be_captured( p );
 }
-
-/*
-_define FIND_ROOKS_POSSIBLE_SQS( king, dir, bb ) \
-sq = p->cm[ king ]; \
-while( ( sq = sq_nav( sq, dir ) ) ) \
-	bb |= sq;
-
-static bool
-x_validate_fen_test_24( const Pos *p )
-{
-	bool K = white_has_h_side_castling_right( p ),
-		Q = white_has_a_side_castling_right( p ),
-		k = black_has_h_side_castling_right( p ),
-		q = black_has_a_side_castling_right( p );
-
-	Bitboard
-		white_kings_possible_sqs = ( SB.b1 | SB.c1 | SB.d1 | SB.e1 | SB.f1 | SB.g1 ),
-		black_kings_possible_sqs = ( SB.b8 | SB.c8 | SB.d8 | SB.e8 | SB.f8 | SB.g8 );
-
-	if( ( ( K || Q ) && !( p->cm[ WHITE_KING ] & white_kings_possible_sqs ) ) ||
-		( ( k || q ) && !( p->cm[ BLACK_KING ] & black_kings_possible_sqs ) ) )
-		return false;
-
-	Bitboard sq,
-		white_rooks_possible_sqs_to_east = 0, white_rooks_possible_sqs_to_west = 0,
-		black_rooks_possible_sqs_to_east = 0, black_rooks_possible_sqs_to_west = 0;
-
-	FIND_ROOKS_POSSIBLE_SQS( WHITE_KING, EAST, white_rooks_possible_sqs_to_east )
-	FIND_ROOKS_POSSIBLE_SQS( WHITE_KING, WEST, white_rooks_possible_sqs_to_west )
-	FIND_ROOKS_POSSIBLE_SQS( BLACK_KING, EAST, black_rooks_possible_sqs_to_east )
-	FIND_ROOKS_POSSIBLE_SQS( BLACK_KING, WEST, black_rooks_possible_sqs_to_west )
-
-	return !(
-		( K && !( p->cm[ WHITE_ROOK ] & white_rooks_possible_sqs_to_east ) ) ||
-		( Q && !( p->cm[ WHITE_ROOK ] & white_rooks_possible_sqs_to_west ) ) ||
-		( k && !( p->cm[ BLACK_ROOK ] & black_rooks_possible_sqs_to_east ) ) ||
-		( q && !( p->cm[ BLACK_ROOK ] & black_rooks_possible_sqs_to_west ) ) );
-}
-
-_undef FIND_ROOKS_POSSIBLE_SQS
-*/
-
-/*
-// Returns the rank sum of a FEN string representation of a rank
-static int
-x_calc_rank_sum( const char *rank )
-{
-	// 'rank' should not be null or an empty string and it should be at most
-	// eight chars long
-	assert( rank && strcmp( rank, "" ) && strlen( rank ) < 9 );
-
-	int rank_sum = 0;
-	while( *rank ) { // Loop until rank points to '\0'
-		if( *rank == 'K' || *rank == 'k' || *rank == 'Q' || *rank == 'q' ||
-			*rank == 'R' || *rank == 'r' || *rank == 'B' || *rank == 'b' ||
-			*rank == 'N' || *rank == 'n' || *rank == 'P' || *rank == 'p' ) {
-			++rank_sum;
-		} else if( *rank > '0' && *rank < '9' ) {
-			rank_sum += ( *rank - 48 );
-		} else {
-			assert( 1 == 2 );
-		}
-
-		++rank; // Point to the next char of the string
-	}
-
-	return rank_sum;
-}
-*/
-
-/*
-// Checks that castling rights make sense what comes to king and rook
-// placement. For example, if the castling availability field is "K",
-// then there must be a white king on e1 and a white rook on h1.
-static bool
-x_ppf_and_caf_agree( const char *ppf, const char *ca )
-{
-	// assert( strlen( ca ) > 0 && str_matches_pattern( ca, "^(-|K?Q?k?q?)$" ) );
-
-	bool white_has_kingside_castling = str_matches_pattern( ca, "^KQ?k?q?$" ),
-		white_has_queenside_castling = str_matches_pattern( ca, "^K?Qk?q?$" ),
-		black_has_kingside_castling = str_matches_pattern( ca, "^K?Q?kq?$" ),
-		black_has_queenside_castling = str_matches_pattern( ca, "^K?Q?k?q$" ),
-		white_king_on_e1 = ( x_occupant_of_sq( ppf, "e1" ) == 'K' ),
-		black_king_on_e8 = ( x_occupant_of_sq( ppf, "e8" ) == 'k' ),
-		white_rook_on_a1 = ( x_occupant_of_sq( ppf, "a1" ) == 'R' ),
-		white_rook_on_h1 = ( x_occupant_of_sq( ppf, "h1" ) == 'R' ),
-		black_rook_on_a8 = ( x_occupant_of_sq( ppf, "a8" ) == 'r' ),
-		black_rook_on_h8 = ( x_occupant_of_sq( ppf, "h8" ) == 'r' );
-
-	bool
-		white_kingside_castling_is_valid =
-			( !white_has_kingside_castling  || ( white_king_on_e1 && white_rook_on_h1 ) ),
-		white_queenside_castling_is_valid =
-			( !white_has_queenside_castling || ( white_king_on_e1 && white_rook_on_a1) ),
-		black_kingside_castling_is_valid =
-			( !black_has_kingside_castling  || ( black_king_on_e8 && black_rook_on_h8 ) ),
-		black_queenside_castling_is_valid =
-			( !black_has_queenside_castling || ( black_king_on_e8 && black_rook_on_a8 ) );
-
-	return white_kingside_castling_is_valid && white_queenside_castling_is_valid &&
-		black_kingside_castling_is_valid && black_queenside_castling_is_valid;
-}
-*/
-
-/*
-// Returns the type of chessman on square 'sq'. For example, if there is
-// a white king on square e1, then x_occupant_of_sq( ppf, "e1" ) returns "K".
-// For an empty square "-" is returned.
-static char
-x_occupant_of_sq( const char *ppf, const char *sq )
-{
-	assert( str_matches_pattern( sq, "^[abcdefgh][12345678]$" ) );
-
-	char rank_num_str[ 2 ] = { sq[ 1 ], '\0' };
-	char writable_mem_for_ppf[ PPF_MAX_LENGTH + 1 ];
-	const char *rank =
-		nth_rank_of_ppf( ppf, writable_mem_for_ppf, atoi( rank_num_str ) );
-	char constant_length_rank[ 8 + 1 ];
-
-	expand_ppf_rank( rank, constant_length_rank );
-
-	char file = sq[ 0 ];
-	return constant_length_rank[ file - 97 ]; // 'a' - 97 = 0, 'h' - 97 = 7
-}
-*/
