@@ -294,43 +294,59 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_FMNFs, FEN_FMNF_ERROR );
 
-//
-// UPDATE MARKER
-//
-
 // Test 12 fails
 #test C_che_fen_validator_returns_FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR
-	const char * const contradictory_ppf_and_caf[] = {
-		// In the following FENs we see a rookless board, yet the castling
-		// availability field is something else than "-".
-		"k7/8/8/8/8/8/8/K7 w K - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Q - 0 1",
-		"k7/8/8/8/8/8/8/K7 w k - 0 1",
-		"k7/8/8/8/8/8/8/K7 w q - 0 1",
-		"k7/8/8/8/8/8/8/K7 w KQ - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Kk - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Kq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Qk - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Qq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w kq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Qkq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w Kkq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w KQq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w KQk - 0 1",
-		"k7/8/8/8/8/8/8/K7 w KQkq - 0 1",
-		// Other discrepancies between the piece placement
-		// and castling availability
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/1NBQKBNR w KQkq - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w KQkq - 0 1",
-		"rnbq1bnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN1 w K - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQ1BNR w K - 0 1",
-		// Shredder-FEN era
-		"3rkr2/8/8/8/8/8/8/3RKR2 w C - 0 50", // DFdf
+	const char * const contradictory_kp_and_caf[] = {
+		"r3k2r/8/8/8/8/8/4K3/R6R w KQkq - 0 50",
+		"r6r/4k3/8/8/8/8/8/R3K2R b KQkq - 0 50",
+		"r2k3r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
+		"4k3/8/8/8/8/8/8/KR6 w B - 0 50",
+		"2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( contradictory_ppf_and_caf,
+	FEN_ARRAY_FOR_LOOP( contradictory_kp_and_caf,
 		FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR );
+
+// Test 13 fails, part 1
+#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_1
+	const char * const contradictory_rp_and_caf[] = {
+		// In the following FENs we see a rookless board, yet the castling
+		// availability field is something else than "-".
+		"2k5/8/8/8/8/8/8/2K5 w K - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Q - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w k - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w q - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w KQ - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Kk - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Kq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Qk - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Qq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w kq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Qkq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w Kkq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w KQq - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w KQk - 0 65513",
+		"2k5/8/8/8/8/8/8/2K5 w KQkq - 0 65513",
+		NULL };
+
+	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
+		FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR );
+
+// Test 13 fails, part 2
+#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_2
+	const char * const contradictory_rp_and_caf[] = {
+		"3rkr2/8/8/8/8/8/8/3RK3 b DFdf - 0 65513",
+		"5k2/8/8/8/8/8/8/4RK1R w EG - 0 65513",
+		"5k2/8/8/8/8/8/8/3R1KR1 w EG - 0 65513",
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKBR1 b KQkq - 1 65513",
+		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKBR1 b AHah - 1 65513",
+		"1k6/8/8/8/8/8/8/1KR3R1 w CG - 0 65513",
+		"6k1/8/8/8/8/8/8/R3R1K1 w AE - 0 65513",
+		// "6k1/8/8/8/8/8/8/R3R1K1 w E - 0 65513",
+		NULL };
+
+	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
+		FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR );
 
 // Test 14 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_HMCF_ERROR

@@ -7,3 +7,4 @@
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`.
 * A contradiction is possible between HMCF and FMNF
 * Rename `str_matches_pattern()` to `str_matches_pat()` or `str_m_pat()`
+* Add a function to resolve an ambiguous ecaf

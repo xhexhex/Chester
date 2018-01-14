@@ -60,7 +60,7 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     availability. The error also occurs if (3) both sides have at least one castling
     availability (either a-side or h-side) and the kings are not on the same file
     (if both sides have castling availability, it follows that neither of the kings
-    have been moved during the game).
+    has been moved during the game).
 13. `FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR`  
 	The placement of one or more of the rooks contradicts the fact that certain
 	types of castling availabilities are present. For example, if the CAF is "CF",
