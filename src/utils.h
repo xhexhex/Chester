@@ -44,6 +44,7 @@ char *compress_eppf( const char *eppf );
 char **fen_fields( const char *fen );
 void free_fen_fields( char **ff );
 void expand_caf( const char *caf, char *ecaf );
+void resolve_ambiguous_ecaf( char *ecaf, const char *fen );
 
 #endif
 // end UTILS_H

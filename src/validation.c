@@ -234,16 +234,18 @@ x_validate_fen_test_11( const char *fen )
 expand_ppf( ff[ 0 ], eppf ); \
 expand_caf( ff[ 2 ], ecaf ); \
 free_fen_fields( ff ); \
+resolve_ambiguous_ecaf( ecaf, fen ); \
 for( int i = PPF_MAX_LENGTH - 1, j = 7; j >= 0; i--, j-- ) r1[ j ] = eppf[ i ]; \
 for( int i = 0, j = 0; j < 8; i++, j++ ) r8[ j ] = eppf[ i ]; \
 x_remove_irrelevant_chessmen_from_rank( r1, true ); \
 x_remove_irrelevant_chessmen_from_rank( r8, false ); \
 assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 ); \
 assert( str_matches_pattern( r1, "^[-KR]*$" ) ); \
-assert( str_matches_pattern( r8, "^[-kr]*$" ) ); \
-if( strlen( ecaf ) != 4 ) { \
-	printf( "### \"%s\" --> \"%s\"\n", fen, ecaf ); \
-}
+assert( str_matches_pattern( r8, "^[-kr]*$" ) );
+
+//printf( "### \"%s\"  -->  \"%s\"  -->  ", fen, ecaf );
+//resolve_ambiguous_ecaf( ecaf, fen );
+//printf( "\"%s\"\n", ecaf );
 
 static bool
 x_validate_fen_test_12( const char *fen )

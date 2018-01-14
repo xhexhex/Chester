@@ -1189,3 +1189,15 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 	ONE_CHAR_CAF_TEST( "H", "-H--" )
 
 #undef ONE_CHAR_CAF_TEST
+
+//
+// Test case
+//
+#tcase resolve_ambiguous_ecaf_tests
+	
+#test C_resolve_ambiguous_ecaf_works
+	char ecaf[ 9 + 1 ];
+
+	strcpy( ecaf, "--d- ---d" );
+	resolve_ambiguous_ecaf( ecaf, "2kr4/8/8/8/8/8/8/4K3 b d - 0 65501" );
+	printf( "### Resolved ecaf: \"%s\"\n", ecaf );

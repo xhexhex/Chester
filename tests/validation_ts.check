@@ -98,6 +98,15 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );
 
+// All tests pass, newest
+#test C_che_fen_validator_returns_FEN_NO_ERRORS_newest
+	const char *valid_fens[] = {
+		// "3rk3/8/8/8/8/8/8/4K3 b d - 0 65501",
+		// "2kr4/8/8/8/8/8/8/4K3 b d - 0 65501",
+		NULL };
+
+	FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );
+
 // Test 1 fails
 #test C_che_fen_validator_returns_FEN_LENGTH_ERROR
 	const char *invalid_length_fens[] = {
@@ -301,7 +310,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"r6r/4k3/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"r2k3r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"4k3/8/8/8/8/8/8/KR6 w B - 0 50",
-		"2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
+		// "2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_kp_and_caf,

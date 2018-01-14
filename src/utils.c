@@ -691,6 +691,13 @@ expand_caf( const char *caf, char *ecaf )
 		x_expand_caf_handle_1_char_caf_cases( ecaf, cptr ); }
 }
 
+// TODO: Update doc of prev fn slightly, add brief description here.
+void
+resolve_ambiguous_ecaf( char *ecaf, const char *fen )
+{
+	if( strlen( ecaf ) != 9 ) return;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
