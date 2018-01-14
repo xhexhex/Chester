@@ -93,7 +93,6 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     There is either no white king on the chessboard or multiple white kings.
 22. `FEN_INVALID_NUMBER_OF_BLACK_KINGS`  
     There is either no black king on the chessboard or multiple black kings.
-23. `FEN_WHITE_KING_CAN_BE_CAPTURED`  
-    It is Black's turn to move and the white king is on an attacked square.
-24. `FEN_BLACK_KING_CAN_BE_CAPTURED`  
-    It is White's turn to move and the black king is on an attacked square.
+23. `FEN_KING_CAN_BE_CAPTURED`  
+    It is either (1) Black's turn to move while the white king is on an attacked
+    square or (2) White's turn to move while the black king is on an attacked square.

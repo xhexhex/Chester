@@ -374,10 +374,6 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( contradictory_EPTSF_and_ACF, FEN_EPTSF_CONTRADICTS_ACF_ERROR );
 
-
-// Uncharted territory --->
-
-
 // Test 16 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_PPF_ERROR
 	const char * const contradictory_epts_and_pp_fields[] = {
@@ -469,9 +465,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
 		FEN_INVALID_NUMBER_OF_BLACK_KINGS );
 
-// Test 23 fails
-#test C_che_fen_validator_returns_FEN_WHITE_KING_CAN_BE_CAPTURED
-	const char * const white_king_can_be_captured[] = {
+// Test 23 fails, part 1
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_1
+	const char *king_can_be_captured[] = {
 		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
 		"8/8/4k3/2n3n1/4K3/8/8/8 b - - 30 100",
 		"rnbqkbnr/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
@@ -495,12 +491,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/8/8/8/5kp1/7K b - - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( white_king_can_be_captured,
-		FEN_WHITE_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
 
-// Test 24 fails
-#test C_che_fen_validator_returns_FEN_BLACK_KING_CAN_BE_CAPTURED
-	const char * const black_king_can_be_captured[] = {
+// Test 23 fails, part 2
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_2
+	const char *king_can_be_captured[] = {
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
 		"k6K/8/1N6/8/8/8/8/8 w - - 0 100",
 		"N6K/8/1k6/8/8/8/8/8 w - - 0 100",
@@ -526,8 +521,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/3N4/8/Q1rk4/3PP3/5K2/8/3R3B w - - 0 123",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( black_king_can_be_captured,
-		FEN_BLACK_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
+	
+#undef FEN_ARRAY_FOR_LOOP
 
 //
 // Test case

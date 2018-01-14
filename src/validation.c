@@ -34,7 +34,6 @@ static bool x_validate_fen_test_20( const Pos *p );
 static bool x_validate_fen_test_21( const Pos *p );
 static bool x_validate_fen_test_22( const Pos *p );
 static bool x_validate_fen_test_23( const Pos *p );
-static bool x_validate_fen_test_24( const Pos *p );
 static void x_remove_irrelevant_chessmen_from_rank( char *rank, bool rank_1 );
 static bool x_king_with_ca_right_on_impossible_square( const char *r1, const char *r8,
 	const char *ecaf );
@@ -83,8 +82,7 @@ che_fen_validator( const char *fen )
 	if( !x_validate_fen_test_20( p ) ) return FEN_BLACK_PAWN_ON_LAST_RANK;
 	if( !x_validate_fen_test_21( p ) ) return FEN_INVALID_NUMBER_OF_WHITE_KINGS;
 	if( !x_validate_fen_test_22( p ) ) return FEN_INVALID_NUMBER_OF_BLACK_KINGS;
-	if( !x_validate_fen_test_23( p ) ) return FEN_WHITE_KING_CAN_BE_CAPTURED;
-	if( !x_validate_fen_test_24( p ) ) return FEN_BLACK_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_23( p ) ) return FEN_KING_CAN_BE_CAPTURED;
 
 	return FEN_NO_ERRORS;
 }
@@ -352,13 +350,7 @@ x_validate_fen_test_22( const Pos *p )
 static bool
 x_validate_fen_test_23( const Pos *p )
 {
-	return whites_turn( p ) || !king_can_be_captured( p );
-}
-
-static bool
-x_validate_fen_test_24( const Pos *p )
-{
-	return !whites_turn( p ) || !king_can_be_captured( p );
+	return !king_can_be_captured( p );
 }
 
 static void
