@@ -1194,10 +1194,14 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 // Test case
 //
 #tcase resolve_ambiguous_ecaf_tests
-	
-#test C_resolve_ambiguous_ecaf_works
-	char ecaf[ 9 + 1 ];
 
-	strcpy( ecaf, "--d- ---d" );
-	resolve_ambiguous_ecaf( ecaf, "2kr4/8/8/8/8/8/8/4K3 b d - 0 65501" );
+#test C_resolve_ambiguous_ecaf_works
+	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+
+	che_fen_validator( STD_START_POS_FEN );
+	char **ff = fen_fields( STD_START_POS_FEN );
+	strcpy( caf, ff[ 2 ] );
+	free_fen_fields( ff );
+	EXPAND_CAF( caf, ecaf, STD_START_POS_FEN )
 	printf( "### Resolved ecaf: \"%s\"\n", ecaf );
+	ck_assert( false );

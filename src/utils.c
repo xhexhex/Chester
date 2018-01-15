@@ -638,7 +638,7 @@ free_fen_fields( char **ff )
 }
 
 // Expands 'caf' and stores the result in 'ecaf' (which is assumed to be a writable
-// array of at least *ten* bytes). Expanding a CAF means adding dashes where there
+// array of at least ten bytes). Expanding a CAF means adding dashes where there
 // are "missing" characters and arranging the letters so that uppercase comes
 // before lowercase and that letters of the same case are in alphabetical order.
 // A few examples:
@@ -657,7 +657,9 @@ free_fen_fields( char **ff )
 // "E" --> "E--- -E--"      "c" --> "--c- ---c"      "Dd" --> "D-d- -D-d"
 //
 // The caller can tell if the result is ambiguous by inspecting the length of
-// 'ecaf'. Resolving the ambiguity is the caller's responsibility.
+// 'ecaf'. The function resolve_ambiguous_ecaf() can be used to resolve the
+// ambiguity. The most convenient means of CAF expansion is the macro EXPAND_CAF
+// which includes a call to both expand_caf() and resolve_ambiguous_ecaf().
 //
 // If 'caf' is a standard FEN CAF such as "KQkq" or "k", it is converted into
 // a Shredder-FEN before expansion. (Remember that Chester considers "KQkq" to be
@@ -691,7 +693,9 @@ expand_caf( const char *caf, char *ecaf )
 		x_expand_caf_handle_1_char_caf_cases( ecaf, cptr ); }
 }
 
-// TODO: Update doc of prev fn slightly, add brief description here.
+// TODO: ...
+//
+// See expand_caf() documentation for more details.
 void
 resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 {

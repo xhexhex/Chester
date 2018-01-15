@@ -5,10 +5,16 @@
 
 #include "base.h"
 
-#define SRAND( seed ) \
-if( !srand_has_been_called ) { \
-	srand_has_been_called = true; \
-	srand( seed ); }
+#define SRAND( seed ) if( !srand_has_been_called ) \
+{ srand_has_been_called = true; srand( seed ); }
+
+// Expands 'caf', stores the result in 'ecaf' and resolves ambiguous results using
+// 'fen'. If the ambiguity cannot be resolved due to an invalid FEN, 'ecaf' will
+// remain unchanged by resolve_ambiguous_ecaf(). 'ecaf' is assumed to be a writable
+// array of at least ten bytes. For more details on CAF expansion, view the documention
+// of expand_caf().
+#define EXPAND_CAF( caf, ecaf, fen ) expand_caf( caf, ecaf ); \
+resolve_ambiguous_ecaf( ecaf, fen );
 
 extern bool srand_has_been_called;
 
