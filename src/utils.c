@@ -31,6 +31,8 @@ static int x_expand_caf_find_missing_char_index( const char *caf );
 static void x_expand_caf_handle_2_char_caf_cases(
 	char *ecaf, const char *first, const char *second );
 static void x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr );
+static bool x_king_in_dir(
+	const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
 
 /***********************
  **** External data ****
@@ -700,6 +702,21 @@ void
 resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 {
 	if( strlen( ecaf ) != 9 ) return;
+	
+	char rooks_file;
+	for( int i = 0; i < 4; i++ ) if( ecaf[ i ] != '-' ) {
+		rooks_file = tolower( ecaf[ i ] );
+		break; }
+
+	if( ecaf[ 0 ] != '-' || ecaf[ 1 ] != '-' ) {
+		if( x_king_in_dir( fen, EAST, true, rooks_file ) ) ecaf[ 4 ] = '\0';
+		else if( x_king_in_dir( fen, WEST, true, rooks_file ) )
+			for( int i = 0; i < 5; i++ ) ecaf[ i ] = ecaf[ i + 5 ];
+	} else if( ecaf[ 2 ] != '-' || ecaf[ 3 ] != '-' ) {
+		if( x_king_in_dir( fen, EAST, false, rooks_file ) ) ecaf[ 4 ] = '\0';
+		else if( x_king_in_dir( fen, WEST, false, rooks_file ) )
+			for( int i = 0; i < 5; i++ ) ecaf[ i ] = ecaf[ i + 5 ];
+	}
 }
 
 /****************************
@@ -958,4 +975,29 @@ x_expand_caf_convert_std_caf_to_shredder_caf( char *caf )
 		else if( caf[ i ] == 'Q' ) caf[ i ] = 'A';
 		else if( caf[ i ] == 'k' ) caf[ i ] = 'h';
 		else if( caf[ i ] == 'q' ) caf[ i ] = 'a';
+}
+
+static bool
+x_king_in_dir( const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file )
+{
+	assert( dir == EAST || dir == WEST );
+	assert( rooks_file >= 'a' && rooks_file <= 'h' );
+	
+	char r1[ 8 + 1 ] = { '\0' }, r8[ 8 + 1 ] = { '\0' }, eppf[ PPF_MAX_LENGTH + 1 ];
+	char **ff = fen_fields( fen );
+	expand_ppf( ff[ 0 ], eppf );
+	free_fen_fields( ff );
+
+	for( int i = PPF_MAX_LENGTH - 1, j = 7; eppf[ i ] != '/'; i--, j-- )
+		r1[ j ] = eppf[ i ];
+	for( int i = 0; i < 8; i++ ) r8[ i ] = eppf[ i ];
+	assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 );
+
+	char *rank = ( color_is_white ? r1 : r8 );
+	for( int i = rooks_file - 'a' + ( dir == EAST ? 1 : -1 ); i >= 0 && i <= 7;
+			i += ( dir == EAST ? 1 : -1 ) ) {
+		assert( i >= 0 && i <= 7 );
+		if( rank[ i ] == ( color_is_white ? 'K' : 'k' ) ) return true; }
+
+	return false;
 }

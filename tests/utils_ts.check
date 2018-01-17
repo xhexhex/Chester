@@ -1195,13 +1195,19 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 #tcase resolve_ambiguous_ecaf_tests
 
+#define RESOLVE_AMBIGUOUS_ECAF_TEST( fen, exp_ecaf ) \
+che_fen_validator( fen ); \
+ff = fen_fields( fen ); \
+strcpy( caf, ff[ 2 ] ); \
+free_fen_fields( ff ); \
+EXPAND_CAF( caf, ecaf, fen ) \
+ck_assert( !strcmp( ecaf, exp_ecaf ) );
+
 #test C_resolve_ambiguous_ecaf_works
 	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+	char **ff;
 
-	che_fen_validator( STD_START_POS_FEN );
-	char **ff = fen_fields( STD_START_POS_FEN );
-	strcpy( caf, ff[ 2 ] );
-	free_fen_fields( ff );
-	EXPAND_CAF( caf, ecaf, STD_START_POS_FEN )
-	printf( "### Resolved ecaf: \"%s\"\n", ecaf );
-	ck_assert( false );
+	RESOLVE_AMBIGUOUS_ECAF_TEST( STD_START_POS_FEN, "AHah" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4RK2 w E - 10 50", "E---" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/3KR3 w E - 10 50", "-E--" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "4rk2/8/8/8/8/8/8/4RK2 b Ee - 10 50", "E-e-" )
