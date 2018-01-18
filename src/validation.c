@@ -30,9 +30,6 @@ static bool x_validate_fen_test_16( const Pos *p );
 static bool x_validate_fen_test_17( const Pos *p );
 static bool x_validate_fen_test_18( const Pos *p );
 static bool x_validate_fen_test_19( const Pos *p );
-static bool x_validate_fen_test_20( const Pos *p );
-static bool x_validate_fen_test_21( const Pos *p );
-static bool x_validate_fen_test_22( const Pos *p );
 static void x_remove_irrelevant_chessmen_from_rank( char *rank, bool rank_1 );
 static bool x_king_with_ca_right_on_impossible_square( const char *r1, const char *r8,
 	const char *ecaf );
@@ -75,12 +72,9 @@ che_fen_validator( const char *fen )
 	Pos *p = fen_to_pos( fen );
 
 	if( !x_validate_fen_test_16( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
-	if( !x_validate_fen_test_17( p ) ) return FEN_WHITE_PAWN_ON_FIRST_RANK;
-	if( !x_validate_fen_test_18( p ) ) return FEN_BLACK_PAWN_ON_FIRST_RANK;
-	if( !x_validate_fen_test_19( p ) ) return FEN_WHITE_PAWN_ON_LAST_RANK;
-	if( !x_validate_fen_test_20( p ) ) return FEN_BLACK_PAWN_ON_LAST_RANK;
-	if( !x_validate_fen_test_21( p ) ) return FEN_INVALID_NUMBER_OF_KINGS;
-	if( !x_validate_fen_test_22( p ) ) return FEN_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_17( p ) ) return FEN_PAWN_ON_INVALID_RANK;
+	if( !x_validate_fen_test_18( p ) ) return FEN_INVALID_NUMBER_OF_KINGS;
+	if( !x_validate_fen_test_19( p ) ) return FEN_KING_CAN_BE_CAPTURED;
 
 	return FEN_NO_ERRORS;
 }
@@ -314,35 +308,19 @@ x_validate_fen_test_16( const Pos *p )
 static bool
 x_validate_fen_test_17( const Pos *p )
 {
-	return !( p->cm[ WHITE_PAWN ] & SS_RANK_1 );
+	return
+		!( p->cm[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->cm[ BLACK_PAWN ] & SS_RANK_1 ) &&
+		!( p->cm[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
 x_validate_fen_test_18( const Pos *p )
 {
-	return !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
-}
-
-static bool
-x_validate_fen_test_19( const Pos *p )
-{
-	return !( p->cm[ WHITE_PAWN ] & SS_RANK_8 );
-}
-
-static bool
-x_validate_fen_test_20( const Pos *p )
-{
-	return !( p->cm[ BLACK_PAWN ] & SS_RANK_1 );
-}
-
-static bool
-x_validate_fen_test_21( const Pos *p )
-{
 	return bb_is_sq_bit( p->cm[ WHITE_KING ] ) && bb_is_sq_bit( p->cm[ BLACK_KING ] );
 }
 
 static bool
-x_validate_fen_test_22( const Pos *p )
+x_validate_fen_test_19( const Pos *p )
 {
 	return !king_can_be_captured( p );
 }

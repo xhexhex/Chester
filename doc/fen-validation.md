@@ -62,12 +62,12 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     (if both sides have castling availability, it follows that neither of the kings
     has been moved during the game).
 13. `FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR`  
-	The placement of one or more of the rooks contradicts the fact that certain
-	types of castling availabilities are present. For example, if the CAF is "CF",
-	then there should be white rooks on the squares c1 and f1 and the white king
-	should be on either of the squares d1 or e1. Another example: if the CAF is "g",
-	then there should be a black rook on g8 and the black king should be located on
-	one of the squares in the set { b8, c8, d8, e8, f8 }.
+    The placement of one or more of the rooks contradicts the fact that certain
+    types of castling availabilities are present. For example, if the CAF is "CF",
+    then there should be white rooks on the squares c1 and f1 and the white king
+    should be on either of the squares d1 or e1. Another example: if the CAF is "g",
+    then there should be a black rook on g8 and the black king should be located on
+    one of the squares in the set { b8, c8, d8, e8, f8 }.
 14. `FEN_EPTSF_CONTRADICTS_HMCF_ERROR`  
     The EPTSF is something else than "-" while the HMCF is something else than "0".
     For example, if the EPTSF is "e3", it follows that the HMCF is "0"; any other
@@ -80,18 +80,11 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     square after the EPTS. For example, if the EPTS is "e3", then the pawn on e2
     has just made a double advance to e4. So it follows from EPTS being "e3" that
     there is a white pawn on e4.
-17. `FEN_WHITE_PAWN_ON_FIRST_RANK`  
-    There are one or more white pawns on rank 1.
-18. `FEN_BLACK_PAWN_ON_FIRST_RANK`  
-    There are one or more black pawns on rank 8 (which is the first rank
-    from Black's perspective).
-19. `FEN_WHITE_PAWN_ON_LAST_RANK`  
-    There are one or more white pawns on rank 8.
-20. `FEN_BLACK_PAWN_ON_LAST_RANK`  
-    There are one or more black pawns on rank 1.
-21. `FEN_INVALID_NUMBER_OF_KINGS`  
+17. `FEN_PAWN_ON_INVALID_RANK`  
+    There are one or more pawns of either color on rank 1 or rank 8.
+18. `FEN_INVALID_NUMBER_OF_KINGS`  
     There is either no king of a particular color on the chessboard or there are
     multiple kings of that particular color on the chessboard.
-22. `FEN_KING_CAN_BE_CAPTURED`  
+19. `FEN_KING_CAN_BE_CAPTURED`  
     It is either (1) Black's turn to move while the white king is on an attacked
     square or (2) White's turn to move while the black king is on an attacked square.
