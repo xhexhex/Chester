@@ -94,6 +94,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1",
 		"1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
 		"1rkr4/8/8/8/8/8/8/1RKR4 w DBdb - 0 50",
+		"6k1/8/8/8/8/8/8/R3R1K1 w E - 0 60",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );
@@ -310,7 +311,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"r6r/4k3/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"r2k3r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"4k3/8/8/8/8/8/8/KR6 w B - 0 50",
-		// "2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
+		"2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_kp_and_caf,
@@ -353,7 +354,6 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKBR1 b AHah - 1 65513",
 		"1k6/8/8/8/8/8/8/1KR3R1 w CG - 0 65513",
 		"6k1/8/8/8/8/8/8/R3R1K1 w AE - 0 65513",
-		// "6k1/8/8/8/8/8/8/R3R1K1 w E - 0 65513",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
@@ -451,21 +451,13 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		FEN_BLACK_PAWN_ON_LAST_RANK );
 
 // Test 21 fails
-#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_WHITE_KINGS
-	const char * const invalid_number_of_white_kings[] = {
+#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_KINGS
+	const char *invalid_number_of_kings[] = {
 		"b7/8/8/8/8/8/8/B7 w - - 0 1",
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w - - 0 1",
 		"k7/8/8/8/8/8/8/B7 w - - 0 1",
 		"rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKKBNR w KQkq - 0 1",
 		"k7/8/8/8/8/8/8/KKKKKKKK w - - 0 1",
-		NULL };
-
-	FEN_ARRAY_FOR_LOOP( invalid_number_of_white_kings,
-		FEN_INVALID_NUMBER_OF_WHITE_KINGS );
-
-// Test 22 fails
-#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_BLACK_KINGS
-	const char * const invalid_number_of_black_kings[] = {
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
 		"8/p7/8/8/8/8/8/K7 w - - 0 1",
 		"rnbkkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w KQkq - 0 1",
@@ -473,10 +465,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkKkkk w - - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( invalid_number_of_black_kings,
-		FEN_INVALID_NUMBER_OF_BLACK_KINGS );
+	FEN_ARRAY_FOR_LOOP( invalid_number_of_kings, FEN_INVALID_NUMBER_OF_KINGS );
 
-// Test 23 fails, part 1
+// Test 22 fails, part 1
 #test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_1
 	const char *king_can_be_captured[] = {
 		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
@@ -504,7 +495,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
 
-// Test 23 fails, part 2
+// Test 22 fails, part 2
 #test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_2
 	const char *king_can_be_captured[] = {
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",

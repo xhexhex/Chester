@@ -89,10 +89,9 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     There are one or more white pawns on rank 8.
 20. `FEN_BLACK_PAWN_ON_LAST_RANK`  
     There are one or more black pawns on rank 1.
-21. `FEN_INVALID_NUMBER_OF_WHITE_KINGS`  
-    There is either no white king on the chessboard or multiple white kings.
-22. `FEN_INVALID_NUMBER_OF_BLACK_KINGS`  
-    There is either no black king on the chessboard or multiple black kings.
-23. `FEN_KING_CAN_BE_CAPTURED`  
+21. `FEN_INVALID_NUMBER_OF_KINGS`  
+    There is either no king of a particular color on the chessboard or there are
+    multiple kings of that particular color on the chessboard.
+22. `FEN_KING_CAN_BE_CAPTURED`  
     It is either (1) Black's turn to move while the white king is on an attacked
     square or (2) White's turn to move while the black king is on an attacked square.
