@@ -31,16 +31,16 @@ static bool x_validate_fen_test_17( const Pos *p );
 static bool x_validate_fen_test_18( const Pos *p );
 static bool x_validate_fen_test_19( const Pos *p );
 static void x_remove_irrelevant_chessmen_from_rank( char *rank, bool rank_1 );
-static bool x_king_with_ca_right_on_impossible_square( const char *r1, const char *r8,
-	const char *ecaf );
-static bool x_kings_with_ca_rights_on_different_files( const char *r1, const char *r8,
-	const char *ecaf );
+static bool x_king_with_ca_right_on_impossible_square(
+	const char *r1, const char *r8, const char *ecaf );
+static bool x_kings_with_ca_rights_on_different_files(
+	const char *r1, const char *r8, const char *ecaf );
 static bool x_valid_shredder_fen_caf( const char *caf );
 static char x_file_of_king( const char *rank );
-static bool x_no_rook_on_square_indicated_by_caf( const char *r1, const char *r8,
-	const char *ecaf );
-static bool x_rook_on_wrong_side_of_king( const char *r1, const char *r8,
-	const char *ecaf );
+static bool x_no_rook_on_square_indicated_by_caf(
+	const char *r1, const char *r8, const char *ecaf );
+static bool x_rook_on_wrong_side_of_king(
+	const char *r1, const char *r8, const char *ecaf );
 
 /*****************************
  ****                     ****
@@ -234,10 +234,6 @@ x_remove_irrelevant_chessmen_from_rank( r8, false ); \
 assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 ); \
 assert( str_matches_pattern( r1, "^[-KR]*$" ) ); \
 assert( str_matches_pattern( r8, "^[-kr]*$" ) );
-
-//printf( "### \"%s\"  -->  \"%s\"  -->  ", fen, ecaf );
-//resolve_ambiguous_ecaf( ecaf, fen );
-//printf( "\"%s\"\n", ecaf );
 
 static bool
 x_validate_fen_test_12( const char *fen )
