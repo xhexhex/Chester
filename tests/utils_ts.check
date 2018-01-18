@@ -1203,11 +1203,35 @@ free_fen_fields( ff ); \
 EXPAND_CAF( caf, ecaf, fen ) \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
-#test C_resolve_ambiguous_ecaf_works
+#test C_resolve_ambiguous_ecaf_works_with_1c_ambiguous_ECAFs
+	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+	char **ff;
+
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/1KR5 w C - 0 60", "-C--" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/2RK4 b C - 0 60", "C---" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4RK2 w E - 10 50", "E---" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/3KR3 w E - 10 50", "-E--" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4KR2 b F - 0 60", "-F--" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "5rk1/8/8/8/8/8/8/6K1 b f - 0 60", "--f-" )
+
+#test C_resolve_ambiguous_ecaf_works_with_2c_ambiguous_ECAFs
+	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+	char **ff;
+
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "3rk3/8/8/8/8/8/8/3RK3 b Dd - 0 60", "D-d-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "2kr4/8/8/8/8/8/8/2KR4 b Dd - 0 60", "-D-d" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "4rk2/8/8/8/8/8/8/4RK2 b Ee - 10 50", "E-e-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "3r1k2/8/8/8/8/8/8/3R1K2 b Ee - 10 50", "E-e-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "1r3k2/8/8/8/8/8/8/1R3K2 w Ee - 10 50", "E-e-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "r4k2/8/8/8/8/8/8/R4K2 b Ee - 10 50", "E-e-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/5KR1 w Gg - 10 50", "-G-g" )
+
+#test C_resolve_ambiguous_ecaf_works_with_unambiguous_ECAFs
 	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
 	char **ff;
 
 	RESOLVE_AMBIGUOUS_ECAF_TEST( STD_START_POS_FEN, "AHah" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4RK2 w E - 10 50", "E---" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/3KR3 w E - 10 50", "-E--" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "4rk2/8/8/8/8/8/8/4RK2 b Ee - 10 50", "E-e-" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "4k3/8/8/8/8/8/8/1RK5 w B - 0 40", "B---" )
+	RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
+
+#undef RESOLVE_AMBIGUOUS_ECAF_TEST

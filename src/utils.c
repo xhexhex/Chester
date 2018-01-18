@@ -235,25 +235,17 @@ file_of_sq( const Bitboard sq_bit )
 {
 	assert( bb_is_sq_bit( sq_bit ) );
 
-	if( sq_bit & SS_FILE_A )
-		return 'a';
-	if( sq_bit & SS_FILE_B )
-		return 'b';
-	if( sq_bit & SS_FILE_C )
-		return 'c';
-	if( sq_bit & SS_FILE_D )
-		return 'd';
-	if( sq_bit & SS_FILE_E )
-		return 'e';
-	if( sq_bit & SS_FILE_F )
-		return 'f';
-	if( sq_bit & SS_FILE_G )
-		return 'g';
-	if( sq_bit & SS_FILE_H )
-		return 'h';
+	if( sq_bit & SS_FILE_A ) return 'a';
+	if( sq_bit & SS_FILE_B ) return 'b';
+	if( sq_bit & SS_FILE_C ) return 'c';
+	if( sq_bit & SS_FILE_D ) return 'd';
+	if( sq_bit & SS_FILE_E ) return 'e';
+	if( sq_bit & SS_FILE_F ) return 'f';
+	if( sq_bit & SS_FILE_G ) return 'g';
+	if( sq_bit & SS_FILE_H ) return 'h';
 
-	assert( false ); // Fail unconditionally
-	return 0; // The null character
+	assert( false );
+	return '\0';
 }
 
 // Returns the rank of the square bit argument
@@ -262,25 +254,17 @@ rank_of_sq( const Bitboard sq_bit )
 {
 	assert( bb_is_sq_bit( sq_bit ) );
 
-	if( sq_bit & SS_RANK_1 )
-		return '1';
-	if( sq_bit & SS_RANK_2 )
-		return '2';
-	if( sq_bit & SS_RANK_3 )
-		return '3';
-	if( sq_bit & SS_RANK_4 )
-		return '4';
-	if( sq_bit & SS_RANK_5 )
-		return '5';
-	if( sq_bit & SS_RANK_6 )
-		return '6';
-	if( sq_bit & SS_RANK_7 )
-		return '7';
-	if( sq_bit & SS_RANK_8 )
-		return '8';
+	if( sq_bit & SS_RANK_1 ) return '1';
+	if( sq_bit & SS_RANK_2 ) return '2';
+	if( sq_bit & SS_RANK_3 ) return '3';
+	if( sq_bit & SS_RANK_4 ) return '4';
+	if( sq_bit & SS_RANK_5 ) return '5';
+	if( sq_bit & SS_RANK_6 ) return '6';
+	if( sq_bit & SS_RANK_7 ) return '7';
+	if( sq_bit & SS_RANK_8 ) return '8';
 
-	assert( false ); // Fail unconditionally
-	return 0; // The null character
+	assert( false );
+	return '\0';
 }
 
 // Returns true if the argument is a square bit
@@ -299,24 +283,15 @@ epts_from_pos_var( const Pos *p )
 {
 	char file;
 
-	if( p->info & BM_EPTS_FILE_A )
-		file = 'a';
-	else if( p->info & BM_EPTS_FILE_B )
-		file = 'b';
-	else if( p->info & BM_EPTS_FILE_C )
-		file = 'c';
-	else if( p->info & BM_EPTS_FILE_D )
-		file = 'd';
-	else if( p->info & BM_EPTS_FILE_E )
-		file = 'e';
-	else if( p->info & BM_EPTS_FILE_F )
-		file = 'f';
-	else if( p->info & BM_EPTS_FILE_G )
-		file = 'g';
-	else if( p->info & BM_EPTS_FILE_H )
-		file = 'h';
-	else
-		return "-";
+	if( p->info & BM_EPTS_FILE_A ) file = 'a';
+	else if( p->info & BM_EPTS_FILE_B ) file = 'b';
+	else if( p->info & BM_EPTS_FILE_C ) file = 'c';
+	else if( p->info & BM_EPTS_FILE_D ) file = 'd';
+	else if( p->info & BM_EPTS_FILE_E ) file = 'e';
+	else if( p->info & BM_EPTS_FILE_F ) file = 'f';
+	else if( p->info & BM_EPTS_FILE_G ) file = 'g';
+	else if( p->info & BM_EPTS_FILE_H ) file = 'h';
+	else return "-";
 
 	char rank = whites_turn( p ) ? '6' : '3';
 
@@ -445,8 +420,7 @@ sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
 {
 	assert( bb_is_sq_bit( upper_left ) && bb_is_sq_bit( lower_right ) );
 
-	if( upper_left == lower_right )
-		return upper_left;
+	if( upper_left == lower_right ) return upper_left;
 
 	const char file_ulc = file_of_sq( upper_left ),
 		file_lrc = file_of_sq( lower_right ),
@@ -456,8 +430,7 @@ sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
 	if( file_ulc <= file_lrc && rank_ulc >= rank_lrc ) {
 		const char *ulc = file_and_rank_to_sq_name( file_ulc, rank_ulc ),
 			*lrc = file_and_rank_to_sq_name( file_lrc, rank_lrc );
-		return x_sq_rectangle( ulc, lrc );
-	}
+		return x_sq_rectangle( ulc, lrc ); }
 
 	return 0;
 } // Review: 2018-01-03
@@ -509,13 +482,10 @@ antidiag_of_sq( Bitboard sq_bit )
 Bitboard
 next_sq_of_ss( Bitboard *ss )
 {
-	if( !( *ss ) )
-		return 0;
+	if( !( *ss ) ) return 0;
 
 	Bitboard sq = SB.a1;
-	while( !( ( *ss ) & sq ) ) {
-		sq <<= 1;
-	}
+	while( !( ( *ss ) & sq ) ) sq <<= 1;
 	*ss ^= sq;
 
 	assert( bb_is_sq_bit( sq ) );
@@ -695,28 +665,38 @@ expand_caf( const char *caf, char *ecaf )
 		x_expand_caf_handle_1_char_caf_cases( ecaf, cptr ); }
 }
 
-// TODO: ...
-//
-// See expand_caf() documentation for more details.
+// Resolves any ambiguous expanded CAF produced by expand_caf(). For example, if
+// 'ecaf' is "D-d- -D-d" and 'fen' is "2kr4/8/8/8/8/8/8/2KR4 b Dd - 0 60", the result
+// (the updated content of 'ecaf') will be "-D-d". If the ambiguity cannot be resolved
+// due to an invalid value in 'fen', 'ecaf' (containing an ambiguous expanded CAF) will
+// remain unchanged by the function. See expand_caf() documentation for more details.
 void
 resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 {
+	// The string length of an unambiguous expanded CAF is four
 	if( strlen( ecaf ) != 9 ) return;
-	
+
 	char rooks_file;
 	for( int i = 0; i < 4; i++ ) if( ecaf[ i ] != '-' ) {
 		rooks_file = tolower( ecaf[ i ] );
 		break; }
 
+	bool ecaf_modified = true;
 	if( ecaf[ 0 ] != '-' || ecaf[ 1 ] != '-' ) {
-		if( x_king_in_dir( fen, EAST, true, rooks_file ) ) ecaf[ 4 ] = '\0';
-		else if( x_king_in_dir( fen, WEST, true, rooks_file ) )
+		if( x_king_in_dir( fen, EAST, true, rooks_file ) ) {
+			ecaf[ 4 ] = '\0';
+		} else if( x_king_in_dir( fen, WEST, true, rooks_file ) ) {
 			for( int i = 0; i < 5; i++ ) ecaf[ i ] = ecaf[ i + 5 ];
+		} else ecaf_modified = false;
 	} else if( ecaf[ 2 ] != '-' || ecaf[ 3 ] != '-' ) {
-		if( x_king_in_dir( fen, EAST, false, rooks_file ) ) ecaf[ 4 ] = '\0';
-		else if( x_king_in_dir( fen, WEST, false, rooks_file ) )
+		if( x_king_in_dir( fen, EAST, false, rooks_file ) ) {
+			ecaf[ 4 ] = '\0';
+		} else if( x_king_in_dir( fen, WEST, false, rooks_file ) ) {
 			for( int i = 0; i < 5; i++ ) ecaf[ i ] = ecaf[ i + 5 ];
+		} else ecaf_modified = false;
 	}
+
+	assert( !ecaf_modified || str_matches_pattern( ecaf, "^[-ABCDEFGHabcdefgh]{4}$" ) );
 }
 
 /****************************
@@ -754,26 +734,20 @@ x_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 {
 	Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
-	FIND_SQUARE_IN_DIRECTION( ONE_OCLOCK,
-		SS_FILE_H | SS_RANK_7 | SS_RANK_8, 17 )
-	FIND_SQUARE_IN_DIRECTION( TWO_OCLOCK,
-		SS_FILE_G | SS_FILE_H | SS_RANK_8, 10 )
-	FIND_SQUARE_IN_DIRECTION( FOUR_OCLOCK,
-		SS_FILE_G | SS_FILE_H | SS_RANK_1, -6 )
-	FIND_SQUARE_IN_DIRECTION( FIVE_OCLOCK,
-		SS_FILE_H | SS_RANK_1 | SS_RANK_2, -15 )
-	FIND_SQUARE_IN_DIRECTION( SEVEN_OCLOCK,
-		SS_FILE_A | SS_RANK_1 | SS_RANK_2, -17 )
-	FIND_SQUARE_IN_DIRECTION( EIGHT_OCLOCK,
-		SS_FILE_A | SS_FILE_B | SS_RANK_1, -10 )
-	FIND_SQUARE_IN_DIRECTION( TEN_OCLOCK,
-		SS_FILE_A | SS_FILE_B | SS_RANK_8, 6 )
-	FIND_SQUARE_IN_DIRECTION( ELEVEN_OCLOCK,
-		SS_FILE_A | SS_RANK_7 | SS_RANK_8, 15 )
+	FIND_SQUARE_IN_DIRECTION( ONE_OCLOCK,    SS_FILE_H | SS_RANK_7 | SS_RANK_8,  17 )
+	FIND_SQUARE_IN_DIRECTION( TWO_OCLOCK,    SS_FILE_G | SS_FILE_H | SS_RANK_8,  10 )
+	FIND_SQUARE_IN_DIRECTION( FOUR_OCLOCK,   SS_FILE_G | SS_FILE_H | SS_RANK_1,  -6 )
+	FIND_SQUARE_IN_DIRECTION( FIVE_OCLOCK,   SS_FILE_H | SS_RANK_1 | SS_RANK_2, -15 )
+	FIND_SQUARE_IN_DIRECTION( SEVEN_OCLOCK,  SS_FILE_A | SS_RANK_1 | SS_RANK_2, -17 )
+	FIND_SQUARE_IN_DIRECTION( EIGHT_OCLOCK,  SS_FILE_A | SS_FILE_B | SS_RANK_1, -10 )
+	FIND_SQUARE_IN_DIRECTION( TEN_OCLOCK,    SS_FILE_A | SS_FILE_B | SS_RANK_8,   6 )
+	FIND_SQUARE_IN_DIRECTION( ELEVEN_OCLOCK, SS_FILE_A | SS_RANK_7 | SS_RANK_8,  15 )
 
 	assert( false );
 	return "";
 }
+
+#undef FIND_SQUARE_IN_DIRECTION
 
 static const char *
 x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
@@ -781,18 +755,13 @@ x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
 	char sq_name_copy[ 3 ] = { 0 };
 	strcpy( sq_name_copy, sq_name );
 
-	if( dir == NORTHEAST || dir == EAST || dir == SOUTHEAST )
-		++sq_name_copy[ 0 ];
-	else if( dir == NORTHWEST || dir == WEST || dir == SOUTHWEST )
-		--sq_name_copy[ 0 ];
+	if( dir == NORTHEAST || dir == EAST || dir == SOUTHEAST ) ++sq_name_copy[ 0 ];
+	else if( dir == NORTHWEST || dir == WEST || dir == SOUTHWEST ) --sq_name_copy[ 0 ];
 
-	if( dir == NORTHWEST || dir == NORTH || dir == NORTHEAST )
-		++sq_name_copy[ 1 ];
-	else if( dir == SOUTHWEST || dir == SOUTH || dir == SOUTHEAST )
-		--sq_name_copy[ 1 ];
+	if( dir == NORTHWEST || dir == NORTH || dir == NORTHEAST ) ++sq_name_copy[ 1 ];
+	else if( dir == SOUTHWEST || dir == SOUTH || dir == SOUTHEAST ) --sq_name_copy[ 1 ];
 
-	return valid_sq_name( sq_name_copy ) ?
-		SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+	return valid_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 static const char *
@@ -801,26 +770,17 @@ x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 	char sq_name_copy[ 3 ] = { 0 };
 	strcpy( sq_name_copy, sq_name );
 
-	if( dir == TWO_OCLOCK || dir == FOUR_OCLOCK )
-		sq_name_copy[ 0 ] += 2;
-	else if( dir == ONE_OCLOCK || dir == FIVE_OCLOCK )
-		++sq_name_copy[ 0 ];
-	else if( dir == SEVEN_OCLOCK || dir == ELEVEN_OCLOCK )
-		--sq_name_copy[ 0 ];
-	else
-		sq_name_copy[ 0 ] -= 2;
+	if( dir == TWO_OCLOCK || dir == FOUR_OCLOCK ) sq_name_copy[ 0 ] += 2;
+	else if( dir == ONE_OCLOCK || dir == FIVE_OCLOCK ) ++sq_name_copy[ 0 ];
+	else if( dir == SEVEN_OCLOCK || dir == ELEVEN_OCLOCK ) --sq_name_copy[ 0 ];
+	else sq_name_copy[ 0 ] -= 2;
 
-	if( dir == ONE_OCLOCK || dir == ELEVEN_OCLOCK )
-		sq_name_copy[ 1 ] += 2;
-	else if( dir == TWO_OCLOCK || dir == TEN_OCLOCK )
-		++sq_name_copy[ 1 ];
-	else if( dir == FOUR_OCLOCK || dir == EIGHT_OCLOCK )
-		--sq_name_copy[ 1 ];
-	else
-		sq_name_copy[ 1 ] -= 2;
+	if( dir == ONE_OCLOCK || dir == ELEVEN_OCLOCK ) sq_name_copy[ 1 ] += 2;
+	else if( dir == TWO_OCLOCK || dir == TEN_OCLOCK ) ++sq_name_copy[ 1 ];
+	else if( dir == FOUR_OCLOCK || dir == EIGHT_OCLOCK ) --sq_name_copy[ 1 ];
+	else sq_name_copy[ 1 ] -= 2;
 
-	return valid_sq_name( sq_name_copy ) ?
-		SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+	return valid_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 /*
@@ -848,11 +808,9 @@ x_sq_rectangle( const char *ulc, const char *lrc )
 
 		while( sq_of_current_row && ( sq_of_current_row[ 0 ] <= lrc[ 0 ] ) ) {
 			bb |= sq_name_to_sq_bit( sq_of_current_row );
-			sq_of_current_row = sq_navigator( sq_of_current_row, EAST );
-		}
+			sq_of_current_row = sq_navigator( sq_of_current_row, EAST ); }
 
-		first_sq_of_row = sq_navigator( first_sq_of_row, SOUTH );
-	}
+		first_sq_of_row = sq_navigator( first_sq_of_row, SOUTH ); }
 
 	return bb;
 }
@@ -864,8 +822,7 @@ x_compress_eppf_rank_dashes_to_digit(
 	char digit = '1';
 	while( eppf_rank[ *eri_ptr + 1 ] == '-' ) {
 		*eri_ptr += 1;
-		++digit;
-	}
+		++digit; }
 	compressed_rank[ cri ] = digit;
 }
 

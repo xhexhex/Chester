@@ -336,6 +336,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"2k5/8/8/8/8/8/8/2K5 w KQq - 0 65513",
 		"2k5/8/8/8/8/8/8/2K5 w KQk - 0 65513",
 		"2k5/8/8/8/8/8/8/2K5 w KQkq - 0 65513",
+		// Other tests
+		"5kr1/8/8/8/8/8/8/5KR1 w Ee - 10 65513",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
