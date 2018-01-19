@@ -157,6 +157,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"k7/8/8/8/8/8/8/8 w - - 0 1",
 		"ppppXpppp/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP "
 			"w KQkq - 99999 99999",
+		"John Doe is too short",
 		NULL };
 
 	ck_assert( che_fen_validator( NULL ) == FEN_LENGTH_ERROR );
@@ -174,6 +175,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq – 0 1", // En dash '–'
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq å3 0 1", // 'å'
 		"4k3/8/8/8/8/8/8/4K3 W - - 0 1",
+		"----------KQR/BNP.kqr/bnp----------",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_chars, FEN_CHARS_ERROR );
@@ -186,6 +188,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ kq - 0 1",
 		" k7/8/8/8/8/8/8/K7 w - - 0 1", // Space at beginning
 		"k7/8/8/8/8/8/8/K7 w - - 0 1 ", // Space at end
+		"KKKKK kkkkk QQQQQ qqqqq RRRRR rrrrr 1234",
+		"KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_fs, FEN_FIELD_STRUCTURE_ERROR );
@@ -204,6 +208,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/ppppKpppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Too long a rank
 		"rnbqkbnr/ppppappp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Invalid char 'a'
 		"---k7/8/8/8/8/8/8/K7--- w - - 0 1",
+		"4kw2/8/8/8/8/8/8/4K3 haha haha haha haha haha",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( fens_with_ppfs_with_invalid_ranks, FEN_PPF_STRUCTURE_ERROR );
@@ -218,6 +223,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"35/k7/8/8/8/8/8/K7 w - - 0 1",
 		"k7/8/8/8/8/8/K7/521 w - - 0 1",
 		"rnbqkbnr/pppppppp/8/11111111/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		"4q3/8/8/8/8/8/8/123Q1 haha haha haha haha haha",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( PPFs_with_consecutive_digits, FEN_PPF_CONSECUTIVE_DIGITS_ERROR );
@@ -225,13 +231,14 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 // Test 6 fails
 #test C_che_fen_validator_returns_FEN_PPF_RANK_SUM_ERROR
 	const char *PPFs_with_invalid_rank_sums[] = {
-		"rnb3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // RS of 8th rank 10
-		"k7/8/8/7/8/8/8/K7 w - - 0 1", // RS of 5th rank 7
+		"rnb3kbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // RS of 8th rank is 10
+		"k7/8/8/7/8/8/8/K7 w - - 0 1", // RS of 5th rank is 7
 		"pppppppp/pppppppp/2ppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/PPPPPPPP "
-			"w KQkq - 9999 9999", // RS of 6th rank 9
-		"r6r/ppp1bkpp/4n3/pp1q2/3P4/2P2P2/PP2Q2R/RNB3K1 b - - 1 17", // RS of 5th rank 6
-		"rnbk3r/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/1 w KQ - 1 8", // RS of 1st rank 1
-		"k/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/8 w KQ - 1 8", // RS of 8th rank 1
+			"w KQkq - 9999 9999", // RS of 6th rank is 9
+		"r6r/ppp1bkpp/4n3/pp1q2/3P4/2P2P2/PP2Q2R/RNB3K1 b - - 1 17", // RS of 5th rank is 6
+		"rnbk3r/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/1 w KQ - 1 8", // RS of 1st rank is 1
+		"k/ppp2Bp1/3b1n1p/4p3/4P3/5N2/PPP2PPP/8 w KQ - 1 8", // RS of 8th rank is 1
+		"4q3/8/8/6p6p6/8/8/8/4Q3 haha haha haha haha haha", // RS of 5th rank is 20
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( PPFs_with_invalid_rank_sums, FEN_PPF_RANK_SUM_ERROR );
@@ -251,38 +258,43 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_ACFs, FEN_ACF_ERROR );
 
-// Test 8 fails
-#test C_che_fen_validator_returns_FEN_CAF_ERROR
+// Test 8 fails (1)
+#test C_che_fen_validator_returns_FEN_CAF_ERROR_batch_1
 	const char *fens_with_invalid_CAFs[] = {
-		// Standard FEN CAF
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w QKkq - 0 1",
-		"k7/8/8/8/8/8/8/K7 w / - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kqKQ - 0 1",
-		"k7/8/8/8/8/8/8/K7 w hehe - 0 1",
+		"4k3/8/8/8/8/8/8/4K3 b bc - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 b bdB - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 b Dc - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 b ef - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 b Hg - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w -- - 0 50",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KK - 0 1",
-		"k7/8/8/8/8/8/8/K7 w 1234 - 0 1",
-		"4k3/8/8/8/8/8/8/4K3 w KQkqq - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 w hahabcdefghahaHAHABCDEFGHAHA - 0 50",
-		// Shredder-FEN CAFs
 		"4k3/8/8/8/8/8/8/4K3 w AAaa - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w ABab - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w BAba - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 b bc - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 w bdD - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 w CB - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w cd - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w de - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 b ef - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 w fg - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 w gh - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 w CB - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 b Dc - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w eD - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w fe - 0 50",
+		NULL };
+
+	FEN_ARRAY_FOR_LOOP( fens_with_invalid_CAFs, FEN_CAF_ERROR );
+
+// Test 8 fails (2)
+#test C_che_fen_validator_returns_FEN_CAF_ERROR_batch_2
+	const char *fens_with_invalid_CAFs[] = {
+		"4k3/8/8/8/8/8/8/4K3 w fg - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w gF - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 b Hg - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 w gh - 0 50",
 		"4k3/8/8/8/8/8/8/4K3 w haHA - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 b bdB - 0 50",
-		"4k3/8/8/8/8/8/8/4K3 w bdD - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 w hahabcdefghahaHAHABCDEFGHAHA - 0 50",
+		"4k3/8/8/8/8/8/8/4K3 w KQkqq - 0 50",
+		"k7/8/8/8/8/8/8/K7 w / - 0 1",
+		"k7/8/8/8/8/8/8/K7 w 1234 - 0 1",
+		"k7/8/8/8/8/8/8/K7 w hehe - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KK - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w kqKQ - 0 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w QKkq - 0 1",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_CAFs, FEN_CAF_ERROR );
@@ -301,9 +313,12 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"4k3/8/8/8/8/8/8/4K3 w HAha -- 10 50",
 		"4k3/8/8/8/8/8/8/4K3 b HAha --- 10 50",
 		"4k3/8/8/8/8/8/8/4K3 w HAha e3e3e3e3e3 10 50",
+		"4n3/8/8/8/8/8/8/4N3 w - hehe 0 50",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_EPTSFs, FEN_EPTSF_ERROR );
+
+// *** CONTINUE REVIEW FROM THIS POINT ***
 
 // Test 10 fails
 #test C_che_fen_validator_returns_FEN_HMCF_ERROR
@@ -345,7 +360,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 // Test 12 fails
 #test C_che_fen_validator_returns_FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR
-	const char * const contradictory_kp_and_caf[] = {
+	const char *contradictory_kp_and_caf[] = {
 		"r3k2r/8/8/8/8/8/4K3/R6R w KQkq - 0 50",
 		"r6r/4k3/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"r2k3r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
@@ -358,7 +373,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 // Test 13 fails, part 1
 #test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_1
-	const char * const contradictory_rp_and_caf[] = {
+	const char *contradictory_rp_and_caf[] = {
 		// In the following FENs we see a rookless board, yet the castling
 		// availability field is something else than "-".
 		"2k5/8/8/8/8/8/8/2K5 w K - 0 65513",
@@ -385,7 +400,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 // Test 13 fails, part 2
 #test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_2
-	const char * const contradictory_rp_and_caf[] = {
+	const char *contradictory_rp_and_caf[] = {
 		"3rkr2/8/8/8/8/8/8/3RK3 b DFdf - 0 65513",
 		"5k2/8/8/8/8/8/8/4RK1R w EG - 0 65513",
 		"5k2/8/8/8/8/8/8/3R1KR1 w EG - 0 65513",
@@ -426,7 +441,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 // Test 16 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_PPF_ERROR
-	const char * const contradictory_epts_and_pp_fields[] = {
+	const char *contradictory_epts_and_pp_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
 		"rnbqkbnr/pp1ppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
 		"4k3/8/8/8/P7/8/8/4K3 b - e3 0 1",

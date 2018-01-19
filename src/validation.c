@@ -109,8 +109,7 @@ valid_sq_name( const char *sq_name )
 static bool
 x_validate_fen_test_1( const char *fen )
 {
-	if( !fen ) return false;
-	return strlen( fen ) >= FEN_MIN_LENGTH && strlen( fen ) <= FEN_MAX_LENGTH;
+	return fen && ( strlen( fen ) >= FEN_MIN_LENGTH && strlen( fen ) <= FEN_MAX_LENGTH );
 }
 
 static bool
@@ -176,8 +175,7 @@ x_validate_fen_test_8( const char *fen )
 	assert( strlen( caf ) >= 1 && strlen( caf ) <= 5 );
 	if( strlen( caf ) == 5 ) return false;
 
-	return  str_matches_pattern( caf, STD_FEN_CAF_REGEX ) ||
-		x_valid_shredder_fen_caf( caf );
+	return str_matches_pattern( caf, STD_FEN_CAF_REGEX ) || x_valid_shredder_fen_caf( caf );
 }
 
 static bool
@@ -290,8 +288,7 @@ x_validate_fen_test_16( const Pos *p )
 	const char *epts = epts_from_pos_var( p );
 	char sq_of_double_advanced_pawn[ 3 ] = { 0 };
 
-	if( !strcmp( "-", epts ) )
-		return true;
+	if( !strcmp( "-", epts ) ) return true;
 
 	sq_of_double_advanced_pawn[ 0 ] = *epts;
 	sq_of_double_advanced_pawn[ 1 ] = whites_turn( p ) ? '5' : '4';
