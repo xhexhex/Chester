@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// The possible return values of the function che_fen_validator()
+// The possible return values of che_fen_validator()
 enum che_fen_error {
 	FEN_NO_ERRORS,
 	FEN_LENGTH_ERROR,

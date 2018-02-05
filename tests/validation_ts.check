@@ -318,8 +318,6 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( fens_with_invalid_EPTSFs, FEN_EPTSF_ERROR );
 
-// *** CONTINUE REVIEW FROM THIS POINT ***
-
 // Test 10 fails
 #test C_che_fen_validator_returns_FEN_HMCF_ERROR
 	const char *fens_with_invalid_HMCFs[] = {
@@ -366,10 +364,15 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"r2k3r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
 		"4k3/8/8/8/8/8/8/KR6 w B - 0 50",
 		"2r4k/8/8/8/8/8/8/4K3 b c - 0 50",
+		"rkr5/8/8/8/8/8/1K6/R1R5 b CAca - 10 123",
+		"1rkr4/8/8/8/8/8/8/RKR5 w CAca - 10 123",
+		"7k/8/8/8/8/8/8/KR6 w B - 10 123",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_kp_and_caf,
 		FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR );
+
+// *** CONTINUE REVIEW FROM THIS POINT ***
 
 // Test 13 fails, part 1
 #test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_1
