@@ -372,10 +372,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( contradictory_kp_and_caf,
 		FEN_KING_PLACEMENT_CONTRADICTS_CAF_ERROR );
 
-// *** CONTINUE REVIEW FROM THIS POINT ***
-
-// Test 13 fails, part 1
-#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_1
+// Test 13 fails (1)
+#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_batch_1
 	const char *contradictory_rp_and_caf[] = {
 		// In the following FENs we see a rookless board, yet the castling
 		// availability field is something else than "-".
@@ -394,15 +392,13 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"2k5/8/8/8/8/8/8/2K5 w KQq - 0 65513",
 		"2k5/8/8/8/8/8/8/2K5 w KQk - 0 65513",
 		"2k5/8/8/8/8/8/8/2K5 w KQkq - 0 65513",
-		// Other tests
-		"5kr1/8/8/8/8/8/8/5KR1 w Ee - 10 65513",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
 		FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR );
 
-// Test 13 fails, part 2
-#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_part_2
+// Test 13 fails (2)
+#test C_che_fen_validator_returns_FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR_batch_2
 	const char *contradictory_rp_and_caf[] = {
 		"3rkr2/8/8/8/8/8/8/3RK3 b DFdf - 0 65513",
 		"5k2/8/8/8/8/8/8/4RK1R w EG - 0 65513",
@@ -411,10 +407,20 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKBR1 b AHah - 1 65513",
 		"1k6/8/8/8/8/8/8/1KR3R1 w CG - 0 65513",
 		"6k1/8/8/8/8/8/8/R3R1K1 w AE - 0 65513",
+		"5kr1/8/8/8/8/8/8/5KR1 w Ee - 10 65513",
+		"br2qk1r/pp1ppbpp/2pnnp2/8/3P4/1PP2P2/P3PBPP/RBNNQRK1 b ah - 0 65513",
+		"br2qk1r/pp1ppbpp/2pnnp2/8/3P4/1PP2P2/P3PBPP/RBNNQRK1 b kq - 0 65513",
+		"nRkq1b1r/p1p1pppp/2p5/8/2nP4/2B1P3/P3BPPP/N1KQ3R b BHh - 0 65513",
+		"nRkq1b1r/p1p1pppp/2p5/8/2nP4/2B1P3/P3BPPP/N1KQ3R b Hbh - 0 65513",
+		"nRkq1b1r/p1p1pppp/2p5/8/2nP4/2B1P3/P3BPPP/N1KQ3R b AHh - 0 65513",
+		"1k6/8/8/8/8/8/8/1KR5 w A - 0 65513",
+		"4kr1r/8/8/8/8/8/8/K7 w fh - 0 65513",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
 		FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR );
+
+// *** CONTINUE REVIEW FROM THIS POINT (2018-03-27) ***
 
 // Test 14 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_HMCF_ERROR
