@@ -420,8 +420,6 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	FEN_ARRAY_FOR_LOOP( contradictory_rp_and_caf,
 		FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR );
 
-// *** CONTINUE REVIEW FROM THIS POINT (2018-03-27) ***
-
 // Test 14 fails
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_HMCF_ERROR
 	const char *contradictory_EPTSF_and_HMCF[] = {
@@ -452,10 +450,12 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #test C_che_fen_validator_returns_FEN_EPTSF_CONTRADICTS_PPF_ERROR
 	const char *contradictory_epts_and_pp_fields[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
-		"rnbqkbnr/pp1ppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+		"rnbqkbnr/pp1ppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w AHah c6 0 2",
 		"4k3/8/8/8/P7/8/8/4K3 b - e3 0 1",
 		"4k3/8/8/8/8/8/8/4K3 w - e6 0 1",
 		"4k3/8/8/4P3/4p3/8/8/4K3 w - e6 0 1",
+		"k7/8/8/8/8/P7/8/K7 b - a3 0 1",
+		"k7/8/8/P7/8/8/8/K7 b - a3 0 1",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_epts_and_pp_fields,
@@ -504,6 +504,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( invalid_number_of_kings, FEN_INVALID_NUMBER_OF_KINGS );
+
+// *** CONTINUE REVIEW FROM THIS POINT (2018-03-27) ***
 
 // Test 19 fails, part 1
 #test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_1
