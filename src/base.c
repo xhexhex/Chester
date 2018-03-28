@@ -838,8 +838,7 @@ x_set_en_passant_target_square( Pos *p, const char *epts )
 static void
 x_set_halfmove_clock( Pos *p, const char *hmc )
 {
-	unset_bits( &p->info, BM_HMC );
-	set_bits( &p->info, ( (uint64_t) atoi( hmc ) ) << 13 );
+	p->hmc = (uint64_t) atoi( hmc );
 }
 
 // Should only be called from fen_to_pos(). The argument 'fmn'
@@ -847,8 +846,7 @@ x_set_halfmove_clock( Pos *p, const char *hmc )
 static void
 x_set_fullmove_number( Pos *p, const char *fmn )
 {
-	unset_bits( &p->info, BM_FMN );
-	set_bits( &p->info, ( (uint64_t) atoi( fmn ) ) << 25 );
+	p->fmn = (uint64_t) atoi( fmn );
 }
 
 static Bitboard

@@ -38,10 +38,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 	const char *valid_fens[] = {
 		"4k3/8/8/8/7P/8/8/4K3 b - h3 0 1",
 		"4k3/8/8/8/8/8/8/4K3 w - - 0 1",
-		"4k3/8/8/8/8/8/8/4K3 w - - 1 1",
-		"4k3/8/8/8/8/8/8/4K3 w - - 1234 1",
-		"4k3/8/8/8/8/8/8/4K3 w - - 15 1",
-		"4k3/8/8/8/8/8/8/4K3 w - - 4000 1",
+		"4k3/8/8/8/8/8/8/4K3 w - - 1 2",
+		"4k3/8/8/8/8/8/8/4K3 w - - 1234 650",
+		"4k3/8/8/8/8/8/8/4K3 w - - 14 8",
+		"4k3/8/8/8/8/8/8/4K3 w - - 4000 2001",
 		"4k3/8/8/8/8/8/8/4QK2 b - - 0 1",
 		"4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50",
 		"4k3/8/8/8/P7/8/8/4K3 b - a3 0 1",
@@ -107,10 +107,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w AHah - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w HAha - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3333 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 4095 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 789 1",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 9 1",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3333 1668",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 4095 2050",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 789 396",
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 9 19",
 		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w "
 			"KQkq - 65535 65535",
 		"rk6/8/8/8/8/8/8/RNKR4 w AD - 15 60",
@@ -462,7 +462,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		FEN_EPTSF_CONTRADICTS_PPF_ERROR );
 
 // Test 17 fails
-#test C_che_fen_validator_returns_FEN_PAWN_ON_INVALID_RANK
+#test C_che_fen_validator_returns_FEN_PAWN_ON_INVALID_RANK_ERROR
 	const char *pawn_on_invalid_rank[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBPKBNR w KQkq - 0 1",
 		"rnbqkbnr/pppppppp/8/8/8/8/RNBQKBNR/PPPPPPPP w kq - 0 1",
@@ -486,10 +486,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/8/8/8/8/pppppppp w - - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( pawn_on_invalid_rank, FEN_PAWN_ON_INVALID_RANK );
+	FEN_ARRAY_FOR_LOOP( pawn_on_invalid_rank, FEN_PAWN_ON_INVALID_RANK_ERROR );
 
 // Test 18 fails
-#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_KINGS
+#test C_che_fen_validator_returns_FEN_INVALID_NUMBER_OF_KINGS_ERROR
 	const char *invalid_number_of_kings[] = {
 		"b7/8/8/8/8/8/8/B7 w - - 0 1",
 		"rnbqqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQQBNR w - - 0 1",
@@ -503,10 +503,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkkkkk/kkkkKkkk w - - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( invalid_number_of_kings, FEN_INVALID_NUMBER_OF_KINGS );
+	FEN_ARRAY_FOR_LOOP( invalid_number_of_kings, FEN_INVALID_NUMBER_OF_KINGS_ERROR );
 
 // Test 19 fails (1)
-#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_batch_1
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_ERROR_batch_1
 	const char *king_can_be_captured[] = {
 		// Cornered white king attacked by single black knight
 		"8/8/8/8/8/kn6/8/K7 b - - 0 1",
@@ -532,10 +532,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED_ERROR );
 
 // Test 19 fails (2)
-#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_batch_2
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_ERROR_batch_2
 	const char *king_can_be_captured[] = {
 		// Black king attacked by single white knight
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 1",
@@ -564,7 +564,15 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbQkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1",
 		NULL };
 
-	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
+	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED_ERROR );
+
+// Test 20 fails
+#test C_che_fen_validator_returns_FEN_HMCF_CONTRADICTS_FMNF_ERROR
+	const char *contradictory_HMCF_and_FMNF[] = {
+		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 1 1",
+		NULL };
+
+	FEN_ARRAY_FOR_LOOP( contradictory_HMCF_and_FMNF, FEN_HMCF_CONTRADICTS_FMNF_ERROR );
 
 #undef FEN_ARRAY_FOR_LOOP
 

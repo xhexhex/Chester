@@ -66,9 +66,9 @@
 	// Halfmove clock set to zero
 	ck_assert( !( p->info & BM_HMC ) );
 	// Fullmove number is 1
-	ck_assert( ( p->info & BM_FMN ) == 0x2000000u );
+	ck_assert( p->fmn == 1 );
 
-	ck_assert( p->info == 0x10200200001fU );
+	ck_assert( p->info == 0x10200000001fU );
 
 	free( p );
 
@@ -89,7 +89,7 @@
 	ck_assert( p->cm[ BLACK_KNIGHT ] == 0 );
 	ck_assert( p->cm[ BLACK_PAWN ] == 0 );
 
-	ck_assert( p->info == 0x1020c8000212u );
+	ck_assert( p->info == 0x102000000212u );
 
 	free( p );
 
@@ -616,11 +616,10 @@ ck_assert( fen_fmnf( fen ) == exp_fmn_i );
 	FEN_HMCF_AND_FEN_FMNF_TEST(
 		"4k3/8/8/8/8/8/8/4K3 b - - 0 65535", 0, 0xffffU )
 	FEN_HMCF_AND_FEN_FMNF_TEST(
-		"4k3/8/8/8/8/8/8/4K3 b - - 65535 1", 0xffffU, 1 )
+		"4k3/8/8/8/8/8/8/4K3 b - - 65535 32768", 0xffffU, 32768 )
 	FEN_HMCF_AND_FEN_FMNF_TEST(
 		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR "
-			"w KQkq - 1337 54321",
-		1337, 54321 )
+			"w KQkq - 1337 54321", 1337, 54321 )
 
 #undef FEN_HMCF_AND_FEN_FMNF_TEST
 

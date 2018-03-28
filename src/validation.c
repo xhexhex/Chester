@@ -30,6 +30,7 @@ static bool x_validate_fen_test_16( const Pos *p );
 static bool x_validate_fen_test_17( const Pos *p );
 static bool x_validate_fen_test_18( const Pos *p );
 static bool x_validate_fen_test_19( const Pos *p );
+static bool x_validate_fen_test_20( const Pos *p );
 static void x_remove_irrelevant_chessmen_from_rank( char *rank, bool rank_1 );
 static bool x_king_with_ca_right_on_impossible_square(
 	const char *r1, const char *r8, const char *ecaf );
@@ -72,9 +73,10 @@ che_fen_validator( const char *fen )
 	Pos *p = fen_to_pos( fen );
 
 	if( !x_validate_fen_test_16( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
-	if( !x_validate_fen_test_17( p ) ) return FEN_PAWN_ON_INVALID_RANK;
-	if( !x_validate_fen_test_18( p ) ) return FEN_INVALID_NUMBER_OF_KINGS;
-	if( !x_validate_fen_test_19( p ) ) return FEN_KING_CAN_BE_CAPTURED;
+	if( !x_validate_fen_test_17( p ) ) return FEN_PAWN_ON_INVALID_RANK_ERROR;
+	if( !x_validate_fen_test_18( p ) ) return FEN_INVALID_NUMBER_OF_KINGS_ERROR;
+	if( !x_validate_fen_test_19( p ) ) return FEN_KING_CAN_BE_CAPTURED_ERROR;
+	if( !x_validate_fen_test_20( p ) ) return FEN_HMCF_CONTRADICTS_FMNF_ERROR;
 
 	return FEN_NO_ERRORS;
 }
@@ -316,6 +318,12 @@ static bool
 x_validate_fen_test_19( const Pos *p )
 {
 	return !king_can_be_captured( p );
+}
+
+static bool
+x_validate_fen_test_20( const Pos *p )
+{
+	return p->hmc <= 2 * ( p->fmn - 1 ) + ( whites_turn( p ) ? 0 : 1 );
 }
 
 static void
