@@ -505,14 +505,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 	FEN_ARRAY_FOR_LOOP( invalid_number_of_kings, FEN_INVALID_NUMBER_OF_KINGS );
 
-// *** CONTINUE REVIEW FROM THIS POINT (2018-03-27) ***
-
-// Test 19 fails, part 1
-#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_1
+// Test 19 fails (1)
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_batch_1
 	const char *king_can_be_captured[] = {
-		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
-		"8/8/4k3/2n3n1/4K3/8/8/8 b - - 30 100",
-		"rnbqkbnr/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
 		// Cornered white king attacked by single black knight
 		"8/8/8/8/8/kn6/8/K7 b - - 0 1",
 		// Lone white king can be captured by lone black king
@@ -531,16 +526,17 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		// White king can be captured by black pawn
 		"8/8/8/8/8/8/1pk5/K7 b - - 0 1",
 		"8/8/8/8/8/8/5kp1/7K b - - 0 1",
+		// Misc.
+		"8/8/4k3/2n5/4K3/8/8/8 b - - 30 100",
+		"8/8/4k3/2n3n1/4K3/8/8/8 b - - 30 100",
+		"rnbqkbnr/pppppppp/8/8/8/3n4/PPPPPPPP/RNBQKBNR b KQkq - 0 1",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );
 
-// Test 19 fails, part 2
-#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_part_2
+// Test 19 fails (2)
+#test C_che_fen_validator_returns_FEN_KING_CAN_BE_CAPTURED_batch_2
 	const char *king_can_be_captured[] = {
-		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
-		"k6K/8/1N6/8/8/8/8/8 w - - 0 100",
-		"N6K/8/1k6/8/8/8/8/8 w - - 0 100",
 		// Black king attacked by single white knight
 		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 1",
 		// Lone black king can be captured by lone white king
@@ -561,6 +557,11 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"8/8/8/3k4/4PK2/8/8/8 w - - 0 1",
 		"8/8/8/3k4/2P2K2/8/8/8 w - - 0 1",
 		"8/3N4/8/Q1rk4/3PP3/5K2/8/3R3B w - - 0 123",
+		// Misc.
+		"8/8/8/4k3/6N1/4K3/8/8 w - - 0 100",
+		"k6K/8/1N6/8/8/8/8/8 w - - 0 100",
+		"N6K/8/1k6/8/8/8/8/8 w - - 0 100",
+		"rnbQkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNB1KBNR w KQkq - 0 1",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( king_can_be_captured, FEN_KING_CAN_BE_CAPTURED );

@@ -7,4 +7,3 @@
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`
 * Rename `str_matches_pattern()` to `str_matches_pat()` or `str_m_pat()`
 * Add 'enum che_fen_error' constant `FEN_HMCF_CONTRADICTS_FMNF_ERROR`
-* Review `che_fen_validator()`. Check tests from test 19 onward.
