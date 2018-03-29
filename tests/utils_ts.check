@@ -782,8 +782,8 @@ free_fen_fields( ff );
 		"rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "b", "KQkq", "-", "3", "7" )
 	FEN_FIELDS_WORKS( "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R w KQkq - 4 8",
 		"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "w", "KQkq", "-", "4", "8" )
-	FEN_FIELDS_WORKS( "4k3/8/8/8/8/8/8/4K3 w - - 1337 54321",
-		"4k3/8/8/8/8/8/8/4K3", "w", "-", "-", "1337", "54321" )
+	FEN_FIELDS_WORKS( "4k3/8/8/8/8/8/8/4K3 w - - 1337 23456",
+		"4k3/8/8/8/8/8/8/4K3", "w", "-", "-", "1337", "23456" )
 
 #undef FEN_FIELDS_WORKS
 

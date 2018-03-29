@@ -614,12 +614,12 @@ ck_assert( fen_fmnf( fen ) == exp_fmn_i );
 	FEN_HMCF_AND_FEN_FMNF_TEST(
 		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2", 1, 2 )
 	FEN_HMCF_AND_FEN_FMNF_TEST(
-		"4k3/8/8/8/8/8/8/4K3 b - - 0 65535", 0, 0xffffU )
+		"4k3/8/8/8/8/8/8/4K3 b - - 0 30000", 0, 30000 )
 	FEN_HMCF_AND_FEN_FMNF_TEST(
-		"4k3/8/8/8/8/8/8/4K3 b - - 65535 32768", 0xffffU, 32768 )
+		"4k3/8/8/8/8/8/8/4K3 b - - 59999 30000", 59999, 30000 )
 	FEN_HMCF_AND_FEN_FMNF_TEST(
 		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR "
-			"w KQkq - 1337 54321", 1337, 54321 )
+			"w KQkq - 59998 30000", 59998, 30000 )
 
 #undef FEN_HMCF_AND_FEN_FMNF_TEST
 

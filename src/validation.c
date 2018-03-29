@@ -323,6 +323,7 @@ x_validate_fen_test_19( const Pos *p )
 static bool
 x_validate_fen_test_20( const Pos *p )
 {
+	assert( p->fmn >= 1 && p->fmn <= 30000 );
 	return p->hmc <= 2 * ( p->fmn - 1 ) + ( whites_turn( p ) ? 0 : 1 );
 }
 

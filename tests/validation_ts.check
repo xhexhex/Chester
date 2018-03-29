@@ -112,7 +112,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 789 396",
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 9 19",
 		"rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w "
-			"KQkq - 65535 65535",
+			"KQkq - 59998 30000",
 		"rk6/8/8/8/8/8/8/RNKR4 w AD - 15 60",
 		"r1k5/8/8/8/8/8/8/RNKR4 w ADa - 15 60",
 		NULL };
@@ -570,6 +570,14 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 #test C_che_fen_validator_returns_FEN_HMCF_CONTRADICTS_FMNF_ERROR
 	const char *contradictory_HMCF_and_FMNF[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 1 1",
+		"8/8/4k3/8/4K3/8/8/8 w - - 99 50",
+		"8/8/4k3/8/4K3/8/8/8 w - - 9999 50",
+		"8/8/4k3/8/4K3/8/8/8 b - - 100 50",
+		"8/8/4k3/8/4K3/8/8/8 b - - 10000 50",
+		"8/8/4k3/8/4K3/8/8/8 w - - 59999 30000",
+		"8/8/4k3/8/4K3/8/8/8 w - - 60000 30000",
+		"8/8/4k3/8/4K3/8/8/8 b - - 60000 30000",
+		"8/8/4k3/8/4K3/8/8/8 b - - 60001 30000",
 		NULL };
 
 	FEN_ARRAY_FOR_LOOP( contradictory_HMCF_and_FMNF, FEN_HMCF_CONTRADICTS_FMNF_ERROR );
