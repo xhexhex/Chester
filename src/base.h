@@ -36,7 +36,7 @@ extern const char FEN_PIECE_LETTERS[], STD_FEN_CAF_REGEX[];
 extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
-// The cm array of Pos should be indexed with these, e.g., pos.cm[ WHITE_KING ]
+// The pp array of Pos should be indexed with these, e.g., pos.pp[ WHITE_KING ]
 typedef enum {
 	EMPTY_SQUARE,
 	WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
@@ -51,12 +51,13 @@ enum sq_dir {
 };
 
 // Chester's internal representation of a position. The Pos type contains
-// the same information as a FEN string. See the the documention for a
+// the same information as a FEN string. See the documention for a
 // comprehensive description of the Pos type.
 typedef struct {
-	Bitboard cm[ 13 ]; // Rename to ppa
+	Bitboard pp[13];
 	uint64_t info;
-	uint16_t hmc, fmn;
+	uint32_t bf;
+	uint16_t hmc, fmn; // num[2] or nf[2]
 } Pos;
 
 // Used for inspecting and manipulating the data in the 'info' member
@@ -122,8 +123,8 @@ bool black_has_h_side_castling_right( const Pos *p );
 uint64_t value_BM_C960IRPF( const Pos *p );
 void set_BM_C960IRPF( uint64_t *info, uint8_t irpf );
 bool chess960_start_pos( const Pos *p );
-void cma_to_eppf( const Bitboard *cm, char *eppf );
-void eppf_to_cma( const char *eppf, Bitboard *cm );
+void ppa_to_eppf( const Bitboard *pp, char *eppf );
+void eppf_to_ppa( const char *eppf, Bitboard *pp );
 uint16_t fen_hmcf( const char *fen );
 uint16_t fen_fmnf( const char *fen );
 

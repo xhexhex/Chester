@@ -39,19 +39,19 @@
 #test C_fen_to_pos_with_std_start_pos_fen
 	Pos *p = fen_to_pos( STD_START_POS_FEN );
 
-	ck_assert( p->cm[ EMPTY_SQUARE ] == 0xffffffff0000u );
-	ck_assert( p->cm[ WHITE_KING ] == 0x10u );
-	ck_assert( p->cm[ WHITE_QUEEN ] == 0x8u );
-	ck_assert( p->cm[ WHITE_ROOK ] == 0x81u );
-	ck_assert( p->cm[ WHITE_BISHOP ] == 0x24u );
-	ck_assert( p->cm[ WHITE_KNIGHT ] == 0x42u );
-	ck_assert( p->cm[ WHITE_PAWN ] == 0xff00u );
-	ck_assert( p->cm[ BLACK_KING ] == 0x1000000000000000u );
-	ck_assert( p->cm[ BLACK_QUEEN ] == 0x800000000000000u );
-	ck_assert( p->cm[ BLACK_ROOK ] == 0x8100000000000000u );
-	ck_assert( p->cm[ BLACK_BISHOP ] == 0x2400000000000000u );
-	ck_assert( p->cm[ BLACK_KNIGHT ] == 0x4200000000000000u );
-	ck_assert( p->cm[ BLACK_PAWN ] == 0xff000000000000u );
+	ck_assert( p->pp[ EMPTY_SQUARE ] == 0xffffffff0000u );
+	ck_assert( p->pp[ WHITE_KING ] == 0x10u );
+	ck_assert( p->pp[ WHITE_QUEEN ] == 0x8u );
+	ck_assert( p->pp[ WHITE_ROOK ] == 0x81u );
+	ck_assert( p->pp[ WHITE_BISHOP ] == 0x24u );
+	ck_assert( p->pp[ WHITE_KNIGHT ] == 0x42u );
+	ck_assert( p->pp[ WHITE_PAWN ] == 0xff00u );
+	ck_assert( p->pp[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->pp[ BLACK_QUEEN ] == 0x800000000000000u );
+	ck_assert( p->pp[ BLACK_ROOK ] == 0x8100000000000000u );
+	ck_assert( p->pp[ BLACK_BISHOP ] == 0x2400000000000000u );
+	ck_assert( p->pp[ BLACK_KNIGHT ] == 0x4200000000000000u );
+	ck_assert( p->pp[ BLACK_PAWN ] == 0xff000000000000u );
 
 	// Should be White's turn
 	ck_assert( whites_turn( p ) );
@@ -75,19 +75,19 @@
 #test C_fen_to_pos_manually_computed_test_1
 	Pos *p = fen_to_pos( "r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100" );
 
-	ck_assert( p->cm[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
-	ck_assert( p->cm[ WHITE_KING ] == 0x10u );
-	ck_assert( p->cm[ WHITE_QUEEN ] == 0 );
-	ck_assert( p->cm[ WHITE_ROOK ] == 0x80u );
-	ck_assert( p->cm[ WHITE_BISHOP ] == 0 );
-	ck_assert( p->cm[ WHITE_KNIGHT ] == 0 );
-	ck_assert( p->cm[ WHITE_PAWN ] == 0x10000000u );
-	ck_assert( p->cm[ BLACK_KING ] == 0x1000000000000000u );
-	ck_assert( p->cm[ BLACK_QUEEN ] == 0 );
-	ck_assert( p->cm[ BLACK_ROOK ] == 0x100000000000000u );
-	ck_assert( p->cm[ BLACK_BISHOP ] == 0 );
-	ck_assert( p->cm[ BLACK_KNIGHT ] == 0 );
-	ck_assert( p->cm[ BLACK_PAWN ] == 0 );
+	ck_assert( p->pp[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
+	ck_assert( p->pp[ WHITE_KING ] == 0x10u );
+	ck_assert( p->pp[ WHITE_QUEEN ] == 0 );
+	ck_assert( p->pp[ WHITE_ROOK ] == 0x80u );
+	ck_assert( p->pp[ WHITE_BISHOP ] == 0 );
+	ck_assert( p->pp[ WHITE_KNIGHT ] == 0 );
+	ck_assert( p->pp[ WHITE_PAWN ] == 0x10000000u );
+	ck_assert( p->pp[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->pp[ BLACK_QUEEN ] == 0 );
+	ck_assert( p->pp[ BLACK_ROOK ] == 0x100000000000000u );
+	ck_assert( p->pp[ BLACK_BISHOP ] == 0 );
+	ck_assert( p->pp[ BLACK_KNIGHT ] == 0 );
+	ck_assert( p->pp[ BLACK_PAWN ] == 0 );
 
 	ck_assert( p->info == 0x102000000212u );
 
@@ -212,7 +212,7 @@ free( (Pos *) p );
 
 #define NULL_CONTENT_POS_VAR \
 Pos p; \
-for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.cm[ i ] = 0u; \
+for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.pp[ i ] = 0u; \
 p.info = 0u;
 
 #define ASSIGN_AND_ASSERT( sq_name_constant ) \
@@ -221,19 +221,19 @@ ck_assert( sq_name && !strcmp( sq_name_constant, sq_name ) );
 
 #define SEE_SAW_PATTERN_POS_VAR \
 Pos see_saw; \
-see_saw.cm[ EMPTY_SQUARE ] = 0x8000008000008000u; \
-see_saw.cm[ WHITE_KING ] = 0x4000014000014000u; \
-see_saw.cm[ WHITE_QUEEN ] = 0x2000022000022000u; \
-see_saw.cm[ WHITE_ROOK ] = 0x1000041000041000u; \
-see_saw.cm[ WHITE_BISHOP ] = 0x800080800080800u; \
-see_saw.cm[ WHITE_KNIGHT ] = 0x400100400100400u; \
-see_saw.cm[ WHITE_PAWN ] = 0x200200200200200u; \
-see_saw.cm[ BLACK_KING ] = 0x100400100400100u; \
-see_saw.cm[ BLACK_QUEEN ] = 0x80800080800080u; \
-see_saw.cm[ BLACK_ROOK ] = 0x41000041000041u; \
-see_saw.cm[ BLACK_BISHOP ] = 0x22000022000022u; \
-see_saw.cm[ BLACK_KNIGHT ] = 0x14000014000014u; \
-see_saw.cm[ BLACK_PAWN ] = 0x8000008000008u; \
+see_saw.pp[ EMPTY_SQUARE ] = 0x8000008000008000u; \
+see_saw.pp[ WHITE_KING ] = 0x4000014000014000u; \
+see_saw.pp[ WHITE_QUEEN ] = 0x2000022000022000u; \
+see_saw.pp[ WHITE_ROOK ] = 0x1000041000041000u; \
+see_saw.pp[ WHITE_BISHOP ] = 0x800080800080800u; \
+see_saw.pp[ WHITE_KNIGHT ] = 0x400100400100400u; \
+see_saw.pp[ WHITE_PAWN ] = 0x200200200200200u; \
+see_saw.pp[ BLACK_KING ] = 0x100400100400100u; \
+see_saw.pp[ BLACK_QUEEN ] = 0x80800080800080u; \
+see_saw.pp[ BLACK_ROOK ] = 0x41000041000041u; \
+see_saw.pp[ BLACK_BISHOP ] = 0x22000022000022u; \
+see_saw.pp[ BLACK_KNIGHT ] = 0x14000014000014u; \
+see_saw.pp[ BLACK_PAWN ] = 0x8000008000008u; \
 see_saw.info = 0u;
 
 #test C_pos_var_sq_integrity_check_returns_NULL
@@ -256,22 +256,22 @@ see_saw.info = 0u;
 
 #test C_pos_var_sq_integrity_check_returns_b1
 	NULL_CONTENT_POS_VAR
-	p.cm[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
-	p.cm[ WHITE_KING ] = 2u;
+	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.pp[ WHITE_KING ] = 2u;
 	ASSIGN_AND_ASSERT( "b1" );
 
 #test C_pos_var_sq_integrity_check_returns_e4
 	NULL_CONTENT_POS_VAR
-	p.cm[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
-	p.cm[ WHITE_KING ] = 0x10000000U;
-	p.cm[ BLACK_KING ] = 0x10000000U;
+	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.pp[ WHITE_KING ] = 0x10000000U;
+	p.pp[ BLACK_KING ] = 0x10000000U;
 	ASSIGN_AND_ASSERT( "e4" );
 
 #test C_pos_var_sq_integrity_check_returns_h8
 	NULL_CONTENT_POS_VAR
-	p.cm[ EMPTY_SQUARE ] = 0xffffffffffffffefU;
-	p.cm[ BLACK_KING ] = SB.h8;
-	p.cm[ WHITE_KING ] = SB.e1;
+	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffefU;
+	p.pp[ BLACK_KING ] = SB.h8;
+	p.pp[ WHITE_KING ] = SB.e1;
 	ASSIGN_AND_ASSERT( "h8" )
 
 #tcase sq_set_of_file_tests
@@ -502,24 +502,24 @@ while( true ) {
 //
 // Test case
 //
-#tcase cma_to_eppf_tests
+#tcase ppa_to_eppf_tests
 
 #define CMA_TO_EPPF_TEST( empty, wking, wqueen, wrook, wbishop, wknight, wpawn, \
 	bking, bqueen, brook, bbishop, bknight, bpawn, expected_eppf ) \
-Bitboard cm[ 13 ]; Bitboard *p = cm; char eppf[ PPF_MAX_LENGTH + 1 ]; \
+Bitboard pp[ 13 ]; Bitboard *p = pp; char eppf[ PPF_MAX_LENGTH + 1 ]; \
 *p++ = empty; *p++ = wking; *p++ = wqueen; *p++ = wrook; *p++ = wbishop; \
 *p++ = wknight; *p++ = wpawn; *p++ = bking; *p++ = bqueen; *p++ = brook; \
 *p++ = bbishop; *p++ = bknight; *p++ = bpawn; \
-cma_to_eppf( cm, eppf ); \
+ppa_to_eppf( pp, eppf ); \
 ck_assert( !strcmp( eppf, expected_eppf ) );
 
-#test C_cma_to_eppf_tested_with_std_start_pos_pp
+#test C_ppa_to_eppf_tested_with_std_start_pos_pp
 	CMA_TO_EPPF_TEST( 0xffffffff0000U, 0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U,
 		0x1000000000000000U, 0x800000000000000U, 0x8100000000000000U,
 		0x2400000000000000U, 0x4200000000000000U, 0xff000000000000U,
 		"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR" )
 
-#test C_cma_to_eppf_tested_with_personally_significant_pp
+#test C_ppa_to_eppf_tested_with_personally_significant_pp
 	CMA_TO_EPPF_TEST( 0xbf6a3feeddfdd97bU, 0x4U, 0x400000000000U, 0x1000000080U, 0, 0,
 		0x800000022600U, 0x4000000000000000U, 0x4000000000000U, 0x1000000000000U,
 		0x10000000000000U, 0x80000000000000U, 0x122000000U,
@@ -530,28 +530,28 @@ ck_assert( !strcmp( eppf, expected_eppf ) );
 //
 // Test case
 //
-#tcase eppf_to_cma_tests
+#tcase eppf_to_ppa_tests
 
 #define EPPF_TO_CMA_TEST( input_eppf, empty, wking, wqueen, wrook, wbishop, \
 	wknight, wpawn, bking, bqueen, brook, bbishop, bknight, bpawn ) \
-Bitboard cm[ 13 ]; \
-eppf_to_cma( input_eppf, cm ); \
-ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
-	cm[ WHITE_QUEEN ] == wqueen && cm[ WHITE_ROOK ] == wrook && \
-	cm[ WHITE_BISHOP ] == wbishop && cm[ WHITE_KNIGHT ] == wknight && \
-	cm[ WHITE_PAWN ] == wpawn && cm[ BLACK_KING ] == bking && \
-	cm[ BLACK_QUEEN ] == bqueen && cm[ BLACK_ROOK ] == brook && \
-	cm[ BLACK_BISHOP ] == bbishop && cm[ BLACK_KNIGHT ] == bknight && \
-	cm[ BLACK_PAWN ] == bpawn );
+Bitboard pp[ 13 ]; \
+eppf_to_ppa( input_eppf, pp ); \
+ck_assert( pp[ EMPTY_SQUARE ] == empty && pp[ WHITE_KING ] == wking && \
+	pp[ WHITE_QUEEN ] == wqueen && pp[ WHITE_ROOK ] == wrook && \
+	pp[ WHITE_BISHOP ] == wbishop && pp[ WHITE_KNIGHT ] == wknight && \
+	pp[ WHITE_PAWN ] == wpawn && pp[ BLACK_KING ] == bking && \
+	pp[ BLACK_QUEEN ] == bqueen && pp[ BLACK_ROOK ] == brook && \
+	pp[ BLACK_BISHOP ] == bbishop && pp[ BLACK_KNIGHT ] == bknight && \
+	pp[ BLACK_PAWN ] == bpawn );
 
-#test C_eppf_to_cma_tested_with_std_start_pos_pp
+#test C_eppf_to_ppa_tested_with_std_start_pos_pp
 	EPPF_TO_CMA_TEST(
 		"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
 		0xffffffff0000U, 0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U, 0x1000000000000000U,
 		0x800000000000000U, 0x8100000000000000U, 0x2400000000000000U,
 		0x4200000000000000U, 0xff000000000000U )
 
-#test C_eppf_to_cma_tested_with_personally_significant_pp
+#test C_eppf_to_ppa_tested_with_personally_significant_pp
 	EPPF_TO_CMA_TEST(
 		"------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
 		0xbf6a3feeddfdd97bU, 0x4U, 0x400000000000U, 0x1000000080U, 0, 0,
@@ -563,7 +563,7 @@ ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
 //
 // Test case
 //
-#tcase cma_to_eppf_and_eppf_to_cma_inverse_fn_tests
+#tcase ppa_to_eppf_and_eppf_to_ppa_inverse_fn_tests
 
 #define GAME_OF_THE_CENTURY_EPPF \
 "r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R"
@@ -572,24 +572,24 @@ ck_assert( cm[ EMPTY_SQUARE ] == empty && cm[ WHITE_KING ] == wking && \
 0x404000000U, 0x200000U, 0x800e100U, 0x4000000000000000U, 0x20000000000U, \
 0x1100000000000000U, 0x40000040000000U, 0x40000U, 0xa3440000000000U }
 
-#test C_inner_fn_cma_to_eppf_outer_fn_eppf_to_cma
-	const Bitboard century_cma[] = GAME_OF_THE_CENTURY_CMA;
+#test C_inner_fn_ppa_to_eppf_outer_fn_eppf_to_ppa
+	const Bitboard century_ppa[] = GAME_OF_THE_CENTURY_CMA;
 	char writable_eppf[ PPF_MAX_LENGTH + 1 ];
-	Bitboard writable_cma[ 13 ];
+	Bitboard writable_ppa[ 13 ];
 
-	cma_to_eppf( century_cma, writable_eppf );
-	eppf_to_cma( writable_eppf, writable_cma );
+	ppa_to_eppf( century_ppa, writable_eppf );
+	eppf_to_ppa( writable_eppf, writable_ppa );
 
 	for( int i = 0; i < 13; i++ )
-		ck_assert( century_cma[ i ] == writable_cma[ i ] );
+		ck_assert( century_ppa[ i ] == writable_ppa[ i ] );
 
-#test C_inner_fn_eppf_to_cma_outer_fn_cma_to_eppf
+#test C_inner_fn_eppf_to_ppa_outer_fn_ppa_to_eppf
 	const char century_eppf[] = GAME_OF_THE_CENTURY_EPPF;
 	char writable_eppf[ PPF_MAX_LENGTH + 1 ];
-	Bitboard writable_cma[ 13 ];
+	Bitboard writable_ppa[ 13 ];
 
-	eppf_to_cma( century_eppf, writable_cma );
-	cma_to_eppf( writable_cma, writable_eppf );
+	eppf_to_ppa( century_eppf, writable_ppa );
+	ppa_to_eppf( writable_ppa, writable_eppf );
 
 	ck_assert( !strcmp( GAME_OF_THE_CENTURY_EPPF, writable_eppf ) );
 

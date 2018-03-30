@@ -346,7 +346,7 @@ const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
 static void x_gen_slashless_constant_length_pp_str(
 	const char *fen_str, char * const target_array );
 static void x_init_empty_square_bb( Pos *p );
-static void x_init_pos_var_cm_array(
+static void x_init_pos_var_pp_array(
 	Pos *p, const char *slashless_constant_length_pp_str );
 static void x_set_active_color( Pos *p, char color );
 static void x_set_castling_availability( Pos *p, const char *ca );
@@ -359,6 +359,7 @@ static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
 	const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
+void x_init_ppa( Pos *p, const char *ppf );
 
 /*********************************
  **** Static global variables ****
@@ -379,10 +380,15 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 {
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
 	assert( p );
+	
+	char **ff = fen_fields( fen ); // Remember free_fen_fields()
+	
 	char writable_array_of_65_bytes[ 64 + 1 ];
 
 	x_gen_slashless_constant_length_pp_str( fen, writable_array_of_65_bytes );
-	x_init_pos_var_cm_array( p, writable_array_of_65_bytes );
+	x_init_pos_var_pp_array( p, writable_array_of_65_bytes );
+	
+	x_init_ppa( p, ff[0] );
 
 	char ac = ( !strcmp(
 		"w", nth_field_of_fen_str( fen, x_writable_mem, 2 )
@@ -400,9 +406,11 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 
 	const char *fmn = nth_field_of_fen_str( fen, x_writable_mem, 6 );
 	x_set_fullmove_number( p, fmn );
+	
+	free_fen_fields( ff );
 
 	if( chess960_start_pos( p ) )
-		set_BM_C960IRPF( &p->info, p->cm[ WHITE_ROOK ] );
+		set_BM_C960IRPF( &p->info, p->pp[ WHITE_ROOK ] );
 	else
 		set_BM_C960IRPF( &p->info, 129 );
 
@@ -424,22 +432,22 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 const char *
 pos_to_fen( /* const Pos *p */ )
 {
-	// 1. Create expanded PPF from p->cm[] --> x_create_expanded_ppf()
-	// void cma_to_eppf( const Bitboard *cm, char *eppf );
-	// void eppf_to_cma( const char *eppf, Bitboard *cm );
+	// 1. Create expanded PPF from p->pp[] --> x_create_expanded_ppf()
+	// void ppa_to_eppf( const Bitboard *pp, char *eppf );
+	// void eppf_to_ppa( const char *eppf, Bitboard *pp );
 	// char eppf[ PPF_MAX_LENGTH + 1 ];
-	// x_create_expanded_ppf( p->cm, eppf );
+	// x_create_expanded_ppf( p->pp, eppf );
 	// 2. Use compress_eppf()
 
 	return NULL;
 }
 
-// In the cm array of a Pos var, exactly one bit should be set per
+// In the pp array of a Pos var, exactly one bit should be set per
 // bit index. In logical terms this means that each square is either
 // empty or contains one of the twelve types of chessmen; a square cannot
 // be empty AND be occupied by a chessman, nor can it be occupied by more
 // than one type of chessman. The following function checks that exactly
-// one bit is set for each bit index of the cm array.
+// one bit is set for each bit index of the pp array.
 const char *
 pos_var_sq_integrity_check( const Pos *p )
 {
@@ -447,7 +455,7 @@ pos_var_sq_integrity_check( const Pos *p )
 		int number_of_set_bits = 0;
 
 		for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
-			if( p->cm[ cm ] & SBA[ bit_index ] )
+			if( p->pp[ cm ] & SBA[ bit_index ] )
 				++number_of_set_bits;
 
 		if( number_of_set_bits != 1 )
@@ -536,9 +544,9 @@ sq_set_of_antidiag( const int index )
 Bitboard
 ss_white_army( const Pos *p )
 {
-	return p->cm[ WHITE_KING ] | p->cm[ WHITE_QUEEN ] |
-		p->cm[ WHITE_ROOK ] | p->cm[ WHITE_BISHOP ] |
-		p->cm[ WHITE_KNIGHT ] | p->cm[ WHITE_PAWN ];
+	return p->pp[ WHITE_KING ] | p->pp[ WHITE_QUEEN ] |
+		p->pp[ WHITE_ROOK ] | p->pp[ WHITE_BISHOP ] |
+		p->pp[ WHITE_KNIGHT ] | p->pp[ WHITE_PAWN ];
 }
 
 // Returns the square set of the black army. That means all the squares
@@ -546,9 +554,9 @@ ss_white_army( const Pos *p )
 Bitboard
 ss_black_army( const Pos *p )
 {
-	return p->cm[ BLACK_KING ] | p->cm[ BLACK_QUEEN ] |
-		p->cm[ BLACK_ROOK ] | p->cm[ BLACK_BISHOP ] |
-		p->cm[ BLACK_KNIGHT ] | p->cm[ BLACK_PAWN ];
+	return p->pp[ BLACK_KING ] | p->pp[ BLACK_QUEEN ] |
+		p->pp[ BLACK_ROOK ] | p->pp[ BLACK_BISHOP ] |
+		p->pp[ BLACK_KNIGHT ] | p->pp[ BLACK_PAWN ];
 }
 
 // The Square Navigator returns the square bit that is in direction 'dir'
@@ -614,15 +622,15 @@ chess960_start_pos( const Pos *p )
 {
 	return
 		p->info == 0x200001fU &&
-		p->cm[ EMPTY_SQUARE ] ==
+		p->pp[ EMPTY_SQUARE ] ==
 			( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6 ) &&
-		p->cm[ WHITE_PAWN ] == SS_RANK_2 &&
-		p->cm[ BLACK_PAWN ] == SS_RANK_7 &&
+		p->pp[ WHITE_PAWN ] == SS_RANK_2 &&
+		p->pp[ BLACK_PAWN ] == SS_RANK_7 &&
 		x_chess960_start_pos_whites_first_rank( p ) &&
 		x_chess960_start_pos_blacks_first_rank( p );
 }
 
-// Convert piece placement data from 'cm' array to expanded PPF format. 'cm' is
+// Convert piece placement data from 'pp' array to expanded PPF format. 'pp' is
 // the namesake member of the Pos struct. The following is an example of a PPF
 // in both standard ("compressed") and expanded form.
 //
@@ -632,7 +640,7 @@ chess960_start_pos( const Pos *p )
 // It is assumed that parameter 'eppf' is a writable array with a size of at least
 // PPF_MAX_LENGTH + 1 bytes.
 void
-cma_to_eppf( const Bitboard *cm, char *eppf )
+ppa_to_eppf( const Bitboard *pp, char *eppf )
 {
 	int eppf_index = -1;
 
@@ -642,19 +650,19 @@ cma_to_eppf( const Bitboard *cm, char *eppf )
 			Bitboard sq_bit = SBA[ bi ];
 			eppf_index += ( !( bi % 8 ) && bi != 56 ) ? 2 : 1;
 
-			if(      sq_bit & cm[ EMPTY_SQUARE ] ) eppf[ eppf_index ] = '-';
-			else if( sq_bit & cm[ WHITE_KING   ] ) eppf[ eppf_index ] = 'K';
-			else if( sq_bit & cm[ WHITE_QUEEN  ] ) eppf[ eppf_index ] = 'Q';
-			else if( sq_bit & cm[ WHITE_ROOK   ] ) eppf[ eppf_index ] = 'R';
-			else if( sq_bit & cm[ WHITE_BISHOP ] ) eppf[ eppf_index ] = 'B';
-			else if( sq_bit & cm[ WHITE_KNIGHT ] ) eppf[ eppf_index ] = 'N';
-			else if( sq_bit & cm[ WHITE_PAWN   ] ) eppf[ eppf_index ] = 'P';
-			else if( sq_bit & cm[ BLACK_KING   ] ) eppf[ eppf_index ] = 'k';
-			else if( sq_bit & cm[ BLACK_QUEEN  ] ) eppf[ eppf_index ] = 'q';
-			else if( sq_bit & cm[ BLACK_ROOK   ] ) eppf[ eppf_index ] = 'r';
-			else if( sq_bit & cm[ BLACK_BISHOP ] ) eppf[ eppf_index ] = 'b';
-			else if( sq_bit & cm[ BLACK_KNIGHT ] ) eppf[ eppf_index ] = 'n';
-			else if( sq_bit & cm[ BLACK_PAWN   ] ) eppf[ eppf_index ] = 'p';
+			if(      sq_bit & pp[ EMPTY_SQUARE ] ) eppf[ eppf_index ] = '-';
+			else if( sq_bit & pp[ WHITE_KING   ] ) eppf[ eppf_index ] = 'K';
+			else if( sq_bit & pp[ WHITE_QUEEN  ] ) eppf[ eppf_index ] = 'Q';
+			else if( sq_bit & pp[ WHITE_ROOK   ] ) eppf[ eppf_index ] = 'R';
+			else if( sq_bit & pp[ WHITE_BISHOP ] ) eppf[ eppf_index ] = 'B';
+			else if( sq_bit & pp[ WHITE_KNIGHT ] ) eppf[ eppf_index ] = 'N';
+			else if( sq_bit & pp[ WHITE_PAWN   ] ) eppf[ eppf_index ] = 'P';
+			else if( sq_bit & pp[ BLACK_KING   ] ) eppf[ eppf_index ] = 'k';
+			else if( sq_bit & pp[ BLACK_QUEEN  ] ) eppf[ eppf_index ] = 'q';
+			else if( sq_bit & pp[ BLACK_ROOK   ] ) eppf[ eppf_index ] = 'r';
+			else if( sq_bit & pp[ BLACK_BISHOP ] ) eppf[ eppf_index ] = 'b';
+			else if( sq_bit & pp[ BLACK_KNIGHT ] ) eppf[ eppf_index ] = 'n';
+			else if( sq_bit & pp[ BLACK_PAWN   ] ) eppf[ eppf_index ] = 'p';
 			else assert( false );
 		}
 
@@ -662,32 +670,32 @@ cma_to_eppf( const Bitboard *cm, char *eppf )
 	eppf[ PPF_MAX_LENGTH ] = '\0';
 }
 
-// The inverse of cma_to_eppf(). Keep in mind that 'eppf' is assumed to be at least
-// PPF_MAX_LENGTH + 1 bytes and that the writable Bitboard array 'cm' should have
+// The inverse of ppa_to_eppf(). Keep in mind that 'eppf' is assumed to be at least
+// PPF_MAX_LENGTH + 1 bytes and that the writable Bitboard array 'pp' should have
 // space for at least 13 elements.
 void
-eppf_to_cma( const char *eppf, Bitboard *cm )
+eppf_to_ppa( const char *eppf, Bitboard *pp )
 {
-	for( int i = 0; i < 13; i++ ) cm[ i ] = 0;
+	for( int i = 0; i < 13; i++ ) pp[ i ] = 0;
 
 	for( int i = 63, bi = 0; i >= 0; i -= 9 )
 		for( int j = 0; j <= 7; j++, bi++ ) {
 			int eppf_index = i + j;
 			Bitboard sq_bit = SBA[ bi ];
 
-			if(      eppf[ eppf_index ] == '-' ) cm[ EMPTY_SQUARE ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'K' ) cm[ WHITE_KING   ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'Q' ) cm[ WHITE_QUEEN  ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'R' ) cm[ WHITE_ROOK   ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'B' ) cm[ WHITE_BISHOP ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'N' ) cm[ WHITE_KNIGHT ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'P' ) cm[ WHITE_PAWN   ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'k' ) cm[ BLACK_KING   ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'q' ) cm[ BLACK_QUEEN  ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'r' ) cm[ BLACK_ROOK   ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'b' ) cm[ BLACK_BISHOP ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'n' ) cm[ BLACK_KNIGHT ] |= sq_bit;
-			else if( eppf[ eppf_index ] == 'p' ) cm[ BLACK_PAWN   ] |= sq_bit;
+			if(      eppf[ eppf_index ] == '-' ) pp[ EMPTY_SQUARE ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'K' ) pp[ WHITE_KING   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'Q' ) pp[ WHITE_QUEEN  ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'R' ) pp[ WHITE_ROOK   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'B' ) pp[ WHITE_BISHOP ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'N' ) pp[ WHITE_KNIGHT ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'P' ) pp[ WHITE_PAWN   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'k' ) pp[ BLACK_KING   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'q' ) pp[ BLACK_QUEEN  ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'r' ) pp[ BLACK_ROOK   ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'b' ) pp[ BLACK_BISHOP ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'n' ) pp[ BLACK_KNIGHT ] |= sq_bit;
+			else if( eppf[ eppf_index ] == 'p' ) pp[ BLACK_PAWN   ] |= sq_bit;
 			else assert( false );
 		}
 }
@@ -749,19 +757,19 @@ x_gen_slashless_constant_length_pp_str( // pp, piece placement
 	assert( str_m_pat( target_array, "^[KQRBNPkqrbnp-]{64}$" ) );
 }
 
-// Initializes the cm[] array of a Pos variable with the piece placement
+// Initializes the pp[] array of a Pos variable with the piece placement
 // specified in the second argument. For the standard starting position the
 // second argument would be
 // "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr".
 static void
-x_init_pos_var_cm_array( Pos *p, const char *slashless_constant_length_pp_str )
+x_init_pos_var_pp_array( Pos *p, const char *slashless_constant_length_pp_str )
 {
 	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		p->cm[ cm ] = 0u;
+		p->pp[ cm ] = 0u;
 
 		for( int i = 0; i < 64; i++ ) {
 			if( slashless_constant_length_pp_str[ i ] == FEN_PIECE_LETTERS[ cm ] ) {
-				p->cm[ cm ] |= SBA[ i ];
+				p->pp[ cm ] |= SBA[ i ];
 			}
 		}
 	}
@@ -769,16 +777,16 @@ x_init_pos_var_cm_array( Pos *p, const char *slashless_constant_length_pp_str )
 	x_init_empty_square_bb( p );
 }
 
-// Called from x_init_pos_var_cm_array()
+// Called from x_init_pos_var_pp_array()
 static void
 x_init_empty_square_bb( Pos *p )
 {
 	Bitboard occupied_squares = 0u;
 	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		occupied_squares |= p->cm[ cm ];
+		occupied_squares |= p->pp[ cm ];
 	}
 
-	p->cm[ EMPTY_SQUARE ] = ~occupied_squares;
+	p->pp[ EMPTY_SQUARE ] = ~occupied_squares;
 }
 
 // Used to set the active color (AC). The AC is 'w' if the BM_AC bit is set;
@@ -935,30 +943,30 @@ x_chess960_start_pos_whites_first_rank( const Pos *p )
 	const Bitboard not_rank_1 = ~SS_RANK_1;
 
 	if(
-		p->cm[ WHITE_KING ] & not_rank_1 ||
-		p->cm[ WHITE_QUEEN ] & not_rank_1 ||
-		p->cm[ WHITE_ROOK ] & not_rank_1 ||
-		p->cm[ WHITE_BISHOP ] & not_rank_1 ||
-		p->cm[ WHITE_KNIGHT ] & not_rank_1 ||
-		num_of_sqs_in_sq_set( p->cm[ WHITE_KING ] ) != 1 ||
-		num_of_sqs_in_sq_set( p->cm[ WHITE_QUEEN ] ) != 1 ||
-		num_of_sqs_in_sq_set( p->cm[ WHITE_ROOK ] ) != 2 ||
-		num_of_sqs_in_sq_set( p->cm[ WHITE_BISHOP ] ) != 2 ||
-		num_of_sqs_in_sq_set( p->cm[ WHITE_KNIGHT ] ) != 2
+		p->pp[ WHITE_KING ] & not_rank_1 ||
+		p->pp[ WHITE_QUEEN ] & not_rank_1 ||
+		p->pp[ WHITE_ROOK ] & not_rank_1 ||
+		p->pp[ WHITE_BISHOP ] & not_rank_1 ||
+		p->pp[ WHITE_KNIGHT ] & not_rank_1 ||
+		num_of_sqs_in_sq_set( p->pp[ WHITE_KING ] ) != 1 ||
+		num_of_sqs_in_sq_set( p->pp[ WHITE_QUEEN ] ) != 1 ||
+		num_of_sqs_in_sq_set( p->pp[ WHITE_ROOK ] ) != 2 ||
+		num_of_sqs_in_sq_set( p->pp[ WHITE_BISHOP ] ) != 2 ||
+		num_of_sqs_in_sq_set( p->pp[ WHITE_KNIGHT ] ) != 2
 	)
 		return false;
 
-	Bitboard western_rook = SB.a1, king = p->cm[ WHITE_KING ];
-	while( !( western_rook & p->cm[ WHITE_ROOK ] ) )
+	Bitboard western_rook = SB.a1, king = p->pp[ WHITE_KING ];
+	while( !( western_rook & p->pp[ WHITE_ROOK ] ) )
 		western_rook <<= 1;
-	Bitboard eastern_rook = ( western_rook ^ p->cm[ WHITE_ROOK ] );
+	Bitboard eastern_rook = ( western_rook ^ p->pp[ WHITE_ROOK ] );
 
 	if( !( western_rook < king ) || !( king < eastern_rook ) )
 		return false;
 
 	Bitboard black_sqs_of_rank_1 = SB.a1 | SB.c1 | SB.e1 | SB.g1,
 		white_sqs_of_rank_1 = SB.b1 | SB.d1 | SB.f1 | SB.h1,
-		bishops = p->cm[ WHITE_BISHOP ];
+		bishops = p->pp[ WHITE_BISHOP ];
 
 	return bishops & black_sqs_of_rank_1 &&
 		bishops & white_sqs_of_rank_1;
@@ -968,11 +976,11 @@ static bool
 x_chess960_start_pos_blacks_first_rank( const Pos *p )
 {
 	return
-		( p->cm[ WHITE_KING ] << 56 ) == p->cm[ BLACK_KING ] &&
-		( p->cm[ WHITE_QUEEN ] << 56 ) == p->cm[ BLACK_QUEEN ] &&
-		( p->cm[ WHITE_ROOK ] << 56 ) == p->cm[ BLACK_ROOK ] &&
-		( p->cm[ WHITE_BISHOP ] << 56 ) == p->cm[ BLACK_BISHOP ] &&
-		( p->cm[ WHITE_KNIGHT ] << 56 ) == p->cm[ BLACK_KNIGHT ];
+		( p->pp[ WHITE_KING ] << 56 ) == p->pp[ BLACK_KING ] &&
+		( p->pp[ WHITE_QUEEN ] << 56 ) == p->pp[ BLACK_QUEEN ] &&
+		( p->pp[ WHITE_ROOK ] << 56 ) == p->pp[ BLACK_ROOK ] &&
+		( p->pp[ WHITE_BISHOP ] << 56 ) == p->pp[ BLACK_BISHOP ] &&
+		( p->pp[ WHITE_KNIGHT ] << 56 ) == p->pp[ BLACK_KNIGHT ];
 }
 
 static void
@@ -997,4 +1005,10 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 	assert( l1 >= 1 && l1 <= 5 && l2 >= 1 && l2 <= 5 );
 
 	*i_hmc = atoi( s_hmc ), *i_fmn = atoi( s_fmn );
+}
+
+void
+x_init_ppa( Pos *p, const char *ppf )
+{
+	
 }

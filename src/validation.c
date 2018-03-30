@@ -304,14 +304,14 @@ static bool
 x_validate_fen_test_17( const Pos *p )
 {
 	return
-		!( p->cm[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->cm[ BLACK_PAWN ] & SS_RANK_1 ) &&
-		!( p->cm[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->cm[ BLACK_PAWN ] & SS_RANK_8 );
+		!( p->pp[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->pp[ BLACK_PAWN ] & SS_RANK_1 ) &&
+		!( p->pp[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->pp[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
 x_validate_fen_test_18( const Pos *p )
 {
-	return bb_is_sq_bit( p->cm[ WHITE_KING ] ) && bb_is_sq_bit( p->cm[ BLACK_KING ] );
+	return bb_is_sq_bit( p->pp[ WHITE_KING ] ) && bb_is_sq_bit( p->pp[ BLACK_KING ] );
 }
 
 static bool
