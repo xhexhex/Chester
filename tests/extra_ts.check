@@ -70,7 +70,7 @@ left_lesser_than_right( const char *left, const char *right )
 #test C_APM_array_regex_test
 	int i = 0;
 	while( APM[ i ] ) {
-		ck_assert( str_matches_pattern( APM[ i ],
+		ck_assert( str_m_pat( APM[ i ],
 			"^[abcdefgh][12345678][abcdefgh][12345678]$" ) );
 		++i;
 	}

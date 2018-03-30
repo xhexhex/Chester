@@ -99,7 +99,7 @@ che_fen_validator( const char *fen )
 bool
 valid_sq_name( const char *sq_name )
 {
-	return sq_name && str_matches_pattern( sq_name, "^[abcdefgh][12345678]$" );
+	return sq_name && str_m_pat( sq_name, "^[abcdefgh][12345678]$" );
 }
 
 /****************************
@@ -117,20 +117,20 @@ x_validate_fen_test_1( const char *fen )
 static bool
 x_validate_fen_test_2( const char *fen )
 {
-	return str_matches_pattern( fen, "^[KkQqRrBbNnPp/AaCcDdEeFfGgHhw 0123456789-]*$" );
+	return str_m_pat( fen, "^[KkQqRrBbNnPp/AaCcDdEeFfGgHhw 0123456789-]*$" );
 }
 
 static bool
 x_validate_fen_test_3( const char *fen )
 {
-	return str_matches_pattern( fen, "^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$" );
+	return str_m_pat( fen, "^[^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+ [^ ]+$" );
 }
 
 static bool
 x_validate_fen_test_4( const char *fen )
 {
 #define RRE "[KkQqRrBbNnPp12345678]{1,8}"
-	return str_matches_pattern( fen,
+	return str_m_pat( fen,
 		"^" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE "/" RRE " .*$" );
 #undef RRE
 }
@@ -138,7 +138,7 @@ x_validate_fen_test_4( const char *fen )
 static bool
 x_validate_fen_test_5( const char *fen )
 {
-	return !str_matches_pattern( fen, "^[^ ]*[12345678]{2,}.*$" );
+	return !str_m_pat( fen, "^[^ ]*[12345678]{2,}.*$" );
 }
 
 static bool
@@ -177,7 +177,7 @@ x_validate_fen_test_8( const char *fen )
 	assert( strlen( caf ) >= 1 && strlen( caf ) <= 5 );
 	if( strlen( caf ) == 5 ) return false;
 
-	return str_matches_pattern( caf, STD_FEN_CAF_REGEX ) || x_valid_shredder_fen_caf( caf );
+	return str_m_pat( caf, STD_FEN_CAF_REGEX ) || x_valid_shredder_fen_caf( caf );
 }
 
 static bool
@@ -205,7 +205,7 @@ static bool
 x_validate_fen_test_10( const char *fen )
 {
 	COPY_NUMERIC_FIELD( hmcf, 4 )
-	return !strcmp( hmcf, "0" ) || ( str_matches_pattern( hmcf, NUM_FIELD_REGEX ) &&
+	return !strcmp( hmcf, "0" ) || ( str_m_pat( hmcf, NUM_FIELD_REGEX ) &&
 		atoi( hmcf ) > 0 && atoi( hmcf ) <= (int) FEN_NUMERIC_FIELD_MAX );
 }
 
@@ -213,7 +213,7 @@ static bool
 x_validate_fen_test_11( const char *fen )
 {
 	COPY_NUMERIC_FIELD( fmnf, 5 )
-	return str_matches_pattern( fmnf, NUM_FIELD_REGEX ) && atoi( fmnf ) > 0 &&
+	return str_m_pat( fmnf, NUM_FIELD_REGEX ) && atoi( fmnf ) > 0 &&
 		atoi( fmnf ) <= (int) FEN_NUMERIC_FIELD_MAX;
 }
 
@@ -232,8 +232,8 @@ for( int i = 0, j = 0; j < 8; i++, j++ ) r8[ j ] = eppf[ i ]; \
 x_remove_irrelevant_chessmen_from_rank( r1, true ); \
 x_remove_irrelevant_chessmen_from_rank( r8, false ); \
 assert( strlen( r1 ) == 8 && strlen( r8 ) == 8 ); \
-assert( str_matches_pattern( r1, "^[-KR]*$" ) ); \
-assert( str_matches_pattern( r8, "^[-kr]*$" ) );
+assert( str_m_pat( r1, "^[-KR]*$" ) ); \
+assert( str_m_pat( r8, "^[-kr]*$" ) );
 
 static bool
 x_validate_fen_test_12( const char *fen )
@@ -277,8 +277,8 @@ x_validate_fen_test_15( const char *fen )
 {
 	char **ff = fen_fields( fen ), *acf = ff[ 1 ], *eptsf = ff[ 3 ];
 	bool result = !strcmp( eptsf, "-" ) ||
-		( !strcmp( acf, "w" ) && str_matches_pattern( eptsf, "^[abcdefgh]6$" ) ) ||
-		( !strcmp( acf, "b" ) && str_matches_pattern( eptsf, "^[abcdefgh]3$" ) );
+		( !strcmp( acf, "w" ) && str_m_pat( eptsf, "^[abcdefgh]6$" ) ) ||
+		( !strcmp( acf, "b" ) && str_m_pat( eptsf, "^[abcdefgh]3$" ) );
 	free_fen_fields( ff );
 
 	return result;
@@ -345,8 +345,8 @@ x_king_with_ca_right_on_impossible_square( const char *r1, const char *r8,
 		if( r1[ i ] == 'K' ) wk_on_possible_sq = true;
 		if( r8[ i ] == 'k' ) bk_on_possible_sq = true; }
 
-	return ( !wk_on_possible_sq && str_matches_pattern( ecaf, "^-?[ABCDEFGHKQ].*$" ) ) ||
-		( !bk_on_possible_sq && str_matches_pattern( ecaf, "^.*[abcdefghkq]-?$" ) );
+	return ( !wk_on_possible_sq && str_m_pat( ecaf, "^-?[ABCDEFGHKQ].*$" ) ) ||
+		( !bk_on_possible_sq && str_m_pat( ecaf, "^.*[abcdefghkq]-?$" ) );
 }
 
 static bool

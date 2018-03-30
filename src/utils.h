@@ -18,7 +18,7 @@ resolve_ambiguous_ecaf( ecaf, fen );
 
 extern bool srand_has_been_called;
 
-bool str_matches_pattern( const char *str, const char *pattern );
+bool str_m_pat( const char *str, const char *pat );
 char *nth_field_of_fen_str( const char *fen_str, char *writable_mem, int field_num );
 char *nth_rank_of_ppf( const char *ppf, char *writable_mem, int rank_num );
 void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );

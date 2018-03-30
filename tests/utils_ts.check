@@ -354,21 +354,21 @@ for( int i = START_VAL; i <= START_VAL + 7; i++ ) { \
 #test C_rank_of_sq_test_on_rank_8
 	SQ_BIT_RANK_TEST_FOR_LOOP( '8' )
 
-#tcase str_matches_pattern_tests
+#tcase str_m_pat_tests
 
-#test C_str_matches_pattern_returns_true
-	ck_assert( str_matches_pattern( "", "^$" ) );
-	ck_assert( str_matches_pattern( "abcdefghijklmnopqrstuvwxyz", "^[a-z]*$" ) );
-	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]*$" ) );
-	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]{7}$" ) );
-	ck_assert( str_matches_pattern( "John123", "^[a-zA-Z0-9]{5,}$" ) );
+#test C_str_m_pat_returns_true
+	ck_assert( str_m_pat( "", "^$" ) );
+	ck_assert( str_m_pat( "abcdefghijklmnopqrstuvwxyz", "^[a-z]*$" ) );
+	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]*$" ) );
+	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{7}$" ) );
+	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{5,}$" ) );
 
-#test C_str_matches_pattern_returns_false
-	ck_assert( !str_matches_pattern( " ", "^$" ) );
-	ck_assert( !str_matches_pattern( "John", "^[a-z]*$" ) );
-	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]$" ) );
-	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]{8}$" ) );
-	ck_assert( !str_matches_pattern( "John123", "^[a-zA-Z0-9]{,5}$" ) );
+#test C_str_m_pat_returns_false
+	ck_assert( !str_m_pat( " ", "^$" ) );
+	ck_assert( !str_m_pat( "John", "^[a-z]*$" ) );
+	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]$" ) );
+	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{8}$" ) );
+	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{,5}$" ) );
 
 #tcase uint64_to_bin_str_tests
 

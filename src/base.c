@@ -746,7 +746,7 @@ x_gen_slashless_constant_length_pp_str( // pp, piece placement
 	}
 
 	assert( strlen( target_array ) == 64 );
-	assert( str_matches_pattern( target_array, "^[KQRBNPkqrbnp-]{64}$" ) );
+	assert( str_m_pat( target_array, "^[KQRBNPkqrbnp-]{64}$" ) );
 }
 
 // Initializes the cm[] array of a Pos variable with the piece placement
@@ -806,13 +806,13 @@ x_set_castling_availability( Pos *p, const char *ca )
 	if( !strcmp( ca, "-" ) ) return;
 
 	// Setting the CA flags as needed
-	if( str_matches_pattern( ca, "^K.*$" ) )
+	if( str_m_pat( ca, "^K.*$" ) )
 		set_or_unset_bits( &p->info, BM_CA_WK, 1 );
-	if( str_matches_pattern( ca, "^.*Q.*$" ) )
+	if( str_m_pat( ca, "^.*Q.*$" ) )
 		set_or_unset_bits( &p->info, BM_CA_WQ, 1 );
-	if( str_matches_pattern( ca, "^.*k.*$" ) )
+	if( str_m_pat( ca, "^.*k.*$" ) )
 		set_or_unset_bits( &p->info, BM_CA_BK, 1 );
-	if( str_matches_pattern( ca, "^.*q$" ) )
+	if( str_m_pat( ca, "^.*q$" ) )
 		set_or_unset_bits( &p->info, BM_CA_BQ, 1 );
 }
 

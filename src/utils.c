@@ -48,32 +48,29 @@ bool srand_has_been_called = false;
  **** External functions ****
  ****************************/
 
-// Returns true if 'str' matches the extended regular expression 'pattern'
+// str_m_pat as in "string matches pattern". Returns true if 'str' matches the
+// extended regular expression 'pat'.
 bool
-str_matches_pattern( const char *str, const char *pattern )
+str_m_pat( const char *str, const char *pat )
 {
 	regex_t regex;
-	int ret_val;
 
-	// Compile regular expression
-	ret_val = regcomp( &regex, pattern, REG_EXTENDED );
-	assert( !ret_val ); // Something went wrong in compiling regex
+	// Compile the regular expression
+	int result = regcomp( &regex, pat, REG_EXTENDED );
+	assert( !result ); // Something went wrong in compiling regex
 
-	// Testing if str matches the regular expression in regex.
+	// Testing if 'str' matches the regular expression in regex.
 	// Note this: "You must match the regular expression with the same
 	// set of current locales that were in effect when you compiled the
 	// regular expression."
 	// https://www.gnu.org/software/libc/manual/html_node/Matching-POSIX-Regexps.html
-	ret_val = regexec( &regex, str, 0, NULL, 0 );
+	result = regexec( &regex, str, 0, NULL, 0 );
 
-	if( ! ret_val ) { // str matched the regex
-		return true;
-	}
 	// Making sure regexec() didn't run into problems
-	assert( ret_val == REG_NOMATCH );
+	assert( !result || result == REG_NOMATCH );
 
-	return false;
-}
+	return !result;
+} // Review: 2018-03-30
 
 // A FEN string such as "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 // consists of six fields. The following function returns the nth field of a FEN.
@@ -84,7 +81,6 @@ nth_field_of_fen_str( const char *fen_str, char *writable_mem_ptr, int field_num
 {
 	assert( field_num > 0 && field_num < 7 );
 
-// Avoiding copy & paste code
 #define STRCPY_AND_STRTOK( str_with_fields, field_sep ) \
 	strcpy( writable_mem_ptr, str_with_fields ); \
 	char *field = strtok( writable_mem_ptr, field_sep ); \
@@ -167,7 +163,7 @@ compress_eppf_rank( const char *eppf_rank, char *compressed_rank )
 	compressed_rank[ cri ] = '\0';
 
 	assert( strlen( compressed_rank ) >= 1 && strlen( compressed_rank ) <= 8 );
-	assert( str_matches_pattern( compressed_rank, "^[KQRBNPkqrbnp12345678]*$" ) );
+	assert( str_m_pat( compressed_rank, "^[KQRBNPkqrbnp12345678]*$" ) );
 }
 
 // Sets or unsets the bits in 'bits' specified by 'BITMASK'. The bits are
@@ -210,7 +206,7 @@ occupant_of_sq( const Pos *p, const char *sq_name )
 Bitboard
 sq_name_to_sq_bit( const char *sq_name )
 {
-	assert( str_matches_pattern( sq_name, "^[abcdefgh][12345678]$" ) );
+	assert( str_m_pat( sq_name, "^[abcdefgh][12345678]$" ) );
 	int sq_bit_array_index = sq_name[ 0 ] - 'a' + ( sq_name[ 1 ] - '1' ) * 8;
 	assert( sq_bit_array_index >= 0 && sq_bit_array_index <= 63 );
 	return SBA[ sq_bit_array_index ];
@@ -696,7 +692,7 @@ resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 		} else ecaf_modified = false;
 	}
 
-	assert( !ecaf_modified || str_matches_pattern( ecaf, "^[-ABCDEFGHabcdefgh]{4}$" ) );
+	assert( !ecaf_modified || str_m_pat( ecaf, "^[-ABCDEFGHabcdefgh]{4}$" ) );
 }
 
 /****************************
