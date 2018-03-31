@@ -343,11 +343,6 @@ const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
  **** Static function prototypes ****
  ************************************/
 
-static void x_gen_slashless_constant_length_pp_str(
-	const char *fen_str, char * const target_array );
-static void x_init_empty_square_bb( Pos *p );
-static void x_init_pos_var_pp_array(
-	Pos *p, const char *slashless_constant_length_pp_str );
 static void x_set_active_color( Pos *p, char color );
 static void x_set_castling_availability( Pos *p, const char *ca );
 static void x_set_en_passant_target_square( Pos *p, const char *epts );
@@ -380,14 +375,8 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 {
 	Pos *p = (Pos *) malloc( sizeof( Pos ) );
 	assert( p );
-	
-	char **ff = fen_fields( fen ); // Remember free_fen_fields()
-	
-	char writable_array_of_65_bytes[ 64 + 1 ];
+	char **ff = fen_fields( fen );
 
-	x_gen_slashless_constant_length_pp_str( fen, writable_array_of_65_bytes );
-	x_init_pos_var_pp_array( p, writable_array_of_65_bytes );
-	
 	x_init_ppa( p, ff[0] );
 
 	char ac = ( !strcmp(
@@ -415,14 +404,6 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 		set_BM_C960IRPF( &p->info, 129 );
 
 	unset_bits( &p->info, BM_UNUSED_INFO_BITS );
-
-	/*
-	// TODO: Move into an integrity check function
-	uint64_t irpf = value_BM_C960IRPF( p );
-	assert( num_of_sqs_in_sq_set( irpf ) == 2 &&
-		irpf != 3 && irpf != 6 && irpf != 12 && irpf != 24 &&
-		irpf != 48 && irpf != 96 && irpf != 192 );
-	*/
 
 	assert( !pos_var_sq_integrity_check( p ) );
 	return p;
@@ -726,69 +707,6 @@ fen_fmnf( const char *fen )
  ****                    ****
  ****************************/
 
-// If the first argument is the FEN for the standard starting position,
-// then (after the function call completes), target_array will contain the
-// string "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr".
-static void
-x_gen_slashless_constant_length_pp_str( // pp, piece placement
-	const char *fen_str, char * const target_array )
-{
-	char ppf[ PPF_MAX_LENGTH + 1 ];
-	strcpy( ppf, nth_field_of_fen_str( fen_str, x_writable_mem, 1 ) );
-
-	char *moving_ptr = target_array;
-	for( int rank = 1; rank <= 8; rank++ ) {
-		// Making sure an "array out of bounds" type of error doesn't occur
-		assert( moving_ptr - target_array <= 56 );
-
-		// This will copy eight non-null chars (plus a null char) somewhere
-		// into target_array. The eight non-null chars are a rank from
-		// the PPF with digits replaced by a corresponding number of dashes.
-		expand_ppf_rank(
-			nth_rank_of_ppf( ppf, x_writable_mem, rank ),
-			moving_ptr );
-
-		moving_ptr += 8;
-
-		assert( !*moving_ptr ); // moving_ptr points to a null character
-	}
-
-	assert( strlen( target_array ) == 64 );
-	assert( str_m_pat( target_array, "^[KQRBNPkqrbnp-]{64}$" ) );
-}
-
-// Initializes the pp[] array of a Pos variable with the piece placement
-// specified in the second argument. For the standard starting position the
-// second argument would be
-// "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr".
-static void
-x_init_pos_var_pp_array( Pos *p, const char *slashless_constant_length_pp_str )
-{
-	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		p->pp[ cm ] = 0u;
-
-		for( int i = 0; i < 64; i++ ) {
-			if( slashless_constant_length_pp_str[ i ] == FEN_PIECE_LETTERS[ cm ] ) {
-				p->pp[ cm ] |= SBA[ i ];
-			}
-		}
-	}
-
-	x_init_empty_square_bb( p );
-}
-
-// Called from x_init_pos_var_pp_array()
-static void
-x_init_empty_square_bb( Pos *p )
-{
-	Bitboard occupied_squares = 0u;
-	for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ ) {
-		occupied_squares |= p->pp[ cm ];
-	}
-
-	p->pp[ EMPTY_SQUARE ] = ~occupied_squares;
-}
-
 // Used to set the active color (AC). The AC is 'w' if the BM_AC bit is set;
 // otherwise the AC is 'b'.
 static void
@@ -1010,5 +928,22 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 void
 x_init_ppa( Pos *p, const char *ppf )
 {
+	for( int i = 0; i < 13; i++ ) p->pp[i] = 0;
 	
+	char eppf[PPF_MAX_LENGTH + 1], ppf_0_to_63[64 + 1];
+	ppf_0_to_63[64] = '\0';
+
+	expand_ppf( ppf, eppf );
+	
+	int k = -1;
+	for( int i = 63; i >= 0; i -= 9 )
+		for( int j = i; j <= i + 7; j++ )
+			ppf_0_to_63[++k] = eppf[j];
+
+	assert( k == 63 && strlen( ppf_0_to_63 ) == 64 );
+	
+	for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
+		for( int index = 0; index < 64; index++ )
+			if( FEN_PIECE_LETTERS[cm] == ppf_0_to_63[index] )
+				p->pp[cm] |= SBA[index];
 }
