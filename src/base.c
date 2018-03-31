@@ -343,7 +343,6 @@ const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
  **** Static function prototypes ****
  ************************************/
 
-static void x_set_active_color( Pos *p, char color );
 static void x_set_castling_availability( Pos *p, const char *ca );
 static void x_set_en_passant_target_square( Pos *p, const char *epts );
 static void x_set_halfmove_clock( Pos *p, const char *hmc );
@@ -354,7 +353,9 @@ static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
 	const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
-void x_init_ppa( Pos *p, const char *ppf );
+static void x_init_pp( Pos *p, const char *ppf );
+static void x_init_wt( Pos *p, const char *acf );
+static void x_init_ca_flags( Pos *p, const char *caf, const char *fen );
 
 /*********************************
  **** Static global variables ****
@@ -377,12 +378,9 @@ fen_to_pos( const char *fen ) // Argument assumed to be valid
 	assert( p );
 	char **ff = fen_fields( fen );
 
-	x_init_ppa( p, ff[0] );
-
-	char ac = ( !strcmp(
-		"w", nth_field_of_fen_str( fen, x_writable_mem, 2 )
-	) ) ? 'w' : 'b';
-	x_set_active_color( p, ac );
+	x_init_pp( p, ff[0] );
+	x_init_wt( p, ff[1] );
+	x_init_ca_flags( p, ff[2], fen );
 
 	const char *ca = nth_field_of_fen_str( fen, x_writable_mem, 3 );
 	x_set_castling_availability( p, ca );
@@ -453,25 +451,16 @@ Bitboard
 sq_set_of_file( const char file )
 {
 	switch( file ) {
-	case 'a':
-		return SS_FILE_A;
-	case 'b':
-		return SS_FILE_B;
-	case 'c':
-		return SS_FILE_C;
-	case 'd':
-		return SS_FILE_D;
-	case 'e':
-		return SS_FILE_E;
-	case 'f':
-		return SS_FILE_F;
-	case 'g':
-		return SS_FILE_G;
-	case 'h':
-		return SS_FILE_H;
-	default:
-		assert( false );
-		return 0;
+		case 'a': return SS_FILE_A;
+		case 'b': return SS_FILE_B;
+		case 'c': return SS_FILE_C;
+		case 'd': return SS_FILE_D;
+		case 'e': return SS_FILE_E;
+		case 'f': return SS_FILE_F;
+		case 'g': return SS_FILE_G;
+		case 'h': return SS_FILE_H;
+
+		default: assert( false ); return 0;
 	}
 }
 
@@ -481,25 +470,16 @@ Bitboard
 sq_set_of_rank( const char rank )
 {
 	switch( rank ) {
-	case '1':
-		return SS_RANK_1;
-	case '2':
-		return SS_RANK_2;
-	case '3':
-		return SS_RANK_3;
-	case '4':
-		return SS_RANK_4;
-	case '5':
-		return SS_RANK_5;
-	case '6':
-		return SS_RANK_6;
-	case '7':
-		return SS_RANK_7;
-	case '8':
-		return SS_RANK_8;
-	default:
-		assert( false );
-		return 0;
+		case '1': return SS_RANK_1;
+		case '2': return SS_RANK_2;
+		case '3': return SS_RANK_3;
+		case '4': return SS_RANK_4;
+		case '5': return SS_RANK_5;
+		case '6': return SS_RANK_6;
+		case '7': return SS_RANK_7;
+		case '8': return SS_RANK_8;
+
+		default: assert( false ); return 0;
 	}
 }
 
@@ -707,17 +687,6 @@ fen_fmnf( const char *fen )
  ****                    ****
  ****************************/
 
-// Used to set the active color (AC). The AC is 'w' if the BM_AC bit is set;
-// otherwise the AC is 'b'.
-static void
-x_set_active_color( Pos *p, char color ) {
-	assert( p ); // p must not be a null pointer
-	assert( color == 'w' || color == 'b' );
-
-	// Sets the BM_AC bit if it is White's turn; otherwise the bit is unset
-	set_or_unset_bits( &p->info, BM_AC, color == 'w' );
-}
-
 // Sets the castling availability bit field of a Pos variable. Should
 // only be called from fen_to_pos(). The ca argument is assumed
 // to be valid.
@@ -779,39 +748,23 @@ static Bitboard
 x_sq_set_of_diag( const int index )
 {
 	switch( index ) {
-	case 0:
-		return SS_DIAG_H1H1;
-	case 1:
-		return SS_DIAG_G1H2;
-	case 2:
-		return SS_DIAG_F1H3;
-	case 3:
-		return SS_DIAG_E1H4;
-	case 4:
-		return SS_DIAG_D1H5;
-	case 5:
-		return SS_DIAG_C1H6;
-	case 6:
-		return SS_DIAG_B1H7;
-	case 7:
-		return SS_DIAG_A1H8;
-	case 8:
-		return SS_DIAG_A2G8;
-	case 9:
-		return SS_DIAG_A3F8;
-	case 10:
-		return SS_DIAG_A4E8;
-	case 11:
-		return SS_DIAG_A5D8;
-	case 12:
-		return SS_DIAG_A6C8;
-	case 13:
-		return SS_DIAG_A7B8;
-	case 14:
-		return SS_DIAG_A8A8;
-	default:
-		assert( false );
-		return 0u;
+		case 0: return SS_DIAG_H1H1;
+		case 1: return SS_DIAG_G1H2;
+		case 2: return SS_DIAG_F1H3;
+		case 3: return SS_DIAG_E1H4;
+		case 4: return SS_DIAG_D1H5;
+		case 5: return SS_DIAG_C1H6;
+		case 6: return SS_DIAG_B1H7;
+		case 7: return SS_DIAG_A1H8;
+		case 8: return SS_DIAG_A2G8;
+		case 9: return SS_DIAG_A3F8;
+		case 10: return SS_DIAG_A4E8;
+		case 11: return SS_DIAG_A5D8;
+		case 12: return SS_DIAG_A6C8;
+		case 13: return SS_DIAG_A7B8;
+		case 14: return SS_DIAG_A8A8;
+
+		default: assert( false ); return 0u;
 	}
 }
 
@@ -819,39 +772,23 @@ static Bitboard
 x_sq_set_of_antidiag( const int index )
 {
 	switch( index ) {
-	case 0:
-		return SS_ANTIDIAG_A1A1;
-	case 1:
-		return SS_ANTIDIAG_B1A2;
-	case 2:
-		return SS_ANTIDIAG_C1A3;
-	case 3:
-		return SS_ANTIDIAG_D1A4;
-	case 4:
-		return SS_ANTIDIAG_E1A5;
-	case 5:
-		return SS_ANTIDIAG_F1A6;
-	case 6:
-		return SS_ANTIDIAG_G1A7;
-	case 7:
-		return SS_ANTIDIAG_H1A8;
-	case 8:
-		return SS_ANTIDIAG_H2B8;
-	case 9:
-		return SS_ANTIDIAG_H3C8;
-	case 10:
-		return SS_ANTIDIAG_H4D8;
-	case 11:
-		return SS_ANTIDIAG_H5E8;
-	case 12:
-		return SS_ANTIDIAG_H6F8;
-	case 13:
-		return SS_ANTIDIAG_H7G8;
-	case 14:
-		return SS_ANTIDIAG_H8H8;
-	default:
-		assert( false );
-		return 0u;
+		case 0: return SS_ANTIDIAG_A1A1;
+		case 1: return SS_ANTIDIAG_B1A2;
+		case 2: return SS_ANTIDIAG_C1A3;
+		case 3: return SS_ANTIDIAG_D1A4;
+		case 4: return SS_ANTIDIAG_E1A5;
+		case 5: return SS_ANTIDIAG_F1A6;
+		case 6: return SS_ANTIDIAG_G1A7;
+		case 7: return SS_ANTIDIAG_H1A8;
+		case 8: return SS_ANTIDIAG_H2B8;
+		case 9: return SS_ANTIDIAG_H3C8;
+		case 10: return SS_ANTIDIAG_H4D8;
+		case 11: return SS_ANTIDIAG_H5E8;
+		case 12: return SS_ANTIDIAG_H6F8;
+		case 13: return SS_ANTIDIAG_H7G8;
+		case 14: return SS_ANTIDIAG_H8H8;
+
+		default: assert( false ); return 0u;
 	}
 }
 
@@ -925,8 +862,8 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 	*i_hmc = atoi( s_hmc ), *i_fmn = atoi( s_fmn );
 }
 
-void
-x_init_ppa( Pos *p, const char *ppf )
+static void
+x_init_pp( Pos *p, const char *ppf )
 {
 	for( int i = 0; i < 13; i++ ) p->pp[i] = 0;
 	
@@ -946,4 +883,25 @@ x_init_ppa( Pos *p, const char *ppf )
 		for( int index = 0; index < 64; index++ )
 			if( FEN_PIECE_LETTERS[cm] == ppf_0_to_63[index] )
 				p->pp[cm] |= SBA[index];
+}
+
+static void
+x_init_wt( Pos *p, const char *acf )
+{
+	assert( !strcmp( "w", acf ) || !strcmp( "b", acf ) );
+	p->wt = !strcmp( "w", acf ) ? true : false;
+}
+
+static void
+x_init_ca_flags( Pos *p, const char *caf, const char *fen )
+{
+	char ecaf[10];
+	EXPAND_CAF( caf, ecaf, fen )
+	assert( strlen( ecaf ) == 4 );
+	
+	p->ca_flags = 0;
+	
+	for( int i = 0; i < 4; i++ )
+		if( ecaf[i] != '-' )
+			p->ca_flags |= ( 1 << i );
 }

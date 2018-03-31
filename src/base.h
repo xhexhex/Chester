@@ -55,8 +55,10 @@ enum sq_dir {
 // comprehensive description of the Pos type.
 typedef struct {
 	Bitboard pp[13];
+	bool wt;
+	uint8_t ca_flags, irp;
 	uint64_t info;
-	uint32_t bf;
+	// uint32_t bf;
 	uint16_t hmc, fmn; // num[2] or nf[2]
 } Pos;
 
@@ -103,7 +105,7 @@ extern const Bitboard
 	SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
 
 // The expression evaluates to true if it is White's turn to move.
-#define whites_turn( pos_var ) ( pos_var->info % 2 )
+#define whites_turn( pos_ptr ) ( pos_ptr->wt )
 
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
