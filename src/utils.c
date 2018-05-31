@@ -600,15 +600,16 @@ fen_fields( const char *fen )
     return ff;
 } // Review: 2018-05-31
 
-// Releases the memory reserved for the dynamically allocated string array 'ff'. Should
-// be called when the string array returned by fen_fields() is no longer needed.
+// Releases the memory reserved for the dynamically allocated string
+// array 'ff'. Should be called when the string array returned by
+// fen_fields() is no longer needed.
 void
 free_fen_fields( char **ff )
 {
-    for( int ff_i = 0; ff_i < 6; ff_i++ ) free( ff[ ff_i ] );
+    for( int i = 0; i < 6; i++ ) free( ff[ i ] );
 
     free( ff );
-}
+} // Review: 2018-05-31
 
 // Expands 'caf' and stores the result in 'ecaf' (which is assumed to be a writable
 // array of at least ten bytes). Expanding a CAF means adding dashes where there
