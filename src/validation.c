@@ -262,7 +262,7 @@ x_validate_fen_test_14( const char *fen )
 	char **ff = fen_fields( fen ), *eptsf = ff[ 3 ], *hmcf = ff[ 4 ];
 	assert( strlen( eptsf ) >= 1 && strlen( eptsf ) <= 2 &&
 		strlen( hmcf ) >= 1 && strlen( hmcf ) <= 5 );
-	
+
 	// ( ( EPTS field is something else than "-" ) --> ( HMC field is "0" ) )
 	// <=>
 	// ( ( EPTS field is "-" ) OR ( HMC field is "0" ) )
@@ -304,14 +304,14 @@ static bool
 x_validate_fen_test_17( const Pos *p )
 {
 	return
-		!( p->pp[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->pp[ BLACK_PAWN ] & SS_RANK_1 ) &&
-		!( p->pp[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->pp[ BLACK_PAWN ] & SS_RANK_8 );
+		!( p->ppa[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->ppa[ BLACK_PAWN ] & SS_RANK_1 ) &&
+		!( p->ppa[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->ppa[ BLACK_PAWN ] & SS_RANK_8 );
 }
 
 static bool
 x_validate_fen_test_18( const Pos *p )
 {
-	return bb_is_sq_bit( p->pp[ WHITE_KING ] ) && bb_is_sq_bit( p->pp[ BLACK_KING ] );
+	return bb_is_sq_bit( p->ppa[ WHITE_KING ] ) && bb_is_sq_bit( p->ppa[ BLACK_KING ] );
 }
 
 static bool
@@ -365,7 +365,7 @@ x_valid_shredder_fen_caf( const char *caf )
 	for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ )
 		if( !strcmp( caf, SHREDDER_FEN_CAFS[ i ] ) )
 			return true;
-	
+
 	return false;
 }
 
@@ -387,7 +387,7 @@ x_no_rook_on_square_indicated_by_caf( const char *r1, const char *r8, const char
 		assert( rank_i >= 0 && rank_i <= 7 );
 		if( ( i < 2 && r1[ rank_i ] != 'R' ) || ( i >= 2 && r8[ rank_i ] != 'r' ) )
 			return true; }
-	
+
 	return false;
 }
 

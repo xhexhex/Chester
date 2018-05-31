@@ -39,19 +39,19 @@
 #test C_fen_to_pos_with_std_start_pos_fen
 	Pos *p = fen_to_pos( STD_START_POS_FEN );
 
-	ck_assert( p->pp[ EMPTY_SQUARE ] == 0xffffffff0000u );
-	ck_assert( p->pp[ WHITE_KING ] == 0x10u );
-	ck_assert( p->pp[ WHITE_QUEEN ] == 0x8u );
-	ck_assert( p->pp[ WHITE_ROOK ] == 0x81u );
-	ck_assert( p->pp[ WHITE_BISHOP ] == 0x24u );
-	ck_assert( p->pp[ WHITE_KNIGHT ] == 0x42u );
-	ck_assert( p->pp[ WHITE_PAWN ] == 0xff00u );
-	ck_assert( p->pp[ BLACK_KING ] == 0x1000000000000000u );
-	ck_assert( p->pp[ BLACK_QUEEN ] == 0x800000000000000u );
-	ck_assert( p->pp[ BLACK_ROOK ] == 0x8100000000000000u );
-	ck_assert( p->pp[ BLACK_BISHOP ] == 0x2400000000000000u );
-	ck_assert( p->pp[ BLACK_KNIGHT ] == 0x4200000000000000u );
-	ck_assert( p->pp[ BLACK_PAWN ] == 0xff000000000000u );
+	ck_assert( p->ppa[ EMPTY_SQUARE ] == 0xffffffff0000u );
+	ck_assert( p->ppa[ WHITE_KING ] == 0x10u );
+	ck_assert( p->ppa[ WHITE_QUEEN ] == 0x8u );
+	ck_assert( p->ppa[ WHITE_ROOK ] == 0x81u );
+	ck_assert( p->ppa[ WHITE_BISHOP ] == 0x24u );
+	ck_assert( p->ppa[ WHITE_KNIGHT ] == 0x42u );
+	ck_assert( p->ppa[ WHITE_PAWN ] == 0xff00u );
+	ck_assert( p->ppa[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->ppa[ BLACK_QUEEN ] == 0x800000000000000u );
+	ck_assert( p->ppa[ BLACK_ROOK ] == 0x8100000000000000u );
+	ck_assert( p->ppa[ BLACK_BISHOP ] == 0x2400000000000000u );
+	ck_assert( p->ppa[ BLACK_KNIGHT ] == 0x4200000000000000u );
+	ck_assert( p->ppa[ BLACK_PAWN ] == 0xff000000000000u );
 
 	// Should be White's turn
 	ck_assert( whites_turn( p ) );
@@ -77,19 +77,19 @@
 #test C_fen_to_pos_manually_computed_test_1
 	Pos *p = fen_to_pos( "r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100" );
 
-	ck_assert( p->pp[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
-	ck_assert( p->pp[ WHITE_KING ] == 0x10u );
-	ck_assert( p->pp[ WHITE_QUEEN ] == 0 );
-	ck_assert( p->pp[ WHITE_ROOK ] == 0x80u );
-	ck_assert( p->pp[ WHITE_BISHOP ] == 0 );
-	ck_assert( p->pp[ WHITE_KNIGHT ] == 0 );
-	ck_assert( p->pp[ WHITE_PAWN ] == 0x10000000u );
-	ck_assert( p->pp[ BLACK_KING ] == 0x1000000000000000u );
-	ck_assert( p->pp[ BLACK_QUEEN ] == 0 );
-	ck_assert( p->pp[ BLACK_ROOK ] == 0x100000000000000u );
-	ck_assert( p->pp[ BLACK_BISHOP ] == 0 );
-	ck_assert( p->pp[ BLACK_KNIGHT ] == 0 );
-	ck_assert( p->pp[ BLACK_PAWN ] == 0 );
+	ck_assert( p->ppa[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
+	ck_assert( p->ppa[ WHITE_KING ] == 0x10u );
+	ck_assert( p->ppa[ WHITE_QUEEN ] == 0 );
+	ck_assert( p->ppa[ WHITE_ROOK ] == 0x80u );
+	ck_assert( p->ppa[ WHITE_BISHOP ] == 0 );
+	ck_assert( p->ppa[ WHITE_KNIGHT ] == 0 );
+	ck_assert( p->ppa[ WHITE_PAWN ] == 0x10000000u );
+	ck_assert( p->ppa[ BLACK_KING ] == 0x1000000000000000u );
+	ck_assert( p->ppa[ BLACK_QUEEN ] == 0 );
+	ck_assert( p->ppa[ BLACK_ROOK ] == 0x100000000000000u );
+	ck_assert( p->ppa[ BLACK_BISHOP ] == 0 );
+	ck_assert( p->ppa[ BLACK_KNIGHT ] == 0 );
+	ck_assert( p->ppa[ BLACK_PAWN ] == 0 );
 
 	ck_assert( p->info == 0x102000000212u );
 
@@ -214,7 +214,7 @@ free( (Pos *) p );
 
 #define NULL_CONTENT_POS_VAR \
 Pos p; \
-for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.pp[ i ] = 0u; \
+for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.ppa[ i ] = 0u; \
 p.info = 0u;
 
 #define ASSIGN_AND_ASSERT( sq_name_constant ) \
@@ -223,19 +223,19 @@ ck_assert( sq_name && !strcmp( sq_name_constant, sq_name ) );
 
 #define SEE_SAW_PATTERN_POS_VAR \
 Pos see_saw; \
-see_saw.pp[ EMPTY_SQUARE ] = 0x8000008000008000u; \
-see_saw.pp[ WHITE_KING ] = 0x4000014000014000u; \
-see_saw.pp[ WHITE_QUEEN ] = 0x2000022000022000u; \
-see_saw.pp[ WHITE_ROOK ] = 0x1000041000041000u; \
-see_saw.pp[ WHITE_BISHOP ] = 0x800080800080800u; \
-see_saw.pp[ WHITE_KNIGHT ] = 0x400100400100400u; \
-see_saw.pp[ WHITE_PAWN ] = 0x200200200200200u; \
-see_saw.pp[ BLACK_KING ] = 0x100400100400100u; \
-see_saw.pp[ BLACK_QUEEN ] = 0x80800080800080u; \
-see_saw.pp[ BLACK_ROOK ] = 0x41000041000041u; \
-see_saw.pp[ BLACK_BISHOP ] = 0x22000022000022u; \
-see_saw.pp[ BLACK_KNIGHT ] = 0x14000014000014u; \
-see_saw.pp[ BLACK_PAWN ] = 0x8000008000008u; \
+see_saw.ppa[ EMPTY_SQUARE ] = 0x8000008000008000u; \
+see_saw.ppa[ WHITE_KING ] = 0x4000014000014000u; \
+see_saw.ppa[ WHITE_QUEEN ] = 0x2000022000022000u; \
+see_saw.ppa[ WHITE_ROOK ] = 0x1000041000041000u; \
+see_saw.ppa[ WHITE_BISHOP ] = 0x800080800080800u; \
+see_saw.ppa[ WHITE_KNIGHT ] = 0x400100400100400u; \
+see_saw.ppa[ WHITE_PAWN ] = 0x200200200200200u; \
+see_saw.ppa[ BLACK_KING ] = 0x100400100400100u; \
+see_saw.ppa[ BLACK_QUEEN ] = 0x80800080800080u; \
+see_saw.ppa[ BLACK_ROOK ] = 0x41000041000041u; \
+see_saw.ppa[ BLACK_BISHOP ] = 0x22000022000022u; \
+see_saw.ppa[ BLACK_KNIGHT ] = 0x14000014000014u; \
+see_saw.ppa[ BLACK_PAWN ] = 0x8000008000008u; \
 see_saw.info = 0u;
 
 #test C_pos_var_sq_integrity_check_returns_NULL
@@ -258,22 +258,22 @@ see_saw.info = 0u;
 
 #test C_pos_var_sq_integrity_check_returns_b1
 	NULL_CONTENT_POS_VAR
-	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
-	p.pp[ WHITE_KING ] = 2u;
+	p.ppa[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.ppa[ WHITE_KING ] = 2u;
 	ASSIGN_AND_ASSERT( "b1" );
 
 #test C_pos_var_sq_integrity_check_returns_e4
 	NULL_CONTENT_POS_VAR
-	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
-	p.pp[ WHITE_KING ] = 0x10000000U;
-	p.pp[ BLACK_KING ] = 0x10000000U;
+	p.ppa[ EMPTY_SQUARE ] = 0xffffffffffffffffU;
+	p.ppa[ WHITE_KING ] = 0x10000000U;
+	p.ppa[ BLACK_KING ] = 0x10000000U;
 	ASSIGN_AND_ASSERT( "e4" );
 
 #test C_pos_var_sq_integrity_check_returns_h8
 	NULL_CONTENT_POS_VAR
-	p.pp[ EMPTY_SQUARE ] = 0xffffffffffffffefU;
-	p.pp[ BLACK_KING ] = SB.h8;
-	p.pp[ WHITE_KING ] = SB.e1;
+	p.ppa[ EMPTY_SQUARE ] = 0xffffffffffffffefU;
+	p.ppa[ BLACK_KING ] = SB.h8;
+	p.ppa[ WHITE_KING ] = SB.e1;
 	ASSIGN_AND_ASSERT( "h8" )
 
 #tcase sq_set_of_file_tests
@@ -634,7 +634,7 @@ ck_assert( fen_fmnf( fen ) == exp_fmn_i );
 	int counter = 0;
 	for( ; SHREDDER_FEN_CAFS[ counter ]; counter++ ) {}
 	ck_assert( counter == (int) SHREDDER_FEN_CAFS_COUNT );
-	
+
 #define N_CHAR_ELEMENTS_COUNT( length, exp_count ) \
 int counter = 0; \
 for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) \
