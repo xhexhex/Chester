@@ -18,31 +18,31 @@
 char *
 hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of square
 {
-	char *hps = (char *) malloc( 48 ); // 48 = 16 * 3
-	int current_pos = 0; // Indicates the current position in the char array
+    char *hps = (char *) malloc( 48 ); // 48 = 16 * 3
+    int current_pos = 0; // Indicates the current position in the char array
 
-	for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
-		assert( current_pos < 48 );
+    for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
+        assert( current_pos < 48 );
 
-		const char *sq_in_dir = use_alt_impl ?
-			ALT_sq_navigator( sq_name, dir ) : sq_navigator( sq_name, dir );
-		if( sq_in_dir ) {
-			*( hps + current_pos ) = *sq_in_dir;
-			*( hps + current_pos + 1 ) = *( sq_in_dir + 1 );
-			*( hps + current_pos + 2 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
+        const char *sq_in_dir = use_alt_impl ?
+            ALT_sq_navigator( sq_name, dir ) : sq_navigator( sq_name, dir );
+        if( sq_in_dir ) {
+            *( hps + current_pos ) = *sq_in_dir;
+            *( hps + current_pos + 1 ) = *( sq_in_dir + 1 );
+            *( hps + current_pos + 2 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
 
-			current_pos += 3;
-		}
-		else {
-			*( hps + current_pos ) = '-';
-			*( hps + current_pos + 1 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
+            current_pos += 3;
+        }
+        else {
+            *( hps + current_pos ) = '-';
+            *( hps + current_pos + 1 ) = ( dir < ELEVEN_OCLOCK ) ? ' ' : 0;
 
-			current_pos += 2;
-		}
-	}
+            current_pos += 2;
+        }
+    }
 
-	assert( strlen( hps ) >= 36 && strlen( hps ) <= 47 );
-	return hps;
+    assert( strlen( hps ) >= 36 && strlen( hps ) <= 47 );
+    return hps;
 }
 
 #suite utils_ts
@@ -50,325 +50,325 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 #tcase nth_field_of_fen_str_tests
 
 #test C_nth_field_of_fen_str_works
-	SRAND( time( NULL ) ); // Calling srand(), unless it has already been called
+    SRAND( time( NULL ) ); // Calling srand(), unless it has already been called
 
-	char start_pos_fen[] =
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-	const int NUM_OF_FIELDS = 6;
-	char writable_mem[ FEN_MAX_LENGTH + 1 ];
-	char *tok_start_pos_fen[] = { // tok, tokenized
-		// Note that index 0 contains the empty string
-		"", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq",
-		"-", "0", "1" };
+    char start_pos_fen[] =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const int NUM_OF_FIELDS = 6;
+    char writable_mem[ FEN_MAX_LENGTH + 1 ];
+    char *tok_start_pos_fen[] = { // tok, tokenized
+        // Note that index 0 contains the empty string
+        "", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq",
+        "-", "0", "1" };
 
 // Avoiding copy & paste code
 #define FOR_LOOP_BODY( nth_field_func, str_with_fields ) \
-	ck_assert_msg( \
-		! strcmp( nth_field_func( str_with_fields, writable_mem, i ), \
-			tok_ ## str_with_fields[ i ] ), \
-		"Non-identical strings detected" )
+    ck_assert_msg( \
+        ! strcmp( nth_field_func( str_with_fields, writable_mem, i ), \
+            tok_ ## str_with_fields[ i ] ), \
+        "Non-identical strings detected" )
 // The first for loop tests in sequence, the second in random order
 #define TWO_FOR_LOOPS( nth_field_func, str_with_fields ) \
-	for( int i = 1; i <= NUM_OF_FIELDS; i++ ) { \
-		FOR_LOOP_BODY( nth_field_func, str_with_fields ); } \
-	for( int counter = 1; counter <= 50; counter++ ) { \
-		int i = ( rand() % NUM_OF_FIELDS ) + 1; \
-		FOR_LOOP_BODY( nth_field_func, str_with_fields ); }
+    for( int i = 1; i <= NUM_OF_FIELDS; i++ ) { \
+        FOR_LOOP_BODY( nth_field_func, str_with_fields ); } \
+    for( int counter = 1; counter <= 50; counter++ ) { \
+        int i = ( rand() % NUM_OF_FIELDS ) + 1; \
+        FOR_LOOP_BODY( nth_field_func, str_with_fields ); }
 
-	TWO_FOR_LOOPS( nth_field_of_fen_str, start_pos_fen );
+    TWO_FOR_LOOPS( nth_field_of_fen_str, start_pos_fen );
 
 #tcase nth_rank_of_ppf_tests
 
 #test C_nth_rank_of_ppf_works
-	char start_pos_ppf[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-	const int NUM_OF_FIELDS = 8;
-	char writable_mem[ PPF_MAX_LENGTH + 1 ];
-	char *tok_start_pos_ppf[] = { // tok, tokenized
-		// Note that index 0 contains the empty string
-		"",
-		"RNBQKBNR", // rank 1
-		"PPPPPPPP", // rank 2
-		"8",
-		"8",
-		"8",
-		"8",
-		"pppppppp",
-		"rnbqkbnr" // rank 8
-	};
+    char start_pos_ppf[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    const int NUM_OF_FIELDS = 8;
+    char writable_mem[ PPF_MAX_LENGTH + 1 ];
+    char *tok_start_pos_ppf[] = { // tok, tokenized
+        // Note that index 0 contains the empty string
+        "",
+        "RNBQKBNR", // rank 1
+        "PPPPPPPP", // rank 2
+        "8",
+        "8",
+        "8",
+        "8",
+        "pppppppp",
+        "rnbqkbnr" // rank 8
+    };
 
-	TWO_FOR_LOOPS( nth_rank_of_ppf, start_pos_ppf );
+    TWO_FOR_LOOPS( nth_rank_of_ppf, start_pos_ppf );
 
 #tcase set_or_unset_bits_tests
 
 // Moving from the LSB to the MSB, each bit in turn is set to one
 // and left that way.
 #test C_set_or_unset_bits_test_1
-	uint64_t bit_array = 0;
-	const uint64_t BIT_TO_SET = 1;
+    uint64_t bit_array = 0;
+    const uint64_t BIT_TO_SET = 1;
 
-	for( int i = 0; i < 64; i++ ) {
-		set_or_unset_bits( &bit_array, BIT_TO_SET << i, 1 );
+    for( int i = 0; i < 64; i++ ) {
+        set_or_unset_bits( &bit_array, BIT_TO_SET << i, 1 );
 
-		// printf( "%d\t0x%lx\n", i, bit_array );
+        // printf( "%d\t0x%lx\n", i, bit_array );
 
-		if( i < 63 ) ck_assert( bit_array == (uint64_t) pow( 2, i + 1 ) - 1 );
-		else ck_assert( bit_array == UINT64_MAX );
-	}
+        if( i < 63 ) ck_assert( bit_array == (uint64_t) pow( 2, i + 1 ) - 1 );
+        else ck_assert( bit_array == UINT64_MAX );
+    }
 
 // On the first iteration the MSB of 'bit_array' is set, on the second
 // iteration the bit next to the MSB, and on the last iteration the LSB
 // is set. While doing this, the previously set bits are unset. This makes
 // 'bit_array' a decreasing power of two with values between 2^63 and 1.
 #test C_set_or_unset_bits_test_2
-	uint64_t bit_array = 0, bits_to_unset = 0;
-	const uint64_t BIT_TO_SET = (uint64_t) pow( 2, 63 );
+    uint64_t bit_array = 0, bits_to_unset = 0;
+    const uint64_t BIT_TO_SET = (uint64_t) pow( 2, 63 );
 
-	for( int i = 0; i < 64; i++ ) {
-		set_or_unset_bits( &bit_array, BIT_TO_SET >> i, 1 );
-		if( i > 0 )
-			set_or_unset_bits( &bits_to_unset, BIT_TO_SET >> ( i - 1 ), 1 );
-		set_or_unset_bits( &bit_array, bits_to_unset, 0 );
+    for( int i = 0; i < 64; i++ ) {
+        set_or_unset_bits( &bit_array, BIT_TO_SET >> i, 1 );
+        if( i > 0 )
+            set_or_unset_bits( &bits_to_unset, BIT_TO_SET >> ( i - 1 ), 1 );
+        set_or_unset_bits( &bit_array, bits_to_unset, 0 );
 
-		ck_assert( bit_array == (uint64_t) pow( 2, 63 - i ) );
-	}
+        ck_assert( bit_array == (uint64_t) pow( 2, 63 - i ) );
+    }
 
 // Testing set_or_unset_bits() with various values
 #test C_set_or_unset_bits_test_3
-	uint64_t ba = UINT64_MAX, bitmask = UINT64_MAX;
+    uint64_t ba = UINT64_MAX, bitmask = UINT64_MAX;
 
-	set_or_unset_bits( &ba, bitmask, 1 );
-	ck_assert( ba == UINT64_MAX );
-	set_or_unset_bits( &ba, bitmask, 0 );
-	ck_assert( !ba );
+    set_or_unset_bits( &ba, bitmask, 1 );
+    ck_assert( ba == UINT64_MAX );
+    set_or_unset_bits( &ba, bitmask, 0 );
+    ck_assert( !ba );
 
-	ba = UINT64_MAX, bitmask = 0;
-	set_or_unset_bits( &ba, bitmask, 1 );
-	ck_assert( ba == UINT64_MAX );
+    ba = UINT64_MAX, bitmask = 0;
+    set_or_unset_bits( &ba, bitmask, 1 );
+    ck_assert( ba == UINT64_MAX );
 
-	bitmask = UINT64_MAX;
-	set_or_unset_bits( &ba, bitmask, 1 );
-	ck_assert( ba == UINT64_MAX );
+    bitmask = UINT64_MAX;
+    set_or_unset_bits( &ba, bitmask, 1 );
+    ck_assert( ba == UINT64_MAX );
 
-	ba = 0, bitmask = UINT64_MAX;
-	set_or_unset_bits( &ba, bitmask, 0 );
-	ck_assert( !ba );
+    ba = 0, bitmask = UINT64_MAX;
+    set_or_unset_bits( &ba, bitmask, 0 );
+    ck_assert( !ba );
 
-	set_or_unset_bits( &ba, bitmask, 1 );
-	ck_assert( ba == UINT64_MAX );
+    set_or_unset_bits( &ba, bitmask, 1 );
+    ck_assert( ba == UINT64_MAX );
 
-	bitmask = 0xaaaaaaaaaaaaaaaaU;
-	set_or_unset_bits( &ba, bitmask, 0 );
-	ck_assert( ba == 0x5555555555555555u );
+    bitmask = 0xaaaaaaaaaaaaaaaaU;
+    set_or_unset_bits( &ba, bitmask, 0 );
+    ck_assert( ba == 0x5555555555555555u );
 
-	set_or_unset_bits( &ba, bitmask, 1 );
-	ck_assert( ba == UINT64_MAX );
+    set_or_unset_bits( &ba, bitmask, 1 );
+    ck_assert( ba == UINT64_MAX );
 
 #tcase sq_name_to_sq_bit_tests
 
 #test C_sq_name_to_sq_bit_test_with_all_valid_inputs
-	char sq_name[ 3 ] = { '\0' };
-	ck_assert( !sq_name[ 2 ] );
+    char sq_name[ 3 ] = { '\0' };
+    ck_assert( !sq_name[ 2 ] );
 
-	Bitboard sq_bit = 1u;
-	for( int rank = '1'; rank <= '8'; rank++ ) {
-		for( int file = 'a'; file <= 'h'; file++ ) {
-			sq_name[ 0 ] = file;
-			sq_name[ 1 ] = rank;
-			// printf( "%s  %lx\n", sq_name, sq_bit );
-			ck_assert( sq_name_to_sq_bit( sq_name ) == sq_bit );
-			sq_bit <<= 1;
-		}
-	}
+    Bitboard sq_bit = 1u;
+    for( int rank = '1'; rank <= '8'; rank++ ) {
+        for( int file = 'a'; file <= 'h'; file++ ) {
+            sq_name[ 0 ] = file;
+            sq_name[ 1 ] = rank;
+            // printf( "%s  %lx\n", sq_name, sq_bit );
+            ck_assert( sq_name_to_sq_bit( sq_name ) == sq_bit );
+            sq_bit <<= 1;
+        }
+    }
 
 #test C_sq_name_to_sq_bit_inverse_function_test
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( sq_name_to_sq_bit( sq_bit_to_sq_name( SBA[ i ] ) ) == SBA[ i ] );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( sq_name_to_sq_bit( sq_bit_to_sq_name( SBA[ i ] ) ) == SBA[ i ] );
+    }
 
 #tcase sq_bit_to_sq_name_tests
 
 #test C_sq_bit_to_sq_name_quick_and_dirty_test
-	ck_assert( !strcmp( "a1", sq_bit_to_sq_name( 1u ) ) );
-	ck_assert( !strcmp( "h8", sq_bit_to_sq_name( 0x8000000000000000u ) ) );
-	ck_assert( !strcmp( "e4", sq_bit_to_sq_name( 0x10000000u ) ) );
-	ck_assert( !strcmp( "c7", sq_bit_to_sq_name( 0x4000000000000u ) ) );
+    ck_assert( !strcmp( "a1", sq_bit_to_sq_name( 1u ) ) );
+    ck_assert( !strcmp( "h8", sq_bit_to_sq_name( 0x8000000000000000u ) ) );
+    ck_assert( !strcmp( "e4", sq_bit_to_sq_name( 0x10000000u ) ) );
+    ck_assert( !strcmp( "c7", sq_bit_to_sq_name( 0x4000000000000u ) ) );
 
 #test C_sq_bit_to_sq_name_inverse_function_test
-	for( int i = 0; i < 64; i++ ) {
-		// printf( "%s\n", sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ) );
-		ck_assert( !strcmp( sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ),
-			SNA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        // printf( "%s\n", sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ) );
+        ck_assert( !strcmp( sq_bit_to_sq_name( sq_name_to_sq_bit( SNA[ i ] ) ),
+            SNA[ i ] ) );
+    }
 
 #tcase bb_is_sq_bit_tests
 
 #test C_bb_is_sq_bit_returns_true
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( bb_is_sq_bit( SBA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( bb_is_sq_bit( SBA[ i ] ) );
+    }
 
 #test C_bb_is_sq_bit_returns_false
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( !bb_is_sq_bit( SBA[ i ] + ( rand() % 30000 ) + 1 ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( !bb_is_sq_bit( SBA[ i ] + ( rand() % 30000 ) + 1 ) );
+    }
 
 #tcase occupant_of_sq_tests
 
 #define STD_START_POS fen_to_pos( STD_START_POS_FEN )
 
 #test C_occupant_of_sq_returns_EMPTY_SQUARE
-	for( int i = 16; i <= 47; i++ ) {
-		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == EMPTY_SQUARE );
-	}
+    for( int i = 16; i <= 47; i++ ) {
+        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == EMPTY_SQUARE );
+    }
 
 #test C_occupant_of_sq_returns_WHITE_KING
-	ck_assert( occupant_of_sq( STD_START_POS, "e1" ) == WHITE_KING );
+    ck_assert( occupant_of_sq( STD_START_POS, "e1" ) == WHITE_KING );
 
 #test C_occupant_of_sq_returns_WHITE_QUEEN
-	ck_assert( occupant_of_sq( STD_START_POS, "d1" ) == WHITE_QUEEN );
+    ck_assert( occupant_of_sq( STD_START_POS, "d1" ) == WHITE_QUEEN );
 
 #test C_occupant_of_sq_returns_WHITE_ROOK
-	ck_assert( occupant_of_sq( STD_START_POS, "a1" ) == WHITE_ROOK );
-	ck_assert( occupant_of_sq( STD_START_POS, "h1" ) == WHITE_ROOK );
+    ck_assert( occupant_of_sq( STD_START_POS, "a1" ) == WHITE_ROOK );
+    ck_assert( occupant_of_sq( STD_START_POS, "h1" ) == WHITE_ROOK );
 
 #test C_occupant_of_sq_returns_WHITE_BISHOP
-	ck_assert( occupant_of_sq( STD_START_POS, "c1" ) == WHITE_BISHOP );
-	ck_assert( occupant_of_sq( STD_START_POS, "f1" ) == WHITE_BISHOP );
+    ck_assert( occupant_of_sq( STD_START_POS, "c1" ) == WHITE_BISHOP );
+    ck_assert( occupant_of_sq( STD_START_POS, "f1" ) == WHITE_BISHOP );
 
 #test C_occupant_of_sq_returns_WHITE_KNIGHT
-	ck_assert( occupant_of_sq( STD_START_POS, "b1" ) == WHITE_KNIGHT );
-	ck_assert( occupant_of_sq( STD_START_POS, "g1" ) == WHITE_KNIGHT );
+    ck_assert( occupant_of_sq( STD_START_POS, "b1" ) == WHITE_KNIGHT );
+    ck_assert( occupant_of_sq( STD_START_POS, "g1" ) == WHITE_KNIGHT );
 
 #test C_occupant_of_sq_returns_WHITE_PAWN
-	for( int i = 8; i <= 15; i++ ) {
-		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == WHITE_PAWN );
-	}
+    for( int i = 8; i <= 15; i++ ) {
+        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == WHITE_PAWN );
+    }
 
 #test C_occupant_of_sq_returns_BLACK_KING
-	ck_assert( occupant_of_sq( STD_START_POS, "e8" ) == BLACK_KING );
+    ck_assert( occupant_of_sq( STD_START_POS, "e8" ) == BLACK_KING );
 
 #test C_occupant_of_sq_returns_BLACK_QUEEN
-	ck_assert( occupant_of_sq( STD_START_POS, "d8" ) == BLACK_QUEEN );
+    ck_assert( occupant_of_sq( STD_START_POS, "d8" ) == BLACK_QUEEN );
 
 #test C_occupant_of_sq_returns_BLACK_ROOK
-	ck_assert( occupant_of_sq( STD_START_POS, "a8" ) == BLACK_ROOK );
-	ck_assert( occupant_of_sq( STD_START_POS, "h8" ) == BLACK_ROOK );
+    ck_assert( occupant_of_sq( STD_START_POS, "a8" ) == BLACK_ROOK );
+    ck_assert( occupant_of_sq( STD_START_POS, "h8" ) == BLACK_ROOK );
 
 #test C_occupant_of_sq_returns_BLACK_BISHOP
-	ck_assert( occupant_of_sq( STD_START_POS, "c8" ) == BLACK_BISHOP );
-	ck_assert( occupant_of_sq( STD_START_POS, "f8" ) == BLACK_BISHOP );
+    ck_assert( occupant_of_sq( STD_START_POS, "c8" ) == BLACK_BISHOP );
+    ck_assert( occupant_of_sq( STD_START_POS, "f8" ) == BLACK_BISHOP );
 
 #test C_occupant_of_sq_returns_BLACK_KNIGHT
-	ck_assert( occupant_of_sq( STD_START_POS, "b8" ) == BLACK_KNIGHT );
-	ck_assert( occupant_of_sq( STD_START_POS, "g8" ) == BLACK_KNIGHT );
+    ck_assert( occupant_of_sq( STD_START_POS, "b8" ) == BLACK_KNIGHT );
+    ck_assert( occupant_of_sq( STD_START_POS, "g8" ) == BLACK_KNIGHT );
 
 #test C_occupant_of_sq_returns_BLACK_PAWN
-	for( int i = 48; i <= 55; i++ ) {
-		ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == BLACK_PAWN );
-	}
+    for( int i = 48; i <= 55; i++ ) {
+        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == BLACK_PAWN );
+    }
 
 #tcase epts_from_pos_var_tests
 
 #test C_epts_from_pos_var_quick_and_dirty_test
-	ck_assert( !strcmp( "-", epts_from_pos_var( STD_START_POS ) ) );
-	ck_assert( !strcmp( "e3", epts_from_pos_var( fen_to_pos(
-		"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" ) ) ) );
-	ck_assert( !strcmp( "c6", epts_from_pos_var( fen_to_pos(
-		"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2" ) ) ) );
-	ck_assert( !strcmp( "-", epts_from_pos_var( fen_to_pos(
-		"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" ) ) ) );
+    ck_assert( !strcmp( "-", epts_from_pos_var( STD_START_POS ) ) );
+    ck_assert( !strcmp( "e3", epts_from_pos_var( fen_to_pos(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" ) ) ) );
+    ck_assert( !strcmp( "c6", epts_from_pos_var( fen_to_pos(
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2" ) ) ) );
+    ck_assert( !strcmp( "-", epts_from_pos_var( fen_to_pos(
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" ) ) ) );
 
 #tcase sq_bit_index_tests
 
 #test C_sq_bit_index_all_valid_inputs_test
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( sq_bit_index( SBA[ i ] ) == i );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( sq_bit_index( SBA[ i ] ) == i );
+    }
 
 #test C_sq_bit_index_tested_with_odd_bb_values
-	for( Bitboard bb = 3; bb < 10000; bb += 2 ) {
-		// Won't work if the 'assert( false )' in sq_bit_index() is "live"
-		// ck_assert( sq_bit_index( bb ) == -1 );
-		ck_assert( true );
-	}
+    for( Bitboard bb = 3; bb < 10000; bb += 2 ) {
+        // Won't work if the 'assert( false )' in sq_bit_index() is "live"
+        // ck_assert( sq_bit_index( bb ) == -1 );
+        ck_assert( true );
+    }
 
 #tcase file_of_sq_tests
 
 #define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \
 const int START_VAL = file_char - 'a'; \
 for( int i = START_VAL; i <= START_VAL + 56; i += 8 ) { \
-	ck_assert( file_of_sq( SBA[ i ] ) == file_char ); }
+    ck_assert( file_of_sq( SBA[ i ] ) == file_char ); }
 
 #test C_file_of_sq_test_on_file_a
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'a' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'a' )
 
 #test C_file_of_sq_test_on_file_b
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'b' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'b' )
 
 #test C_file_of_sq_test_on_file_c
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'c' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'c' )
 
 #test C_file_of_sq_test_on_file_d
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'd' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'd' )
 
 #test C_file_of_sq_test_on_file_e
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'e' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'e' )
 
 #test C_file_of_sq_test_on_file_f
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'f' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'f' )
 
 #test C_file_of_sq_test_on_file_g
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'g' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'g' )
 
 #test C_file_of_sq_test_on_file_h
-	SQ_BIT_FILE_TEST_FOR_LOOP( 'h' )
+    SQ_BIT_FILE_TEST_FOR_LOOP( 'h' )
 
 #tcase rank_of_sq_tests
 
 #define SQ_BIT_RANK_TEST_FOR_LOOP( rank_char ) \
 const int START_VAL = ( rank_char - '1' ) * 8; \
 for( int i = START_VAL; i <= START_VAL + 7; i++ ) { \
-	ck_assert( rank_of_sq( SBA[ i ] ) == rank_char ); }
+    ck_assert( rank_of_sq( SBA[ i ] ) == rank_char ); }
 
 #test C_rank_of_sq_test_on_rank_1
-	SQ_BIT_RANK_TEST_FOR_LOOP( '1' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '1' )
 
 #test C_rank_of_sq_test_on_rank_2
-	SQ_BIT_RANK_TEST_FOR_LOOP( '2' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '2' )
 
 #test C_rank_of_sq_test_on_rank_3
-	SQ_BIT_RANK_TEST_FOR_LOOP( '3' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '3' )
 
 #test C_rank_of_sq_test_on_rank_4
-	SQ_BIT_RANK_TEST_FOR_LOOP( '4' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '4' )
 
 #test C_rank_of_sq_test_on_rank_5
-	SQ_BIT_RANK_TEST_FOR_LOOP( '5' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '5' )
 
 #test C_rank_of_sq_test_on_rank_6
-	SQ_BIT_RANK_TEST_FOR_LOOP( '6' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '6' )
 
 #test C_rank_of_sq_test_on_rank_7
-	SQ_BIT_RANK_TEST_FOR_LOOP( '7' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '7' )
 
 #test C_rank_of_sq_test_on_rank_8
-	SQ_BIT_RANK_TEST_FOR_LOOP( '8' )
+    SQ_BIT_RANK_TEST_FOR_LOOP( '8' )
 
 #tcase str_m_pat_tests
 
 #test C_str_m_pat_returns_true
-	ck_assert( str_m_pat( "", "^$" ) );
-	ck_assert( str_m_pat( "abcdefghijklmnopqrstuvwxyz", "^[a-z]*$" ) );
-	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]*$" ) );
-	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{7}$" ) );
-	ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{5,}$" ) );
+    ck_assert( str_m_pat( "", "^$" ) );
+    ck_assert( str_m_pat( "abcdefghijklmnopqrstuvwxyz", "^[a-z]*$" ) );
+    ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]*$" ) );
+    ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{7}$" ) );
+    ck_assert( str_m_pat( "John123", "^[a-zA-Z0-9]{5,}$" ) );
 
 #test C_str_m_pat_returns_false
-	ck_assert( !str_m_pat( " ", "^$" ) );
-	ck_assert( !str_m_pat( "John", "^[a-z]*$" ) );
-	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]$" ) );
-	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{8}$" ) );
-	ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{,5}$" ) );
+    ck_assert( !str_m_pat( " ", "^$" ) );
+    ck_assert( !str_m_pat( "John", "^[a-z]*$" ) );
+    ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]$" ) );
+    ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{8}$" ) );
+    ck_assert( !str_m_pat( "John123", "^[a-zA-Z0-9]{,5}$" ) );
 
 #tcase uint64_to_bin_str_tests
 
@@ -378,98 +378,98 @@ ck_assert( !strcmp( str_constant, bin_str ) ); \
 free( bin_str );
 
 #test C_uint64_to_bin_str_works
-	char *bin_str;
+    char *bin_str;
 
-	UINT64_TO_BIN_STR_WORKS( 0u,
-		"0000000000000000000000000000000000000000000000000000000000000000" )
-	UINT64_TO_BIN_STR_WORKS( 1u,
-		"0000000000000000000000000000000000000000000000000000000000000001" )
-	UINT64_TO_BIN_STR_WORKS( 0xffffffffffffffffU,
-		"1111111111111111111111111111111111111111111111111111111111111111" )
-	UINT64_TO_BIN_STR_WORKS( 0xaaaaaaaaaaaaaaaaU,
-		"1010101010101010101010101010101010101010101010101010101010101010" )
+    UINT64_TO_BIN_STR_WORKS( 0u,
+        "0000000000000000000000000000000000000000000000000000000000000000" )
+    UINT64_TO_BIN_STR_WORKS( 1u,
+        "0000000000000000000000000000000000000000000000000000000000000001" )
+    UINT64_TO_BIN_STR_WORKS( 0xffffffffffffffffU,
+        "1111111111111111111111111111111111111111111111111111111111111111" )
+    UINT64_TO_BIN_STR_WORKS( 0xaaaaaaaaaaaaaaaaU,
+        "1010101010101010101010101010101010101010101010101010101010101010" )
 
 // Not that there's much to test with this function, really
 #tcase print_pos_var_tests
 
 #test C_print_pos_var_inspect_the_output_test
-	ck_assert( true );
-	// print_pos_var( fen_to_pos( STD_START_POS_FEN ) );
+    ck_assert( true );
+    // print_pos_var( fen_to_pos( STD_START_POS_FEN ) );
 
 #tcase sq_navigator_tests
 
 #test C_sq_navigator_returns_NULL
-	ck_assert( !sq_navigator( "a8", NORTH ) );
-	ck_assert( !sq_navigator( "e8", NORTH ) );
-	ck_assert( !sq_navigator( "h8", NORTH ) );
-	ck_assert( !sq_navigator( "g8", NORTHEAST ) );
-	ck_assert( !sq_navigator( "h7", NORTHEAST ) );
+    ck_assert( !sq_navigator( "a8", NORTH ) );
+    ck_assert( !sq_navigator( "e8", NORTH ) );
+    ck_assert( !sq_navigator( "h8", NORTH ) );
+    ck_assert( !sq_navigator( "g8", NORTHEAST ) );
+    ck_assert( !sq_navigator( "h7", NORTHEAST ) );
 
 #test C_sq_navigator_returns_e4
-	char *a[] = { "e3", "d3", "d4", "d5", "e5", "f5", "f4", "f3", "d2", "c3",
-		"c5", "d6", "f6", "g5", "g3", "f2", NULL };
+    char *a[] = { "e3", "d3", "d4", "d5", "e5", "f5", "f4", "f3", "d2", "c3",
+        "c5", "d6", "f6", "g5", "g3", "f2", NULL };
 
-	for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
-		const char *ret_sq_name = sq_navigator( a[ dir ], dir );
-		ck_assert( ret_sq_name );
-		ck_assert( !strcmp( "e4", ret_sq_name ) );
-	}
+    for( enum sq_dir dir = NORTH; dir <= ELEVEN_OCLOCK; dir++ ) {
+        const char *ret_sq_name = sq_navigator( a[ dir ], dir );
+        ck_assert( ret_sq_name );
+        ck_assert( !strcmp( "e4", ret_sq_name ) );
+    }
 
 #test C_sq_navigator_comprehensive_test_with_alt_impl
-	for( int i = 0; i < 64; i++ ) {
-		char *hps = hps_of_sq( SNA[ i ], false ),
-			*hps_from_alt_impl = hps_of_sq( SNA[ i ], true );
-		// printf( "PRI: %s: %s\n", SNA[ i ], hps );
-		// printf( "SEC: %s: %s\n\n", SNA[ i ], hps_from_alt_impl );
-		ck_assert( !strcmp( hps, hps_from_alt_impl ) );
-		free( hps );
-		free( hps_from_alt_impl );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        char *hps = hps_of_sq( SNA[ i ], false ),
+            *hps_from_alt_impl = hps_of_sq( SNA[ i ], true );
+        // printf( "PRI: %s: %s\n", SNA[ i ], hps );
+        // printf( "SEC: %s: %s\n\n", SNA[ i ], hps_from_alt_impl );
+        ck_assert( !strcmp( hps, hps_from_alt_impl ) );
+        free( hps );
+        free( hps_from_alt_impl );
+    }
 
 #tcase sq_name_index_tests
 
 #test C_sq_name_index_test_with_all_valid_inputs
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( i == sq_name_index( SNA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( i == sq_name_index( SNA[ i ] ) );
+    }
 
 #test C_sq_name_index_test_with_invalid_inputs
-	ck_assert( true );
-	// sq_name_index( NULL );
-	// sq_name_index( "" );
-	// sq_name_index( "a" );
-	// sq_name_index( "aa" );
-	// sq_name_index( "h9" );
+    ck_assert( true );
+    // sq_name_index( NULL );
+    // sq_name_index( "" );
+    // sq_name_index( "a" );
+    // sq_name_index( "aa" );
+    // sq_name_index( "h9" );
 
 #tcase num_of_sqs_in_sq_set_tests
 
 #test C_num_of_sqs_in_sq_set_returns_0
-	ck_assert( !num_of_sqs_in_sq_set( 0u ) );
+    ck_assert( !num_of_sqs_in_sq_set( 0u ) );
 
 #test C_num_of_sqs_in_sq_set_returns_1
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( 1 == num_of_sqs_in_sq_set( SBA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( 1 == num_of_sqs_in_sq_set( SBA[ i ] ) );
+    }
 
 #test C_num_of_sqs_in_sq_set_returns_8
-	for( int file = 'a'; file <= 'h'; file++ ) {
-		ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_file( file ) ) );
-	}
-	for( int rank = '1'; rank <= '8'; rank++ ) {
-		ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_rank( rank ) ) );
-	}
+    for( int file = 'a'; file <= 'h'; file++ ) {
+        ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_file( file ) ) );
+    }
+    for( int rank = '1'; rank <= '8'; rank++ ) {
+        ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_rank( rank ) ) );
+    }
 
 #test C_num_of_sqs_in_sq_set_returns_64
-	ck_assert( 64 == num_of_sqs_in_sq_set( 0xffffffffffffffffU ) );
+    ck_assert( 64 == num_of_sqs_in_sq_set( 0xffffffffffffffffU ) );
 
 #tcase file_and_rank_to_sq_name_tests
 
 #test C_file_and_rank_to_sq_name_works
-	ck_assert( !strcmp( "e4", file_and_rank_to_sq_name( 'e', '4' ) ) );
-	ck_assert( !strcmp( "a1", file_and_rank_to_sq_name( 'a', '1' ) ) );
-	ck_assert( !strcmp( "h1", file_and_rank_to_sq_name( 'h', '1' ) ) );
-	ck_assert( !strcmp( "a8", file_and_rank_to_sq_name( 'a', '8' ) ) );
-	ck_assert( !strcmp( "h8", file_and_rank_to_sq_name( 'h', '8' ) ) );
+    ck_assert( !strcmp( "e4", file_and_rank_to_sq_name( 'e', '4' ) ) );
+    ck_assert( !strcmp( "a1", file_and_rank_to_sq_name( 'a', '1' ) ) );
+    ck_assert( !strcmp( "h1", file_and_rank_to_sq_name( 'h', '1' ) ) );
+    ck_assert( !strcmp( "a8", file_and_rank_to_sq_name( 'a', '8' ) ) );
+    ck_assert( !strcmp( "h8", file_and_rank_to_sq_name( 'h', '8' ) ) );
 
 //
 // Test case
@@ -477,121 +477,121 @@ free( bin_str );
 #tcase sq_rectangle_tests
 
 #test C_sq_rectangle_manually_selected_assertions
-	ck_assert( !sq_rectangle( SB.h1, SB.a8 ) );
-	ck_assert( 0x3c3c3c3c0000U == sq_rectangle( SB.c6, SB.f3 ) );
-	ck_assert( 0x7e000000U == sq_rectangle( SB.b4, SB.g4 ) );
-	ck_assert( 0x1818000000U == sq_rectangle( SB.d5, SB.e4 ) );
-	ck_assert( UINT64_MAX == sq_rectangle( SB.a8, SB.h1 ) );
-	ck_assert( 0x303000000000000U == sq_rectangle( SB.a8, SB.b7 ) );
-	ck_assert( 0xc0c0000000000000U == sq_rectangle( SB.g8, SB.h7 ) );
-	ck_assert( 0x303U == sq_rectangle( SB.a2, SB.b1 ) );
-	ck_assert( 0xc0c0U == sq_rectangle( SB.g2, SB.h1 ) );
-	ck_assert( 0 == sq_rectangle( SB.e4, SB.d4 ) );
-	ck_assert( 0 == sq_rectangle( SB.c5, SB.c6 ) );
+    ck_assert( !sq_rectangle( SB.h1, SB.a8 ) );
+    ck_assert( 0x3c3c3c3c0000U == sq_rectangle( SB.c6, SB.f3 ) );
+    ck_assert( 0x7e000000U == sq_rectangle( SB.b4, SB.g4 ) );
+    ck_assert( 0x1818000000U == sq_rectangle( SB.d5, SB.e4 ) );
+    ck_assert( UINT64_MAX == sq_rectangle( SB.a8, SB.h1 ) );
+    ck_assert( 0x303000000000000U == sq_rectangle( SB.a8, SB.b7 ) );
+    ck_assert( 0xc0c0000000000000U == sq_rectangle( SB.g8, SB.h7 ) );
+    ck_assert( 0x303U == sq_rectangle( SB.a2, SB.b1 ) );
+    ck_assert( 0xc0c0U == sq_rectangle( SB.g2, SB.h1 ) );
+    ck_assert( 0 == sq_rectangle( SB.e4, SB.d4 ) );
+    ck_assert( 0 == sq_rectangle( SB.c5, SB.c6 ) );
 
 #test C_sq_rectangle_upper_left_equals_lower_right
-	for( int i = 0; i < 64; i++ )
-		ck_assert( SBA[ i ] == sq_rectangle( SBA[ i ], SBA[ i ] ) );
+    for( int i = 0; i < 64; i++ )
+        ck_assert( SBA[ i ] == sq_rectangle( SBA[ i ], SBA[ i ] ) );
 
 #test C_sq_rectangle_files_test
-	for( int i = 'a'; i <= 'h'; i++ )
-		ck_assert( sq_set_of_file( i ) ==
-			sq_rectangle(
-				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
-				sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
+    for( int i = 'a'; i <= 'h'; i++ )
+        ck_assert( sq_set_of_file( i ) ==
+            sq_rectangle(
+                sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
+                sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
 
 #test C_sq_rectangle_ranks_test
-	for( int i = '1'; i <= '8'; i++ )
-		ck_assert( sq_set_of_rank( i ) ==
-			sq_rectangle(
-				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
-				sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );
+    for( int i = '1'; i <= '8'; i++ )
+        ck_assert( sq_set_of_rank( i ) ==
+            sq_rectangle(
+                sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
+                sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );
 
 #test C_sq_rectangle_returns_empty_bitboard
-	const Bitboard upper_left = SB.h1;
-	Bitboard lower_right;
-	const char *lower_right_sq_name = "g2";
-	do {
-		lower_right = sq_name_to_sq_bit( lower_right_sq_name );
-		ck_assert( !sq_rectangle( upper_left, lower_right ) );
-	} while( lower_right_sq_name &&
-		( lower_right_sq_name =
-			sq_navigator( lower_right_sq_name, NORTHWEST ) ) );
+    const Bitboard upper_left = SB.h1;
+    Bitboard lower_right;
+    const char *lower_right_sq_name = "g2";
+    do {
+        lower_right = sq_name_to_sq_bit( lower_right_sq_name );
+        ck_assert( !sq_rectangle( upper_left, lower_right ) );
+    } while( lower_right_sq_name &&
+        ( lower_right_sq_name =
+            sq_navigator( lower_right_sq_name, NORTHWEST ) ) );
 
 #tcase diag_of_sq_tests
 
 #test C_diag_of_sq_tested_with_squares_of_main_antidiagonal
-	ck_assert( diag_of_sq( SB.h1 ) == 0x80U );
-	ck_assert( diag_of_sq( SB.g2 ) == 0x804020U );
-	ck_assert( diag_of_sq( SB.f3 ) == 0x8040201008U );
-	ck_assert( diag_of_sq( SB.e4 ) == 0x80402010080402U );
-	ck_assert( diag_of_sq( SB.d5 ) == 0x4020100804020100U );
-	ck_assert( diag_of_sq( SB.c6 ) == 0x1008040201000000U );
-	ck_assert( diag_of_sq( SB.b7 ) == 0x402010000000000U );
-	ck_assert( diag_of_sq( SB.a8 ) == 0x100000000000000U );
+    ck_assert( diag_of_sq( SB.h1 ) == 0x80U );
+    ck_assert( diag_of_sq( SB.g2 ) == 0x804020U );
+    ck_assert( diag_of_sq( SB.f3 ) == 0x8040201008U );
+    ck_assert( diag_of_sq( SB.e4 ) == 0x80402010080402U );
+    ck_assert( diag_of_sq( SB.d5 ) == 0x4020100804020100U );
+    ck_assert( diag_of_sq( SB.c6 ) == 0x1008040201000000U );
+    ck_assert( diag_of_sq( SB.b7 ) == 0x402010000000000U );
+    ck_assert( diag_of_sq( SB.a8 ) == 0x100000000000000U );
 
 #test C_diag_of_sq_tested_with_squares_of_antidiagonal_g1a7
-	ck_assert( diag_of_sq( SB.g1 ) == 0x8040U );
-	ck_assert( diag_of_sq( SB.f2 ) == 0x80402010U );
-	ck_assert( diag_of_sq( SB.e3 ) == 0x804020100804U );
-	ck_assert( diag_of_sq( SB.d4 ) == 0x8040201008040201U );
-	ck_assert( diag_of_sq( SB.c5 ) == 0x2010080402010000U );
-	ck_assert( diag_of_sq( SB.b6 ) == 0x804020100000000U );
-	ck_assert( diag_of_sq( SB.a7 ) == 0x201000000000000U );
+    ck_assert( diag_of_sq( SB.g1 ) == 0x8040U );
+    ck_assert( diag_of_sq( SB.f2 ) == 0x80402010U );
+    ck_assert( diag_of_sq( SB.e3 ) == 0x804020100804U );
+    ck_assert( diag_of_sq( SB.d4 ) == 0x8040201008040201U );
+    ck_assert( diag_of_sq( SB.c5 ) == 0x2010080402010000U );
+    ck_assert( diag_of_sq( SB.b6 ) == 0x804020100000000U );
+    ck_assert( diag_of_sq( SB.a7 ) == 0x201000000000000U );
 
 #test C_diag_of_sq_tested_with_all_squares
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( diag_of_sq( SBA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( diag_of_sq( SBA[ i ] ) );
+    }
 
 #tcase antidiag_of_sq_tests
 
 #test C_antidiag_of_sq_tested_with_squares_of_main_diagonal
-	ck_assert( antidiag_of_sq( SB.a1 ) == 0x1U );
-	ck_assert( antidiag_of_sq( SB.b2 ) == 0x10204U );
-	ck_assert( antidiag_of_sq( SB.c3 ) == 0x102040810U );
-	ck_assert( antidiag_of_sq( SB.d4 ) == 0x1020408102040U );
-	ck_assert( antidiag_of_sq( SB.e5 ) == 0x204081020408000U );
-	ck_assert( antidiag_of_sq( SB.f6 ) == 0x810204080000000U );
-	ck_assert( antidiag_of_sq( SB.g7 ) == 0x2040800000000000U );
-	ck_assert( antidiag_of_sq( SB.h8 ) == 0x8000000000000000U );
+    ck_assert( antidiag_of_sq( SB.a1 ) == 0x1U );
+    ck_assert( antidiag_of_sq( SB.b2 ) == 0x10204U );
+    ck_assert( antidiag_of_sq( SB.c3 ) == 0x102040810U );
+    ck_assert( antidiag_of_sq( SB.d4 ) == 0x1020408102040U );
+    ck_assert( antidiag_of_sq( SB.e5 ) == 0x204081020408000U );
+    ck_assert( antidiag_of_sq( SB.f6 ) == 0x810204080000000U );
+    ck_assert( antidiag_of_sq( SB.g7 ) == 0x2040800000000000U );
+    ck_assert( antidiag_of_sq( SB.h8 ) == 0x8000000000000000U );
 
 #test C_antidiag_of_sq_tested_with_squares_of_diagonal_b1h7
-	ck_assert( antidiag_of_sq( SB.b1 ) == 0x102U );
-	ck_assert( antidiag_of_sq( SB.c2 ) == 0x1020408U );
-	ck_assert( antidiag_of_sq( SB.d3 ) == 0x10204081020U );
-	ck_assert( antidiag_of_sq( SB.e4 ) == 0x102040810204080U );
-	ck_assert( antidiag_of_sq( SB.f5 ) == 0x408102040800000U );
-	ck_assert( antidiag_of_sq( SB.g6 ) == 0x1020408000000000U );
-	ck_assert( antidiag_of_sq( SB.h7 ) == 0x4080000000000000U );
+    ck_assert( antidiag_of_sq( SB.b1 ) == 0x102U );
+    ck_assert( antidiag_of_sq( SB.c2 ) == 0x1020408U );
+    ck_assert( antidiag_of_sq( SB.d3 ) == 0x10204081020U );
+    ck_assert( antidiag_of_sq( SB.e4 ) == 0x102040810204080U );
+    ck_assert( antidiag_of_sq( SB.f5 ) == 0x408102040800000U );
+    ck_assert( antidiag_of_sq( SB.g6 ) == 0x1020408000000000U );
+    ck_assert( antidiag_of_sq( SB.h7 ) == 0x4080000000000000U );
 
 #test C_antidiag_of_sq_tested_with_all_squares
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( antidiag_of_sq( SBA[ i ] ) );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( antidiag_of_sq( SBA[ i ] ) );
+    }
 
 #tcase next_sq_of_ss_tests
 
 #test C_next_sq_of_ss_tested_repeatedly_with_empty_ss
-	Bitboard ss = 0;
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( !next_sq_of_ss( &ss ) );
-	}
+    Bitboard ss = 0;
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( !next_sq_of_ss( &ss ) );
+    }
 
 #test C_next_sq_of_ss_tested_with_full_ss
-	Bitboard ss = ~0;
-	for( int i = 0; i < 64; i++ ) {
-		ck_assert( next_sq_of_ss( &ss ) == SBA[ i ] );
-	}
-	ck_assert( !ss );
+    Bitboard ss = ~0;
+    for( int i = 0; i < 64; i++ ) {
+        ck_assert( next_sq_of_ss( &ss ) == SBA[ i ] );
+    }
+    ck_assert( !ss );
 
 #test C_next_sq_of_ss_tested_with_center_ss
-	Bitboard ss = 0x1818000000U;
-	ck_assert( next_sq_of_ss( &ss ) == 0x8000000U );
-	ck_assert( next_sq_of_ss( &ss ) == 0x10000000U );
-	ck_assert( next_sq_of_ss( &ss ) == 0x800000000U );
-	ck_assert( next_sq_of_ss( &ss ) == 0x1000000000U );
-	ck_assert( next_sq_of_ss( &ss ) == 0 );
+    Bitboard ss = 0x1818000000U;
+    ck_assert( next_sq_of_ss( &ss ) == 0x8000000U );
+    ck_assert( next_sq_of_ss( &ss ) == 0x10000000U );
+    ck_assert( next_sq_of_ss( &ss ) == 0x800000000U );
+    ck_assert( next_sq_of_ss( &ss ) == 0x1000000000U );
+    ck_assert( next_sq_of_ss( &ss ) == 0 );
 
 //
 // Test case
@@ -599,30 +599,30 @@ free( bin_str );
 #tcase expand_ppf_rank_tests
 
 #test C_expand_ppf_rank_test
-	char expanded_ppf_rank[ 8 + 1 ];
-	const char *ppf_ranks_and_expected_results[] = {
-		"8", "--------",
-		"pppppppp", "pppppppp",
-		"RNBQKBNR", "RNBQKBNR",
-		"7K", "-------K",
-		"K7", "K-------",
-		"q1q1q3", "q-q-q---",
-		// Personally significant PPF
-		"6k1", "------k-",
-		"r1q1b2n", "r-q-b--n",
-		"6QP", "------QP",
-		"p3R3", "p---R---",
-		"1p3p2", "-p---p--",
-		"1P6", "-P------",
-		"1PP2P2", "-PP--P--",
-		"2K4R", "--K----R",
-		NULL };
+    char expanded_ppf_rank[ 8 + 1 ];
+    const char *ppf_ranks_and_expected_results[] = {
+        "8", "--------",
+        "pppppppp", "pppppppp",
+        "RNBQKBNR", "RNBQKBNR",
+        "7K", "-------K",
+        "K7", "K-------",
+        "q1q1q3", "q-q-q---",
+        // Personally significant PPF
+        "6k1", "------k-",
+        "r1q1b2n", "r-q-b--n",
+        "6QP", "------QP",
+        "p3R3", "p---R---",
+        "1p3p2", "-p---p--",
+        "1P6", "-P------",
+        "1PP2P2", "-PP--P--",
+        "2K4R", "--K----R",
+        NULL };
 
-	for( int i = 0; ppf_ranks_and_expected_results[ i ]; i += 2 ) {
-		expand_ppf_rank( ppf_ranks_and_expected_results[ i ], expanded_ppf_rank );
-		ck_assert( !strcmp( expanded_ppf_rank,
-			ppf_ranks_and_expected_results[ i + 1 ] ) );
-	}
+    for( int i = 0; ppf_ranks_and_expected_results[ i ]; i += 2 ) {
+        expand_ppf_rank( ppf_ranks_and_expected_results[ i ], expanded_ppf_rank );
+        ck_assert( !strcmp( expanded_ppf_rank,
+            ppf_ranks_and_expected_results[ i + 1 ] ) );
+    }
 
 //
 // Test case
@@ -630,36 +630,36 @@ free( bin_str );
 #tcase compress_eppf_rank_tests
 
 #test C_compress_eppf_rank_test
-	char comp_ppf_rank[ 8 + 1 ];
-	const char *eppf_ranks_and_er[] = { // er, expected results
-		"--------", "8",
-		"pppppppp", "pppppppp",
-		"PPPPPPPP", "PPPPPPPP",
-		"rnbqkbnr", "rnbqkbnr",
-		"RNBQKBNR", "RNBQKBNR",
-		"K-------", "K7",
-		"-------K", "7K",
-		"p-p-----", "p1p5",
-		"-p-p----", "1p1p4",
-		"--p-p---", "2p1p3",
-		"---p-p--", "3p1p2",
-		"----p-p-", "4p1p1",
-		"-----p-p", "5p1p",
-		// Personally significant PPF
-		"------k-", "6k1",
-		"r-q-b--n", "r1q1b2n",
-		"------QP", "6QP",
-		"p---R---", "p3R3",
-		"-p---p--", "1p3p2",
-		"-P------", "1P6",
-		"-PP--P--", "1PP2P2",
-		"--K----R", "2K4R",
-		NULL };
+    char comp_ppf_rank[ 8 + 1 ];
+    const char *eppf_ranks_and_er[] = { // er, expected results
+        "--------", "8",
+        "pppppppp", "pppppppp",
+        "PPPPPPPP", "PPPPPPPP",
+        "rnbqkbnr", "rnbqkbnr",
+        "RNBQKBNR", "RNBQKBNR",
+        "K-------", "K7",
+        "-------K", "7K",
+        "p-p-----", "p1p5",
+        "-p-p----", "1p1p4",
+        "--p-p---", "2p1p3",
+        "---p-p--", "3p1p2",
+        "----p-p-", "4p1p1",
+        "-----p-p", "5p1p",
+        // Personally significant PPF
+        "------k-", "6k1",
+        "r-q-b--n", "r1q1b2n",
+        "------QP", "6QP",
+        "p---R---", "p3R3",
+        "-p---p--", "1p3p2",
+        "-P------", "1P6",
+        "-PP--P--", "1PP2P2",
+        "--K----R", "2K4R",
+        NULL };
 
-	for( int i = 0; eppf_ranks_and_er[ i ]; i += 2 ) {
-		compress_eppf_rank( eppf_ranks_and_er[ i ], comp_ppf_rank );
-		ck_assert( !strcmp( comp_ppf_rank, eppf_ranks_and_er[ i + 1 ] ) );
-	}
+    for( int i = 0; eppf_ranks_and_er[ i ]; i += 2 ) {
+        compress_eppf_rank( eppf_ranks_and_er[ i ], comp_ppf_rank );
+        ck_assert( !strcmp( comp_ppf_rank, eppf_ranks_and_er[ i + 1 ] ) );
+    }
 
 //
 // Test case
@@ -667,25 +667,25 @@ free( bin_str );
 #tcase expand_ppf_tests
 
 #test C_expand_ppf_test
-	char eppf[ PPF_MAX_LENGTH + 1 ];
-	const char *input_and_exp_output[] = {
-		"8/8/8/8/8/8/8/8",
-			"--------/--------/--------/--------/--------/--------/--------/--------",
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
-			"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
-		"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
-			"rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R",
-		"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
-			"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
-		// Personally significant PPF
-		"6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
-			"------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
-		NULL };
+    char eppf[ PPF_MAX_LENGTH + 1 ];
+    const char *input_and_exp_output[] = {
+        "8/8/8/8/8/8/8/8",
+            "--------/--------/--------/--------/--------/--------/--------/--------",
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+            "rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
+        "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
+            "rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R",
+        "pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+            "pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+        // Personally significant PPF
+        "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
+            "------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
+        NULL };
 
-	for( int i = 0; input_and_exp_output[ i ]; i += 2 ) {
-		expand_ppf( input_and_exp_output[ i ], eppf );
-		ck_assert( !strcmp( eppf, input_and_exp_output[ i + 1 ] ) );
-	}
+    for( int i = 0; input_and_exp_output[ i ]; i += 2 ) {
+        expand_ppf( input_and_exp_output[ i ], eppf );
+        ck_assert( !strcmp( eppf, input_and_exp_output[ i + 1 ] ) );
+    }
 
 //
 // Test case
@@ -693,25 +693,25 @@ free( bin_str );
 #tcase compress_eppf_tests
 
 #test compress_eppf_test
-	const char *input_and_exp_output[] = {
-		"----k---/--------/--------/--------/--------/--------/--------/----K---",
-			"4k3/8/8/8/8/8/8/4K3",
-		"rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
-			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
-		"rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R",
-			"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
-		"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
-			"pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
-		// Personally significant PPF
-		"------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
-			"6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
-		NULL };
+    const char *input_and_exp_output[] = {
+        "----k---/--------/--------/--------/--------/--------/--------/----K---",
+            "4k3/8/8/8/8/8/8/4K3",
+        "rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        "rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R",
+            "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
+        "pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+            "pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp/pppppppp",
+        // Personally significant PPF
+        "------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
+            "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
+        NULL };
 
-	for( int i = 0; input_and_exp_output[ i ]; i += 2 ) {
-		char *ppf = compress_eppf( input_and_exp_output[ i ] );
-		ck_assert( !strcmp( ppf, input_and_exp_output[ i + 1 ] ) );
-		free( ppf );
-	}
+    for( int i = 0; input_and_exp_output[ i ]; i += 2 ) {
+        char *ppf = compress_eppf( input_and_exp_output[ i ] );
+        ck_assert( !strcmp( ppf, input_and_exp_output[ i + 1 ] ) );
+        free( ppf );
+    }
 
 //
 // Test case
@@ -719,38 +719,38 @@ free( bin_str );
 #tcase compress_eppf_and_expand_ppf_inverse_fn_tests
 
 #test C_inner_fn_compress_eppf_outer_fn_expand_ppf
-	char computed_eppf[ PPF_MAX_LENGTH + 1 ];
-	const char *input_eppf[] = {
-		"r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R",
-		// Opera game position. PPF equivalent:
-		// "3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R"
-		"---rkb-r/p--nqppp/-----n--/-B--p-B-/----P---/-Q------/PPP--PPP/--KR---R",
-		// Equivalent PPF: "8/8/8/8/7k/6pq/R1R5/4K3"
-		"--------/--------/--------/--------/-------k/------pq/R-R-----/----K---",
-		NULL };
+    char computed_eppf[ PPF_MAX_LENGTH + 1 ];
+    const char *input_eppf[] = {
+        "r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R",
+        // Opera game position. PPF equivalent:
+        // "3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R"
+        "---rkb-r/p--nqppp/-----n--/-B--p-B-/----P---/-Q------/PPP--PPP/--KR---R",
+        // Equivalent PPF: "8/8/8/8/7k/6pq/R1R5/4K3"
+        "--------/--------/--------/--------/-------k/------pq/R-R-----/----K---",
+        NULL };
 
-	for( int i = 0; input_eppf[ i ]; i++ ) {
-		char *ppf = compress_eppf( input_eppf[ i ] );
-		expand_ppf( ppf, computed_eppf );
-		ck_assert( !strcmp( computed_eppf, input_eppf[ i ] ) );
-		free( ppf );
-	}
+    for( int i = 0; input_eppf[ i ]; i++ ) {
+        char *ppf = compress_eppf( input_eppf[ i ] );
+        expand_ppf( ppf, computed_eppf );
+        ck_assert( !strcmp( computed_eppf, input_eppf[ i ] ) );
+        free( ppf );
+    }
 
 #test C_inner_fn_expand_ppf_outer_fn_compress_eppf
-	char computed_eppf[ PPF_MAX_LENGTH + 1 ];
-	const char *input_ppf[] = {
-		"3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R",
-		"8/8/8/8/7k/6pq/R1R5/4K3",
-		// Personally significant PPF
-		"6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
-		NULL };
+    char computed_eppf[ PPF_MAX_LENGTH + 1 ];
+    const char *input_ppf[] = {
+        "3rkb1r/p2nqppp/5n2/1B2p1B1/4P3/1Q6/PPP2PPP/2KR3R",
+        "8/8/8/8/7k/6pq/R1R5/4K3",
+        // Personally significant PPF
+        "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R",
+        NULL };
 
-	for( int i = 0; input_ppf[ i ]; i++ ) {
-		expand_ppf( input_ppf[ i ], computed_eppf );
-		char *output_ppf = compress_eppf( computed_eppf );
-		ck_assert( !strcmp( input_ppf[ i ], output_ppf ) );
-		free( output_ppf );
-	}
+    for( int i = 0; input_ppf[ i ]; i++ ) {
+        expand_ppf( input_ppf[ i ], computed_eppf );
+        char *output_ppf = compress_eppf( computed_eppf );
+        ck_assert( !strcmp( input_ppf[ i ], output_ppf ) );
+        free( output_ppf );
+    }
 
 //
 // Test case
@@ -758,32 +758,50 @@ free( bin_str );
 #tcase fen_fields_tests
 
 #define FEN_FIELDS_WORKS( fen, exp_ppf, exp_acf, exp_caf, exp_eptsf, \
-	exp_hmcf, exp_fmnf ) \
-ck_assert( !che_fen_validator( fen ) ); \
-ff = fen_fields( fen ); \
-ck_assert( ff ); \
-exp_vals[ 0 ] = exp_ppf, exp_vals[ 1 ] = exp_acf, exp_vals[ 2 ] = exp_caf, \
-	exp_vals[ 3 ] = exp_eptsf, exp_vals[ 4 ] = exp_hmcf, exp_vals[ 5 ] = exp_fmnf; \
-for( int i = 0; i < 6; i++ ) ck_assert( !strcmp( ff[ i ], exp_vals[ i ] ) ); \
-free_fen_fields( ff );
+        exp_hmcf, exp_fmnf ) \
+    ck_assert( !che_fen_validator( fen ) ); \
+    ck_assert( ( ff = fen_fields( fen ) ) ); \
+    exp_vals[ 0 ] = exp_ppf, exp_vals[ 1 ] = exp_acf, \
+        exp_vals[ 2 ] = exp_caf, exp_vals[ 3 ] = exp_eptsf, \
+        exp_vals[ 4 ] = exp_hmcf, exp_vals[ 5 ] = exp_fmnf; \
+    for( int i = 0; i < 6; i++ ) \
+        ck_assert( !strcmp( ff[ i ], exp_vals[ i ] ) ); \
+    free_fen_fields( ff );
 
 #test C_fen_fields_works
-	char **ff, *exp_vals[ 6 ];
-	ff = fen_fields( STD_START_POS_FEN );
-	FEN_FIELDS_WORKS( STD_START_POS_FEN,
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq", "-", "0", "1" )
-	FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R w KQkq - 0 6",
-		"rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R", "w", "KQkq", "-", "0", "6" )
-	FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R b KQkq - 1 6",
-		"rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R", "b", "KQkq", "-", "1", "6" )
-	FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R w KQkq - 2 7",
-		"rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R", "w", "KQkq", "-", "2", "7" )
-	FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R b KQkq - 3 7",
-		"rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "b", "KQkq", "-", "3", "7" )
-	FEN_FIELDS_WORKS( "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R w KQkq - 4 8",
-		"rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R", "w", "KQkq", "-", "4", "8" )
-	FEN_FIELDS_WORKS( "4k3/8/8/8/8/8/8/4K3 w - - 1337 23456",
-		"4k3/8/8/8/8/8/8/4K3", "w", "-", "-", "1337", "23456" )
+    char **ff, *exp_vals[ 6 ];
+
+    FEN_FIELDS_WORKS( STD_START_POS_FEN,
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        "w", "KQkq", "-", "0", "1" )
+    FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R "
+        "w KQkq - 0 6",
+        "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R",
+        "w", "KQkq", "-", "0", "6" )
+    FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R "
+        "b KQkq - 1 6",
+        "rn1qkbnr/ppp2ppp/8/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R",
+        "b", "KQkq", "-", "1", "6" )
+    FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R "
+        "w KQkq - 2 7",
+        "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/5Q2/PPP2PPP/RNB1K2R",
+        "w", "KQkq", "-", "2", "7" )
+    FEN_FIELDS_WORKS( "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R "
+        "b KQkq - 3 7",
+        "rn1qkb1r/ppp2ppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
+        "b", "KQkq", "-", "3", "7" )
+    FEN_FIELDS_WORKS( "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R "
+        "w KQkq - 4 8",
+        "rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R",
+        "w", "KQkq", "-", "4", "8" )
+    FEN_FIELDS_WORKS( "4k3/8/8/8/8/8/8/4K3 w - - 1337 23456",
+        "4k3/8/8/8/8/8/8/4K3", "w", "-", "-", "1337", "23456" )
+    FEN_FIELDS_WORKS( "8/8/6k1/8/3P4/2PBP1r1/7r/3K4 b - - 10 100",
+        "8/8/6k1/8/3P4/2PBP1r1/7r/3K4", "b", "-", "-", "10", "100" )
+    FEN_FIELDS_WORKS( "rnbkrbqn/pppppppp/8/8/8/8/PPPPPPPP/RNBKRBQN "
+        "w AEae - 0 1",
+        "rnbkrbqn/pppppppp/8/8/8/8/PPPPPPPP/RNBKRBQN",
+        "w", "AEae", "-", "0", "1" )
 
 #undef FEN_FIELDS_WORKS
 
@@ -798,45 +816,45 @@ expand_caf( caf, ecaf ); \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_expand_caf_tested_with_all_standard_FEN_CAFs
-	char ecaf[ 9 + 1 ];
+    char ecaf[ 9 + 1 ];
 
-	STD_FEN_CAF_TEST( "-", "----" )
-	STD_FEN_CAF_TEST( "K", "-H--" )
-	STD_FEN_CAF_TEST( "Q", "A---" )
-	STD_FEN_CAF_TEST( "k", "---h" )
-	STD_FEN_CAF_TEST( "q", "--a-" )
-	STD_FEN_CAF_TEST( "KQ", "AH--" )
-	STD_FEN_CAF_TEST( "Kk", "-H-h" )
-	STD_FEN_CAF_TEST( "Kq", "-Ha-" )
-	STD_FEN_CAF_TEST( "Qk", "A--h" )
-	STD_FEN_CAF_TEST( "Qq", "A-a-" )
-	STD_FEN_CAF_TEST( "kq", "--ah" )
-	STD_FEN_CAF_TEST( "Qkq", "A-ah" )
-	STD_FEN_CAF_TEST( "Kkq", "-Hah" )
-	STD_FEN_CAF_TEST( "KQq", "AHa-" )
-	STD_FEN_CAF_TEST( "KQk", "AH-h" )
-	STD_FEN_CAF_TEST( "KQkq", "AHah" )
-	
+    STD_FEN_CAF_TEST( "-", "----" )
+    STD_FEN_CAF_TEST( "K", "-H--" )
+    STD_FEN_CAF_TEST( "Q", "A---" )
+    STD_FEN_CAF_TEST( "k", "---h" )
+    STD_FEN_CAF_TEST( "q", "--a-" )
+    STD_FEN_CAF_TEST( "KQ", "AH--" )
+    STD_FEN_CAF_TEST( "Kk", "-H-h" )
+    STD_FEN_CAF_TEST( "Kq", "-Ha-" )
+    STD_FEN_CAF_TEST( "Qk", "A--h" )
+    STD_FEN_CAF_TEST( "Qq", "A-a-" )
+    STD_FEN_CAF_TEST( "kq", "--ah" )
+    STD_FEN_CAF_TEST( "Qkq", "A-ah" )
+    STD_FEN_CAF_TEST( "Kkq", "-Hah" )
+    STD_FEN_CAF_TEST( "KQq", "AHa-" )
+    STD_FEN_CAF_TEST( "KQk", "AH-h" )
+    STD_FEN_CAF_TEST( "KQkq", "AHah" )
+
 #undef STD_FEN_CAF_TEST
 
 #test C_expand_caf_tested_with_all_4_char_Shredder_FEN_CAFs
-	char ecaf[ 9 + 1 ];
-	size_t tested_cafs_count = 0;
-	for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) {
-		const char *caf = SHREDDER_FEN_CAFS[ i ];
-		if( strlen( caf ) == 4 ) {
-			expand_caf( caf, ecaf );
-			if( caf[ 0 ] < caf[ 1 ] ) {
-				++tested_cafs_count;
-				ck_assert( !strcmp( caf, ecaf ) );
-			} else if( caf[ 0 ] > caf[ 1 ] ) {
-				++tested_cafs_count;
-				ck_assert( caf[ 0 ] == ecaf[ 1 ] && caf[ 1 ] == ecaf[ 0 ] &&
-					caf[ 2 ] == ecaf[ 3 ] && caf[ 3 ] == ecaf[ 2 ] );
-			} else ck_assert( false );
-		}
-	}
-	ck_assert( tested_cafs_count == 2 * POSSIBLE_IRPF_VALUES_COUNT );
+    char ecaf[ 9 + 1 ];
+    size_t tested_cafs_count = 0;
+    for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) {
+        const char *caf = SHREDDER_FEN_CAFS[ i ];
+        if( strlen( caf ) == 4 ) {
+            expand_caf( caf, ecaf );
+            if( caf[ 0 ] < caf[ 1 ] ) {
+                ++tested_cafs_count;
+                ck_assert( !strcmp( caf, ecaf ) );
+            } else if( caf[ 0 ] > caf[ 1 ] ) {
+                ++tested_cafs_count;
+                ck_assert( caf[ 0 ] == ecaf[ 1 ] && caf[ 1 ] == ecaf[ 0 ] &&
+                    caf[ 2 ] == ecaf[ 3 ] && caf[ 3 ] == ecaf[ 2 ] );
+            } else ck_assert( false );
+        }
+    }
+    ck_assert( tested_cafs_count == 2 * POSSIBLE_IRPF_VALUES_COUNT );
 
 #define THREE_CHAR_CAF_TEST( caf, exp_ecaf ) \
 if( !strcmp( exp_ecaf, "" ) ) ck_assert( false ); \
@@ -844,176 +862,176 @@ expand_caf( caf, ecaf ); \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_expand_caf_tested_with_some_3_char_Shredder_FEN_CAFs
-	char ecaf[ 9 + 1 ];
+    char ecaf[ 9 + 1 ];
 
-	THREE_CHAR_CAF_TEST( "Aac", "A-ac" )
-	// THREE_CHAR_CAF_TEST( "Aad", "" )
-	// THREE_CHAR_CAF_TEST( "Aae", "" )
-	THREE_CHAR_CAF_TEST( "Aaf", "A-af" )
-	// THREE_CHAR_CAF_TEST( "Aag", "" )
-	// THREE_CHAR_CAF_TEST( "Aah", "" )
-	// THREE_CHAR_CAF_TEST( "Aca", "" )
-	THREE_CHAR_CAF_TEST( "ACa", "ACa-" )
-	// THREE_CHAR_CAF_TEST( "ACc", "" )
-	// THREE_CHAR_CAF_TEST( "Ada", "" )
-	THREE_CHAR_CAF_TEST( "ADa", "ADa-" )
-	// THREE_CHAR_CAF_TEST( "ADd", "" )
-	// THREE_CHAR_CAF_TEST( "Aea", "" )
-	// THREE_CHAR_CAF_TEST( "AEa", "" )
-	THREE_CHAR_CAF_TEST( "AEe", "AE-e" )
-	// THREE_CHAR_CAF_TEST( "Afa", "" )
-	// THREE_CHAR_CAF_TEST( "AFa", "" )
-	THREE_CHAR_CAF_TEST( "AFf", "AF-f" )
-	// THREE_CHAR_CAF_TEST( "Aga", "" )
-	// THREE_CHAR_CAF_TEST( "AGa", "" )
-	// THREE_CHAR_CAF_TEST( "AGg", "" )
-	THREE_CHAR_CAF_TEST( "Aha", "A-ah" )
-	THREE_CHAR_CAF_TEST( "AHa", "AHa-" )
-	// THREE_CHAR_CAF_TEST( "AHh", "" )
-	THREE_CHAR_CAF_TEST( "Bbd", "B-bd" )
-	// THREE_CHAR_CAF_TEST( "Bbe", "" )
-	// THREE_CHAR_CAF_TEST( "Bbf", "" )
-	// THREE_CHAR_CAF_TEST( "Bbg", "" )
-	THREE_CHAR_CAF_TEST( "Bbh", "B-bh" )
-	// THREE_CHAR_CAF_TEST( "Bdb", "" )
-	// THREE_CHAR_CAF_TEST( "BDb", "" )
-	THREE_CHAR_CAF_TEST( "BDd", "BD-d" )
-	// THREE_CHAR_CAF_TEST( "Beb", "" )
-	// THREE_CHAR_CAF_TEST( "BEb", "" )
-	THREE_CHAR_CAF_TEST( "BEe", "BE-e" )
-	// THREE_CHAR_CAF_TEST( "Bfb", "" )
-	// THREE_CHAR_CAF_TEST( "BFb", "" )
-	THREE_CHAR_CAF_TEST( "BFf", "BF-f" )
-	// THREE_CHAR_CAF_TEST( "Bgb", "" )
-	// THREE_CHAR_CAF_TEST( "BGb", "" )
-	// THREE_CHAR_CAF_TEST( "BGg", "" )
-	THREE_CHAR_CAF_TEST( "Bhb", "B-bh" )
-	// THREE_CHAR_CAF_TEST( "BHb", "" )
-	// THREE_CHAR_CAF_TEST( "BHh", "" )
-	// THREE_CHAR_CAF_TEST( "CAa", "" )
-	THREE_CHAR_CAF_TEST( "Cac", "-Cac" )
-	// THREE_CHAR_CAF_TEST( "CAc", "" )
-	// THREE_CHAR_CAF_TEST( "Cca", "" )
-	THREE_CHAR_CAF_TEST( "Cce", "C-ce" )
-	// THREE_CHAR_CAF_TEST( "Ccf", "" )
-	// THREE_CHAR_CAF_TEST( "Ccg", "" )
-	THREE_CHAR_CAF_TEST( "Cch", "C-ch" )
-	// THREE_CHAR_CAF_TEST( "Cec", "" )
-	// THREE_CHAR_CAF_TEST( "CEc", "" )
-	THREE_CHAR_CAF_TEST( "CEe", "CE-e" )
-	// THREE_CHAR_CAF_TEST( "Cfc", "" )
-	// THREE_CHAR_CAF_TEST( "CFc", "" )
-	THREE_CHAR_CAF_TEST( "CFf", "CF-f" )
-	// THREE_CHAR_CAF_TEST( "Cgc", "" )
-	// THREE_CHAR_CAF_TEST( "CGc", "" )
-	// THREE_CHAR_CAF_TEST( "CGg", "" )
-	THREE_CHAR_CAF_TEST( "Chc", "C-ch" )
-	// THREE_CHAR_CAF_TEST( "CHc", "" )
-	// THREE_CHAR_CAF_TEST( "CHh", "" )
-	THREE_CHAR_CAF_TEST( "DAa", "ADa-" )
-	// THREE_CHAR_CAF_TEST( "Dad", "" )
-	// THREE_CHAR_CAF_TEST( "DAd", "" )
-	THREE_CHAR_CAF_TEST( "DBb", "BDb-" )
-	// THREE_CHAR_CAF_TEST( "Dbd", "" )
-	// THREE_CHAR_CAF_TEST( "DBd", "" )
-	THREE_CHAR_CAF_TEST( "Dda", "-Dad" )
-	// THREE_CHAR_CAF_TEST( "Ddb", "" )
-	// THREE_CHAR_CAF_TEST( "Ddf", "" )
-	THREE_CHAR_CAF_TEST( "Ddg", "D-dg" )
-	// THREE_CHAR_CAF_TEST( "Ddh", "" )
-	// THREE_CHAR_CAF_TEST( "Dfd", "" )
-	// THREE_CHAR_CAF_TEST( "DFd", "" )
-	THREE_CHAR_CAF_TEST( "DFf", "DF-f" )
-	// THREE_CHAR_CAF_TEST( "Dgd", "" )
-	// THREE_CHAR_CAF_TEST( "DGd", "" )
-	// THREE_CHAR_CAF_TEST( "DGg", "" )
-	// THREE_CHAR_CAF_TEST( "Dhd", "" )
-	// THREE_CHAR_CAF_TEST( "DHd", "" )
-	THREE_CHAR_CAF_TEST( "DHh", "DH-h" )
-	// THREE_CHAR_CAF_TEST( "EAa", "" )
-	// THREE_CHAR_CAF_TEST( "Eae", "" )
-	// THREE_CHAR_CAF_TEST( "EAe", "" )
-	// THREE_CHAR_CAF_TEST( "EBb", "" )
-	// THREE_CHAR_CAF_TEST( "Ebe", "" )
-	// THREE_CHAR_CAF_TEST( "EBe", "" )
-	THREE_CHAR_CAF_TEST( "ECc", "CEc-" )
-	// THREE_CHAR_CAF_TEST( "Ece", "" )
-	// THREE_CHAR_CAF_TEST( "ECe", "" )
-	// THREE_CHAR_CAF_TEST( "Eea", "" )
-	// THREE_CHAR_CAF_TEST( "Eeb", "" )
-	// THREE_CHAR_CAF_TEST( "Eec", "" )
-	// THREE_CHAR_CAF_TEST( "Eeg", "" )
-	// THREE_CHAR_CAF_TEST( "Eeh", "" )
-	// THREE_CHAR_CAF_TEST( "Ege", "" )
-	// THREE_CHAR_CAF_TEST( "EGe", "" )
-	// THREE_CHAR_CAF_TEST( "EGg", "" )
-	THREE_CHAR_CAF_TEST( "Ehe", "E-eh" )
-	// THREE_CHAR_CAF_TEST( "EHe", "" )
-	// THREE_CHAR_CAF_TEST( "EHh", "" )
-	// THREE_CHAR_CAF_TEST( "FAa", "" )
-	// THREE_CHAR_CAF_TEST( "Faf", "" )
-	// THREE_CHAR_CAF_TEST( "FAf", "" )
-	THREE_CHAR_CAF_TEST( "FBb", "BFb-" )
-	// THREE_CHAR_CAF_TEST( "Fbf", "" )
-	// THREE_CHAR_CAF_TEST( "FBf", "" )
-	// THREE_CHAR_CAF_TEST( "FCc", "" )
-	// THREE_CHAR_CAF_TEST( "Fcf", "" )
-	// THREE_CHAR_CAF_TEST( "FCf", "" )
-	THREE_CHAR_CAF_TEST( "FDd", "DFd-" )
-	// THREE_CHAR_CAF_TEST( "Fdf", "" )
-	// THREE_CHAR_CAF_TEST( "FDf", "" )
-	// THREE_CHAR_CAF_TEST( "Ffa", "" )
-	// THREE_CHAR_CAF_TEST( "Ffb", "" )
-	// THREE_CHAR_CAF_TEST( "Ffc", "" )
-	// THREE_CHAR_CAF_TEST( "Ffd", "" )
-	// THREE_CHAR_CAF_TEST( "Ffh", "" )
-	// THREE_CHAR_CAF_TEST( "Fhf", "" )
-	THREE_CHAR_CAF_TEST( "FHf", "FHf-" )
-	// THREE_CHAR_CAF_TEST( "FHh", "" )
-	// THREE_CHAR_CAF_TEST( "GAa", "" )
-	// THREE_CHAR_CAF_TEST( "Gag", "" )
-	// THREE_CHAR_CAF_TEST( "GAg", "" )
-	// THREE_CHAR_CAF_TEST( "GBb", "" )
-	// THREE_CHAR_CAF_TEST( "Gbg", "" )
-	// THREE_CHAR_CAF_TEST( "GBg", "" )
-	// THREE_CHAR_CAF_TEST( "GCc", "" )
-	// THREE_CHAR_CAF_TEST( "Gcg", "" )
-	// THREE_CHAR_CAF_TEST( "GCg", "" )
-	THREE_CHAR_CAF_TEST( "GDd", "DGd-" )
-	// THREE_CHAR_CAF_TEST( "Gdg", "" )
-	// THREE_CHAR_CAF_TEST( "GDg", "" )
-	// THREE_CHAR_CAF_TEST( "GEe", "" )
-	// THREE_CHAR_CAF_TEST( "Geg", "" )
-	// THREE_CHAR_CAF_TEST( "GEg", "" )
-	// THREE_CHAR_CAF_TEST( "Gga", "" )
-	// THREE_CHAR_CAF_TEST( "Ggb", "" )
-	// THREE_CHAR_CAF_TEST( "Ggc", "" )
-	// THREE_CHAR_CAF_TEST( "Ggd", "" )
-	// THREE_CHAR_CAF_TEST( "Gge", "" )
-	THREE_CHAR_CAF_TEST( "HAa", "AHa-" )
-	// THREE_CHAR_CAF_TEST( "Hah", "" )
-	// THREE_CHAR_CAF_TEST( "HAh", "" )
-	// THREE_CHAR_CAF_TEST( "HBb", "" )
-	// THREE_CHAR_CAF_TEST( "Hbh", "" )
-	// THREE_CHAR_CAF_TEST( "HBh", "" )
-	// THREE_CHAR_CAF_TEST( "HCc", "" )
-	THREE_CHAR_CAF_TEST( "Hch", "-Hch" )
-	// THREE_CHAR_CAF_TEST( "HCh", "" )
-	// THREE_CHAR_CAF_TEST( "HDd", "" )
-	// THREE_CHAR_CAF_TEST( "Hdh", "" )
-	// THREE_CHAR_CAF_TEST( "HDh", "" )
-	// THREE_CHAR_CAF_TEST( "HEe", "" )
-	// THREE_CHAR_CAF_TEST( "Heh", "" )
-	THREE_CHAR_CAF_TEST( "HEh", "EH-h" )
-	// THREE_CHAR_CAF_TEST( "HFf", "" )
-	// THREE_CHAR_CAF_TEST( "Hfh", "" )
-	// THREE_CHAR_CAF_TEST( "HFh", "" )
-	THREE_CHAR_CAF_TEST( "Hha", "-Hah" )
-	// THREE_CHAR_CAF_TEST( "Hhb", "" )
-	// THREE_CHAR_CAF_TEST( "Hhc", "" )
-	THREE_CHAR_CAF_TEST( "Hhd", "-Hdh" )
-	// THREE_CHAR_CAF_TEST( "Hhe", "" )
-	THREE_CHAR_CAF_TEST( "Hhf", "-Hfh" )
+    THREE_CHAR_CAF_TEST( "Aac", "A-ac" )
+    // THREE_CHAR_CAF_TEST( "Aad", "" )
+    // THREE_CHAR_CAF_TEST( "Aae", "" )
+    THREE_CHAR_CAF_TEST( "Aaf", "A-af" )
+    // THREE_CHAR_CAF_TEST( "Aag", "" )
+    // THREE_CHAR_CAF_TEST( "Aah", "" )
+    // THREE_CHAR_CAF_TEST( "Aca", "" )
+    THREE_CHAR_CAF_TEST( "ACa", "ACa-" )
+    // THREE_CHAR_CAF_TEST( "ACc", "" )
+    // THREE_CHAR_CAF_TEST( "Ada", "" )
+    THREE_CHAR_CAF_TEST( "ADa", "ADa-" )
+    // THREE_CHAR_CAF_TEST( "ADd", "" )
+    // THREE_CHAR_CAF_TEST( "Aea", "" )
+    // THREE_CHAR_CAF_TEST( "AEa", "" )
+    THREE_CHAR_CAF_TEST( "AEe", "AE-e" )
+    // THREE_CHAR_CAF_TEST( "Afa", "" )
+    // THREE_CHAR_CAF_TEST( "AFa", "" )
+    THREE_CHAR_CAF_TEST( "AFf", "AF-f" )
+    // THREE_CHAR_CAF_TEST( "Aga", "" )
+    // THREE_CHAR_CAF_TEST( "AGa", "" )
+    // THREE_CHAR_CAF_TEST( "AGg", "" )
+    THREE_CHAR_CAF_TEST( "Aha", "A-ah" )
+    THREE_CHAR_CAF_TEST( "AHa", "AHa-" )
+    // THREE_CHAR_CAF_TEST( "AHh", "" )
+    THREE_CHAR_CAF_TEST( "Bbd", "B-bd" )
+    // THREE_CHAR_CAF_TEST( "Bbe", "" )
+    // THREE_CHAR_CAF_TEST( "Bbf", "" )
+    // THREE_CHAR_CAF_TEST( "Bbg", "" )
+    THREE_CHAR_CAF_TEST( "Bbh", "B-bh" )
+    // THREE_CHAR_CAF_TEST( "Bdb", "" )
+    // THREE_CHAR_CAF_TEST( "BDb", "" )
+    THREE_CHAR_CAF_TEST( "BDd", "BD-d" )
+    // THREE_CHAR_CAF_TEST( "Beb", "" )
+    // THREE_CHAR_CAF_TEST( "BEb", "" )
+    THREE_CHAR_CAF_TEST( "BEe", "BE-e" )
+    // THREE_CHAR_CAF_TEST( "Bfb", "" )
+    // THREE_CHAR_CAF_TEST( "BFb", "" )
+    THREE_CHAR_CAF_TEST( "BFf", "BF-f" )
+    // THREE_CHAR_CAF_TEST( "Bgb", "" )
+    // THREE_CHAR_CAF_TEST( "BGb", "" )
+    // THREE_CHAR_CAF_TEST( "BGg", "" )
+    THREE_CHAR_CAF_TEST( "Bhb", "B-bh" )
+    // THREE_CHAR_CAF_TEST( "BHb", "" )
+    // THREE_CHAR_CAF_TEST( "BHh", "" )
+    // THREE_CHAR_CAF_TEST( "CAa", "" )
+    THREE_CHAR_CAF_TEST( "Cac", "-Cac" )
+    // THREE_CHAR_CAF_TEST( "CAc", "" )
+    // THREE_CHAR_CAF_TEST( "Cca", "" )
+    THREE_CHAR_CAF_TEST( "Cce", "C-ce" )
+    // THREE_CHAR_CAF_TEST( "Ccf", "" )
+    // THREE_CHAR_CAF_TEST( "Ccg", "" )
+    THREE_CHAR_CAF_TEST( "Cch", "C-ch" )
+    // THREE_CHAR_CAF_TEST( "Cec", "" )
+    // THREE_CHAR_CAF_TEST( "CEc", "" )
+    THREE_CHAR_CAF_TEST( "CEe", "CE-e" )
+    // THREE_CHAR_CAF_TEST( "Cfc", "" )
+    // THREE_CHAR_CAF_TEST( "CFc", "" )
+    THREE_CHAR_CAF_TEST( "CFf", "CF-f" )
+    // THREE_CHAR_CAF_TEST( "Cgc", "" )
+    // THREE_CHAR_CAF_TEST( "CGc", "" )
+    // THREE_CHAR_CAF_TEST( "CGg", "" )
+    THREE_CHAR_CAF_TEST( "Chc", "C-ch" )
+    // THREE_CHAR_CAF_TEST( "CHc", "" )
+    // THREE_CHAR_CAF_TEST( "CHh", "" )
+    THREE_CHAR_CAF_TEST( "DAa", "ADa-" )
+    // THREE_CHAR_CAF_TEST( "Dad", "" )
+    // THREE_CHAR_CAF_TEST( "DAd", "" )
+    THREE_CHAR_CAF_TEST( "DBb", "BDb-" )
+    // THREE_CHAR_CAF_TEST( "Dbd", "" )
+    // THREE_CHAR_CAF_TEST( "DBd", "" )
+    THREE_CHAR_CAF_TEST( "Dda", "-Dad" )
+    // THREE_CHAR_CAF_TEST( "Ddb", "" )
+    // THREE_CHAR_CAF_TEST( "Ddf", "" )
+    THREE_CHAR_CAF_TEST( "Ddg", "D-dg" )
+    // THREE_CHAR_CAF_TEST( "Ddh", "" )
+    // THREE_CHAR_CAF_TEST( "Dfd", "" )
+    // THREE_CHAR_CAF_TEST( "DFd", "" )
+    THREE_CHAR_CAF_TEST( "DFf", "DF-f" )
+    // THREE_CHAR_CAF_TEST( "Dgd", "" )
+    // THREE_CHAR_CAF_TEST( "DGd", "" )
+    // THREE_CHAR_CAF_TEST( "DGg", "" )
+    // THREE_CHAR_CAF_TEST( "Dhd", "" )
+    // THREE_CHAR_CAF_TEST( "DHd", "" )
+    THREE_CHAR_CAF_TEST( "DHh", "DH-h" )
+    // THREE_CHAR_CAF_TEST( "EAa", "" )
+    // THREE_CHAR_CAF_TEST( "Eae", "" )
+    // THREE_CHAR_CAF_TEST( "EAe", "" )
+    // THREE_CHAR_CAF_TEST( "EBb", "" )
+    // THREE_CHAR_CAF_TEST( "Ebe", "" )
+    // THREE_CHAR_CAF_TEST( "EBe", "" )
+    THREE_CHAR_CAF_TEST( "ECc", "CEc-" )
+    // THREE_CHAR_CAF_TEST( "Ece", "" )
+    // THREE_CHAR_CAF_TEST( "ECe", "" )
+    // THREE_CHAR_CAF_TEST( "Eea", "" )
+    // THREE_CHAR_CAF_TEST( "Eeb", "" )
+    // THREE_CHAR_CAF_TEST( "Eec", "" )
+    // THREE_CHAR_CAF_TEST( "Eeg", "" )
+    // THREE_CHAR_CAF_TEST( "Eeh", "" )
+    // THREE_CHAR_CAF_TEST( "Ege", "" )
+    // THREE_CHAR_CAF_TEST( "EGe", "" )
+    // THREE_CHAR_CAF_TEST( "EGg", "" )
+    THREE_CHAR_CAF_TEST( "Ehe", "E-eh" )
+    // THREE_CHAR_CAF_TEST( "EHe", "" )
+    // THREE_CHAR_CAF_TEST( "EHh", "" )
+    // THREE_CHAR_CAF_TEST( "FAa", "" )
+    // THREE_CHAR_CAF_TEST( "Faf", "" )
+    // THREE_CHAR_CAF_TEST( "FAf", "" )
+    THREE_CHAR_CAF_TEST( "FBb", "BFb-" )
+    // THREE_CHAR_CAF_TEST( "Fbf", "" )
+    // THREE_CHAR_CAF_TEST( "FBf", "" )
+    // THREE_CHAR_CAF_TEST( "FCc", "" )
+    // THREE_CHAR_CAF_TEST( "Fcf", "" )
+    // THREE_CHAR_CAF_TEST( "FCf", "" )
+    THREE_CHAR_CAF_TEST( "FDd", "DFd-" )
+    // THREE_CHAR_CAF_TEST( "Fdf", "" )
+    // THREE_CHAR_CAF_TEST( "FDf", "" )
+    // THREE_CHAR_CAF_TEST( "Ffa", "" )
+    // THREE_CHAR_CAF_TEST( "Ffb", "" )
+    // THREE_CHAR_CAF_TEST( "Ffc", "" )
+    // THREE_CHAR_CAF_TEST( "Ffd", "" )
+    // THREE_CHAR_CAF_TEST( "Ffh", "" )
+    // THREE_CHAR_CAF_TEST( "Fhf", "" )
+    THREE_CHAR_CAF_TEST( "FHf", "FHf-" )
+    // THREE_CHAR_CAF_TEST( "FHh", "" )
+    // THREE_CHAR_CAF_TEST( "GAa", "" )
+    // THREE_CHAR_CAF_TEST( "Gag", "" )
+    // THREE_CHAR_CAF_TEST( "GAg", "" )
+    // THREE_CHAR_CAF_TEST( "GBb", "" )
+    // THREE_CHAR_CAF_TEST( "Gbg", "" )
+    // THREE_CHAR_CAF_TEST( "GBg", "" )
+    // THREE_CHAR_CAF_TEST( "GCc", "" )
+    // THREE_CHAR_CAF_TEST( "Gcg", "" )
+    // THREE_CHAR_CAF_TEST( "GCg", "" )
+    THREE_CHAR_CAF_TEST( "GDd", "DGd-" )
+    // THREE_CHAR_CAF_TEST( "Gdg", "" )
+    // THREE_CHAR_CAF_TEST( "GDg", "" )
+    // THREE_CHAR_CAF_TEST( "GEe", "" )
+    // THREE_CHAR_CAF_TEST( "Geg", "" )
+    // THREE_CHAR_CAF_TEST( "GEg", "" )
+    // THREE_CHAR_CAF_TEST( "Gga", "" )
+    // THREE_CHAR_CAF_TEST( "Ggb", "" )
+    // THREE_CHAR_CAF_TEST( "Ggc", "" )
+    // THREE_CHAR_CAF_TEST( "Ggd", "" )
+    // THREE_CHAR_CAF_TEST( "Gge", "" )
+    THREE_CHAR_CAF_TEST( "HAa", "AHa-" )
+    // THREE_CHAR_CAF_TEST( "Hah", "" )
+    // THREE_CHAR_CAF_TEST( "HAh", "" )
+    // THREE_CHAR_CAF_TEST( "HBb", "" )
+    // THREE_CHAR_CAF_TEST( "Hbh", "" )
+    // THREE_CHAR_CAF_TEST( "HBh", "" )
+    // THREE_CHAR_CAF_TEST( "HCc", "" )
+    THREE_CHAR_CAF_TEST( "Hch", "-Hch" )
+    // THREE_CHAR_CAF_TEST( "HCh", "" )
+    // THREE_CHAR_CAF_TEST( "HDd", "" )
+    // THREE_CHAR_CAF_TEST( "Hdh", "" )
+    // THREE_CHAR_CAF_TEST( "HDh", "" )
+    // THREE_CHAR_CAF_TEST( "HEe", "" )
+    // THREE_CHAR_CAF_TEST( "Heh", "" )
+    THREE_CHAR_CAF_TEST( "HEh", "EH-h" )
+    // THREE_CHAR_CAF_TEST( "HFf", "" )
+    // THREE_CHAR_CAF_TEST( "Hfh", "" )
+    // THREE_CHAR_CAF_TEST( "HFh", "" )
+    THREE_CHAR_CAF_TEST( "Hha", "-Hah" )
+    // THREE_CHAR_CAF_TEST( "Hhb", "" )
+    // THREE_CHAR_CAF_TEST( "Hhc", "" )
+    THREE_CHAR_CAF_TEST( "Hhd", "-Hdh" )
+    // THREE_CHAR_CAF_TEST( "Hhe", "" )
+    THREE_CHAR_CAF_TEST( "Hhf", "-Hfh" )
 
 #undef THREE_CHAR_CAF_TEST
 
@@ -1023,142 +1041,142 @@ expand_caf( caf, ecaf ); \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_expand_caf_tested_with_some_2_char_Shredder_FEN_CAFs
-	char ecaf[ 9 + 1 ];
+    char ecaf[ 9 + 1 ];
 
-	TWO_CHAR_CAF_TEST( "Aa", "A-a-" )
-	// TWO_CHAR_CAF_TEST( "ac", "" )
-	// TWO_CHAR_CAF_TEST( "Ac", "" )
-	TWO_CHAR_CAF_TEST( "AC", "AC--" )
-	TWO_CHAR_CAF_TEST( "ad", "--ad" )
-	// TWO_CHAR_CAF_TEST( "Ad", "" )
-	// TWO_CHAR_CAF_TEST( "AD", "" )
-	// TWO_CHAR_CAF_TEST( "ae", "" )
-	TWO_CHAR_CAF_TEST( "Ae", "A--e" )
-	// TWO_CHAR_CAF_TEST( "AE", "" )
-	// TWO_CHAR_CAF_TEST( "af", "" )
-	// TWO_CHAR_CAF_TEST( "Af", "" )
-	// TWO_CHAR_CAF_TEST( "AF", "" )
-	TWO_CHAR_CAF_TEST( "ag", "--ag" )
-	// TWO_CHAR_CAF_TEST( "Ag", "" )
-	// TWO_CHAR_CAF_TEST( "AG", "" )
-	TWO_CHAR_CAF_TEST( "ah", "--ah" )
-	// TWO_CHAR_CAF_TEST( "Ah", "" )
-	// TWO_CHAR_CAF_TEST( "AH", "" )
-	TWO_CHAR_CAF_TEST( "Bb", "B-b-" )
-	TWO_CHAR_CAF_TEST( "bd", "--bd" )
-	TWO_CHAR_CAF_TEST( "Bd", "B--d" )
-	// TWO_CHAR_CAF_TEST( "BD", "" )
-	// TWO_CHAR_CAF_TEST( "be", "" )
-	TWO_CHAR_CAF_TEST( "Be", "B--e" )
-	// TWO_CHAR_CAF_TEST( "BE", "" )
-	// TWO_CHAR_CAF_TEST( "bf", "" )
-	// TWO_CHAR_CAF_TEST( "Bf", "" )
-	// TWO_CHAR_CAF_TEST( "BF", "" )
-	// TWO_CHAR_CAF_TEST( "bg", "" )
-	TWO_CHAR_CAF_TEST( "Bg", "B--g" )
-	// TWO_CHAR_CAF_TEST( "BG", "" )
-	// TWO_CHAR_CAF_TEST( "bh", "" )
-	// TWO_CHAR_CAF_TEST( "Bh", "" )
-	TWO_CHAR_CAF_TEST( "BH", "BH--" )
-	// TWO_CHAR_CAF_TEST( "ca", "" )
-	// TWO_CHAR_CAF_TEST( "Ca", "" )
-	// TWO_CHAR_CAF_TEST( "CA", "" )
-	TWO_CHAR_CAF_TEST( "Cc", "C-c- -C-c" )
-	// TWO_CHAR_CAF_TEST( "ce", "" )
-	// TWO_CHAR_CAF_TEST( "Ce", "" )
-	// TWO_CHAR_CAF_TEST( "CE", "" )
-	TWO_CHAR_CAF_TEST( "cf", "--cf" )
-	// TWO_CHAR_CAF_TEST( "Cf", "" )
-	// TWO_CHAR_CAF_TEST( "CF", "" )
-	// TWO_CHAR_CAF_TEST( "cg", "" )
-	// TWO_CHAR_CAF_TEST( "Cg", "" )
-	TWO_CHAR_CAF_TEST( "CG", "CG--" )
-	// TWO_CHAR_CAF_TEST( "ch", "" )
-	// TWO_CHAR_CAF_TEST( "Ch", "" )
-	// TWO_CHAR_CAF_TEST( "CH", "" )
-	// TWO_CHAR_CAF_TEST( "da", "" )
-	TWO_CHAR_CAF_TEST( "Da", "-Da-" )
-	// TWO_CHAR_CAF_TEST( "DA", "" )
-	// TWO_CHAR_CAF_TEST( "db", "" )
-	// TWO_CHAR_CAF_TEST( "Db", "" )
-	// TWO_CHAR_CAF_TEST( "DB", "" )
-	TWO_CHAR_CAF_TEST( "Dd", "D-d- -D-d" )
-	// TWO_CHAR_CAF_TEST( "df", "" )
-	// TWO_CHAR_CAF_TEST( "Df", "" )
-	TWO_CHAR_CAF_TEST( "DF", "DF--" )
-	// TWO_CHAR_CAF_TEST( "dg", "" )
-	// TWO_CHAR_CAF_TEST( "Dg", "" )
-	// TWO_CHAR_CAF_TEST( "DG", "" )
-	TWO_CHAR_CAF_TEST( "dh", "--dh" )
-	// TWO_CHAR_CAF_TEST( "Dh", "" )
-	// TWO_CHAR_CAF_TEST( "DH", "" )
-	// TWO_CHAR_CAF_TEST( "ea", "" )
-	TWO_CHAR_CAF_TEST( "Ea", "-Ea-" )
-	// TWO_CHAR_CAF_TEST( "EA", "" )
-	// TWO_CHAR_CAF_TEST( "eb", "" )
-	// TWO_CHAR_CAF_TEST( "Eb", "" )
-	TWO_CHAR_CAF_TEST( "EB", "BE--" )
-	TWO_CHAR_CAF_TEST( "ec", "--ce" )
-	TWO_CHAR_CAF_TEST( "Ec", "-Ec-" )
-	// TWO_CHAR_CAF_TEST( "EC", "" )
-	TWO_CHAR_CAF_TEST( "Ee", "E-e- -E-e" )
-	// TWO_CHAR_CAF_TEST( "eg", "" )
-	// TWO_CHAR_CAF_TEST( "Eg", "" )
-	// TWO_CHAR_CAF_TEST( "EG", "" )
-	TWO_CHAR_CAF_TEST( "eh", "--eh" )
-	TWO_CHAR_CAF_TEST( "Eh", "E--h" )
-	// TWO_CHAR_CAF_TEST( "EH", "" )
-	TWO_CHAR_CAF_TEST( "fa", "--af" )
-	// TWO_CHAR_CAF_TEST( "Fa", "" )
-	// TWO_CHAR_CAF_TEST( "FA", "" )
-	// TWO_CHAR_CAF_TEST( "fb", "" )
-	TWO_CHAR_CAF_TEST( "Fb", "-Fb-" )
-	// TWO_CHAR_CAF_TEST( "FB", "" )
-	// TWO_CHAR_CAF_TEST( "fc", "" )
-	TWO_CHAR_CAF_TEST( "Fc", "-Fc-" )
-	// TWO_CHAR_CAF_TEST( "FC", "" )
-	// TWO_CHAR_CAF_TEST( "fd", "" )
-	TWO_CHAR_CAF_TEST( "Fd", "-Fd-" )
-	// TWO_CHAR_CAF_TEST( "FD", "" )
-	TWO_CHAR_CAF_TEST( "Ff", "F-f- -F-f" )
-	// TWO_CHAR_CAF_TEST( "fh", "" )
-	// TWO_CHAR_CAF_TEST( "Fh", "" )
-	// TWO_CHAR_CAF_TEST( "FH", "" )
-	// TWO_CHAR_CAF_TEST( "ga", "" )
-	TWO_CHAR_CAF_TEST( "Ga", "-Ga-" )
-	// TWO_CHAR_CAF_TEST( "GA", "" )
-	// TWO_CHAR_CAF_TEST( "gb", "" )
-	// TWO_CHAR_CAF_TEST( "Gb", "" )
-	TWO_CHAR_CAF_TEST( "GB", "BG--" )
-	// TWO_CHAR_CAF_TEST( "gc", "" )
-	// TWO_CHAR_CAF_TEST( "Gc", "" )
-	TWO_CHAR_CAF_TEST( "GC", "CG--" )
-	// TWO_CHAR_CAF_TEST( "gd", "" )
-	// TWO_CHAR_CAF_TEST( "Gd", "" )
-	TWO_CHAR_CAF_TEST( "GD", "DG--" )
-	// TWO_CHAR_CAF_TEST( "ge", "" )
-	TWO_CHAR_CAF_TEST( "Ge", "-Ge-" )
-	// TWO_CHAR_CAF_TEST( "GE", "" )
-	TWO_CHAR_CAF_TEST( "Gg", "-G-g" )
-	// TWO_CHAR_CAF_TEST( "ha", "" )
-	// TWO_CHAR_CAF_TEST( "Ha", "" )
-	// TWO_CHAR_CAF_TEST( "HA", "" )
-	// TWO_CHAR_CAF_TEST( "hb", "" )
-	TWO_CHAR_CAF_TEST( "Hb", "-Hb-" )
-	// TWO_CHAR_CAF_TEST( "HB", "" )
-	// TWO_CHAR_CAF_TEST( "hc", "" )
-	// TWO_CHAR_CAF_TEST( "Hc", "" )
-	// TWO_CHAR_CAF_TEST( "HC", "" )
-	// TWO_CHAR_CAF_TEST( "hd", "" )
-	TWO_CHAR_CAF_TEST( "Hd", "-Hd-" )
-	// TWO_CHAR_CAF_TEST( "HD", "" )
-	// TWO_CHAR_CAF_TEST( "he", "" )
-	TWO_CHAR_CAF_TEST( "He", "-He-" )
-	// TWO_CHAR_CAF_TEST( "HE", "" )
-	TWO_CHAR_CAF_TEST( "hf", "--fh" )
-	// TWO_CHAR_CAF_TEST( "Hf", "" )
-	TWO_CHAR_CAF_TEST( "HF", "FH--" )
-	TWO_CHAR_CAF_TEST( "Hh", "-H-h" )
+    TWO_CHAR_CAF_TEST( "Aa", "A-a-" )
+    // TWO_CHAR_CAF_TEST( "ac", "" )
+    // TWO_CHAR_CAF_TEST( "Ac", "" )
+    TWO_CHAR_CAF_TEST( "AC", "AC--" )
+    TWO_CHAR_CAF_TEST( "ad", "--ad" )
+    // TWO_CHAR_CAF_TEST( "Ad", "" )
+    // TWO_CHAR_CAF_TEST( "AD", "" )
+    // TWO_CHAR_CAF_TEST( "ae", "" )
+    TWO_CHAR_CAF_TEST( "Ae", "A--e" )
+    // TWO_CHAR_CAF_TEST( "AE", "" )
+    // TWO_CHAR_CAF_TEST( "af", "" )
+    // TWO_CHAR_CAF_TEST( "Af", "" )
+    // TWO_CHAR_CAF_TEST( "AF", "" )
+    TWO_CHAR_CAF_TEST( "ag", "--ag" )
+    // TWO_CHAR_CAF_TEST( "Ag", "" )
+    // TWO_CHAR_CAF_TEST( "AG", "" )
+    TWO_CHAR_CAF_TEST( "ah", "--ah" )
+    // TWO_CHAR_CAF_TEST( "Ah", "" )
+    // TWO_CHAR_CAF_TEST( "AH", "" )
+    TWO_CHAR_CAF_TEST( "Bb", "B-b-" )
+    TWO_CHAR_CAF_TEST( "bd", "--bd" )
+    TWO_CHAR_CAF_TEST( "Bd", "B--d" )
+    // TWO_CHAR_CAF_TEST( "BD", "" )
+    // TWO_CHAR_CAF_TEST( "be", "" )
+    TWO_CHAR_CAF_TEST( "Be", "B--e" )
+    // TWO_CHAR_CAF_TEST( "BE", "" )
+    // TWO_CHAR_CAF_TEST( "bf", "" )
+    // TWO_CHAR_CAF_TEST( "Bf", "" )
+    // TWO_CHAR_CAF_TEST( "BF", "" )
+    // TWO_CHAR_CAF_TEST( "bg", "" )
+    TWO_CHAR_CAF_TEST( "Bg", "B--g" )
+    // TWO_CHAR_CAF_TEST( "BG", "" )
+    // TWO_CHAR_CAF_TEST( "bh", "" )
+    // TWO_CHAR_CAF_TEST( "Bh", "" )
+    TWO_CHAR_CAF_TEST( "BH", "BH--" )
+    // TWO_CHAR_CAF_TEST( "ca", "" )
+    // TWO_CHAR_CAF_TEST( "Ca", "" )
+    // TWO_CHAR_CAF_TEST( "CA", "" )
+    TWO_CHAR_CAF_TEST( "Cc", "C-c- -C-c" )
+    // TWO_CHAR_CAF_TEST( "ce", "" )
+    // TWO_CHAR_CAF_TEST( "Ce", "" )
+    // TWO_CHAR_CAF_TEST( "CE", "" )
+    TWO_CHAR_CAF_TEST( "cf", "--cf" )
+    // TWO_CHAR_CAF_TEST( "Cf", "" )
+    // TWO_CHAR_CAF_TEST( "CF", "" )
+    // TWO_CHAR_CAF_TEST( "cg", "" )
+    // TWO_CHAR_CAF_TEST( "Cg", "" )
+    TWO_CHAR_CAF_TEST( "CG", "CG--" )
+    // TWO_CHAR_CAF_TEST( "ch", "" )
+    // TWO_CHAR_CAF_TEST( "Ch", "" )
+    // TWO_CHAR_CAF_TEST( "CH", "" )
+    // TWO_CHAR_CAF_TEST( "da", "" )
+    TWO_CHAR_CAF_TEST( "Da", "-Da-" )
+    // TWO_CHAR_CAF_TEST( "DA", "" )
+    // TWO_CHAR_CAF_TEST( "db", "" )
+    // TWO_CHAR_CAF_TEST( "Db", "" )
+    // TWO_CHAR_CAF_TEST( "DB", "" )
+    TWO_CHAR_CAF_TEST( "Dd", "D-d- -D-d" )
+    // TWO_CHAR_CAF_TEST( "df", "" )
+    // TWO_CHAR_CAF_TEST( "Df", "" )
+    TWO_CHAR_CAF_TEST( "DF", "DF--" )
+    // TWO_CHAR_CAF_TEST( "dg", "" )
+    // TWO_CHAR_CAF_TEST( "Dg", "" )
+    // TWO_CHAR_CAF_TEST( "DG", "" )
+    TWO_CHAR_CAF_TEST( "dh", "--dh" )
+    // TWO_CHAR_CAF_TEST( "Dh", "" )
+    // TWO_CHAR_CAF_TEST( "DH", "" )
+    // TWO_CHAR_CAF_TEST( "ea", "" )
+    TWO_CHAR_CAF_TEST( "Ea", "-Ea-" )
+    // TWO_CHAR_CAF_TEST( "EA", "" )
+    // TWO_CHAR_CAF_TEST( "eb", "" )
+    // TWO_CHAR_CAF_TEST( "Eb", "" )
+    TWO_CHAR_CAF_TEST( "EB", "BE--" )
+    TWO_CHAR_CAF_TEST( "ec", "--ce" )
+    TWO_CHAR_CAF_TEST( "Ec", "-Ec-" )
+    // TWO_CHAR_CAF_TEST( "EC", "" )
+    TWO_CHAR_CAF_TEST( "Ee", "E-e- -E-e" )
+    // TWO_CHAR_CAF_TEST( "eg", "" )
+    // TWO_CHAR_CAF_TEST( "Eg", "" )
+    // TWO_CHAR_CAF_TEST( "EG", "" )
+    TWO_CHAR_CAF_TEST( "eh", "--eh" )
+    TWO_CHAR_CAF_TEST( "Eh", "E--h" )
+    // TWO_CHAR_CAF_TEST( "EH", "" )
+    TWO_CHAR_CAF_TEST( "fa", "--af" )
+    // TWO_CHAR_CAF_TEST( "Fa", "" )
+    // TWO_CHAR_CAF_TEST( "FA", "" )
+    // TWO_CHAR_CAF_TEST( "fb", "" )
+    TWO_CHAR_CAF_TEST( "Fb", "-Fb-" )
+    // TWO_CHAR_CAF_TEST( "FB", "" )
+    // TWO_CHAR_CAF_TEST( "fc", "" )
+    TWO_CHAR_CAF_TEST( "Fc", "-Fc-" )
+    // TWO_CHAR_CAF_TEST( "FC", "" )
+    // TWO_CHAR_CAF_TEST( "fd", "" )
+    TWO_CHAR_CAF_TEST( "Fd", "-Fd-" )
+    // TWO_CHAR_CAF_TEST( "FD", "" )
+    TWO_CHAR_CAF_TEST( "Ff", "F-f- -F-f" )
+    // TWO_CHAR_CAF_TEST( "fh", "" )
+    // TWO_CHAR_CAF_TEST( "Fh", "" )
+    // TWO_CHAR_CAF_TEST( "FH", "" )
+    // TWO_CHAR_CAF_TEST( "ga", "" )
+    TWO_CHAR_CAF_TEST( "Ga", "-Ga-" )
+    // TWO_CHAR_CAF_TEST( "GA", "" )
+    // TWO_CHAR_CAF_TEST( "gb", "" )
+    // TWO_CHAR_CAF_TEST( "Gb", "" )
+    TWO_CHAR_CAF_TEST( "GB", "BG--" )
+    // TWO_CHAR_CAF_TEST( "gc", "" )
+    // TWO_CHAR_CAF_TEST( "Gc", "" )
+    TWO_CHAR_CAF_TEST( "GC", "CG--" )
+    // TWO_CHAR_CAF_TEST( "gd", "" )
+    // TWO_CHAR_CAF_TEST( "Gd", "" )
+    TWO_CHAR_CAF_TEST( "GD", "DG--" )
+    // TWO_CHAR_CAF_TEST( "ge", "" )
+    TWO_CHAR_CAF_TEST( "Ge", "-Ge-" )
+    // TWO_CHAR_CAF_TEST( "GE", "" )
+    TWO_CHAR_CAF_TEST( "Gg", "-G-g" )
+    // TWO_CHAR_CAF_TEST( "ha", "" )
+    // TWO_CHAR_CAF_TEST( "Ha", "" )
+    // TWO_CHAR_CAF_TEST( "HA", "" )
+    // TWO_CHAR_CAF_TEST( "hb", "" )
+    TWO_CHAR_CAF_TEST( "Hb", "-Hb-" )
+    // TWO_CHAR_CAF_TEST( "HB", "" )
+    // TWO_CHAR_CAF_TEST( "hc", "" )
+    // TWO_CHAR_CAF_TEST( "Hc", "" )
+    // TWO_CHAR_CAF_TEST( "HC", "" )
+    // TWO_CHAR_CAF_TEST( "hd", "" )
+    TWO_CHAR_CAF_TEST( "Hd", "-Hd-" )
+    // TWO_CHAR_CAF_TEST( "HD", "" )
+    // TWO_CHAR_CAF_TEST( "he", "" )
+    TWO_CHAR_CAF_TEST( "He", "-He-" )
+    // TWO_CHAR_CAF_TEST( "HE", "" )
+    TWO_CHAR_CAF_TEST( "hf", "--fh" )
+    // TWO_CHAR_CAF_TEST( "Hf", "" )
+    TWO_CHAR_CAF_TEST( "HF", "FH--" )
+    TWO_CHAR_CAF_TEST( "Hh", "-H-h" )
 
 #undef TWO_CHAR_CAF_TEST
 
@@ -1168,25 +1186,25 @@ expand_caf( caf, ecaf ); \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_expand_caf_tested_with_all_1_char_Shredder_FEN_CAFs
-	char ecaf[ 9 + 1 ];
+    char ecaf[ 9 + 1 ];
 
-	ONE_CHAR_CAF_TEST( "-", "----" )
-	ONE_CHAR_CAF_TEST( "a", "--a-" )
-	ONE_CHAR_CAF_TEST( "A", "A---" )
-	ONE_CHAR_CAF_TEST( "b", "--b-" )
-	ONE_CHAR_CAF_TEST( "B", "B---" )
-	ONE_CHAR_CAF_TEST( "c", "--c- ---c" )
-	ONE_CHAR_CAF_TEST( "C", "C--- -C--" )
-	ONE_CHAR_CAF_TEST( "d", "--d- ---d" )
-	ONE_CHAR_CAF_TEST( "D", "D--- -D--" )
-	ONE_CHAR_CAF_TEST( "e", "--e- ---e" )
-	ONE_CHAR_CAF_TEST( "E", "E--- -E--" )
-	ONE_CHAR_CAF_TEST( "f", "--f- ---f" )
-	ONE_CHAR_CAF_TEST( "F", "F--- -F--" )
-	ONE_CHAR_CAF_TEST( "g", "---g" )
-	ONE_CHAR_CAF_TEST( "G", "-G--" )
-	ONE_CHAR_CAF_TEST( "h", "---h" )
-	ONE_CHAR_CAF_TEST( "H", "-H--" )
+    ONE_CHAR_CAF_TEST( "-", "----" )
+    ONE_CHAR_CAF_TEST( "a", "--a-" )
+    ONE_CHAR_CAF_TEST( "A", "A---" )
+    ONE_CHAR_CAF_TEST( "b", "--b-" )
+    ONE_CHAR_CAF_TEST( "B", "B---" )
+    ONE_CHAR_CAF_TEST( "c", "--c- ---c" )
+    ONE_CHAR_CAF_TEST( "C", "C--- -C--" )
+    ONE_CHAR_CAF_TEST( "d", "--d- ---d" )
+    ONE_CHAR_CAF_TEST( "D", "D--- -D--" )
+    ONE_CHAR_CAF_TEST( "e", "--e- ---e" )
+    ONE_CHAR_CAF_TEST( "E", "E--- -E--" )
+    ONE_CHAR_CAF_TEST( "f", "--f- ---f" )
+    ONE_CHAR_CAF_TEST( "F", "F--- -F--" )
+    ONE_CHAR_CAF_TEST( "g", "---g" )
+    ONE_CHAR_CAF_TEST( "G", "-G--" )
+    ONE_CHAR_CAF_TEST( "h", "---h" )
+    ONE_CHAR_CAF_TEST( "H", "-H--" )
 
 #undef ONE_CHAR_CAF_TEST
 
@@ -1204,34 +1222,34 @@ EXPAND_CAF( caf, ecaf, fen ) \
 ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_resolve_ambiguous_ecaf_works_with_1c_ambiguous_ECAFs
-	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
-	char **ff;
+    char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+    char **ff;
 
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/1KR5 w C - 0 60", "-C--" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/2RK4 b C - 0 60", "C---" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4RK2 w E - 10 50", "E---" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/3KR3 w E - 10 50", "-E--" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4KR2 b F - 0 60", "-F--" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "5rk1/8/8/8/8/8/8/6K1 b f - 0 60", "--f-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/1KR5 w C - 0 60", "-C--" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "1k6/8/8/8/8/8/8/2RK4 b C - 0 60", "C---" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4RK2 w E - 10 50", "E---" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/3KR3 w E - 10 50", "-E--" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "k7/8/8/8/8/8/8/4KR2 b F - 0 60", "-F--" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "5rk1/8/8/8/8/8/8/6K1 b f - 0 60", "--f-" )
 
 #test C_resolve_ambiguous_ecaf_works_with_2c_ambiguous_ECAFs
-	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
-	char **ff;
+    char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+    char **ff;
 
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "3rk3/8/8/8/8/8/8/3RK3 b Dd - 0 60", "D-d-" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "2kr4/8/8/8/8/8/8/2KR4 b Dd - 0 60", "-D-d" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "4rk2/8/8/8/8/8/8/4RK2 b Ee - 10 50", "E-e-" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "3r1k2/8/8/8/8/8/8/3R1K2 b Ee - 10 50", "E-e-" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "1r3k2/8/8/8/8/8/8/1R3K2 w Ee - 10 50", "E-e-" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "r4k2/8/8/8/8/8/8/R4K2 b Ee - 10 50", "E-e-" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/5KR1 w Gg - 10 50", "-G-g" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "3rk3/8/8/8/8/8/8/3RK3 b Dd - 0 60", "D-d-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "2kr4/8/8/8/8/8/8/2KR4 b Dd - 0 60", "-D-d" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "4rk2/8/8/8/8/8/8/4RK2 b Ee - 10 50", "E-e-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "3r1k2/8/8/8/8/8/8/3R1K2 b Ee - 10 50", "E-e-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "1r3k2/8/8/8/8/8/8/1R3K2 w Ee - 10 50", "E-e-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "r4k2/8/8/8/8/8/8/R4K2 b Ee - 10 50", "E-e-" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/5KR1 w Gg - 10 50", "-G-g" )
 
 #test C_resolve_ambiguous_ecaf_works_with_unambiguous_ECAFs
-	char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
-	char **ff;
+    char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
+    char **ff;
 
-	RESOLVE_AMBIGUOUS_ECAF_TEST( STD_START_POS_FEN, "AHah" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "4k3/8/8/8/8/8/8/1RK5 w B - 0 40", "B---" )
-	RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( STD_START_POS_FEN, "AHah" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "4k3/8/8/8/8/8/8/1RK5 w B - 0 40", "B---" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
 
 #undef RESOLVE_AMBIGUOUS_ECAF_TEST
