@@ -343,8 +343,6 @@ const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
  **** Static function prototypes ****
  ************************************/
 
-static void x_set_castling_availability( Pos *p, const char *ca );
-static void x_set_en_passant_target_square( Pos *p, const char *epts );
 static void x_set_halfmove_clock( Pos *p, const char *hmc );
 static void x_set_fullmove_number( Pos *p, const char *fmn );
 static Bitboard x_sq_set_of_diag( const int index );
@@ -354,8 +352,10 @@ static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
     const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
 static void x_init_ppa( Pos *p, const char *ppf );
-static void x_init_wt( Pos *p, const char *acf );
-static void x_init_ca_flags( Pos *p, const char *caf, const char *fen );
+static void x_init_turn_and_ca_flags(
+    Pos *p, const char *acf, const char *caf, const char *fen );
+static void x_init_irp( Pos *p, const char *caf, const char *fen );
+static void x_init_epts_file( Pos *p, const char *eptsf );
 
 /*********************************
  **** Static global variables ****
@@ -363,7 +363,7 @@ static void x_init_ca_flags( Pos *p, const char *caf, const char *fen );
 
 // Used by nth_field_of_fen_str() of utils.c. The size of the array should be
 // at least FEN_MAX_LENGTH + 1 bytes.
-static char x_writable_mem[ 120 + 1 ];
+// static char x_writable_mem[ 120 + 1 ];
 
 /****************************
  **** External functions ****
@@ -378,29 +378,17 @@ fen_to_pos( const char *fen )
     assert( p && ff );
 
     x_init_ppa( p, ff[0] );
-    x_init_wt( p, ff[1] );
-    x_init_ca_flags( p, ff[2], fen );
+    x_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
+    x_init_irp( p, ff[2], fen );
+    x_init_epts_file( p, ff[3] );
 
-    const char *ca = nth_field_of_fen_str( fen, x_writable_mem, 3 );
-    x_set_castling_availability( p, ca );
+    // const char *hmc = nth_field_of_fen_str( fen, x_writable_mem, 5 );
+    x_set_halfmove_clock( p, ff[4] );
 
-    const char *epts = nth_field_of_fen_str( fen, x_writable_mem, 4 );
-    x_set_en_passant_target_square( p, epts );
-
-    const char *hmc = nth_field_of_fen_str( fen, x_writable_mem, 5 );
-    x_set_halfmove_clock( p, hmc );
-
-    const char *fmn = nth_field_of_fen_str( fen, x_writable_mem, 6 );
-    x_set_fullmove_number( p, fmn );
+    // const char *fmn = nth_field_of_fen_str( fen, x_writable_mem, 6 );
+    x_set_fullmove_number( p, ff[5] );
 
     free_fen_fields( ff );
-
-    if( chess960_start_pos( p ) )
-        set_BM_C960IRPF( &p->info, p->ppa[ WHITE_ROOK ] );
-    else
-        set_BM_C960IRPF( &p->info, 129 );
-
-    unset_bits( &p->info, BM_UNUSED_INFO_BITS );
 
     assert( !pos_var_sq_integrity_check( p ) );
     return p;
@@ -535,45 +523,25 @@ sq_nav( Bitboard sq, enum sq_dir dir )
 bool
 white_has_a_side_castling_right( const Pos *p )
 {
-    return p->info & SBA[ 2 ];
-    // return p->ca_flags & ...
+    return p->turn_and_ca_flags & 8;
 }
 
 bool
 white_has_h_side_castling_right( const Pos *p )
 {
-    return p->info & SBA[ 1 ];
+    return p->turn_and_ca_flags & 4;
 }
 
 bool
 black_has_a_side_castling_right( const Pos *p )
 {
-    return p->info & SBA[ 4 ];
+    return p->turn_and_ca_flags & 2;
 }
 
 bool
 black_has_h_side_castling_right( const Pos *p )
 {
-    return p->info & SBA[ 3 ];
-}
-
-// Returns BM_C960IRPF of the 'info' member of 'p'. Note that the 8-bit field is
-// right-shifted all the way to the LSB. For example, if all of the bits of
-// BM_C960IRPF are set, value_BM_C960IRPF() returns 0xffU.
-uint64_t
-value_BM_C960IRPF( const Pos *p )
-{
-    return ( p->info & BM_C960IRPF ) >> 37;
-}
-
-// Sets the 8-bit BM_C960IRPF to 'irpf'. Parameter 'info' should be the namesake
-// member of a Pos variable.
-void
-set_BM_C960IRPF( uint64_t *info, uint8_t irpf )
-{
-    unset_bits( info, BM_C960IRPF );
-    uint64_t left_shifted_irpf = irpf;
-    *info |= ( left_shifted_irpf << 37 );
+    return p->turn_and_ca_flags & 1;
 }
 
 // Returns true if 'p' is found to represent one of the 960 Chess960
@@ -582,7 +550,7 @@ bool
 chess960_start_pos( const Pos *p )
 {
     return
-        p->info == 0x200001fU &&
+        // p->info == 0x200001fU &&
         p->ppa[ EMPTY_SQUARE ] ==
             ( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6 ) &&
         p->ppa[ WHITE_PAWN ] == SS_RANK_2 &&
@@ -686,47 +654,6 @@ fen_fmnf( const char *fen )
  ****  Static functions  ****
  ****                    ****
  ****************************/
-
-// Sets the castling availability bit field of a Pos variable. Should
-// only be called from fen_to_pos(). The ca argument is assumed
-// to be valid.
-static void
-x_set_castling_availability( Pos *p, const char *ca )
-{
-    // Unsetting all of the four castling availability flags
-    set_or_unset_bits( &p->info, BM_CA_ALL, 0 );
-
-    // We're done if none of the four types of castling availability
-    // are available
-    if( !strcmp( ca, "-" ) ) return;
-
-    // Setting the CA flags as needed
-    if( str_m_pat( ca, "^K.*$" ) )
-        set_or_unset_bits( &p->info, BM_CA_WK, 1 );
-    if( str_m_pat( ca, "^.*Q.*$" ) )
-        set_or_unset_bits( &p->info, BM_CA_WQ, 1 );
-    if( str_m_pat( ca, "^.*k.*$" ) )
-        set_or_unset_bits( &p->info, BM_CA_BK, 1 );
-    if( str_m_pat( ca, "^.*q$" ) )
-        set_or_unset_bits( &p->info, BM_CA_BQ, 1 );
-}
-
-// Should only be called from fen_to_pos(). The 'epts' argument
-// is assumed to be valid.
-static void
-x_set_en_passant_target_square( Pos *p, const char *epts )
-{
-    // Unsetting all of the eight EPTS flags
-    set_or_unset_bits( &p->info, BM_EPTS_ALL, 0 );
-
-    // We are done if there is no EPTS set
-    if( !strcmp( "-", epts ) ) return;
-
-    char file = *epts; // Same as epts[ 0 ], the letter indicating the file
-    int num_of_left_shifts = file - (int) 'a';
-
-    set_bits( &p->info, BM_EPTS_FILE_A << num_of_left_shifts );
-}
 
 // Should only be called from fen_to_pos(). The argument 'hmc'
 // is assumed to be valid.
@@ -886,23 +813,46 @@ x_init_ppa( Pos *p, const char *ppf )
 }
 
 static void
-x_init_wt( Pos *p, const char *acf )
-{
-    assert( !strcmp( "w", acf ) || !strcmp( "b", acf ) );
-    p->wt = !strcmp( "w", acf ) ? true : false;
-}
-
-static void
-x_init_ca_flags( Pos *p, const char *caf, const char *fen )
+x_init_turn_and_ca_flags( Pos *p, const char *acf, const char *caf,
+    const char *fen )
 {
     char ecaf[10];
     EXPAND_CAF( caf, ecaf, fen )
     assert( strlen( ecaf ) == 4 );
 
-    p->ca_flags = 0;
+    p->turn_and_ca_flags = 0;
+    if( !strcmp( acf, "w" ) ) p->turn_and_ca_flags |= ( 1 << 7 );
 
-    // "AH-h" => 00001101
     for( int i = 0; i < 4; i++ )
         if( ecaf[3 - i] != '-' )
-            p->ca_flags |= ( 1 << i );
+            p->turn_and_ca_flags |= ( 1 << i );
+}
+
+static void
+x_init_irp( Pos *p, const char *caf, const char *fen )
+{
+    char ecaf[10];
+    EXPAND_CAF( caf, ecaf, fen )
+    assert( strlen( ecaf ) == 4 );
+
+    p->irp[0] = 0, p->irp[1] = 0;
+
+    if( ecaf[0] != '-' ) p->irp[0] |= ( 1 << ( ecaf[0] - 'A' ) );
+    else if( ecaf[2] != '-' ) p->irp[0] |= ( 1 << ( ecaf[2] - 'a' ) );
+
+    if( ecaf[1] != '-' ) p->irp[1] |= ( 1 << ( ecaf[1] - 'A' ) );
+    else if( ecaf[3] != '-' ) p->irp[1] |= ( 1 << ( ecaf[3] - 'a' ) );
+
+    assert( !p->irp[0] || !p->irp[1] || p->irp[0] < p->irp[1] );
+}
+
+static void
+x_init_epts_file( Pos *p, const char *eptsf )
+{
+    p->epts_file = 0;
+    if( !strcmp( eptsf, "-" ) ) return;
+
+    char file = eptsf[0];
+    assert( file >= 'a' && file <= 'h' );
+    p->epts_file |= ( 1 << ( file - 'a' ) );
 }

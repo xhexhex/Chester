@@ -604,7 +604,7 @@ x_castling_move_status_castling_king( const Pos *p )
 static Bitboard
 x_castling_move_status_castling_rook( const Pos *p, bool kingside )
 {
-    uint64_t irpf = value_BM_C960IRPF( p ), file_of_queenside_rook = 1,
+    uint64_t irpf = ( p->irp[0] | p->irp[1] ), file_of_queenside_rook = 1,
         file_of_kingside_rook;
     while( !( irpf & file_of_queenside_rook ) )
         file_of_queenside_rook <<= 1;

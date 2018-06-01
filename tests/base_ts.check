@@ -91,34 +91,30 @@
 	ck_assert( p->ppa[ BLACK_KNIGHT ] == 0 );
 	ck_assert( p->ppa[ BLACK_PAWN ] == 0 );
 
-	ck_assert( p->info == 0x102000000212u );
-
 	free( p );
 
-#define CHESS960_START_POS_TEST( fen, expected_value ) \
+/*
+_define CHESS960_START_POS_TEST( fen, expected_value ) \
 ck_assert( !che_fen_validator( fen ) ); \
 p = fen_to_pos( fen ); \
 ck_assert( value_BM_C960IRPF( p ) == expected_value ); \
 free( (Pos *) p );
 
-#test C_fen_to_pos_tested_with_chess960_starting_positions
+_test C_fen_to_pos_tested_with_chess960_starting_positions
 	const Pos *p;
 
 	CHESS960_START_POS_TEST( STD_START_POS_FEN, 0x81U )
-	/*
 	CHESS960_START_POS_TEST(
 		"nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w CFcf - 0 1", 0x24U )
 	CHESS960_START_POS_TEST(
 		"bqnrkrnb/pppppppp/8/8/8/8/PPPPPPPP/BQNRKRNB w KQkq - 0 1", 0x28U )
 	CHESS960_START_POS_TEST(
 		"qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR w KQkq - 0 1", 0x82U )
-	*/
 
-#test C_fen_to_pos_tested_with_NOT_chess960_starting_positions
+_test C_fen_to_pos_tested_with_NOT_chess960_starting_positions
 	const Pos *p;
 
 	CHESS960_START_POS_TEST( "4k3/8/8/8/8/8/8/4K3 w - - 0 50", 0x81U );
-	/*
 	CHESS960_START_POS_TEST(
 		"nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w CEce - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
@@ -133,9 +129,9 @@ free( (Pos *) p );
 		"nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w Kkq - 0 1", 0x81U )
 	CHESS960_START_POS_TEST(
 		"qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR b KQkq - 0 1", 0x81U )
-	*/
 
-#undef CHESS960_START_POS_TEST
+_undef CHESS960_START_POS_TEST
+*/
 
 //
 // Test case
@@ -214,8 +210,8 @@ free( (Pos *) p );
 
 #define NULL_CONTENT_POS_VAR \
 Pos p; \
-for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.ppa[ i ] = 0u; \
-p.info = 0u;
+for( int i = EMPTY_SQUARE; i <= BLACK_PAWN; i++ ) p.ppa[ i ] = 0u;
+// p.info = 0u;
 
 #define ASSIGN_AND_ASSERT( sq_name_constant ) \
 const char *sq_name = pos_var_sq_integrity_check( &p ); \
@@ -235,8 +231,8 @@ see_saw.ppa[ BLACK_QUEEN ] = 0x80800080800080u; \
 see_saw.ppa[ BLACK_ROOK ] = 0x41000041000041u; \
 see_saw.ppa[ BLACK_BISHOP ] = 0x22000022000022u; \
 see_saw.ppa[ BLACK_KNIGHT ] = 0x14000014000014u; \
-see_saw.ppa[ BLACK_PAWN ] = 0x8000008000008u; \
-see_saw.info = 0u;
+see_saw.ppa[ BLACK_PAWN ] = 0x8000008000008u;
+// see_saw.info = 0u;
 
 #test C_pos_var_sq_integrity_check_returns_NULL
 	ck_assert( !pos_var_sq_integrity_check(
@@ -480,26 +476,6 @@ while( true ) {
 		}
 		ck_assert( bb == ( KING_SQS[ i ] | KNIGHT_SQS[ i ] ) );
 	}
-
-//
-// Test case
-//
-// NOTE: Also set_BM_C960IRPF() gets tested along the way
-#tcase value_BM_C960IRPF_tests
-
-#test C_value_BM_C960IRPF_test
-	Pos *p = fen_to_pos( STD_START_POS_FEN );
-	ck_assert( value_BM_C960IRPF( p ) == 0x81U );
-	set_BM_C960IRPF( &p->info, 0xffU );
-	ck_assert( value_BM_C960IRPF( p ) == 255U );
-	set_BM_C960IRPF( &p->info, 0 );
-	ck_assert( !value_BM_C960IRPF( p ) );
-	set_BM_C960IRPF( &p->info, 0xaaU );
-	ck_assert( value_BM_C960IRPF( p ) == 0xaaU );
-	set_BM_C960IRPF( &p->info, 0x8U );
-	ck_assert( value_BM_C960IRPF( p ) == 0x8U );
-	set_BM_C960IRPF( &p->info, 1 );
-	ck_assert( value_BM_C960IRPF( p ) == 1 );
 
 //
 // Test case

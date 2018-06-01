@@ -277,23 +277,13 @@ bb_is_sq_bit( Bitboard bb ) {
 const char *
 epts_from_pos_var( const Pos *p )
 {
-    char file;
+    if( !p->epts_file ) return "-";
 
-    if( p->info & BM_EPTS_FILE_A ) file = 'a';
-    else if( p->info & BM_EPTS_FILE_B ) file = 'b';
-    else if( p->info & BM_EPTS_FILE_C ) file = 'c';
-    else if( p->info & BM_EPTS_FILE_D ) file = 'd';
-    else if( p->info & BM_EPTS_FILE_E ) file = 'e';
-    else if( p->info & BM_EPTS_FILE_F ) file = 'f';
-    else if( p->info & BM_EPTS_FILE_G ) file = 'g';
-    else if( p->info & BM_EPTS_FILE_H ) file = 'h';
-    else return "-";
+    char file = 'a';
+    while( !( p->epts_file & ( 1 << ( file - 'a' ) ) ) ) ++file;
 
-    char rank = whites_turn( p ) ? '6' : '3';
-
-    char tmp_sq_name[ 3 ] = { 0 };
-    tmp_sq_name[ 0 ] = file;
-    tmp_sq_name[ 1 ] = rank;
+    char rank = whites_turn( p ) ? '6' : '3', tmp_sq_name[ 3 ] = { 0 };
+    tmp_sq_name[ 0 ] = file, tmp_sq_name[ 1 ] = rank;
 
     int sq_name_array_index = sq_bit_index( sq_name_to_sq_bit( tmp_sq_name ) );
     assert( sq_name_array_index >= 0 && sq_name_array_index <= 63 );
@@ -344,9 +334,9 @@ print_pos_var( const Pos *p )
         free( bin_str );
     }
 
-    bin_str = uint64_to_bin_str( p->info );
-    printf( "\n%s\n", bin_str );
-    free( bin_str );
+    // bin_str = uint64_to_bin_str( p->info );
+    // printf( "\n%s\n", bin_str );
+    // free( bin_str );
 }
 
 // Returns the name of the square that is in direction 'dir' of

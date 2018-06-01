@@ -55,10 +55,7 @@ enum sq_dir {
 // comprehensive description of the Pos type.
 typedef struct {
     Bitboard ppa[13];
-    bool wt;
-    uint8_t ca_flags, irp;
-    uint64_t info;
-    // uint32_t bf;
+    uint8_t turn_and_ca_flags, irp[2], epts_file;
     uint16_t hmc, fmn; // num[2] or nf[2]
 } Pos;
 
@@ -105,7 +102,7 @@ extern const Bitboard
     SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
 
 // The expression evaluates to true if it is White's turn to move.
-#define whites_turn( pos_ptr ) ( pos_ptr->wt )
+#define whites_turn( pos_ptr ) ( pos_ptr->turn_and_ca_flags & 0x80U )
 
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
@@ -122,8 +119,6 @@ bool white_has_a_side_castling_right( const Pos *p );
 bool white_has_h_side_castling_right( const Pos *p );
 bool black_has_a_side_castling_right( const Pos *p );
 bool black_has_h_side_castling_right( const Pos *p );
-uint64_t value_BM_C960IRPF( const Pos *p );
-void set_BM_C960IRPF( uint64_t *info, uint8_t irpf );
 bool chess960_start_pos( const Pos *p );
 void ppa_to_eppf( const Bitboard *pp, char *eppf );
 void eppf_to_ppa( const char *eppf, Bitboard *pp );
