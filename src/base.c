@@ -353,7 +353,7 @@ static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
     const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
-static void x_init_pp( Pos *p, const char *ppf );
+static void x_init_ppa( Pos *p, const char *ppf );
 static void x_init_wt( Pos *p, const char *acf );
 static void x_init_ca_flags( Pos *p, const char *caf, const char *fen );
 
@@ -369,8 +369,7 @@ static char x_writable_mem[ 120 + 1 ];
  **** External functions ****
  ****************************/
 
-// Converts a FEN string to a Pos variable, the internal position
-// representation in Chester
+// Converts the FEN string argument 'fen' to a Pos variable
 Pos *
 fen_to_pos( const char *fen )
 {
@@ -378,7 +377,7 @@ fen_to_pos( const char *fen )
     char **ff = fen_fields( fen );
     assert( p && ff );
 
-    x_init_pp( p, ff[0] );
+    x_init_ppa( p, ff[0] );
     x_init_wt( p, ff[1] );
     x_init_ca_flags( p, ff[2], fen );
 
@@ -537,6 +536,7 @@ bool
 white_has_a_side_castling_right( const Pos *p )
 {
     return p->info & SBA[ 2 ];
+    // return p->ca_flags & ...
 }
 
 bool
@@ -863,7 +863,7 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 }
 
 static void
-x_init_pp( Pos *p, const char *ppf )
+x_init_ppa( Pos *p, const char *ppf )
 {
     for( int i = 0; i < 13; i++ ) p->ppa[i] = 0;
 
@@ -901,7 +901,8 @@ x_init_ca_flags( Pos *p, const char *caf, const char *fen )
 
     p->ca_flags = 0;
 
+    // "AH-h" => 00001101
     for( int i = 0; i < 4; i++ )
-        if( ecaf[i] != '-' )
+        if( ecaf[3 - i] != '-' )
             p->ca_flags |= ( 1 << i );
 }
