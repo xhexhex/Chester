@@ -11,19 +11,21 @@
 
 #suite types_ts
 
+//
+// Test case
+//
 #tcase global_data_tests
 
 #test C_quick_and_dirty_SB_and_SBA_test
     ck_assert_msg(
-        SB.a1 == 1u && SBA[ 0 ] == 1u && // 1 = 2^0
-        SB.c2 == 1024u && SBA[ 10 ] == 1024u && // kibi = 2^10
-        SB.e3 == 1048576u && SBA[ 20 ] == 1048576u && // mebi = 2^20
-        SB.g4 == 1073741824u && SBA[ 30 ] == 1073741824u && // gibi = 2^30
-        SB.a6 == 1099511627776u && SBA[ 40 ] == 1099511627776u && // tebi = 2^40
-        SB.c7 == 1125899906842624u && SBA[ 50 ] == 1125899906842624u && // pebi = 2^50
-        SB.h8 == 9223372036854775808u && SBA[ 63 ] == 9223372036854775808u ); // 2^63
+        SB.a1 == 1u && SBA[0] == 1u && // 1 = 2^0
+        SB.c2 == 1024u && SBA[10] == 1024u && // kibi = 2^10
+        SB.e3 == 1048576u && SBA[20] == 1048576u && // mebi = 2^20
+        SB.g4 == 1073741824u && SBA[30] == 1073741824u && // gibi = 2^30
+        SB.a6 == 1099511627776u && SBA[40] == 1099511627776u && // tebi = 2^40
+        SB.c7 == 1125899906842624u && SBA[50] == 1125899906842624u && // pebi = 2^50
+        SB.h8 == 9223372036854775808u && SBA[63] == 9223372036854775808u ); // 2^63
 
-// uint64, unsigned 64-bit integer
 #test C_incremental_sum_of_SBA_elements_test
     unsigned long sum = 0;
 
@@ -38,6 +40,7 @@
 #tcase fen_to_pos_tests
 
 #test C_fen_to_pos_with_std_start_pos_fen
+    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
     Pos *p = fen_to_pos( STD_START_POS_FEN );
 
     ck_assert( p->ppa[ EMPTY_SQUARE ] == 0xffffffff0000u );
@@ -54,24 +57,10 @@
     ck_assert( p->ppa[ BLACK_KNIGHT ] == 0x4200000000000000u );
     ck_assert( p->ppa[ BLACK_PAWN ] == 0xff000000000000u );
 
-    // Should be White's turn
     ck_assert( whites_turn( p ) );
     // Castling availability "KQkq"
-    /*
-    ck_assert(
-        ( p->info & BM_CA_WK ) &&
-        ( p->info & BM_CA_WQ ) &&
-        ( p->info & BM_CA_BK ) &&
-        ( p->info & BM_CA_BQ ) );
-    */
-    // En passant target square not set
-    // ck_assert( !( p->info & BM_EPTS_ALL ) );
-    // Halfmove clock set to zero
-    // ck_assert( !( p->info & BM_HMC ) );
     // Fullmove number is 1
     ck_assert( p->fmn == 1 );
-
-    // ck_assert( p->info == 0x10200000001fU );
 
     free( p );
 
@@ -98,7 +87,6 @@
 _define CHESS960_START_POS_TEST( fen, expected_value ) \
 ck_assert( !che_fen_validator( fen ) ); \
 p = fen_to_pos( fen ); \
-ck_assert( value_BM_C960IRPF( p ) == expected_value ); \
 free( (Pos *) p );
 
 _test C_fen_to_pos_tested_with_chess960_starting_positions
@@ -159,44 +147,9 @@ _undef CHESS960_START_POS_TEST
     ck_assert( !whites_turn( p ) );
     free( p );
 
-#tcase bitmask_tests
-
-#test C_macro_BM_UNUSED_INFO_BITS_correctly_defined
-    ck_assert( BM_UNUSED_INFO_BITS == 0xffffe00000000000U );
-    ck_assert( BM_UNUSED_INFO_BITS == ( 0x7ffffUL << 45 ) );
-
-#test C_BM_AC_correctly_defined
-    ck_assert( BM_AC == 1u );
-
-#test C_BM_CA_bits_correctly_defined
-    ck_assert(
-        BM_CA_WK == 2u &&
-        ( BM_CA_WK << 1 ) == BM_CA_WQ &&
-        ( BM_CA_WK << 2 ) == BM_CA_BK &&
-        ( BM_CA_WK << 3 ) == BM_CA_BQ
-    );
-
-#test C_macro_BM_CA_ALL_correctly_defined
-    ck_assert( BM_CA_ALL == 30u );
-
-#test C_BM_EPTS_bits_correctly_defined
-    ck_assert(
-        BM_EPTS_FILE_A == 32u &&
-        BM_EPTS_FILE_B == ( BM_EPTS_FILE_A << 1 ) &&
-        BM_EPTS_FILE_C == ( BM_EPTS_FILE_A << 2 ) &&
-        BM_EPTS_FILE_D == ( BM_EPTS_FILE_A << 3 ) &&
-        BM_EPTS_FILE_E == ( BM_EPTS_FILE_A << 4 ) &&
-        BM_EPTS_FILE_F == ( BM_EPTS_FILE_A << 5 ) &&
-        BM_EPTS_FILE_G == ( BM_EPTS_FILE_A << 6 ) &&
-        BM_EPTS_FILE_H == ( BM_EPTS_FILE_A << 7 )
-    );
-
-#test C_BM_HMC_correctly_defined
-    ck_assert( ( BM_HMC >> 13 ) == 4095u );
-
-#test C_BM_FMN_correctly_defined
-    ck_assert( ( BM_FMN >> 25 ) == 4095u );
-
+//
+// Test case
+//
 #tcase Chessman_enum_tests
 
 #test C_EMPTY_SQUARE_equals_0
@@ -569,3 +522,48 @@ ck_assert( counter == exp_count );
     N_CHAR_ELEMENTS_COUNT( 4, 2 * (int) POSSIBLE_IRPF_VALUES_COUNT )
 
 #undef N_CHAR_ELEMENTS_COUNT
+
+//
+// Test case
+//
+#tcase has_castling_right_tests
+
+// evoc: expected value of call
+#define EIGHT_CALL_TEST( value, evoc_1_and_5, evoc_2_and_6, \
+        evoc_3_and_7, evoc_4_and_8 ) \
+    pos.turn_and_ca_flags = value; \
+    ck_assert( \
+        has_castling_right( &pos, "white", "kingside" ) == evoc_1_and_5 && \
+        has_castling_right( &pos, "white", "queenside" ) == evoc_2_and_6 && \
+        has_castling_right( &pos, "black", "kingside" ) == evoc_3_and_7 && \
+        has_castling_right( &pos, "black", "queenside" ) == evoc_4_and_8 \
+    ); \
+    ck_assert( \
+        has_castling_right( &pos, "white", "h_side" ) == evoc_1_and_5 && \
+        has_castling_right( &pos, "white", "a_side" ) == evoc_2_and_6 && \
+        has_castling_right( &pos, "black", "h_side" ) == evoc_3_and_7 && \
+        has_castling_right( &pos, "black", "a_side" ) == evoc_4_and_8 \
+    );
+
+#test C_has_castling_right_works
+    Pos pos;
+
+    EIGHT_CALL_TEST( 0x0fU, true, true, true, true )
+    EIGHT_CALL_TEST( 0xf0U, false, false, false, false );
+    //     KQkq
+    // 10101010 in binary
+    EIGHT_CALL_TEST( 0xaaU, true, false, true, false )
+    //     KQkq
+    // 00001010 in binary
+    EIGHT_CALL_TEST( 0x0aU, true, false, true, false )
+    //     KQkq
+    // 00000101 in binary
+    EIGHT_CALL_TEST( 0x05U, false, true, false, true )
+
+    EIGHT_CALL_TEST( 0, false, false, false, false )
+    EIGHT_CALL_TEST( 1, false, false, false, true )
+    EIGHT_CALL_TEST( 2, false, false, true, false )
+    EIGHT_CALL_TEST( 4, false, true, false, false )
+    EIGHT_CALL_TEST( 8, true, false, false, false )
+
+#undef EIGHT_CALL_TEST

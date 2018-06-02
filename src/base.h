@@ -50,37 +50,15 @@ enum sq_dir {
     SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
 };
 
-// Chester's internal representation of a position. The Pos type contains
-// the same information as a FEN string. See the documention for a
-// comprehensive description of the Pos type.
+// The Pos type or "Pos variable" is Chester's internal representation
+// of chess positions. A Pos variable contains the same information as
+// a FEN string. See doc/pos-spec.md for a comprehensive description of
+// Pos variables.
 typedef struct {
     Bitboard ppa[13];
     uint8_t turn_and_ca_flags, irp[2], epts_file;
     uint16_t hmc, fmn;
 } Pos;
-
-// Used for inspecting and manipulating the data in the 'info' member
-// of Pos variables. As the 'info' member corresponds to the last five
-// fields of a FEN record, there are five bit fields of interest in 'info'.
-// The bitmasks below specify those bit fields (or the  individual bits
-// in the bit fields).
-extern const uint64_t
-    BM_AC,
-    BM_CA_WK, BM_CA_WQ, BM_CA_BK, BM_CA_BQ,
-    BM_EPTS_FILE_A, BM_EPTS_FILE_B, BM_EPTS_FILE_C, BM_EPTS_FILE_D,
-        BM_EPTS_FILE_E, BM_EPTS_FILE_F, BM_EPTS_FILE_G, BM_EPTS_FILE_H,
-    BM_HMC,
-    BM_FMN,
-    BM_C960IRPF;
-
-#define BM_CA_ALL ( BM_CA_WK | BM_CA_WQ | BM_CA_BK | BM_CA_BQ )
-
-#define BM_EPTS_ALL \
-( BM_EPTS_FILE_A | BM_EPTS_FILE_B | BM_EPTS_FILE_C | BM_EPTS_FILE_D | \
-    BM_EPTS_FILE_E | BM_EPTS_FILE_F | BM_EPTS_FILE_G | BM_EPTS_FILE_H )
-
-#define BM_UNUSED_INFO_BITS \
-( ~( BM_AC | BM_CA_ALL | BM_EPTS_ALL | BM_HMC | BM_FMN | BM_C960IRPF ) )
 
 // The square sets that correspond to the eight files and
 // the eight ranks of the chessboard
@@ -118,7 +96,7 @@ bool white_has_a_side_castling_right( const Pos *p );
 bool white_has_h_side_castling_right( const Pos *p );
 bool black_has_a_side_castling_right( const Pos *p );
 bool black_has_h_side_castling_right( const Pos *p );
-// ADD FUNCTION bool castling_right( color, side )
+bool has_castling_right( const Pos *p, const char *color, const char *side );
 bool chess960_start_pos( const Pos *p );
 void ppa_to_eppf( const Bitboard *pp, char *eppf );
 void eppf_to_ppa( const char *eppf, Bitboard *pp );

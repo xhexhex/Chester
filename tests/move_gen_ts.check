@@ -423,7 +423,6 @@ _tcase castling_move_status_tests
 #define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val, irp ) \
 ck_assert( !che_fen_validator( fen ) ); \
 ck_assert( p = fen_to_pos( fen ) ); \
-set_BM_C960IRPF( &p->info, irp ); \
 ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
 free( (Pos *) p );
 

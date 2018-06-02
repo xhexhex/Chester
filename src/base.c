@@ -232,17 +232,6 @@ const Bitboard SQ_NAV[][ 16 ] = {
     0x40000000000000U, 0x4000000000000000U, 0x0U, 0x0U, 0x0U, 0x0U, 0x0U,
     0x400000000000U, 0x20000000000000U, 0x0U, 0x0U } };
 
-const uint64_t
-    BM_AC = 0x1u,
-    BM_CA_WK = 0x2u, BM_CA_WQ = 0x4u, BM_CA_BK = 0x8u, BM_CA_BQ = 0x10u,
-    BM_EPTS_FILE_A = 0x20u, BM_EPTS_FILE_B = 0x40u,
-        BM_EPTS_FILE_C = 0x80u, BM_EPTS_FILE_D = 0x100u,
-        BM_EPTS_FILE_E = 0x200u, BM_EPTS_FILE_F = 0x400u,
-        BM_EPTS_FILE_G = 0x800u, BM_EPTS_FILE_H = 0x1000u,
-    BM_HMC = 0x1ffe000u,
-    BM_FMN = 0x1ffe000000u,
-    BM_C960IRPF = 0x1fe000000000U;
-
 const Bitboard
     SS_FILE_A = 0x101010101010101u, SS_FILE_B = 0x202020202020202u,
     SS_FILE_C = 0x404040404040404u, SS_FILE_D = 0x808080808080808u,
@@ -479,9 +468,6 @@ sq_nav( Bitboard sq, enum sq_dir dir )
     return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
 }
 
-// Having a castling right is different from being able to castle in a given
-// position. For example, all the castling rights are present in the standard
-// starting position, yet "O-O" or "O-O-O" are not available as moves.
 bool
 white_has_a_side_castling_right( const Pos *p )
 {
@@ -504,6 +490,32 @@ bool
 black_has_h_side_castling_right( const Pos *p )
 {
     return p->turn_and_ca_flags & 1;
+}
+
+// Examines the Pos variable 'p' to see if there's a castling
+// right/availability for color 'color' on side 'side'. For example,
+// if the call has_castling_right( p, "white", "kingside" ) returns true,
+// White has the kingside castling right. In a standard FEN CAF this would
+// translate to the presence of the character 'K'. It's important to
+// remember that having a castling right is different from being able to
+// castle in the given position. For example, all the castling rights are
+// present in the standard starting position, yet "O-O" or "O-O-O" are not
+// available as moves.
+bool
+has_castling_right( const Pos *p, const char *color, const char *side )
+{
+    assert( !strcmp( color, "white" ) || !strcmp( color, "black" ) );
+    assert( !strcmp( side, "queenside" ) || !strcmp( side, "kingside" ) ||
+        !strcmp( side, "a_side" ) || !strcmp( side, "h_side" ) );
+
+    bool white = !strcmp( color, "white" ), kingside =
+        ( !strcmp( side, "kingside" ) || !strcmp( side, "h_side" ) );
+
+    uint8_t bit = ( white ? 8 : 2 );
+    if( !kingside ) bit >>= 1;
+    assert( bb_is_sq_bit( (Bitboard) bit ) );
+
+    return bit & p->turn_and_ca_flags;
 }
 
 // Returns true if 'p' is found to represent one of the 960 Chess960
@@ -770,8 +782,14 @@ x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     if( !strcmp( acf, "w" ) ) p->turn_and_ca_flags |= ( 1 << 7 );
 
     for( int i = 0; i < 4; i++ )
+        if( ecaf[i] != '-' )
+            p->turn_and_ca_flags |= ( 8 >> i );
+
+    /*
+    for( int i = 0; i < 4; i++ )
         if( ecaf[3 - i] != '-' )
             p->turn_and_ca_flags |= ( 1 << i );
+    */
 }
 
 static void
