@@ -343,27 +343,17 @@ const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
  **** Static function prototypes ****
  ************************************/
 
-static void x_set_halfmove_clock( Pos *p, const char *hmc );
-static void x_set_fullmove_number( Pos *p, const char *fmn );
 static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
 static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
     const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
-static void x_init_ppa( Pos *p, const char *ppf );
-static void x_init_turn_and_ca_flags(
+static void x_fen_to_pos_init_ppa( Pos *p, const char *ppf );
+static void x_fen_to_pos_init_turn_and_ca_flags(
     Pos *p, const char *acf, const char *caf, const char *fen );
-static void x_init_irp( Pos *p, const char *caf, const char *fen );
-static void x_init_epts_file( Pos *p, const char *eptsf );
-
-/*********************************
- **** Static global variables ****
- *********************************/
-
-// Used by nth_field_of_fen_str() of utils.c. The size of the array should be
-// at least FEN_MAX_LENGTH + 1 bytes.
-// static char x_writable_mem[ 120 + 1 ];
+static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
+static void x_fen_to_pos_init_epts_file( Pos *p, const char *eptsf );
 
 /****************************
  **** External functions ****
@@ -374,23 +364,18 @@ Pos *
 fen_to_pos( const char *fen )
 {
     Pos *p = (Pos *) malloc( sizeof( Pos ) );
+    assert( p );
     char **ff = fen_fields( fen );
-    assert( p && ff );
+    assert( ff );
 
-    x_init_ppa( p, ff[0] );
-    x_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
-    x_init_irp( p, ff[2], fen );
-    x_init_epts_file( p, ff[3] );
-
-    // const char *hmc = nth_field_of_fen_str( fen, x_writable_mem, 5 );
-    x_set_halfmove_clock( p, ff[4] );
-
-    // const char *fmn = nth_field_of_fen_str( fen, x_writable_mem, 6 );
-    x_set_fullmove_number( p, ff[5] );
+    x_fen_to_pos_init_ppa( p, ff[0] );
+    x_fen_to_pos_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
+    x_fen_to_pos_init_irp( p, ff[2], fen );
+    x_fen_to_pos_init_epts_file( p, ff[3] );
+    p->hmc = (uint64_t) atoi( ff[4] ), p->fmn = (uint64_t) atoi( ff[5] );
 
     free_fen_fields( ff );
-
-    assert( !pos_var_sq_integrity_check( p ) );
+    assert( !ppa_integrity_check( p->ppa ) );
     return p;
 }
 
@@ -404,29 +389,6 @@ pos_to_fen( /* const Pos *p */ )
     // char eppf[ PPF_MAX_LENGTH + 1 ];
     // x_create_expanded_ppf( p->pp, eppf );
     // 2. Use compress_eppf()
-
-    return NULL;
-}
-
-// In the ppa array of a Pos var, exactly one bit should be set per
-// bit index. In logical terms this means that each square is either
-// empty or contains one of the twelve types of chessmen; a square cannot
-// be empty AND be occupied by a chessman, nor can it be occupied by more
-// than one type of chessman. The following function checks that exactly
-// one bit is set for each bit index of the ppa array.
-const char *
-pos_var_sq_integrity_check( const Pos *p )
-{
-    for( int bit_index = 0; bit_index < 64; bit_index++ ) {
-        int number_of_set_bits = 0;
-
-        for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
-            if( p->ppa[ cm ] & SBA[ bit_index ] )
-                ++number_of_set_bits;
-
-        if( number_of_set_bits != 1 )
-            return SNA[ bit_index ];
-    }
 
     return NULL;
 }
@@ -655,22 +617,6 @@ fen_fmnf( const char *fen )
  ****                    ****
  ****************************/
 
-// Should only be called from fen_to_pos(). The argument 'hmc'
-// is assumed to be valid.
-static void
-x_set_halfmove_clock( Pos *p, const char *hmc )
-{
-    p->hmc = (uint64_t) atoi( hmc );
-}
-
-// Should only be called from fen_to_pos(). The argument 'fmn'
-// is assumed to be valid.
-static void
-x_set_fullmove_number( Pos *p, const char *fmn )
-{
-    p->fmn = (uint64_t) atoi( fmn );
-}
-
 static Bitboard
 x_sq_set_of_diag( const int index )
 {
@@ -790,7 +736,7 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 }
 
 static void
-x_init_ppa( Pos *p, const char *ppf )
+x_fen_to_pos_init_ppa( Pos *p, const char *ppf )
 {
     for( int i = 0; i < 13; i++ ) p->ppa[i] = 0;
 
@@ -813,8 +759,8 @@ x_init_ppa( Pos *p, const char *ppf )
 }
 
 static void
-x_init_turn_and_ca_flags( Pos *p, const char *acf, const char *caf,
-    const char *fen )
+x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
+    const char *caf, const char *fen )
 {
     char ecaf[10];
     EXPAND_CAF( caf, ecaf, fen )
@@ -829,7 +775,7 @@ x_init_turn_and_ca_flags( Pos *p, const char *acf, const char *caf,
 }
 
 static void
-x_init_irp( Pos *p, const char *caf, const char *fen )
+x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen )
 {
     char ecaf[10];
     EXPAND_CAF( caf, ecaf, fen )
@@ -847,7 +793,7 @@ x_init_irp( Pos *p, const char *caf, const char *fen )
 }
 
 static void
-x_init_epts_file( Pos *p, const char *eptsf )
+x_fen_to_pos_init_epts_file( Pos *p, const char *eptsf )
 {
     p->epts_file = 0;
     if( !strcmp( eptsf, "-" ) ) return;

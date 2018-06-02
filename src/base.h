@@ -56,7 +56,7 @@ enum sq_dir {
 typedef struct {
     Bitboard ppa[13];
     uint8_t turn_and_ca_flags, irp[2], epts_file;
-    uint16_t hmc, fmn; // num[2] or nf[2]
+    uint16_t hmc, fmn;
 } Pos;
 
 // Used for inspecting and manipulating the data in the 'info' member
@@ -107,7 +107,6 @@ extern const Bitboard
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
 const char *pos_to_fen( /* const Pos *p */ );
-const char *pos_var_sq_integrity_check( const Pos *p );
 Bitboard sq_set_of_file( const char file );
 Bitboard sq_set_of_rank( const char rank );
 Bitboard sq_set_of_diag( const int index );
@@ -119,6 +118,7 @@ bool white_has_a_side_castling_right( const Pos *p );
 bool white_has_h_side_castling_right( const Pos *p );
 bool black_has_a_side_castling_right( const Pos *p );
 bool black_has_h_side_castling_right( const Pos *p );
+// ADD FUNCTION bool castling_right( color, side )
 bool chess960_start_pos( const Pos *p );
 void ppa_to_eppf( const Bitboard *pp, char *eppf );
 void eppf_to_ppa( const char *eppf, Bitboard *pp );

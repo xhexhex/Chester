@@ -72,26 +72,11 @@ str_m_pat( const char *str, const char *pat )
     return !result;
 } // Review: 2018-03-30
 
-// A FEN string such as "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-// consists of six fields. The following function returns the nth field of a FEN.
-// It is assumed  that the size of the memory area pointed to by 'writable_mem_ptr'
-// is FEN_MAX_LENGTH + 1.
-char *
-nth_field_of_fen_str( const char *fen_str, char *writable_mem_ptr, int field_num )
-{
-    assert( field_num > 0 && field_num < 7 );
-
 #define STRCPY_AND_STRTOK( str_with_fields, field_sep ) \
     strcpy( writable_mem_ptr, str_with_fields ); \
     char *field = strtok( writable_mem_ptr, field_sep ); \
-    for( int i = 2; i <= field_num; i++ ) { \
-        field = strtok( NULL, field_sep ); \
-    }
-
-    STRCPY_AND_STRTOK( fen_str, " " );
-
-    return field;
-}
+    for( int i = 2; i <= field_num; i++ ) \
+        field = strtok( NULL, field_sep );
 
 // A PPF such as "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" consists of
 // eight subfields that represent ranks. The following function returns the
@@ -112,6 +97,8 @@ nth_rank_of_ppf( const char *ppf, char *writable_mem_ptr, int rank_num )
 
     return field;
 }
+
+#undef STRCPY_AND_STRTOK
 
 // Replaces digits in a PPF rank string with a corresponding number of
 // dashes. For example, "1p2p3" gets converted to "-p--p---". Note that

@@ -47,26 +47,14 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #suite utils_ts
 
-#tcase nth_field_of_fen_str_tests
+#tcase nth_rank_of_ppf_tests
 
-#test C_nth_field_of_fen_str_works
-    SRAND( time( NULL ) ); // Calling srand(), unless it has already been called
-
-    char start_pos_fen[] =
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const int NUM_OF_FIELDS = 6;
-    char writable_mem[ FEN_MAX_LENGTH + 1 ];
-    char *tok_start_pos_fen[] = { // tok, tokenized
-        // Note that index 0 contains the empty string
-        "", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", "w", "KQkq",
-        "-", "0", "1" };
-
-// Avoiding copy & paste code
 #define FOR_LOOP_BODY( nth_field_func, str_with_fields ) \
     ck_assert_msg( \
         ! strcmp( nth_field_func( str_with_fields, writable_mem, i ), \
             tok_ ## str_with_fields[ i ] ), \
         "Non-identical strings detected" )
+
 // The first for loop tests in sequence, the second in random order
 #define TWO_FOR_LOOPS( nth_field_func, str_with_fields ) \
     for( int i = 1; i <= NUM_OF_FIELDS; i++ ) { \
@@ -75,11 +63,10 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
         int i = ( rand() % NUM_OF_FIELDS ) + 1; \
         FOR_LOOP_BODY( nth_field_func, str_with_fields ); }
 
-    TWO_FOR_LOOPS( nth_field_of_fen_str, start_pos_fen );
-
-#tcase nth_rank_of_ppf_tests
-
 #test C_nth_rank_of_ppf_works
+    // Calling srand(), unless it has already been called
+    SRAND( time( NULL ) );
+
     char start_pos_ppf[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     const int NUM_OF_FIELDS = 8;
     char writable_mem[ PPF_MAX_LENGTH + 1 ];
@@ -97,6 +84,9 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
     };
 
     TWO_FOR_LOOPS( nth_rank_of_ppf, start_pos_ppf );
+
+#undef FOR_LOOP_BODY
+#undef TWO_FOR_LOOPS
 
 #tcase set_or_unset_bits_tests
 
