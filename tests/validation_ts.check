@@ -149,6 +149,9 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
         "8/8/8/7k/7P/8/8/7K b - h3 0 50",
         "k7/8/8/p7/K7/8/8/8 w - a6 0 50",
         "7k/8/8/7p/7K/8/8/8 w - h6 0 50",
+        "r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100",
+        "5rk1/8/8/6p1/8/8/8/6KR w Hf g6 0 75",
+        "4rrk1/8/8/6p1/8/Q7/8/5RKR w FHf g6 0 75",
         NULL };
 
     FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );

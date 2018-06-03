@@ -361,7 +361,7 @@ fen_to_pos( const char *fen )
     x_fen_to_pos_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
     x_fen_to_pos_init_irp( p, ff[2], fen );
     x_fen_to_pos_init_epts_file( p, ff[3] );
-    p->hmc = (uint64_t) atoi( ff[4] ), p->fmn = (uint64_t) atoi( ff[5] );
+    p->hmc = atoi( ff[4] ), p->fmn = atoi( ff[5] );
 
     free_fen_fields( ff );
     assert( !ppa_integrity_check( p->ppa ) );
@@ -760,6 +760,14 @@ x_fen_to_pos_init_ppa( Pos *p, const char *ppf )
                 p->ppa[cm] |= SBA[index];
 }
 
+// turn_and_ca_flags:
+//  7   6   5   4   3   2   1   0   <= Bit indexes
+// [x] [ ] [ ] [ ] [x] [ ] [ ] [x]  <= Bit values
+//  t               K   Q   k   q   <= Meaning
+//
+// From the above we learn that it is White's turn and that the remaining
+// castling rights in the Pos variable 'p' are white kingside (K) and
+// black queenside (q).
 static void
 x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen )
@@ -771,15 +779,10 @@ x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     p->turn_and_ca_flags = 0;
     if( !strcmp( acf, "w" ) ) p->turn_and_ca_flags |= ( 1 << 7 );
 
-    for( int i = 0; i < 4; i++ )
-        if( ecaf[i] != '-' )
-            p->turn_and_ca_flags |= ( 8 >> i );
-
-    /*
-    for( int i = 0; i < 4; i++ )
-        if( ecaf[3 - i] != '-' )
-            p->turn_and_ca_flags |= ( 1 << i );
-    */
+    if( ecaf[1] != '-' ) p->turn_and_ca_flags |= 8; // K
+    if( ecaf[0] != '-' ) p->turn_and_ca_flags |= 4; // Q
+    if( ecaf[3] != '-' ) p->turn_and_ca_flags |= 2; // k
+    if( ecaf[2] != '-' ) p->turn_and_ca_flags |= 1; // q
 }
 
 static void

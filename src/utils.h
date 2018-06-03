@@ -13,8 +13,15 @@
 // remain unchanged by resolve_ambiguous_ecaf(). 'ecaf' is assumed to be a writable
 // array of at least ten bytes. For more details on CAF expansion, view the documention
 // of expand_caf().
-#define EXPAND_CAF( caf, ecaf, fen ) expand_caf( caf, ecaf ); \
-resolve_ambiguous_ecaf( ecaf, fen );
+#define EXPAND_CAF( caf, ecaf, fen ) \
+    expand_caf( caf, ecaf ); \
+    resolve_ambiguous_ecaf( ecaf, fen );
+
+// Swaps the values of the variables 'x' and 'y'. The two variables are of
+// type 'T'. For example, swap( i, j, int ) swaps the values of the int
+// variables 'i' and 'j'.
+#define swap( x, y, T ) \
+    do { T tmp = x; x = y; y = tmp; } while( false )
 
 extern bool srand_has_been_called;
 

@@ -1243,3 +1243,28 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
 
 #undef RESOLVE_AMBIGUOUS_ECAF_TEST
+
+//
+// Test case
+//
+#tcase swap_tests
+
+#define ASSIGN_SWAP_AND_ASSERT( left_arg, right_arg, type_arg ) \
+    left = left_arg, right = right_arg; \
+    swap( left, right, type_arg ); \
+    ck_assert( left == right_arg && right == left_arg );
+
+#test C_swap_works_with_type_bool
+    bool left, right;
+
+    ASSIGN_SWAP_AND_ASSERT( false, false, bool )
+    ASSIGN_SWAP_AND_ASSERT( false, true, bool )
+    ASSIGN_SWAP_AND_ASSERT( true, false, bool )
+    ASSIGN_SWAP_AND_ASSERT( true, true, bool )
+
+#undef ASSIGN_SWAP_AND_ASSERT
+
+#test C_swap_works_with_type_int
+    int left = 1234, right = -1975;
+    swap( left, right, int );
+    ck_assert( left == -1975 && right == 1234 );

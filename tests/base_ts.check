@@ -39,52 +39,102 @@
 //
 #tcase fen_to_pos_tests
 
+#define PPA_CHECK( \
+        exp_es, \
+        exp_wk, exp_wq, exp_wr, exp_wb, exp_wn, exp_wp, \
+        exp_bk, exp_bq, exp_br, exp_bb, exp_bn, exp_bp ) \
+    ck_assert( p->ppa[EMPTY_SQUARE] == exp_es ); \
+    ck_assert( p->ppa[WHITE_KING] == exp_wk ); \
+    ck_assert( p->ppa[WHITE_QUEEN] == exp_wq ); \
+    ck_assert( p->ppa[WHITE_ROOK] == exp_wr ); \
+    ck_assert( p->ppa[WHITE_BISHOP] == exp_wb ); \
+    ck_assert( p->ppa[WHITE_KNIGHT] == exp_wn ); \
+    ck_assert( p->ppa[WHITE_PAWN] == exp_wp ); \
+    ck_assert( p->ppa[BLACK_KING] == exp_bk ); \
+    ck_assert( p->ppa[BLACK_QUEEN] == exp_bq ); \
+    ck_assert( p->ppa[BLACK_ROOK] == exp_br ); \
+    ck_assert( p->ppa[BLACK_BISHOP] == exp_bb ); \
+    ck_assert( p->ppa[BLACK_KNIGHT] == exp_bn ); \
+    ck_assert( p->ppa[BLACK_PAWN] == exp_bp );
+
+#define CASTLING_RIGHTS_CHECK( exp_K, exp_Q, exp_k, exp_q ) \
+    ck_assert( has_castling_right( p, "white", "kingside" ) == exp_K ); \
+    ck_assert( has_castling_right( p, "white", "queenside" ) == exp_Q ); \
+    ck_assert( has_castling_right( p, "black", "kingside" ) == exp_k ); \
+    ck_assert( has_castling_right( p, "black", "queenside" ) == exp_q );
+
+#define REMAINING_FOUR_FIELDS( exp_wt, exp_epts, exp_hmc, exp_fmn ) \
+    ck_assert( (!exp_wt && !whites_turn(p)) || (exp_wt && whites_turn(p)) ), \
+    ck_assert( epts(p) == exp_epts ), ck_assert( p->hmc == exp_hmc ), \
+    ck_assert( p->fmn == exp_fmn );
+
 #test C_fen_to_pos_with_std_start_pos_fen
-    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
     Pos *p = fen_to_pos( STD_START_POS_FEN );
 
-    // PPF
-    ck_assert( p->ppa[EMPTY_SQUARE] == 0xffffffff0000u );
-    ck_assert( p->ppa[WHITE_KING] == 0x10u );
-    ck_assert( p->ppa[WHITE_QUEEN] == 0x8u );
-    ck_assert( p->ppa[WHITE_ROOK] == 0x81u );
-    ck_assert( p->ppa[WHITE_BISHOP] == 0x24u );
-    ck_assert( p->ppa[WHITE_KNIGHT] == 0x42u );
-    ck_assert( p->ppa[WHITE_PAWN] == 0xff00u );
-    ck_assert( p->ppa[BLACK_KING] == 0x1000000000000000u );
-    ck_assert( p->ppa[BLACK_QUEEN] == 0x800000000000000u );
-    ck_assert( p->ppa[BLACK_ROOK] == 0x8100000000000000u );
-    ck_assert( p->ppa[BLACK_BISHOP] == 0x2400000000000000u );
-    ck_assert( p->ppa[BLACK_KNIGHT] == 0x4200000000000000u );
-    ck_assert( p->ppa[BLACK_PAWN] == 0xff000000000000u );
-    // ACF
-    ck_assert( whites_turn( p ) );
-    // CAF
-    ck_assert( has_castling_right( p, "white", "kingside" ) );
-    ck_assert( has_castling_right( p, "white", "queenside" ) );
-    ck_assert( has_castling_right( p, "black", "kingside" ) );
-    ck_assert( has_castling_right( p, "black", "queenside" ) );
+    PPA_CHECK( 0xffffffff0000,
+        0x10, 0x8, 0x81, 0x24, 0x42, 0xff00,
+        0x1000000000000000, 0x800000000000000, 0x8100000000000000,
+        0x2400000000000000, 0x4200000000000000, 0xff000000000000 )
+    CASTLING_RIGHTS_CHECK( true, true, true, true )
+    REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
 
-    free( p );
+    // Duplicate testing to make sure the above macro works as expected
+    ck_assert( whites_turn(p) ), ck_assert( !epts(p) ),
+    ck_assert( !p->hmc ), ck_assert( p->fmn == 1 );
+
+    free(p);
 
 #test C_fen_to_pos_manually_computed_test_1
     Pos *p = fen_to_pos( "r3k3/8/8/8/4P3/8/8/4K2R b Kq e3 0 100" );
 
-    ck_assert( p->ppa[ EMPTY_SQUARE ] == 0xeeffffffefffff6fU );
-    ck_assert( p->ppa[ WHITE_KING ] == 0x10u );
-    ck_assert( p->ppa[ WHITE_QUEEN ] == 0 );
-    ck_assert( p->ppa[ WHITE_ROOK ] == 0x80u );
-    ck_assert( p->ppa[ WHITE_BISHOP ] == 0 );
-    ck_assert( p->ppa[ WHITE_KNIGHT ] == 0 );
-    ck_assert( p->ppa[ WHITE_PAWN ] == 0x10000000u );
-    ck_assert( p->ppa[ BLACK_KING ] == 0x1000000000000000u );
-    ck_assert( p->ppa[ BLACK_QUEEN ] == 0 );
-    ck_assert( p->ppa[ BLACK_ROOK ] == 0x100000000000000u );
-    ck_assert( p->ppa[ BLACK_BISHOP ] == 0 );
-    ck_assert( p->ppa[ BLACK_KNIGHT ] == 0 );
-    ck_assert( p->ppa[ BLACK_PAWN ] == 0 );
+    PPA_CHECK( 0xeeffffffefffff6f,
+        0x10, 0, 0x80, 0, 0, 0x10000000,
+        0x1000000000000000, 0, 0x100000000000000, 0, 0, 0 )
+    CASTLING_RIGHTS_CHECK( true, false, false, true )
+    REMAINING_FOUR_FIELDS( false, SB.e3, 0, 100 )
 
-    free( p );
+    // Duplicate testing to make sure the above macro works as expected
+    ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.e3 ),
+        ck_assert( !p->hmc ), ck_assert( p->fmn == 100 );
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_2
+    Pos *p = fen_to_pos( "8/8/8/k7/P7/8/8/K7 b - a3 0 50" );
+
+    PPA_CHECK( 0,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0 )
+    CASTLING_RIGHTS_CHECK( false, false, false, false )
+    REMAINING_FOUR_FIELDS( false, SB.a3, 0, 50 )
+
+    // Duplicate testing to make sure the above macro works as expected
+    ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.a3 ),
+        ck_assert( !p->hmc ), ck_assert( p->fmn == 50 );
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_3
+    Pos *p = fen_to_pos( "5rk1/8/8/6p1/8/8/8/6KR w Hf g6 0 75" );
+
+    // TODO
+    CASTLING_RIGHTS_CHECK( true, false, false, true )
+    REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_4
+    Pos *p = fen_to_pos( "4rrk1/8/8/6p1/8/Q7/8/5RKR w FHf g6 0 75" );
+
+    // TODO
+    CASTLING_RIGHTS_CHECK( true, true, false, true )
+    REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
+
+    free(p);
+
+#undef PPA_CHECK
+#undef CASTLING_RIGHTS_CHECK
+#undef REMAINING_FOUR_FIELDS
 
 /*
 _define CHESS960_START_POS_TEST( fen, expected_value ) \
