@@ -76,6 +76,7 @@
         0x1000000000000000, 0x800000000000000, 0x8100000000000000,
         0x2400000000000000, 0x4200000000000000, 0xff000000000000 )
     CASTLING_RIGHTS_CHECK( true, true, true, true )
+    ck_assert( p->turn_and_ca_flags == 0x8f );
     REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
 
     // Duplicate testing to make sure the above macro works as expected
@@ -91,6 +92,7 @@
         0x10, 0, 0x80, 0, 0, 0x10000000,
         0x1000000000000000, 0, 0x100000000000000, 0, 0, 0 )
     CASTLING_RIGHTS_CHECK( true, false, false, true )
+    ck_assert( p->turn_and_ca_flags == 9 );
     REMAINING_FOUR_FIELDS( false, SB.e3, 0, 100 )
 
     // Duplicate testing to make sure the above macro works as expected
@@ -102,10 +104,11 @@
 #test C_fen_to_pos_manually_computed_test_2
     Pos *p = fen_to_pos( "8/8/8/k7/P7/8/8/K7 b - a3 0 50" );
 
-    PPA_CHECK( 0,
-        0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0 )
+    PPA_CHECK( 0xfffffffefefffffe,
+        1, 0, 0, 0, 0, 0x1000000,
+        0x100000000, 0, 0, 0, 0, 0 )
     CASTLING_RIGHTS_CHECK( false, false, false, false )
+    ck_assert( !p->turn_and_ca_flags );
     REMAINING_FOUR_FIELDS( false, SB.a3, 0, 50 )
 
     // Duplicate testing to make sure the above macro works as expected
@@ -117,8 +120,11 @@
 #test C_fen_to_pos_manually_computed_test_3
     Pos *p = fen_to_pos( "5rk1/8/8/6p1/8/8/8/6KR w Hf g6 0 75" );
 
-    // TODO
+    PPA_CHECK( 0x9fffffbfffffff3f,
+        0x40, 0, 0x80, 0, 0, 0,
+        0x4000000000000000, 0, 0x2000000000000000, 0, 0, 0x4000000000 )
     CASTLING_RIGHTS_CHECK( true, false, false, true )
+    ck_assert( p->turn_and_ca_flags == 0x89 );
     REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
 
     free(p);
@@ -126,8 +132,11 @@
 #test C_fen_to_pos_manually_computed_test_4
     Pos *p = fen_to_pos( "4rrk1/8/8/6p1/8/Q7/8/5RKR w FHf g6 0 75" );
 
-    // TODO
+    PPA_CHECK( 0x8fffffbffffeff1f,
+        0x40, 0x10000, 0xa0, 0, 0, 0,
+        0x4000000000000000, 0, 0x3000000000000000, 0, 0, 0x4000000000 )
     CASTLING_RIGHTS_CHECK( true, true, false, true )
+    ck_assert( p->turn_and_ca_flags == 0x8d );
     REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
 
     free(p);
@@ -136,52 +145,13 @@
 #undef CASTLING_RIGHTS_CHECK
 #undef REMAINING_FOUR_FIELDS
 
-/*
-_define CHESS960_START_POS_TEST( fen, expected_value ) \
-ck_assert( !che_fen_validator( fen ) ); \
-p = fen_to_pos( fen ); \
-free( (Pos *) p );
-
-_test C_fen_to_pos_tested_with_chess960_starting_positions
-    const Pos *p;
-
-    CHESS960_START_POS_TEST( STD_START_POS_FEN, 0x81U )
-    CHESS960_START_POS_TEST(
-        "nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w CFcf - 0 1", 0x24U )
-    CHESS960_START_POS_TEST(
-        "bqnrkrnb/pppppppp/8/8/8/8/PPPPPPPP/BQNRKRNB w KQkq - 0 1", 0x28U )
-    CHESS960_START_POS_TEST(
-        "qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR w KQkq - 0 1", 0x82U )
-
-_test C_fen_to_pos_tested_with_NOT_chess960_starting_positions
-    const Pos *p;
-
-    CHESS960_START_POS_TEST( "4k3/8/8/8/8/8/8/4K3 w - - 0 50", 0x81U );
-    CHESS960_START_POS_TEST(
-        "nnrkrbqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKRBQB w CEce - 0 1", 0x81U )
-    CHESS960_START_POS_TEST(
-        "nnrkbrbq/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w CFcf - 0 1", 0x81U )
-    CHESS960_START_POS_TEST(
-        "nrnkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w KQkq - 0 1", 0x81U )
-    CHESS960_START_POS_TEST(
-        "nnrrbkqb/pppppppp/8/8/8/8/PPPPPPPP/NNRRBKQB w Qq - 0 1", 0x81U )
-    CHESS960_START_POS_TEST(
-        "bqnrkrnb/pppppppp/8/8/8/8/PPPPPPPP/BQNRKRNB w KQkq - 0 2", 0x81U )
-    CHESS960_START_POS_TEST(
-        "nnrkbrqb/pppppppp/8/8/8/8/PPPPPPPP/NNRKBRQB w Kkq - 0 1", 0x81U )
-    CHESS960_START_POS_TEST(
-        "qrbnkbnr/pppppppp/8/8/8/8/PPPPPPPP/QRBNKBNR b KQkq - 0 1", 0x81U )
-
-_undef CHESS960_START_POS_TEST
-*/
-
 //
 // Test case
 //
 #tcase pos_to_fen_tests
 
 #test C_fen_to_pos_to_fen_inverse_fn_test
-    // ck_assert( false );
+    ck_assert( true );
 
 //
 // Test case
