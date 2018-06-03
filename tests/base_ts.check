@@ -43,19 +43,19 @@
         exp_es, \
         exp_wk, exp_wq, exp_wr, exp_wb, exp_wn, exp_wp, \
         exp_bk, exp_bq, exp_br, exp_bb, exp_bn, exp_bp ) \
-    ck_assert( p->ppa[EMPTY_SQUARE] == exp_es ); \
-    ck_assert( p->ppa[WHITE_KING] == exp_wk ); \
-    ck_assert( p->ppa[WHITE_QUEEN] == exp_wq ); \
-    ck_assert( p->ppa[WHITE_ROOK] == exp_wr ); \
-    ck_assert( p->ppa[WHITE_BISHOP] == exp_wb ); \
-    ck_assert( p->ppa[WHITE_KNIGHT] == exp_wn ); \
-    ck_assert( p->ppa[WHITE_PAWN] == exp_wp ); \
-    ck_assert( p->ppa[BLACK_KING] == exp_bk ); \
-    ck_assert( p->ppa[BLACK_QUEEN] == exp_bq ); \
-    ck_assert( p->ppa[BLACK_ROOK] == exp_br ); \
-    ck_assert( p->ppa[BLACK_BISHOP] == exp_bb ); \
-    ck_assert( p->ppa[BLACK_KNIGHT] == exp_bn ); \
-    ck_assert( p->ppa[BLACK_PAWN] == exp_bp );
+    ck_assert( p->ppa[EMPTY_SQUARE] == (exp_es) ); \
+    ck_assert( p->ppa[WHITE_KING] == (exp_wk) ); \
+    ck_assert( p->ppa[WHITE_QUEEN] == (exp_wq) ); \
+    ck_assert( p->ppa[WHITE_ROOK] == (exp_wr) ); \
+    ck_assert( p->ppa[WHITE_BISHOP] == (exp_wb) ); \
+    ck_assert( p->ppa[WHITE_KNIGHT] == (exp_wn) ); \
+    ck_assert( p->ppa[WHITE_PAWN] == (exp_wp) ); \
+    ck_assert( p->ppa[BLACK_KING] == (exp_bk) ); \
+    ck_assert( p->ppa[BLACK_QUEEN] == (exp_bq) ); \
+    ck_assert( p->ppa[BLACK_ROOK] == (exp_br) ); \
+    ck_assert( p->ppa[BLACK_BISHOP] == (exp_bb) ); \
+    ck_assert( p->ppa[BLACK_KNIGHT] == (exp_bn) ); \
+    ck_assert( p->ppa[BLACK_PAWN] == (exp_bp) );
 
 #define CASTLING_RIGHTS_CHECK( exp_K, exp_Q, exp_k, exp_q ) \
     ck_assert( has_castling_right( p, "white", "kingside" ) == exp_K ); \
@@ -138,6 +138,62 @@
     CASTLING_RIGHTS_CHECK( true, true, false, true )
     ck_assert( p->turn_and_ca_flags == 0x8d );
     REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_5
+    Pos *p = fen_to_pos(
+        "brnqkbrn/pppppppp/8/8/8/8/PPPPPPPP/BRNQKBRN w BGbg - 0 1" );
+
+    PPA_CHECK( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6,
+        0x10, 0x8, 0x42, 0x21, 0x84, SS_RANK_2,
+        0x1000000000000000, 0x800000000000000, 0x4200000000000000,
+        0x2100000000000000, 0x8400000000000000, SS_RANK_7 )
+    CASTLING_RIGHTS_CHECK( true, true, true, true )
+    ck_assert( p->turn_and_ca_flags == 0x8f );
+    REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_6
+    Pos *p = fen_to_pos(
+        "b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9" );
+
+    PPA_CHECK( 0xaa12bfe9ffb912a4,
+        0x10, 0x8, 0x42, 1, 0x440000, 0x2ed00,
+        0x1000000000000000, 0x8000000000000, 0x4000000200000000,
+        0x100000400000000, 0x400400000000000, 0xe5001000000000 )
+    CASTLING_RIGHTS_CHECK( true, true, true, false )
+    ck_assert( p->turn_and_ca_flags == 0x8e );
+    REMAINING_FOUR_FIELDS( true, 0, 0, 9 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_7
+    Pos *p = fen_to_pos(
+        "b1n2rk1/p1p2ppp/1q4n1/2b1p3/2P5/1P6/P2P1PPP/BR1QK1RN w BG - 3 12" );
+
+    PPA_CHECK( 0x9a1abdebfbfd1624,
+        0x10, 0x8, 0x42, 1, 0x80, 0x402e900,
+        0x4000000000000000, 0x20000000000, 0x2000000000000000,
+        0x100000400000000, 0x400400000000000, 0xe5001000000000 )
+    CASTLING_RIGHTS_CHECK( true, true, false, false )
+    ck_assert( p->turn_and_ca_flags == 0x8c );
+    REMAINING_FOUR_FIELDS( true, 0, 3, 12 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_8
+    Pos *p = fen_to_pos(
+        "b4rk1/p1p2ppp/1q1n2n1/2b1p3/2P3Q1/1P6/P2P1PPP/BR3RKN b - - 6 13" );
+
+    PPA_CHECK( 0x9e1ab5ebbbfd161c,
+        0x40, 0x40000000, 0x22, 1, 0x80, 0x402e900,
+        0x4000000000000000, 0x20000000000, 0x2000000000000000,
+        0x100000400000000, 0x480000000000, 0xe5001000000000 )
+    CASTLING_RIGHTS_CHECK( false, false, false, false )
+    ck_assert( !p->turn_and_ca_flags );
+    REMAINING_FOUR_FIELDS( false, 0, 6, 13 )
 
     free(p);
 
