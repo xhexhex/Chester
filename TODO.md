@@ -5,3 +5,4 @@
 * Investigate how to use Valgrind to check Chester for memory leaks and the like
 * Document `che_fen_validator()`
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`
+* Rename `bb_is_sq_bit()` to `is_sq_bit()` and review

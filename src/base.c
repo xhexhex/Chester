@@ -468,30 +468,6 @@ sq_nav( Bitboard sq, enum sq_dir dir )
     return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
 }
 
-bool
-white_has_a_side_castling_right( const Pos *p )
-{
-    return p->turn_and_ca_flags & 8;
-}
-
-bool
-white_has_h_side_castling_right( const Pos *p )
-{
-    return p->turn_and_ca_flags & 4;
-}
-
-bool
-black_has_a_side_castling_right( const Pos *p )
-{
-    return p->turn_and_ca_flags & 2;
-}
-
-bool
-black_has_h_side_castling_right( const Pos *p )
-{
-    return p->turn_and_ca_flags & 1;
-}
-
 // Examines the Pos variable 'p' to see if there's a castling
 // right/availability for color 'color' on side 'side'. For example,
 // if the call has_castling_right( p, "white", "kingside" ) returns true,
@@ -621,6 +597,20 @@ fen_fmnf( const char *fen )
     x_fen_numeric_fields( fen, &unused, &i_fmn );
 
     return i_fmn;
+}
+
+// Returns the square bit corresponding to the en passant target square
+// of the Pos variable 'p' or zero if there is no EPTS set.
+Bitboard
+epts( const Pos *p )
+{
+    if( !p->epts_file ) return 0;
+
+    Bitboard bb = p->epts_file;
+    bb <<= ( whites_turn(p) ? 40 : 16 );
+
+    assert( bb_is_sq_bit(bb) );
+    return bb;
 }
 
 /****************************

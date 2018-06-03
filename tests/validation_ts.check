@@ -145,6 +145,10 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 
 #test C_che_fen_validator_returns_FEN_NO_ERRORS_batch_7
     const char *valid_fens[] = {
+        "8/8/8/k7/P7/8/8/K7 b - a3 0 50",
+        "8/8/8/7k/7P/8/8/7K b - h3 0 50",
+        "k7/8/8/p7/K7/8/8/8 w - a6 0 50",
+        "7k/8/8/7p/7K/8/8/8 w - h6 0 50",
         NULL };
 
     FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );

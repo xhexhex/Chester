@@ -627,10 +627,10 @@ x_castling_move_status_ca_bit_set( const Pos *p, bool kingside )
 {
     bool wt = whites_turn( p );
 
-    return ( wt && kingside && white_has_h_side_castling_right( p ) ) ||
-        ( wt && !kingside && white_has_a_side_castling_right( p ) ) ||
-        ( !wt && kingside && black_has_h_side_castling_right( p ) ) ||
-        ( !wt && !kingside && black_has_a_side_castling_right( p ) );
+    return ( wt && kingside && has_castling_right( p, "white", "kingside" ) ) ||
+        ( wt && !kingside && has_castling_right( p, "white", "queenside" ) ) ||
+        ( !wt && kingside && has_castling_right( p, "black", "kingside" ) ) ||
+        ( !wt && !kingside && has_castling_right( p, "black", "queenside" ) );
 }
 
 #define INIT_CASTLING_CMEN_AND_TARGETS( king_or_rook, right_target_sq, left_target_sq ) \

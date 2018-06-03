@@ -12,244 +12,244 @@
 #tcase king_can_be_captured_tests
 
 #test C_king_can_be_captured_returns_true
-	// Test FENs moved to
-	// #test C_che_fen_str_validator_returns_FEN_*_KING_CAN_BE_CAPTURED
-	const char *positions_in_which_king_can_be_captured[] = {
-		"Q6k/8/8/8/8/8/8/K7 w - - 0 1",
-		NULL };
+    // Test FENs moved to
+    // #test C_che_fen_str_validator_returns_FEN_*_KING_CAN_BE_CAPTURED
+    const char *positions_in_which_king_can_be_captured[] = {
+        "Q6k/8/8/8/8/8/8/K7 w - - 0 1",
+        NULL };
 
-	for( int i = 0; positions_in_which_king_can_be_captured[ i ]; i++ ) {
-		ck_assert( king_can_be_captured( fen_to_pos(
-			positions_in_which_king_can_be_captured[ i ] ) ) );
-	}
+    for( int i = 0; positions_in_which_king_can_be_captured[ i ]; i++ ) {
+        ck_assert( king_can_be_captured( fen_to_pos(
+            positions_in_which_king_can_be_captured[ i ] ) ) );
+    }
 
 #test C_king_can_be_captured_returns_false
-	// Test FENs moved to #test C_che_fen_str_validator_returns_FEN_NO_ERRORS
-	const char *positions_in_which_king_cannot_be_captured[] = {
-		STD_START_POS_FEN,
-		NULL };
+    // Test FENs moved to #test C_che_fen_str_validator_returns_FEN_NO_ERRORS
+    const char *positions_in_which_king_cannot_be_captured[] = {
+        STD_START_POS_FEN,
+        NULL };
 
-	for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {
-		ck_assert( !king_can_be_captured( fen_to_pos(
-			positions_in_which_king_cannot_be_captured[ i ] ) ) );
-	}
+    for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {
+        ck_assert( !king_can_be_captured( fen_to_pos(
+            positions_in_which_king_cannot_be_captured[ i ] ) ) );
+    }
 
 #tcase KNIGHT_SQS_array_tests
 
 #define KNIGHT_SQS_OF_CORNER_SQS_TEST( corner_sq, knight_sq_1, knight_sq_2 ) \
 ck_assert( KNIGHT_SQS[ sq_name_index( corner_sq ) ] == \
-	( sq_name_to_sq_bit( knight_sq_1 ) | sq_name_to_sq_bit( knight_sq_2 ) ) );
+    ( sq_name_to_sq_bit( knight_sq_1 ) | sq_name_to_sq_bit( knight_sq_2 ) ) );
 
 #define KNIGHT_SQS_OF_CENTER_SQS_TEST( center_sq, ksq1, ksq2, ksq3, ksq4, \
 ksq5, ksq6, ksq7, ksq8 ) \
 ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
-	sq_name_to_sq_bit( ksq1 ) | sq_name_to_sq_bit( ksq2 ) | \
-	sq_name_to_sq_bit( ksq3 ) | sq_name_to_sq_bit( ksq4 ) | \
-	sq_name_to_sq_bit( ksq5 ) | sq_name_to_sq_bit( ksq6 ) | \
-	sq_name_to_sq_bit( ksq7 ) | sq_name_to_sq_bit( ksq8 ) ) );
+    sq_name_to_sq_bit( ksq1 ) | sq_name_to_sq_bit( ksq2 ) | \
+    sq_name_to_sq_bit( ksq3 ) | sq_name_to_sq_bit( ksq4 ) | \
+    sq_name_to_sq_bit( ksq5 ) | sq_name_to_sq_bit( ksq6 ) | \
+    sq_name_to_sq_bit( ksq7 ) | sq_name_to_sq_bit( ksq8 ) ) );
 
 #test C_KNIGHT_SQS_corner_squares_test
-	KNIGHT_SQS_OF_CORNER_SQS_TEST( "a1", "c2", "b3" )
-	KNIGHT_SQS_OF_CORNER_SQS_TEST( "h1", "f2", "g3" )
-	KNIGHT_SQS_OF_CORNER_SQS_TEST( "a8", "b6", "c7" )
-	KNIGHT_SQS_OF_CORNER_SQS_TEST( "h8", "g6", "f7" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "a1", "c2", "b3" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "h1", "f2", "g3" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "a8", "b6", "c7" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "h8", "g6", "f7" )
 
 #test C_KNIGHT_SQS_center_squares_test
-	KNIGHT_SQS_OF_CENTER_SQS_TEST(
-		"d4", "c2", "e2", "b3", "f3", "b5", "f5", "c6", "e6" )
-	KNIGHT_SQS_OF_CENTER_SQS_TEST(
-		"e4", "d2", "f2", "c3", "g3", "c5", "g5", "d6", "f6" )
-	KNIGHT_SQS_OF_CENTER_SQS_TEST(
-		"d5", "c3", "e3", "b4", "f4", "b6", "f6", "c7", "e7" )
-	KNIGHT_SQS_OF_CENTER_SQS_TEST(
-		"e5", "d3", "f3", "c4", "g4", "c6", "g6", "d7", "f7" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "d4", "c2", "e2", "b3", "f3", "b5", "f5", "c6", "e6" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "e4", "d2", "f2", "c3", "g3", "c5", "g5", "d6", "f6" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "d5", "c3", "e3", "b4", "f4", "b6", "f6", "c7", "e7" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "e5", "d3", "f3", "c4", "g4", "c6", "g6", "d7", "f7" )
 
 #test C_KNIGHT_SQS_comprehensive_test
-	for( int sq_index = 0; sq_index < 64; sq_index++ ) {
-		Bitboard sq_bit = SBA[ sq_index ], kerc_of_sq = kerc( sq_bit );
+    for( int sq_index = 0; sq_index < 64; sq_index++ ) {
+        Bitboard sq_bit = SBA[ sq_index ], kerc_of_sq = kerc( sq_bit );
 
-		kerc_of_sq ^= ( kerc_of_sq & sq_set_of_file( file_of_sq( sq_bit ) ) );
-		kerc_of_sq ^= ( kerc_of_sq & sq_set_of_rank( rank_of_sq( sq_bit ) ) );
-		kerc_of_sq ^= ( kerc_of_sq & diag_of_sq( sq_bit ) );
-		kerc_of_sq ^= ( kerc_of_sq & antidiag_of_sq( sq_bit ) );
+        kerc_of_sq ^= ( kerc_of_sq & sq_set_of_file( file_of_sq( sq_bit ) ) );
+        kerc_of_sq ^= ( kerc_of_sq & sq_set_of_rank( rank_of_sq( sq_bit ) ) );
+        kerc_of_sq ^= ( kerc_of_sq & diag_of_sq( sq_bit ) );
+        kerc_of_sq ^= ( kerc_of_sq & antidiag_of_sq( sq_bit ) );
 
-		ck_assert( KNIGHT_SQS[ sq_index ] == kerc_of_sq );
-	}
+        ck_assert( KNIGHT_SQS[ sq_index ] == kerc_of_sq );
+    }
 
 #tcase kerc_tests
 
 #test C_kerc_edge_squares_test
-	ck_assert( kerc( SB.a1 ) == 0x30707U );
-	ck_assert( kerc( SB.b1 ) == 0x70f0fU );
-	ck_assert( kerc( SB.c1 ) == 0xe1f1fU );
-	ck_assert( kerc( SB.d1 ) == 0x1c3e3eU );
-	ck_assert( kerc( SB.e1 ) == 0x387c7cU );
-	ck_assert( kerc( SB.f1 ) == 0x70f8f8U );
-	ck_assert( kerc( SB.g1 ) == 0xe0f0f0U );
-	ck_assert( kerc( SB.h1 ) == 0xc0e0e0U );
+    ck_assert( kerc( SB.a1 ) == 0x30707U );
+    ck_assert( kerc( SB.b1 ) == 0x70f0fU );
+    ck_assert( kerc( SB.c1 ) == 0xe1f1fU );
+    ck_assert( kerc( SB.d1 ) == 0x1c3e3eU );
+    ck_assert( kerc( SB.e1 ) == 0x387c7cU );
+    ck_assert( kerc( SB.f1 ) == 0x70f8f8U );
+    ck_assert( kerc( SB.g1 ) == 0xe0f0f0U );
+    ck_assert( kerc( SB.h1 ) == 0xc0e0e0U );
 
-	ck_assert( kerc( SB.a2 ) == 0x3070707U );
-	ck_assert( kerc( SB.a3 ) == 0x307070703U );
-	ck_assert( kerc( SB.a4 ) == 0x30707070300U );
-	ck_assert( kerc( SB.a5 ) == 0x3070707030000U );
-	ck_assert( kerc( SB.a6 ) == 0x307070703000000U );
-	ck_assert( kerc( SB.a7 ) == 0x707070300000000U );
+    ck_assert( kerc( SB.a2 ) == 0x3070707U );
+    ck_assert( kerc( SB.a3 ) == 0x307070703U );
+    ck_assert( kerc( SB.a4 ) == 0x30707070300U );
+    ck_assert( kerc( SB.a5 ) == 0x3070707030000U );
+    ck_assert( kerc( SB.a6 ) == 0x307070703000000U );
+    ck_assert( kerc( SB.a7 ) == 0x707070300000000U );
 
-	ck_assert( kerc( SB.h2 ) == 0xc0e0e0e0U );
-	ck_assert( kerc( SB.h3 ) == 0xc0e0e0e0c0U );
-	ck_assert( kerc( SB.h4 ) == 0xc0e0e0e0c000U );
-	ck_assert( kerc( SB.h5 ) == 0xc0e0e0e0c00000U );
-	ck_assert( kerc( SB.h6 ) == 0xc0e0e0e0c0000000U );
-	ck_assert( kerc( SB.h7 ) == 0xe0e0e0c000000000U );
+    ck_assert( kerc( SB.h2 ) == 0xc0e0e0e0U );
+    ck_assert( kerc( SB.h3 ) == 0xc0e0e0e0c0U );
+    ck_assert( kerc( SB.h4 ) == 0xc0e0e0e0c000U );
+    ck_assert( kerc( SB.h5 ) == 0xc0e0e0e0c00000U );
+    ck_assert( kerc( SB.h6 ) == 0xc0e0e0e0c0000000U );
+    ck_assert( kerc( SB.h7 ) == 0xe0e0e0c000000000U );
 
-	ck_assert( kerc( SB.a8 ) == 0x707030000000000U );
-	ck_assert( kerc( SB.b8 ) == 0xf0f070000000000U );
-	ck_assert( kerc( SB.c8 ) == 0x1f1f0e0000000000U );
-	ck_assert( kerc( SB.d8 ) == 0x3e3e1c0000000000U );
-	ck_assert( kerc( SB.e8 ) == 0x7c7c380000000000U );
-	ck_assert( kerc( SB.f8 ) == 0xf8f8700000000000U );
-	ck_assert( kerc( SB.g8 ) == 0xf0f0e00000000000U );
-	ck_assert( kerc( SB.h8 ) == 0xe0e0c00000000000U );
+    ck_assert( kerc( SB.a8 ) == 0x707030000000000U );
+    ck_assert( kerc( SB.b8 ) == 0xf0f070000000000U );
+    ck_assert( kerc( SB.c8 ) == 0x1f1f0e0000000000U );
+    ck_assert( kerc( SB.d8 ) == 0x3e3e1c0000000000U );
+    ck_assert( kerc( SB.e8 ) == 0x7c7c380000000000U );
+    ck_assert( kerc( SB.f8 ) == 0xf8f8700000000000U );
+    ck_assert( kerc( SB.g8 ) == 0xf0f0e00000000000U );
+    ck_assert( kerc( SB.h8 ) == 0xe0e0c00000000000U );
 
 #test C_kerc_semiedge_squares_test
-	ck_assert( kerc( SB.b2 ) == 0x70f0f0fU );
-	ck_assert( kerc( SB.c2 ) == 0xe1f1f1fU );
-	ck_assert( kerc( SB.d2 ) == 0x1c3e3e3eU );
-	ck_assert( kerc( SB.e2 ) == 0x387c7c7cU );
-	ck_assert( kerc( SB.f2 ) == 0x70f8f8f8U );
-	ck_assert( kerc( SB.g2 ) == 0xe0f0f0f0U );
+    ck_assert( kerc( SB.b2 ) == 0x70f0f0fU );
+    ck_assert( kerc( SB.c2 ) == 0xe1f1f1fU );
+    ck_assert( kerc( SB.d2 ) == 0x1c3e3e3eU );
+    ck_assert( kerc( SB.e2 ) == 0x387c7c7cU );
+    ck_assert( kerc( SB.f2 ) == 0x70f8f8f8U );
+    ck_assert( kerc( SB.g2 ) == 0xe0f0f0f0U );
 
-	ck_assert( kerc( SB.b3 ) == 0x70f0f0f07U );
-	ck_assert( kerc( SB.b4 ) == 0x70f0f0f0700U );
-	ck_assert( kerc( SB.b5 ) == 0x70f0f0f070000U );
-	ck_assert( kerc( SB.b6 ) == 0x70f0f0f07000000U );
+    ck_assert( kerc( SB.b3 ) == 0x70f0f0f07U );
+    ck_assert( kerc( SB.b4 ) == 0x70f0f0f0700U );
+    ck_assert( kerc( SB.b5 ) == 0x70f0f0f070000U );
+    ck_assert( kerc( SB.b6 ) == 0x70f0f0f07000000U );
 
-	ck_assert( kerc( SB.g3 ) == 0xe0f0f0f0e0U );
-	ck_assert( kerc( SB.g4 ) == 0xe0f0f0f0e000U );
-	ck_assert( kerc( SB.g5 ) == 0xe0f0f0f0e00000U );
-	ck_assert( kerc( SB.g6 ) == 0xe0f0f0f0e0000000U );
+    ck_assert( kerc( SB.g3 ) == 0xe0f0f0f0e0U );
+    ck_assert( kerc( SB.g4 ) == 0xe0f0f0f0e000U );
+    ck_assert( kerc( SB.g5 ) == 0xe0f0f0f0e00000U );
+    ck_assert( kerc( SB.g6 ) == 0xe0f0f0f0e0000000U );
 
-	ck_assert( kerc( SB.b7 ) == 0xf0f0f0700000000U );
-	ck_assert( kerc( SB.c7 ) == 0x1f1f1f0e00000000U );
-	ck_assert( kerc( SB.d7 ) == 0x3e3e3e1c00000000U );
-	ck_assert( kerc( SB.e7 ) == 0x7c7c7c3800000000U );
-	ck_assert( kerc( SB.f7 ) == 0xf8f8f87000000000U );
-	ck_assert( kerc( SB.g7 ) == 0xf0f0f0e000000000U );
+    ck_assert( kerc( SB.b7 ) == 0xf0f0f0700000000U );
+    ck_assert( kerc( SB.c7 ) == 0x1f1f1f0e00000000U );
+    ck_assert( kerc( SB.d7 ) == 0x3e3e3e1c00000000U );
+    ck_assert( kerc( SB.e7 ) == 0x7c7c7c3800000000U );
+    ck_assert( kerc( SB.f7 ) == 0xf8f8f87000000000U );
+    ck_assert( kerc( SB.g7 ) == 0xf0f0f0e000000000U );
 
 #test C_kerc_extended_center_squares_test
-	Bitboard kerc_pattern = 0xe1f1f1f0eU, // The KERC of c3
-		sq_bit = SB.c3;
-	for( int counter = 1; counter <= 16; counter++ ) {
-		ck_assert( kerc_pattern == kerc( sq_bit ) );
+    Bitboard kerc_pattern = 0xe1f1f1f0eU, // The KERC of c3
+        sq_bit = SB.c3;
+    for( int counter = 1; counter <= 16; counter++ ) {
+        ck_assert( kerc_pattern == kerc( sq_bit ) );
 
-		if( counter % 4 ) {
-			kerc_pattern <<= 1;
-			sq_bit <<= 1;
-		}
-		else {
-			kerc_pattern <<= 5;
-			sq_bit <<= 5;
-		}
-	}
+        if( counter % 4 ) {
+            kerc_pattern <<= 1;
+            sq_bit <<= 1;
+        }
+        else {
+            kerc_pattern <<= 5;
+            sq_bit <<= 5;
+        }
+    }
 
 #tcase KING_SQS_array_tests
 
 #test C_KING_SQS_non_edge_squares_test
-	for( Bitboard sq_bit = SB.b2, king_sqs = 0x70507U; sq_bit <= SB.g7;
-			king_sqs <<= ( sq_bit & SS_FILE_G ) ? 3 : 1,
-			sq_bit   <<= ( sq_bit & SS_FILE_G ) ? 3 : 1
-   	) {
-		ck_assert( king_sqs == KING_SQS[ sq_bit_index( sq_bit ) ] );
-	}
+    for( Bitboard sq_bit = SB.b2, king_sqs = 0x70507U; sq_bit <= SB.g7;
+            king_sqs <<= ( sq_bit & SS_FILE_G ) ? 3 : 1,
+            sq_bit   <<= ( sq_bit & SS_FILE_G ) ? 3 : 1
+    ) {
+        ck_assert( king_sqs == KING_SQS[ sq_bit_index( sq_bit ) ] );
+    }
 
 #test C_KING_SQS_corner_squares_test
-	ck_assert( KING_SQS[  0 ] == 0x302U );
-	ck_assert( KING_SQS[  7 ] == 0xc040U );
-	ck_assert( KING_SQS[ 56 ] == 0x203000000000000U );
-	ck_assert( KING_SQS[ 63 ] == 0x40c0000000000000U );
+    ck_assert( KING_SQS[  0 ] == 0x302U );
+    ck_assert( KING_SQS[  7 ] == 0xc040U );
+    ck_assert( KING_SQS[ 56 ] == 0x203000000000000U );
+    ck_assert( KING_SQS[ 63 ] == 0x40c0000000000000U );
 
 #test C_KING_SQS_edge_squares_test
-	Bitboard bb1 = 0x705U, bb2 = 0x507000000000000U;
-	for( int i = 1; i <= 6; i++, bb1 <<= 1, bb2 <<= 1 ) {
-		ck_assert( KING_SQS[ i ] == bb1 );
-		ck_assert( KING_SQS[ i + 56 ] == bb2 );
-	}
+    Bitboard bb1 = 0x705U, bb2 = 0x507000000000000U;
+    for( int i = 1; i <= 6; i++, bb1 <<= 1, bb2 <<= 1 ) {
+        ck_assert( KING_SQS[ i ] == bb1 );
+        ck_assert( KING_SQS[ i + 56 ] == bb2 );
+    }
 
-	bb1 = 0x30203U, bb2 = 0xc040c0U;
-	for( int i = 8; i <= 48; i += 8, bb1 <<= 8, bb2 <<= 8 ) {
-		ck_assert( KING_SQS[ i ] == bb1 );
-		ck_assert( KING_SQS[ i + 7 ] == bb2 );
-	}
+    bb1 = 0x30203U, bb2 = 0xc040c0U;
+    for( int i = 8; i <= 48; i += 8, bb1 <<= 8, bb2 <<= 8 ) {
+        ck_assert( KING_SQS[ i ] == bb1 );
+        ck_assert( KING_SQS[ i + 7 ] == bb2 );
+    }
 
 #tcase ROOK_SQS_array_tests
 
 #test C_ROOK_SQS_center_square_test
-	ck_assert( ROOK_SQS[ sq_bit_index( SB.d4 ) ] == 0x8080808f7080808U );
-	ck_assert( ROOK_SQS[ sq_bit_index( SB.e4 ) ] == 0x10101010ef101010U );
-	ck_assert( ROOK_SQS[ sq_bit_index( SB.d5 ) ] == 0x80808f708080808U );
-	ck_assert( ROOK_SQS[ sq_bit_index( SB.e5 ) ] == 0x101010ef10101010U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.d4 ) ] == 0x8080808f7080808U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.e4 ) ] == 0x10101010ef101010U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.d5 ) ] == 0x80808f708080808U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.e5 ) ] == 0x101010ef10101010U );
 
 #test C_ROOK_SQS_comprehensive_test
-	for( int i = 0; i < 64; i++ ) {
-		Bitboard bb = 0U;
-		const char *sq = SNA[ i ];
-		for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
-			char *current_sq = (char *) sq;
-			while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
-				bb |= sq_name_to_sq_bit( current_sq );
-			}
-		}
-		ck_assert( bb == ROOK_SQS[ i ] );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        Bitboard bb = 0U;
+        const char *sq = SNA[ i ];
+        for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
+            char *current_sq = (char *) sq;
+            while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
+                bb |= sq_name_to_sq_bit( current_sq );
+            }
+        }
+        ck_assert( bb == ROOK_SQS[ i ] );
+    }
 
 #tcase BISHOP_SQS_array_tests
 
 #test C_testing_BISHOP_SQS_with_manually_selected_squares
-	ck_assert( BISHOP_SQS[ sq_bit_index( SB.a1 ) ] == 0x8040201008040200U );
-	ck_assert( BISHOP_SQS[ sq_bit_index( SB.d4 ) ] == 0x8041221400142241U );
-	ck_assert( BISHOP_SQS[ sq_bit_index( SB.h8 ) ] == 0x40201008040201U );
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.a1 ) ] == 0x8040201008040200U );
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.d4 ) ] == 0x8041221400142241U );
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.h8 ) ] == 0x40201008040201U );
 
 #test C_BISHOP_SQS_comprehensive_test
-	for( int i = 0; i < 64; i++ ) {
-		Bitboard bb = 0U;
-		const char *sq = SNA[ i ];
-		for( enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
-			char *current_sq = (char *) sq;
-			while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
-				bb |= sq_name_to_sq_bit( current_sq );
-			}
-		}
-		ck_assert( bb == BISHOP_SQS[ i ] );
-	}
+    for( int i = 0; i < 64; i++ ) {
+        Bitboard bb = 0U;
+        const char *sq = SNA[ i ];
+        for( enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
+            char *current_sq = (char *) sq;
+            while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
+                bb |= sq_name_to_sq_bit( current_sq );
+            }
+        }
+        ck_assert( bb == BISHOP_SQS[ i ] );
+    }
 
 #tcase che_move_gen_tests
 
 /*
 test C_che_move_gen_preparation
-	uint16_t **moves;
-	int num_mov_cm;
-	const char *fen = "rnbqkbnR/pppppppp/8/8/P3P3/8/1PPPPPP1/RNBQKBNR w KQq - 0 1";
-	ck_assert( !che_fen_str_validator( fen ) );
+    uint16_t **moves;
+    int num_mov_cm;
+    const char *fen = "rnbqkbnR/pppppppp/8/8/P3P3/8/1PPPPPP1/RNBQKBNR w KQq - 0 1";
+    ck_assert( !che_fen_str_validator( fen ) );
 
-	int num_moves = che_move_gen( fen, &moves, &num_mov_cm );
-	printf( "%s(): %d\n", __func__, num_mov_cm );
-	for( int i = 0; i < num_mov_cm; i++ ) {
-		for( int j = 0; j < moves[ i ][ 1 ] + 2; j++ )
-			printf( "%d ", moves[ i ][ j ] );
-		printf( "\n" );
-		free( moves[ i ] );
-	}
-	free( moves );
+    int num_moves = che_move_gen( fen, &moves, &num_mov_cm );
+    printf( "%s(): %d\n", __func__, num_mov_cm );
+    for( int i = 0; i < num_mov_cm; i++ ) {
+        for( int j = 0; j < moves[ i ][ 1 ] + 2; j++ )
+            printf( "%d ", moves[ i ][ j ] );
+        printf( "\n" );
+        free( moves[ i ] );
+    }
+    free( moves );
 */
 
 #tcase dest_sqs_tests
 
 #test C_dest_sqs_lone_kings
-	// Pos *p;
+    // Pos *p;
 
-	// ck_assert( !che_fen_str_validator( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
-	// p = fen_to_pos( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
-	// ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
+    // ck_assert( !che_fen_str_validator( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
+    // p = fen_to_pos( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
+    // ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
 
 #tcase cm_attacking_sq_tests
 
@@ -258,161 +258,161 @@ ck_assert( !che_fen_validator( fen ) ); \
 const Pos *p = (const Pos *) fen_to_pos( fen );
 
 #test C_cm_attacking_sq_tested_with_kings
-	C_INIT_POS_PTR( "8/8/8/4k3/8/4K3/8/8 w - - 0 100" )
+    C_INIT_POS_PTR( "8/8/8/4k3/8/4K3/8/8 w - - 0 100" )
 
-	ck_assert( 0x100000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
-	ck_assert( 0x1000000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
-	ck_assert( 0x1000100000U ==
-		cm_attacking_sq( p, SB.e4, 2, WHITE_KING, BLACK_KING ) );
-	ck_assert( 0x1000100000U ==
-		cm_attacking_sq( p, SB.d4, 2, WHITE_KING, BLACK_KING ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.c4, 2, WHITE_KING, BLACK_KING ) );
-	ck_assert( 0x100000U ==
-		cm_attacking_sq( p, SB.e2, 2, WHITE_KING, BLACK_KING ) );
+    ck_assert( 0x100000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
+    ck_assert( 0x1000000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
+    ck_assert( 0x1000100000U ==
+        cm_attacking_sq( p, SB.e4, 2, WHITE_KING, BLACK_KING ) );
+    ck_assert( 0x1000100000U ==
+        cm_attacking_sq( p, SB.d4, 2, WHITE_KING, BLACK_KING ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.c4, 2, WHITE_KING, BLACK_KING ) );
+    ck_assert( 0x100000U ==
+        cm_attacking_sq( p, SB.e2, 2, WHITE_KING, BLACK_KING ) );
 
 #test C_cm_attacking_sq_tested_with_rooks
-	C_INIT_POS_PTR( "4r2k/8/8/8/R4rR1/8/4R3/K3R3 w - - 0 100" )
+    C_INIT_POS_PTR( "4r2k/8/8/8/R4rR1/8/4R3/K3R3 w - - 0 100" )
 
-	ck_assert( 0x1001000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
-	ck_assert( 0x1000000020000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
-	ck_assert( 0x1000000021001000U ==
-		cm_attacking_sq( p, SB.e4, 2, WHITE_ROOK, BLACK_ROOK ) );
-	ck_assert( 0x1001000U ==
-		cm_attacking_sq( p, SB.a2, 1, WHITE_ROOK ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.a2, 1, BLACK_ROOK ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.h3, 2, WHITE_ROOK, BLACK_ROOK ) );
+    ck_assert( 0x1001000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
+    ck_assert( 0x1000000020000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
+    ck_assert( 0x1000000021001000U ==
+        cm_attacking_sq( p, SB.e4, 2, WHITE_ROOK, BLACK_ROOK ) );
+    ck_assert( 0x1001000U ==
+        cm_attacking_sq( p, SB.a2, 1, WHITE_ROOK ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.a2, 1, BLACK_ROOK ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.h3, 2, WHITE_ROOK, BLACK_ROOK ) );
 
 #test C_cm_attacking_sq_tested_with_queens_1
-	C_INIT_POS_PTR( "3Q4/7k/3q4/8/4q2q/8/3Q4/K2Q4 b - - 0 100" )
+    C_INIT_POS_PTR( "3Q4/7k/3q4/8/4q2q/8/3Q4/K2Q4 b - - 0 100" )
 
-	ck_assert( 0x800U ==
-		cm_attacking_sq( p, SB.d4, 1, WHITE_QUEEN ) );
-	ck_assert( 0x80010000000U ==
-		cm_attacking_sq( p, SB.d4, 1, BLACK_QUEEN ) );
-	ck_assert( 0x80010000800U ==
-		cm_attacking_sq( p, SB.d4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
-	ck_assert( 0x80010000800U ==
-		cm_attacking_sq( p, SB.d4, 12,
-			WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
-			BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
-		) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.a7, 2, WHITE_QUEEN, BLACK_QUEEN ) );
-	ck_assert( 0x800000000000000U ==
-		cm_attacking_sq( p, SB.a8, 1, WHITE_QUEEN ) );
-	ck_assert( 0x10000000U ==
-		cm_attacking_sq( p, SB.a8, 1, BLACK_QUEEN ) );
+    ck_assert( 0x800U ==
+        cm_attacking_sq( p, SB.d4, 1, WHITE_QUEEN ) );
+    ck_assert( 0x80010000000U ==
+        cm_attacking_sq( p, SB.d4, 1, BLACK_QUEEN ) );
+    ck_assert( 0x80010000800U ==
+        cm_attacking_sq( p, SB.d4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+    ck_assert( 0x80010000800U ==
+        cm_attacking_sq( p, SB.d4, 12,
+            WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+            BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
+        ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.a7, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+    ck_assert( 0x800000000000000U ==
+        cm_attacking_sq( p, SB.a8, 1, WHITE_QUEEN ) );
+    ck_assert( 0x10000000U ==
+        cm_attacking_sq( p, SB.a8, 1, BLACK_QUEEN ) );
 
 #test C_cm_attacking_sq_tested_with_queens_2
-	C_INIT_POS_PTR( "q3Q3/7Q/6q1/k7/1qQ3Qq/3qQ3/2Q1q1q1/2K4Q w - - 10 50" )
+    C_INIT_POS_PTR( "q3Q3/7Q/6q1/k7/1qQ3Qq/3qQ3/2Q1q1q1/2K4Q w - - 10 50" )
 
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e4, 6, WHITE_KING, BLACK_KING,
-			WHITE_ROOK, BLACK_ROOK, WHITE_BISHOP, BLACK_BISHOP ) );
-	ck_assert( 0x1000000044100000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
-	ck_assert( 0x100400000084000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
-	ck_assert( 0x1100400044184000U ==
-		cm_attacking_sq( p, SB.e4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.a1, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e4, 6, WHITE_KING, BLACK_KING,
+            WHITE_ROOK, BLACK_ROOK, WHITE_BISHOP, BLACK_BISHOP ) );
+    ck_assert( 0x1000000044100000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
+    ck_assert( 0x100400000084000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
+    ck_assert( 0x1100400044184000U ==
+        cm_attacking_sq( p, SB.e4, 2, WHITE_QUEEN, BLACK_QUEEN ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.a1, 2, WHITE_QUEEN, BLACK_QUEEN ) );
 
 #test C_cm_attacking_sq_tested_with_bishops
-	C_INIT_POS_PTR( "b3B3/7B/6b1/k7/1bB3Bb/3bB3/2B1b1b1/2K4B w - - 10 50" )
+    C_INIT_POS_PTR( "b3B3/7B/6b1/k7/1bB3Bb/3bB3/2B1b1b1/2K4B w - - 10 50" )
 
-	ck_assert( 0x4000400U ==
-		cm_attacking_sq( p, SB.d3, 1, WHITE_BISHOP ) );
-	ck_assert( 0x400000001000U ==
-		cm_attacking_sq( p, SB.d3, 1, BLACK_BISHOP ) );
-	ck_assert( 0x400004001400U ==
-		cm_attacking_sq( p, SB.d3, 2, WHITE_BISHOP, BLACK_BISHOP ) );
-	ck_assert( 0x2100000U ==
-		cm_attacking_sq( p, SB.d2, 2, WHITE_BISHOP, BLACK_BISHOP ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e5, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+    ck_assert( 0x4000400U ==
+        cm_attacking_sq( p, SB.d3, 1, WHITE_BISHOP ) );
+    ck_assert( 0x400000001000U ==
+        cm_attacking_sq( p, SB.d3, 1, BLACK_BISHOP ) );
+    ck_assert( 0x400004001400U ==
+        cm_attacking_sq( p, SB.d3, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+    ck_assert( 0x2100000U ==
+        cm_attacking_sq( p, SB.d2, 2, WHITE_BISHOP, BLACK_BISHOP ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e5, 2, WHITE_BISHOP, BLACK_BISHOP ) );
 
 #test C_cm_attacking_sq_tested_with_knights
-	C_INIT_POS_PTR( "7k/8/3n1N2/2N1N1n1/3nnn2/2n1N1N1/3N1n2/K7 b - - 20 60" )
+    C_INIT_POS_PTR( "7k/8/3n1N2/2N1N1n1/3nnn2/2n1N1N1/3N1n2/K7 b - - 20 60" )
 
-	ck_assert( 0x200400400800U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
-	ck_assert( 0x84000042000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
-	ck_assert( 0x284400442800U ==
-		cm_attacking_sq( p, SB.e4, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.b2, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
-	ck_assert( 0x400000U ==
-		cm_attacking_sq( p, SB.h1, 1, WHITE_KNIGHT ) );
-	ck_assert( 0x2000U ==
-		cm_attacking_sq( p, SB.h1, 1, BLACK_KNIGHT ) );
-	ck_assert( 0x402000U ==
-		cm_attacking_sq( p, SB.h1, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
+    ck_assert( 0x200400400800U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
+    ck_assert( 0x84000042000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
+    ck_assert( 0x284400442800U ==
+        cm_attacking_sq( p, SB.e4, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.b2, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
+    ck_assert( 0x400000U ==
+        cm_attacking_sq( p, SB.h1, 1, WHITE_KNIGHT ) );
+    ck_assert( 0x2000U ==
+        cm_attacking_sq( p, SB.h1, 1, BLACK_KNIGHT ) );
+    ck_assert( 0x402000U ==
+        cm_attacking_sq( p, SB.h1, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
 
 #test C_cm_attacking_sq_tested_with_pawns
-	C_INIT_POS_PTR( "7k/8/8/ppp5/8/PPP5/8/K7 w - - 0 100" )
+    C_INIT_POS_PTR( "7k/8/8/ppp5/8/PPP5/8/K7 w - - 0 100" )
 
-	ck_assert( 0x200020000U ==
-		cm_attacking_sq( p, SB.a4, 2, WHITE_PAWN, BLACK_PAWN ) );
-	ck_assert( 0x500050000U ==
-		cm_attacking_sq( p, SB.b4, 2, WHITE_PAWN, BLACK_PAWN ) );
-	ck_assert( 0x200020000U ==
-		cm_attacking_sq( p, SB.c4, 2, WHITE_PAWN, BLACK_PAWN ) );
-	ck_assert( 0x400040000U ==
-		cm_attacking_sq( p, SB.d4, 2, WHITE_PAWN, BLACK_PAWN ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN ) );
-	ck_assert( 0x50000U ==
-		cm_attacking_sq( p, SB.b4, 1, WHITE_PAWN ) );
-	ck_assert( 0x500000000U ==
-		cm_attacking_sq( p, SB.b4, 1, BLACK_PAWN ) );
+    ck_assert( 0x200020000U ==
+        cm_attacking_sq( p, SB.a4, 2, WHITE_PAWN, BLACK_PAWN ) );
+    ck_assert( 0x500050000U ==
+        cm_attacking_sq( p, SB.b4, 2, WHITE_PAWN, BLACK_PAWN ) );
+    ck_assert( 0x200020000U ==
+        cm_attacking_sq( p, SB.c4, 2, WHITE_PAWN, BLACK_PAWN ) );
+    ck_assert( 0x400040000U ==
+        cm_attacking_sq( p, SB.d4, 2, WHITE_PAWN, BLACK_PAWN ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN ) );
+    ck_assert( 0x50000U ==
+        cm_attacking_sq( p, SB.b4, 1, WHITE_PAWN ) );
+    ck_assert( 0x500000000U ==
+        cm_attacking_sq( p, SB.b4, 1, BLACK_PAWN ) );
 
 #test C_cm_attacking_sq_tested_with_multiple_types_of_cm
-	C_INIT_POS_PTR( "q3R3/5P1P/3n1N2/8/1r3k2/3B4/1p2Q1b1/2K5 w - - 0 40" )
+    C_INIT_POS_PTR( "q3R3/5P1P/3n1N2/8/1r3k2/3B4/1p2Q1b1/2K5 w - - 0 40" )
 
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
-	ck_assert( 0x1000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
-	ck_assert( 0x1000000000000000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
-	ck_assert( 0x80000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_BISHOP ) );
-	ck_assert( 0x200000000000U ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e4, 1, WHITE_PAWN ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_KING ) );
+    ck_assert( 0x1000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_QUEEN ) );
+    ck_assert( 0x1000000000000000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_ROOK ) );
+    ck_assert( 0x80000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_BISHOP ) );
+    ck_assert( 0x200000000000U ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_KNIGHT ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e4, 1, WHITE_PAWN ) );
 
-	ck_assert( 0x20000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
-	ck_assert( 0x100000000000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
-	ck_assert( 0x2000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
-	ck_assert( 0x4000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_BISHOP ) );
-	ck_assert( 0x80000000000U ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
-	ck_assert( 0 ==
-		cm_attacking_sq( p, SB.e4, 1, BLACK_PAWN ) );
+    ck_assert( 0x20000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_KING ) );
+    ck_assert( 0x100000000000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_QUEEN ) );
+    ck_assert( 0x2000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_ROOK ) );
+    ck_assert( 0x4000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_BISHOP ) );
+    ck_assert( 0x80000000000U ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_KNIGHT ) );
+    ck_assert( 0 ==
+        cm_attacking_sq( p, SB.e4, 1, BLACK_PAWN ) );
 
-	ck_assert( 0x1000200000081000U ==
-		white_cm_attacking_sq( p, SB.e4 ) );
-	ck_assert( 0x100080022004000U ==
-		black_cm_attacking_sq( p, SB.e4 ) );
+    ck_assert( 0x1000200000081000U ==
+        white_cm_attacking_sq( p, SB.e4 ) );
+    ck_assert( 0x100080022004000U ==
+        black_cm_attacking_sq( p, SB.e4 ) );
 
-	ck_assert( 0x200U ==
-		cm_attacking_sq( p, SB.c1, 1, BLACK_PAWN ) );
-	ck_assert( 0xa0000000000000U ==
-		cm_attacking_sq( p, SB.g8, 1, WHITE_PAWN ) );
+    ck_assert( 0x200U ==
+        cm_attacking_sq( p, SB.c1, 1, BLACK_PAWN ) );
+    ck_assert( 0xa0000000000000U ==
+        cm_attacking_sq( p, SB.g8, 1, WHITE_PAWN ) );
 
 //
 // Test case
@@ -427,65 +427,65 @@ ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
 free( (Pos *) p );
 
 _test C_castling_move_status_returns_CMS_AVAILABLE
-	Pos *p;
-	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "kingside",
-		CMS_AVAILABLE, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w Q - 0 50", "queenside",
-		CMS_AVAILABLE, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "kingside",
-		CMS_AVAILABLE, 8 + 32 )
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "queenside",
-		CMS_AVAILABLE, 8 + 32 )
-	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-		CMS_AVAILABLE, 1 + 64 )
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
-		CMS_AVAILABLE, 2 + 128 )
+    Pos *p;
+    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "kingside",
+        CMS_AVAILABLE, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w Q - 0 50", "queenside",
+        CMS_AVAILABLE, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "kingside",
+        CMS_AVAILABLE, 8 + 32 )
+    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "queenside",
+        CMS_AVAILABLE, 8 + 32 )
+    C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+        CMS_AVAILABLE, 1 + 64 )
+    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
+        CMS_AVAILABLE, 2 + 128 )
 
 _test C_castling_move_status_returns_CMS_CA_BIT_UNSET
-	Pos *p;
-	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "queenside",
-		CMS_CA_BIT_UNSET, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "kingside",
-		CMS_CA_BIT_UNSET, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "queenside",
-		CMS_CA_BIT_UNSET, 1 + 128 )
+    Pos *p;
+    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "queenside",
+        CMS_CA_BIT_UNSET, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "kingside",
+        CMS_CA_BIT_UNSET, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "queenside",
+        CMS_CA_BIT_UNSET, 1 + 128 )
 
 _test C_castling_move_status_returns_CMS_KINGS_PATH_BLOCKED
-	Pos *p;
-	C_INIT_CHECK_AND_FREE( "4kr1r/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
-	C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-		CMS_KINGS_PATH_BLOCKED, 8 + 128 )
-	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "kingside",
-		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "queenside",
-		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "kingside",
-		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "queenside",
-		CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+    Pos *p;
+    C_INIT_CHECK_AND_FREE( "4kr1r/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+        CMS_KINGS_PATH_BLOCKED, 8 + 128 )
+    C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
+        CMS_KINGS_PATH_BLOCKED, 8 + 128 )
+    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "kingside",
+        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "queenside",
+        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "kingside",
+        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "queenside",
+        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
 
 _test C_castling_move_status_returns_CMS_ROOKS_PATH_BLOCKED
-	Pos *p;
-	C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
-		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "rn3nkr/8/8/8/8/8/8/6K1 b kq - 0 50", "kingside",
-		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "rn4kr/8/8/8/8/8/8/6K1 b kq - 0 50", "queenside",
-		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "1k6/8/8/8/8/8/8/RK1N4 w Q - 0 50", "queenside",
-		CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+    Pos *p;
+    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
+        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "rn3nkr/8/8/8/8/8/8/6K1 b kq - 0 50", "kingside",
+        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "rn4kr/8/8/8/8/8/8/6K1 b kq - 0 50", "queenside",
+        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "1k6/8/8/8/8/8/8/RK1N4 w Q - 0 50", "queenside",
+        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
 
 _test C_castling_move_status_returns_CMS_KINGS_PATH_IN_CHECK
-	Pos *p;
-	C_INIT_CHECK_AND_FREE( "4kr2/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
-		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "4k1r1/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
-		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "r5k1/7P/8/8/8/8/8/4K3 b q - 0 50", "queenside",
-		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-	C_INIT_CHECK_AND_FREE( "6kr/7P/8/8/8/8/8/4K3 b k - 0 50", "kingside",
-		CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+    Pos *p;
+    C_INIT_CHECK_AND_FREE( "4kr2/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
+        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "4k1r1/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
+        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "r5k1/7P/8/8/8/8/8/4K3 b q - 0 50", "queenside",
+        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
+    C_INIT_CHECK_AND_FREE( "6kr/7P/8/8/8/8/8/4K3 b k - 0 50", "kingside",
+        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
 
 #undef C_INIT_CHECK_AND_FREE
 */
@@ -497,66 +497,22 @@ _test C_castling_move_status_returns_CMS_KINGS_PATH_IN_CHECK
 _tcase a_side_castling_possible_tests
 
 _test C_a_side_castling_possible_returns_true
-	const char *a_side_castling_possible_fens[] = {
-		// King on square c1 or c8
-		"7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
-		"7k/8/8/8/8/8/8/R1K1NNBB w Q - 0 50",
-		// King to the left (west) of square c1 or c8
-		// King to the right (east) of square c1 or c8
-		// Based on standard starting position
-		// "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
-		// "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
-		NULL };
+    const char *a_side_castling_possible_fens[] = {
+        // King on square c1 or c8
+        "7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
+        "7k/8/8/8/8/8/8/R1K1NNBB w Q - 0 50",
+        // King to the left (west) of square c1 or c8
+        // King to the right (east) of square c1 or c8
+        // Based on standard starting position
+        // "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
+        // "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
+        NULL };
 
-	const Pos *p;
-	for( int i = 0; a_side_castling_possible_fens[ i ]; i++ ) {
-		ck_assert( !che_fen_validator( a_side_castling_possible_fens[ i ] ) );
-		p = (const Pos *) fen_to_pos( a_side_castling_possible_fens[ i ] );
-		ck_assert( true ? a_side_castling_possible( p ) :
-			!a_side_castling_possible( p ) );
-	}
+    const Pos *p;
+    for( int i = 0; a_side_castling_possible_fens[ i ]; i++ ) {
+        ck_assert( !che_fen_validator( a_side_castling_possible_fens[ i ] ) );
+        p = (const Pos *) fen_to_pos( a_side_castling_possible_fens[ i ] );
+        ck_assert( true ? a_side_castling_possible( p ) :
+            !a_side_castling_possible( p ) );
+    }
 */
-
-//
-// Test case
-//
-#tcase white_has_a_side_castling_right_tests
-#test C_white_has_a_side_castling_right_returns_true
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
-	ck_assert( white_has_a_side_castling_right( p ) );
-#test C_white_has_a_side_castling_right_returns_false
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 0 50" )
-	ck_assert( !white_has_a_side_castling_right( p ) );
-
-//
-// Test case
-//
-#tcase white_has_h_side_castling_right_tests
-#test C_white_has_h_side_castling_right_returns_true
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
-	ck_assert( white_has_h_side_castling_right( p ) );
-#test C_white_has_h_side_castling_right_returns_false
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 0 50" )
-	ck_assert( !white_has_h_side_castling_right( p ) );
-
-//
-// Test case
-//
-#tcase black_has_a_side_castling_right_tests
-#test C_black_has_a_side_castling_right_returns_true
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
-	ck_assert( black_has_a_side_castling_right( p ) );
-#test C_black_has_a_side_castling_right_returns_false
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQk - 0 50" )
-	ck_assert( !black_has_a_side_castling_right( p ) );
-
-//
-// Test case
-//
-#tcase black_has_h_side_castling_right_tests
-#test C_black_has_h_side_castling_right_returns_true
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50" )
-	ck_assert( black_has_h_side_castling_right( p ) );
-#test C_black_has_h_side_castling_right_returns_false
-	C_INIT_POS_PTR( "r3k2r/8/8/8/8/8/8/R3K2R w KQq - 0 50" )
-	ck_assert( !black_has_h_side_castling_right( p ) );
