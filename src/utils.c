@@ -278,17 +278,20 @@ epts_from_pos_var( const Pos *p )
     return SNA[ sq_name_array_index ];
 }
 
-// Returns the bit index of square bit argument
+// Returns the bit index of the square bit argument 'sq_bit'. The bit
+// index (of a Bitboard) is an integer in the range [0,63]. Note that the
+// bit index is also the exponent 'k' in sq_bit = 2^k.
 int
 sq_bit_index( Bitboard sq_bit )
 {
+    // Should this be replaced with some form of the binary search?
     for( int i = 0; i < 64; i++ )
-        if( sq_bit == SBA[ i ] )
+        if( sq_bit == SBA[i] )
             return i;
 
-    assert( false );
+    assert(false);
     return -1;
-} // Review: 2017-12-07
+} // Review: 2018-06-03
 
 // Converts the argument into a "binary string", that is, a string
 // consisting of 64 '0' and '1' chars

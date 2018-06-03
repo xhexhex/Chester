@@ -257,6 +257,9 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
         ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == BLACK_PAWN );
     }
 
+//
+// Test case
+//
 #tcase epts_from_pos_var_tests
 
 #test C_epts_from_pos_var_quick_and_dirty_test
@@ -268,20 +271,37 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
     ck_assert( !strcmp( "-", epts_from_pos_var( fen_to_pos(
         "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" ) ) ) );
 
+//
+// Test case
+//
 #tcase sq_bit_index_tests
 
 #test C_sq_bit_index_all_valid_inputs_test
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( sq_bit_index( SBA[ i ] ) == i );
-    }
+    for( int i = 0; i < 64; i++ )
+        ck_assert( sq_bit_index( SBA[i] ) == i );
+
+    const Bitboard one = 1;
+    ck_assert( sq_bit_index(one) == 0 );
+    ck_assert( sq_bit_index(one << 3) == 3 );
+    ck_assert( sq_bit_index(8) == 3 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,0)) == 0 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,50)) == 50 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,63)) == 63 );
+    ck_assert( sq_bit_index(one << 63) == 63 );
+    ck_assert( sq_bit_index(SB.e4) == 28 );
+    ck_assert( sq_bit_index(SB.a8) == 56 );
+    ck_assert( sq_bit_index(SB.h8) == 63 );
 
 #test C_sq_bit_index_tested_with_odd_bb_values
     for( Bitboard bb = 3; bb < 10000; bb += 2 ) {
-        // Won't work if the 'assert( false )' in sq_bit_index() is "live"
+        // Won't work if the 'assert(false)' in sq_bit_index() is "live"
         // ck_assert( sq_bit_index( bb ) == -1 );
-        ck_assert( true );
+        ck_assert(true);
     }
 
+//
+// Test case
+//
 #tcase file_of_sq_tests
 
 #define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \
