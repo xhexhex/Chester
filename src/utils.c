@@ -525,7 +525,7 @@ ppa_to_eppf( const Bitboard ppa[], char *eppf )
 {
     int eppf_index = -1;
 
-    for( int i = 56; i >= 0; i -= 8 )
+    for( int i = 56; i >= 0; i -= 8 ) {
         for( int j = 0; j <= 7; j++ ) {
             int bi = i + j;
             Bitboard sq_bit = SBA[bi];
@@ -546,40 +546,41 @@ ppa_to_eppf( const Bitboard ppa[], char *eppf )
             else if( sq_bit & ppa[BLACK_PAWN]   ) eppf[eppf_index] = 'p';
             else assert( false );
         }
+    }
 
     for( int i = 8; i <= 62; i += 9 ) eppf[i] = '/';
     eppf[PPF_MAX_LENGTH] = '\0';
 } // Review: 2018-06-04
 
-// The inverse of ppa_to_eppf(). Keep in mind that 'eppf' is assumed to be at least
-// PPF_MAX_LENGTH + 1 bytes and that the writable Bitboard array 'ppa' should have
-// space for at least 13 elements.
+// The inverse of ppa_to_eppf(). Keep in mind that the writable Bitboard
+// array 'ppa' should have space for at least 13 elements.
 void
-eppf_to_ppa( const char *eppf, Bitboard *pp )
+eppf_to_ppa( const char eppf[], Bitboard *ppa )
 {
-    for( int i = 0; i < 13; i++ ) pp[ i ] = 0;
+    for( int i = 0; i < 13; i++ ) ppa[i] = 0;
 
-    for( int i = 63, bi = 0; i >= 0; i -= 9 )
+    for( int i = 63, bi = 0; i >= 0; i -= 9 ) {
         for( int j = 0; j <= 7; j++, bi++ ) {
             int eppf_index = i + j;
-            Bitboard sq_bit = SBA[ bi ];
+            Bitboard sq_bit = SBA[bi];
 
-            if(      eppf[ eppf_index ] == '-' ) pp[ EMPTY_SQUARE ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'K' ) pp[ WHITE_KING   ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'Q' ) pp[ WHITE_QUEEN  ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'R' ) pp[ WHITE_ROOK   ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'B' ) pp[ WHITE_BISHOP ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'N' ) pp[ WHITE_KNIGHT ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'P' ) pp[ WHITE_PAWN   ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'k' ) pp[ BLACK_KING   ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'q' ) pp[ BLACK_QUEEN  ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'r' ) pp[ BLACK_ROOK   ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'b' ) pp[ BLACK_BISHOP ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'n' ) pp[ BLACK_KNIGHT ] |= sq_bit;
-            else if( eppf[ eppf_index ] == 'p' ) pp[ BLACK_PAWN   ] |= sq_bit;
+            if(      eppf[eppf_index] == '-' ) ppa[EMPTY_SQUARE] |= sq_bit;
+            else if( eppf[eppf_index] == 'K' ) ppa[WHITE_KING]   |= sq_bit;
+            else if( eppf[eppf_index] == 'Q' ) ppa[WHITE_QUEEN]  |= sq_bit;
+            else if( eppf[eppf_index] == 'R' ) ppa[WHITE_ROOK]   |= sq_bit;
+            else if( eppf[eppf_index] == 'B' ) ppa[WHITE_BISHOP] |= sq_bit;
+            else if( eppf[eppf_index] == 'N' ) ppa[WHITE_KNIGHT] |= sq_bit;
+            else if( eppf[eppf_index] == 'P' ) ppa[WHITE_PAWN]   |= sq_bit;
+            else if( eppf[eppf_index] == 'k' ) ppa[BLACK_KING]   |= sq_bit;
+            else if( eppf[eppf_index] == 'q' ) ppa[BLACK_QUEEN]  |= sq_bit;
+            else if( eppf[eppf_index] == 'r' ) ppa[BLACK_ROOK]   |= sq_bit;
+            else if( eppf[eppf_index] == 'b' ) ppa[BLACK_BISHOP] |= sq_bit;
+            else if( eppf[eppf_index] == 'n' ) ppa[BLACK_KNIGHT] |= sq_bit;
+            else if( eppf[eppf_index] == 'p' ) ppa[BLACK_PAWN]   |= sq_bit;
             else assert( false );
         }
-}
+    }
+} // Review: 2018-06-04
 
 // Returns the six fields of the 'fen' parameter as an array of strings.
 // The first element of the array is the PPF and the last the FMNF.

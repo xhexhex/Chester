@@ -53,7 +53,7 @@ void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
 void expand_ppf( const char *ppf, char *eppf );
 char *compress_eppf( const char *eppf );
 void ppa_to_eppf( const Bitboard ppa[], char *eppf );
-void eppf_to_ppa( const char *eppf, Bitboard *pp );
+void eppf_to_ppa( const char eppf[], Bitboard *ppa );
 char **fen_fields( const char *fen );
 void free_fen_fields( char **ff );
 void expand_caf( const char *caf, char *ecaf );

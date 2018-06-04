@@ -1301,33 +1301,51 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 #tcase eppf_to_ppa_tests
 
-#define EPPF_TO_CMA_TEST( input_eppf, empty, wking, wqueen, wrook, wbishop, \
-    wknight, wpawn, bking, bqueen, brook, bbishop, bknight, bpawn ) \
-Bitboard pp[ 13 ]; \
-eppf_to_ppa( input_eppf, pp ); \
-ck_assert( pp[ EMPTY_SQUARE ] == empty && pp[ WHITE_KING ] == wking && \
-    pp[ WHITE_QUEEN ] == wqueen && pp[ WHITE_ROOK ] == wrook && \
-    pp[ WHITE_BISHOP ] == wbishop && pp[ WHITE_KNIGHT ] == wknight && \
-    pp[ WHITE_PAWN ] == wpawn && pp[ BLACK_KING ] == bking && \
-    pp[ BLACK_QUEEN ] == bqueen && pp[ BLACK_ROOK ] == brook && \
-    pp[ BLACK_BISHOP ] == bbishop && pp[ BLACK_KNIGHT ] == bknight && \
-    pp[ BLACK_PAWN ] == bpawn );
+#define EPPF_TO_PPA_TEST( input_eppf, empty, \
+        wking, wqueen, wrook, wbishop, wknight, wpawn, \
+        bking, bqueen, brook, bbishop, bknight, bpawn ) \
+    Bitboard ppa[13]; \
+    eppf_to_ppa( input_eppf, ppa ); \
+    ck_assert( ppa[EMPTY_SQUARE] == empty && ppa[WHITE_KING] == wking && \
+        ppa[WHITE_QUEEN] == wqueen && ppa[WHITE_ROOK] == wrook && \
+        ppa[WHITE_BISHOP] == wbishop && ppa[WHITE_KNIGHT] == wknight && \
+        ppa[WHITE_PAWN] == wpawn && ppa[BLACK_KING] == bking && \
+        ppa[BLACK_QUEEN] == bqueen && ppa[BLACK_ROOK] == brook && \
+        ppa[BLACK_BISHOP] == bbishop && ppa[BLACK_KNIGHT] == bknight && \
+        ppa[BLACK_PAWN] == bpawn );
 
-#test C_eppf_to_ppa_tested_with_std_start_pos_pp
-    EPPF_TO_CMA_TEST(
+#test C_eppf_to_ppa_tested_with_std_start_pos_ppa
+    EPPF_TO_PPA_TEST(
         "rnbqkbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBQKBNR",
-        0xffffffff0000U, 0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U, 0x1000000000000000U,
-        0x800000000000000U, 0x8100000000000000U, 0x2400000000000000U,
-        0x4200000000000000U, 0xff000000000000U )
+        0xffffffff0000U,
+        0x10U, 0x8U, 0x81U, 0x24U, 0x42U, 0xff00U,
+        0x1000000000000000U, 0x800000000000000U, 0x8100000000000000U,
+        0x2400000000000000U, 0x4200000000000000U, 0xff000000000000U )
 
-#test C_eppf_to_ppa_tested_with_personally_significant_pp
-    EPPF_TO_CMA_TEST(
+#test C_eppf_to_ppa_tested_with_personally_significant_ppa
+    EPPF_TO_PPA_TEST(
         "------k-/r-q-b--n/------QP/p---R---/-p---p--/-P------/-PP--P--/--K----R",
-        0xbf6a3feeddfdd97bU, 0x4U, 0x400000000000U, 0x1000000080U, 0, 0,
-        0x800000022600U, 0x4000000000000000U, 0x4000000000000U, 0x1000000000000U,
+        0xbf6a3feeddfdd97bU,
+        0x4U, 0x400000000000U, 0x1000000080U, 0, 0, 0x800000022600U,
+        0x4000000000000000U, 0x4000000000000U, 0x1000000000000U,
         0x10000000000000U, 0x80000000000000U, 0x122000000U )
 
-#undef EPPF_TO_CMA_TEST
+#test C_eppf_to_ppa_tested_with_empty_board_ppa
+    EPPF_TO_PPA_TEST(
+        "--------/--------/--------/--------/--------/--------/--------/--------",
+        0xffffffffffffffff,
+        0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0 )
+
+#test C_eppf_to_ppa_tested_with_insignificant_ppa_1
+    EPPF_TO_PPA_TEST(
+        "b-n-k-r-/p-pq-ppp/------n-/-rb-p---/--------/-PN---N-/P-PP-PPP/BR-QK-R-",
+        0xaa12bfe9ffb912a4,
+        0x10, 0x8, 0x42, 1, 0x440000, 0x2ed00,
+        0x1000000000000000, 0x8000000000000, 0x4000000200000000,
+        0x100000400000000, 0x400400000000000, 0xe5001000000000 )
+
+#undef EPPF_TO_PPA_TEST
 
 //
 // Test case
@@ -1335,27 +1353,29 @@ ck_assert( pp[ EMPTY_SQUARE ] == empty && pp[ WHITE_KING ] == wking && \
 #tcase ppa_to_eppf_and_eppf_to_ppa_inverse_fn_tests
 
 #define GAME_OF_THE_CENTURY_EPPF \
-"r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R"
+    "r---r-k-/pp---pbp/-qp---p-/--B-----/--BP--b-/Q-n--N--/P----PPP/---R-K-R"
 
-#define GAME_OF_THE_CENTURY_CMA { 0xae1cb9fbb3da1e57U, 0x20U, 0x10000U, 0x88U, \
-0x404000000U, 0x200000U, 0x800e100U, 0x4000000000000000U, 0x20000000000U, \
-0x1100000000000000U, 0x40000040000000U, 0x40000U, 0xa3440000000000U }
+#define GAME_OF_THE_CENTURY_PPA \
+    { 0xae1cb9fbb3da1e57U, \
+    0x20U, 0x10000U, 0x88U, 0x404000000U, 0x200000U, 0x800e100U, \
+    0x4000000000000000U, 0x20000000000U, 0x1100000000000000U, \
+    0x40000040000000U, 0x40000U, 0xa3440000000000U }
 
 #test C_inner_fn_ppa_to_eppf_outer_fn_eppf_to_ppa
-    const Bitboard century_ppa[] = GAME_OF_THE_CENTURY_CMA;
-    char writable_eppf[ PPF_MAX_LENGTH + 1 ];
-    Bitboard writable_ppa[ 13 ];
+    const Bitboard century_ppa[] = GAME_OF_THE_CENTURY_PPA;
+    char writable_eppf[PPF_MAX_LENGTH + 1];
+    Bitboard writable_ppa[13];
 
     ppa_to_eppf( century_ppa, writable_eppf );
     eppf_to_ppa( writable_eppf, writable_ppa );
 
     for( int i = 0; i < 13; i++ )
-        ck_assert( century_ppa[ i ] == writable_ppa[ i ] );
+        ck_assert( century_ppa[i] == writable_ppa[i] );
 
 #test C_inner_fn_eppf_to_ppa_outer_fn_ppa_to_eppf
     const char century_eppf[] = GAME_OF_THE_CENTURY_EPPF;
-    char writable_eppf[ PPF_MAX_LENGTH + 1 ];
-    Bitboard writable_ppa[ 13 ];
+    char writable_eppf[PPF_MAX_LENGTH + 1];
+    Bitboard writable_ppa[13];
 
     eppf_to_ppa( century_eppf, writable_ppa );
     ppa_to_eppf( writable_ppa, writable_eppf );
@@ -1363,4 +1383,4 @@ ck_assert( pp[ EMPTY_SQUARE ] == empty && pp[ WHITE_KING ] == wking && \
     ck_assert( !strcmp( GAME_OF_THE_CENTURY_EPPF, writable_eppf ) );
 
 #undef GAME_OF_THE_CENTURY_EPPF
-#undef GAME_OF_THE_CENTURY_CMA
+#undef GAME_OF_THE_CENTURY_PPA
