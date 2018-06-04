@@ -95,8 +95,6 @@ Bitboard sq_nav( Bitboard sq, enum sq_dir dir );
 bool has_castling_right( const Pos *p, const char *color, const char *side );
 Bitboard epts( const Pos *p );
 bool chess960_start_pos( const Pos *p );
-void ppa_to_eppf( const Bitboard *pp, char *eppf );
-void eppf_to_ppa( const char *eppf, Bitboard *pp );
 uint16_t fen_hmcf( const char *fen );
 uint16_t fen_fmnf( const char *fen );
 

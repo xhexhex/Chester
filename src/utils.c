@@ -511,6 +511,76 @@ expand_ppf( const char *ppf, char *eppf )
     assert( strlen( eppf ) == (size_t) PPF_MAX_LENGTH );
 }
 
+// Convert piece placement data from PPA (piece placement array, the 'ppa'
+// member of the Pos type) to expanded PPF format. The following is an
+// example of a PPF in both standard ("compressed") and expanded form.
+//
+// rn2kb1r/ppp1qppp/5n2/4p3/2B1P3/1Q6/PPP2PPP/RNB1K2R
+// rn--kb-r/ppp-qppp/-----n--/----p---/--B-P---/-Q------/PPP--PPP/RNB-K--R
+//
+// It is assumed that parameter 'eppf' is a writable array with a size of
+// at least PPF_MAX_LENGTH + 1 bytes.
+void
+ppa_to_eppf( const Bitboard ppa[], char *eppf )
+{
+    int eppf_index = -1;
+
+    for( int i = 56; i >= 0; i -= 8 )
+        for( int j = 0; j <= 7; j++ ) {
+            int bi = i + j;
+            Bitboard sq_bit = SBA[bi];
+            eppf_index += ( !(bi % 8) && bi != 56 ) ? 2 : 1;
+
+            if(      sq_bit & ppa[EMPTY_SQUARE] ) eppf[eppf_index] = '-';
+            else if( sq_bit & ppa[WHITE_KING]   ) eppf[eppf_index] = 'K';
+            else if( sq_bit & ppa[WHITE_QUEEN]  ) eppf[eppf_index] = 'Q';
+            else if( sq_bit & ppa[WHITE_ROOK]   ) eppf[eppf_index] = 'R';
+            else if( sq_bit & ppa[WHITE_BISHOP] ) eppf[eppf_index] = 'B';
+            else if( sq_bit & ppa[WHITE_KNIGHT] ) eppf[eppf_index] = 'N';
+            else if( sq_bit & ppa[WHITE_PAWN]   ) eppf[eppf_index] = 'P';
+            else if( sq_bit & ppa[BLACK_KING]   ) eppf[eppf_index] = 'k';
+            else if( sq_bit & ppa[BLACK_QUEEN]  ) eppf[eppf_index] = 'q';
+            else if( sq_bit & ppa[BLACK_ROOK]   ) eppf[eppf_index] = 'r';
+            else if( sq_bit & ppa[BLACK_BISHOP] ) eppf[eppf_index] = 'b';
+            else if( sq_bit & ppa[BLACK_KNIGHT] ) eppf[eppf_index] = 'n';
+            else if( sq_bit & ppa[BLACK_PAWN]   ) eppf[eppf_index] = 'p';
+            else assert( false );
+        }
+
+    for( int i = 8; i <= 62; i += 9 ) eppf[i] = '/';
+    eppf[PPF_MAX_LENGTH] = '\0';
+} // Review: 2018-06-04
+
+// The inverse of ppa_to_eppf(). Keep in mind that 'eppf' is assumed to be at least
+// PPF_MAX_LENGTH + 1 bytes and that the writable Bitboard array 'ppa' should have
+// space for at least 13 elements.
+void
+eppf_to_ppa( const char *eppf, Bitboard *pp )
+{
+    for( int i = 0; i < 13; i++ ) pp[ i ] = 0;
+
+    for( int i = 63, bi = 0; i >= 0; i -= 9 )
+        for( int j = 0; j <= 7; j++, bi++ ) {
+            int eppf_index = i + j;
+            Bitboard sq_bit = SBA[ bi ];
+
+            if(      eppf[ eppf_index ] == '-' ) pp[ EMPTY_SQUARE ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'K' ) pp[ WHITE_KING   ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'Q' ) pp[ WHITE_QUEEN  ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'R' ) pp[ WHITE_ROOK   ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'B' ) pp[ WHITE_BISHOP ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'N' ) pp[ WHITE_KNIGHT ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'P' ) pp[ WHITE_PAWN   ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'k' ) pp[ BLACK_KING   ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'q' ) pp[ BLACK_QUEEN  ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'r' ) pp[ BLACK_ROOK   ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'b' ) pp[ BLACK_BISHOP ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'n' ) pp[ BLACK_KNIGHT ] |= sq_bit;
+            else if( eppf[ eppf_index ] == 'p' ) pp[ BLACK_PAWN   ] |= sq_bit;
+            else assert( false );
+        }
+}
+
 // Returns the six fields of the 'fen' parameter as an array of strings.
 // The first element of the array is the PPF and the last the FMNF.
 // Remember to call free_fen_fields() after the string array returned by
