@@ -72,34 +72,6 @@ str_m_pat( const char *str, const char *pat )
     return !result;
 } // Review: 2018-03-30
 
-#define STRCPY_AND_STRTOK( str_with_fields, field_sep ) \
-    strcpy( writable_mem_ptr, str_with_fields ); \
-    char *field = strtok( writable_mem_ptr, field_sep ); \
-    for( int i = 2; i <= field_num; i++ ) \
-        field = strtok( NULL, field_sep );
-
-// A PPF such as "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" consists of
-// eight subfields that represent ranks. The following function returns the
-// nth *rank* of a PPF. It is assumed  that the size of the memory area
-// pointed to by 'writable_mem_ptr' is *at least* PPF_MAX_LENGTH + 1. When
-// calling this function, keep in mind that rank 8 corresponds to subfield 1,
-// rank 7 to subfield 2, etc.
-char *
-nth_rank_of_ppf( const char *ppf, char *writable_mem_ptr, int rank_num )
-{
-    assert( rank_num > 0 && rank_num < 9 );
-
-    // The first subfield of a PPF corresponds to rank 8, the second
-    // to rank 7, and so on.
-    int field_num = 9 - rank_num;
-
-    STRCPY_AND_STRTOK( ppf, "/" );
-
-    return field;
-}
-
-#undef STRCPY_AND_STRTOK
-
 // Replaces digits in a PPF rank string with a corresponding number of
 // dashes. For example, "1p2p3" gets converted to "-p--p---". Note that
 // the length of the original rank string is *at most* eight chars,

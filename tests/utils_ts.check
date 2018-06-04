@@ -47,47 +47,9 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #suite utils_ts
 
-#tcase nth_rank_of_ppf_tests
-
-#define FOR_LOOP_BODY( nth_field_func, str_with_fields ) \
-    ck_assert_msg( \
-        ! strcmp( nth_field_func( str_with_fields, writable_mem, i ), \
-            tok_ ## str_with_fields[ i ] ), \
-        "Non-identical strings detected" )
-
-// The first for loop tests in sequence, the second in random order
-#define TWO_FOR_LOOPS( nth_field_func, str_with_fields ) \
-    for( int i = 1; i <= NUM_OF_FIELDS; i++ ) { \
-        FOR_LOOP_BODY( nth_field_func, str_with_fields ); } \
-    for( int counter = 1; counter <= 50; counter++ ) { \
-        int i = ( rand() % NUM_OF_FIELDS ) + 1; \
-        FOR_LOOP_BODY( nth_field_func, str_with_fields ); }
-
-#test C_nth_rank_of_ppf_works
-    // Calling srand(), unless it has already been called
-    SRAND( time( NULL ) );
-
-    char start_pos_ppf[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    const int NUM_OF_FIELDS = 8;
-    char writable_mem[ PPF_MAX_LENGTH + 1 ];
-    char *tok_start_pos_ppf[] = { // tok, tokenized
-        // Note that index 0 contains the empty string
-        "",
-        "RNBQKBNR", // rank 1
-        "PPPPPPPP", // rank 2
-        "8",
-        "8",
-        "8",
-        "8",
-        "pppppppp",
-        "rnbqkbnr" // rank 8
-    };
-
-    TWO_FOR_LOOPS( nth_rank_of_ppf, start_pos_ppf );
-
-#undef FOR_LOOP_BODY
-#undef TWO_FOR_LOOPS
-
+//
+// Test case
+//
 #tcase set_or_unset_bits_tests
 
 // Moving from the LSB to the MSB, each bit in turn is set to one

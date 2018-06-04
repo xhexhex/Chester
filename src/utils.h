@@ -26,7 +26,6 @@
 extern bool srand_has_been_called;
 
 bool str_m_pat( const char *str, const char *pat );
-char *nth_rank_of_ppf( const char *ppf, char *writable_mem, int rank_num );
 void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );
 void set_bits( uint64_t *bits, const uint64_t BITMASK );
 void unset_bits( uint64_t *bits, const uint64_t BITMASK );
