@@ -68,6 +68,13 @@
     ck_assert( epts(p) == exp_epts ), ck_assert( p->hmc == exp_hmc ), \
     ck_assert( p->fmn == exp_fmn );
 
+#define IRP_CHECK( exp_queenside_value, exp_kingside_value, \
+        exp_queenside_sq_bit, exp_kingside_sq_bit ) \
+    ck_assert( p->irp[0] == exp_queenside_value ); \
+    ck_assert( p->irp[1] == exp_kingside_value ); \
+    ck_assert( SBA[sq_bit_index(p->irp[0])] == exp_queenside_sq_bit ); \
+    ck_assert( SBA[sq_bit_index(p->irp[1])] == exp_kingside_sq_bit );
+
 #test C_fen_to_pos_with_std_start_pos_fen
     Pos *p = fen_to_pos( STD_START_POS_FEN );
 
@@ -82,6 +89,8 @@
     // Duplicate testing to make sure the above macro works as expected
     ck_assert( whites_turn(p) ), ck_assert( !epts(p) ),
     ck_assert( !p->hmc ), ck_assert( p->fmn == 1 );
+
+    IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
 
     free(p);
 
@@ -99,6 +108,8 @@
     ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.e3 ),
         ck_assert( !p->hmc ), ck_assert( p->fmn == 100 );
 
+    IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
+
     free(p);
 
 #test C_fen_to_pos_manually_computed_test_2
@@ -115,6 +126,8 @@
     ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.a3 ),
         ck_assert( !p->hmc ), ck_assert( p->fmn == 50 );
 
+    IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
+
     free(p);
 
 #test C_fen_to_pos_manually_computed_test_3
@@ -126,6 +139,7 @@
     CASTLING_RIGHTS_CHECK( true, false, false, true )
     ck_assert( p->turn_and_ca_flags == 0x89 );
     REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
+    IRP_CHECK( 0x20, 0x80, SB.f1, SB.h1 )
 
     free(p);
 
@@ -138,6 +152,7 @@
     CASTLING_RIGHTS_CHECK( true, true, false, true )
     ck_assert( p->turn_and_ca_flags == 0x8d );
     REMAINING_FOUR_FIELDS( true, SB.g6, 0, 75 )
+    IRP_CHECK( 0x20, 0x80, SB.f1, SB.h1 )
 
     free(p);
 
@@ -152,6 +167,7 @@
     CASTLING_RIGHTS_CHECK( true, true, true, true )
     ck_assert( p->turn_and_ca_flags == 0x8f );
     REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
+    IRP_CHECK( 2, 0x40, SB.b1, SB.g1 )
 
     free(p);
 
@@ -166,6 +182,7 @@
     CASTLING_RIGHTS_CHECK( true, true, true, false )
     ck_assert( p->turn_and_ca_flags == 0x8e );
     REMAINING_FOUR_FIELDS( true, 0, 0, 9 )
+    IRP_CHECK( 2, 0x40, SB.b1, SB.g1 )
 
     free(p);
 
@@ -180,6 +197,7 @@
     CASTLING_RIGHTS_CHECK( true, true, false, false )
     ck_assert( p->turn_and_ca_flags == 0x8c );
     REMAINING_FOUR_FIELDS( true, 0, 3, 12 )
+    IRP_CHECK( 2, 0x40, SB.b1, SB.g1 )
 
     free(p);
 
@@ -194,12 +212,27 @@
     CASTLING_RIGHTS_CHECK( false, false, false, false )
     ck_assert( !p->turn_and_ca_flags );
     REMAINING_FOUR_FIELDS( false, 0, 6, 13 )
+    IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
+
+    free(p);
+
+#test C_fen_to_pos_manually_computed_test_9
+    Pos *p = fen_to_pos( "2k5/8/8/2p5/8/8/8/2KR4 w D c6 0 50" );
+
+    PPA_CHECK( 0xfbfffffbfffffff3,
+        4, 0, 8, 0, 0, 0,
+        0x400000000000000, 0, 0, 0, 0, 0x400000000 )
+    CASTLING_RIGHTS_CHECK( true, false, false, false )
+    ck_assert( p->turn_and_ca_flags == 0x88 );
+    REMAINING_FOUR_FIELDS( true, SB.c6, 0, 50 )
+    IRP_CHECK( 1, 8, SB.a1, SB.d1 )
 
     free(p);
 
 #undef PPA_CHECK
 #undef CASTLING_RIGHTS_CHECK
 #undef REMAINING_FOUR_FIELDS
+#undef IRP_CHECK
 
 //
 // Test case

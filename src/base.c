@@ -338,11 +338,11 @@ static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_numeric_fields(
     const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
-static void x_fen_to_pos_init_ppa( Pos *p, const char *ppf );
+static void x_fen_to_pos_init_ppa( Pos *p, const char ppf[] );
 static void x_fen_to_pos_init_turn_and_ca_flags(
     Pos *p, const char *acf, const char *caf, const char *fen );
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
-static void x_fen_to_pos_init_epts_file( Pos *p, const char *eptsf );
+static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 
 /****************************
  **** External functions ****
@@ -674,26 +674,10 @@ x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
 }
 
 static void
-x_fen_to_pos_init_ppa( Pos *p, const char *ppf )
+x_fen_to_pos_init_ppa( Pos *p, const char ppf[] )
 {
-    for( int i = 0; i < 13; i++ ) p->ppa[i] = 0;
-
-    char eppf[PPF_MAX_LENGTH + 1], ppf_0_to_63[64 + 1];
-    ppf_0_to_63[64] = '\0';
-
-    expand_ppf( ppf, eppf );
-
-    int k = -1;
-    for( int i = 63; i >= 0; i -= 9 )
-        for( int j = i; j <= i + 7; j++ )
-            ppf_0_to_63[++k] = eppf[j];
-
-    assert( k == 63 && strlen( ppf_0_to_63 ) == 64 );
-
-    for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
-        for( int index = 0; index < 64; index++ )
-            if( FEN_PIECE_LETTERS[cm] == ppf_0_to_63[index] )
-                p->ppa[cm] |= SBA[index];
+    char eppf[PPF_MAX_LENGTH + 1];
+    expand_ppf( ppf, eppf ), eppf_to_ppa( eppf, p->ppa );
 }
 
 // turn_and_ca_flags:
@@ -708,7 +692,7 @@ static void
 x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen )
 {
-    char ecaf[10];
+    char ecaf[9 + 1];
     EXPAND_CAF( caf, ecaf, fen )
     assert( strlen( ecaf ) == 4 );
 
@@ -721,10 +705,19 @@ x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     if( ecaf[2] != '-' ) p->turn_and_ca_flags |= 1; // q
 }
 
+// irp[0] and irp[1]:
+//  7   6   5   4   3   2   1   0   <= Bit indexes
+// [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]  <= Bit values
+//  h   g   f   e   d   c   b   a   <= Meaning
+//
+// The default queenside and kingside bits are those at indexes 0 and 7,
+// respectively. This means that if the bit of the queenside or kingside
+// IRP cannot be determined from the CAF, the default is used. Therefore
+// irp[0] and irp[1] have always exactly one bit set.
 static void
 x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen )
 {
-    char ecaf[10];
+    char ecaf[9 + 1];
     EXPAND_CAF( caf, ecaf, fen )
     assert( strlen( ecaf ) == 4 );
 
@@ -732,15 +725,19 @@ x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen )
 
     if( ecaf[0] != '-' ) p->irp[0] |= ( 1 << ( ecaf[0] - 'A' ) );
     else if( ecaf[2] != '-' ) p->irp[0] |= ( 1 << ( ecaf[2] - 'a' ) );
+    else p->irp[0] |= 1;
 
     if( ecaf[1] != '-' ) p->irp[1] |= ( 1 << ( ecaf[1] - 'A' ) );
     else if( ecaf[3] != '-' ) p->irp[1] |= ( 1 << ( ecaf[3] - 'a' ) );
+    else p->irp[1] |= 0x80;
 
-    assert( !p->irp[0] || !p->irp[1] || p->irp[0] < p->irp[1] );
+    assert( bb_is_sq_bit( p->irp[0] ) );
+    assert( bb_is_sq_bit( p->irp[1] ) );
+    assert( p->irp[0] < p->irp[1] );
 }
 
 static void
-x_fen_to_pos_init_epts_file( Pos *p, const char *eptsf )
+x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] )
 {
     p->epts_file = 0;
     if( !strcmp( eptsf, "-" ) ) return;
