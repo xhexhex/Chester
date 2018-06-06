@@ -336,8 +336,6 @@ static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
 static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
 static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
-static void x_fen_numeric_fields(
-    const char *fen, uint16_t *i_hmc, uint16_t *i_fmn );
 static void x_fen_to_pos_init_ppa( Pos *p, const char ppf[] );
 static void x_fen_to_pos_init_turn_and_ca_flags(
     Pos *p, const char *acf, const char *caf, const char *fen );
@@ -515,26 +513,6 @@ chess960_start_pos( const Pos *p )
         x_chess960_start_pos_blacks_first_rank( p );
 }
 
-// Returns the integer equivalent of the FEN parameter's HMCF.
-uint16_t
-fen_hmcf( const char *fen )
-{
-    uint16_t i_hmc, unused;
-    x_fen_numeric_fields( fen, &i_hmc, &unused );
-
-    return i_hmc;
-}
-
-// Returns the integer equivalent of the FEN parameter's FMNF.
-uint16_t
-fen_fmnf( const char *fen )
-{
-    uint16_t i_fmn, unused;
-    x_fen_numeric_fields( fen, &unused, &i_fmn );
-
-    return i_fmn;
-}
-
 // Returns the square bit corresponding to the en passant target square
 // of the Pos variable 'p' or zero if there is no EPTS set.
 Bitboard
@@ -647,30 +625,6 @@ x_chess960_start_pos_blacks_first_rank( const Pos *p )
         ( p->ppa[ WHITE_ROOK ] << 56 ) == p->ppa[ BLACK_ROOK ] &&
         ( p->ppa[ WHITE_BISHOP ] << 56 ) == p->ppa[ BLACK_BISHOP ] &&
         ( p->ppa[ WHITE_KNIGHT ] << 56 ) == p->ppa[ BLACK_KNIGHT ];
-}
-
-static void
-x_fen_numeric_fields( const char *fen, uint16_t *i_hmc, uint16_t *i_fmn )
-{
-    int si = 0, space_count = 0, i = 0; // si, starting index
-    while( space_count < 4 ) if( fen[ si++ ] == ' ' ) ++space_count;
-
-    char s_hmc[ 5 + 1 ] = { '\0' }, s_fmn[ 5 + 1 ] = { '\0' };
-    bool first = true;
-    do {
-        if( fen[ si ] == ' ' ) {
-            first = false;
-            i = 0;
-            continue; }
-
-        if( first ) s_hmc[ i++ ] = fen[ si ];
-        else s_fmn[ i++ ] = fen[ si ];
-    } while( fen[ ++si ] );
-
-    size_t l1 = strlen( s_hmc ), l2 = strlen( s_fmn );
-    assert( l1 >= 1 && l1 <= 5 && l2 >= 1 && l2 <= 5 );
-
-    *i_hmc = atoi( s_hmc ), *i_fmn = atoi( s_fmn );
 }
 
 static void
