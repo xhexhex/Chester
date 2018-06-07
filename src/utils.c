@@ -232,24 +232,6 @@ bb_is_sq_bit( Bitboard bb ) {
     return false;
 }
 
-// Returns the square name of the EPTSF of a Pos var
-const char *
-epts_from_pos_var( const Pos *p )
-{
-    if( !p->epts_file ) return "-";
-
-    char file = 'a';
-    while( !( p->epts_file & ( 1 << ( file - 'a' ) ) ) ) ++file;
-
-    char rank = whites_turn( p ) ? '6' : '3', tmp_sq_name[ 3 ] = { 0 };
-    tmp_sq_name[ 0 ] = file, tmp_sq_name[ 1 ] = rank;
-
-    int sq_name_array_index = sq_bit_index( sq_name_to_sq_bit( tmp_sq_name ) );
-    assert( sq_name_array_index >= 0 && sq_name_array_index <= 63 );
-
-    return SNA[ sq_name_array_index ];
-}
-
 // Returns the bit index of the square bit argument 'sq_bit'. The bit
 // index (of a Bitboard) is an integer in the range [0,63]. Note that the
 // bit index is also the exponent 'k' in sq_bit = 2^k.
