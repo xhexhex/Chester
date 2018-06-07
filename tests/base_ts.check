@@ -76,7 +76,7 @@
     ck_assert( SBA[sq_bit_index(p->irp[1])] == exp_kingside_sq_bit );
 
 #test C_fen_to_pos_with_std_start_pos_fen
-    Pos *p = fen_to_pos( STD_START_POS_FEN );
+    Pos *p = fen_to_pos( FEN_STD_START_POS );
 
     PPA_CHECK( 0xffffffff0000,
         0x10, 0x8, 0x81, 0x24, 0x42, 0xff00,
@@ -250,7 +250,7 @@
 #test C_whites_turn_works
     Pos *p;
 
-    p = fen_to_pos( STD_START_POS_FEN );
+    p = fen_to_pos( FEN_STD_START_POS );
     ck_assert( whites_turn( p ) );
     free( p );
 
@@ -415,13 +415,13 @@ while( true ) {
 #tcase ss_white_army_tests
 
 #test C_ss_white_army_std_start_pos
-    ck_assert( ss_white_army( fen_to_pos( STD_START_POS_FEN ) ) ==
+    ck_assert( ss_white_army( fen_to_pos( FEN_STD_START_POS ) ) ==
         0xffffU );
 
 #tcase ss_black_army_tests
 
 #test C_ss_black_army_std_start_pos
-    ck_assert( ss_black_army( fen_to_pos( STD_START_POS_FEN ) ) ==
+    ck_assert( ss_black_army( fen_to_pos( FEN_STD_START_POS ) ) ==
         0xffff000000000000U );
 
 #tcase SQ_NAV_tests
@@ -570,7 +570,7 @@ ck_assert( counter == exp_count );
     Pos *p;
 
     CREATE_ASSERT_AND_FREE(
-        STD_START_POS_FEN, 0 )
+        FEN_STD_START_POS, 0 )
     CREATE_ASSERT_AND_FREE(
         "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1", 0 )
     CREATE_ASSERT_AND_FREE(

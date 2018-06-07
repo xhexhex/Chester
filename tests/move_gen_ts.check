@@ -26,7 +26,7 @@
 #test C_king_can_be_captured_returns_false
     // Test FENs moved to #test C_che_fen_str_validator_returns_FEN_NO_ERRORS
     const char *positions_in_which_king_cannot_be_captured[] = {
-        STD_START_POS_FEN,
+        FEN_STD_START_POS,
         NULL };
 
     for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {

@@ -1,9 +1,5 @@
 #include <stdlib.h>
 
-// The FEN string for the standard starting position
-const char STD_START_POS_FEN[] =
-	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
 #define ALL_POSSIBLE_MOVES \
 	"a1b1", "a1c1", "a1d1", "a1e1", "a1f1", "a1g1", "a1h1", "a1a2", "a1b2", \
 	"a1c2", "a1a3", "a1b3", "a1c3", "a1a4", "a1d4", "a1a5", "a1e5", "a1a6", \

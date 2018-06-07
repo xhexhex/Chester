@@ -292,7 +292,7 @@ print_pos_var( const Pos *p )
 
     for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ ) {
         bin_str = uint64_to_bin_str( p->ppa[ cm ] );
-        printf( "%s    %c\n", bin_str, FEN_PIECE_LETTERS[ cm ] );
+        printf( "%s    %c\n", bin_str, PPF_CHESSMAN_LETTERS[cm] );
         free( bin_str );
     }
 
@@ -722,6 +722,39 @@ resolve_ambiguous_ecaf( char *ecaf, const char *fen )
     }
 
     assert( !ecaf_modified || str_m_pat( ecaf, "^[-ABCDEFGHabcdefgh]{4}$" ) );
+}
+
+// Examines the PPF of 'fen' and returns the letter symbol of the chessman
+// on square 'sq'. If the square is empty, then '-' is returned. For example,
+// the call occupant_of_sq_fen_v( FEN_STD_START_POS, "e1" ) would return 'K'.
+// Note that occupant_of_sq_fen_v() is the FEN string equivalent (or version)
+// of occupant_of_sq().
+char
+occupant_of_sq_fen_v( const char *fen, const char *sq )
+{
+    assert( str_m_pat( sq, "^[a-h][1-8]$" ) );
+    char **ff = fen_fields(fen);
+    assert(ff);
+
+    int index = 0;
+    char eppf[PPF_MAX_LENGTH + 1], file = sq[0], rank = sq[1];
+    index += 9 * ('8' - rank);
+    index += file - 'a';
+
+    expand_ppf( ff[0], eppf );
+    char occupant = eppf[index];
+
+    bool valid_occupant = false;
+    for( int i = 0; PPF_CHESSMAN_LETTERS[i]; i++ ) {
+        if( occupant == PPF_CHESSMAN_LETTERS[i] ) {
+            valid_occupant = true;
+            break;
+        }
+    }
+    assert( valid_occupant );
+
+    free_fen_fields(ff);
+    return occupant;
 }
 
 /****************************

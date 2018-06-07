@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef BASE_H
+#define BASE_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -7,13 +7,9 @@
 
 #include "chester.h"
 
-// Bitboard, the fundamental (internal) data type of Chester. It is a 64-bit
-// unsigned integer used to deliver information that relates to the chessboard
-// in one way or another. Each bit corresponds to a particular square of
-// the chessboard.
 typedef uint64_t Bitboard;
 
-struct const_single_var_struct_SB {
+struct single_instance_variable_SB {
     const Bitboard
         a1, b1, c1, d1, e1, f1, g1, h1,
         a2, b2, c2, d2, e2, f2, g2, h2,
@@ -25,18 +21,25 @@ struct const_single_var_struct_SB {
         a8, b8, c8, d8, e8, f8, g8, h8;
 };
 
-extern const struct const_single_var_struct_SB SB;
-extern const Bitboard SBA[], SQ_NAV[][ 16 ];
+extern const struct single_instance_variable_SB SB;
+extern const Bitboard SBA[], SQ_NAV[][16];
 extern const size_t PPF_MIN_LENGTH, PPF_MAX_LENGTH, FEN_MIN_LENGTH, FEN_MAX_LENGTH,
     POSSIBLE_IRPF_VALUES_COUNT, SHREDDER_FEN_CAFS_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
 extern const uint64_t FEN_NUMERIC_FIELD_MAX;
 
-extern const char FEN_PIECE_LETTERS[], STD_FEN_CAF_REGEX[];
+extern const char PPF_CHESSMAN_LETTERS[], STD_FEN_CAF_REGEX[];
 extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
-// The pp array of Pos should be indexed with these, e.g., pos.pp[ WHITE_KING ]
+// FEN strings of special significance
+#define FEN_STD_START_POS \
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define FEN_PERSONALLY_SIGNIFICANT \
+    "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
+
+// The 'ppa' member of the Pos type should be indexed with these,
+// e.g., p->ppa[WHITE_KING]
 typedef enum {
     EMPTY_SQUARE,
     WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
@@ -97,4 +100,4 @@ Bitboard epts( const Pos *p );
 bool chess960_start_pos( const Pos *p );
 
 #endif
-// end TYPES_H
+// End BASE_H

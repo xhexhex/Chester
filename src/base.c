@@ -28,22 +28,23 @@
     0x400000000000000u, 0x800000000000000u, 0x1000000000000000u, 0x2000000000000000u, \
     0x4000000000000000u, 0x8000000000000000u
 
-// The following should be the only variable of type struct const_single_var_struct_SB.
-// The variable 'SB' serves as a mapping between square names and square bits. This
-// is mainly for the sake of convenience. For example, it is more convenient to refer
-// to the square e8 with SB.e8 rather than 0x1000000000000000U.
-const struct const_single_var_struct_SB SB = {
+// The following should be the only variable of type struct
+// single_instance_variable_SB. The variable 'SB' serves as a mapping
+// between square names (e.g., SB.e4) and square bits (e.g., 0x10000000u).
+const struct single_instance_variable_SB SB = {
     ALL_SQ_BIT_VALUES
 };
 
-// The 64 members of the struct variable SB as an array. SBA[ 0 ] is
-// SB.a1, SBA[ 63 ] is SB.h8.
+// The 64 members of the 'SB' variable as an array. SBA[0] is SB.a1
+// and SBA[63] is SB.h8.
 const Bitboard SBA[] = {
     ALL_SQ_BIT_VALUES
 };
 
-// SNA, square names array. SNA[ 0 ] is "a1", SNA[ 1 ] is "b1", ...,
-// SNA[ 63 ] is "h8".
+#undef ALL_SQ_BIT_VALUES
+
+// SNA, square names array. SNA[0] is "a1", SNA[1] is "b1", ...,
+// SNA[63] is "h8".
 const char * const SNA[] = {
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
@@ -56,10 +57,10 @@ const char * const SNA[] = {
 };
 
 // The 12 letters that identify the different chessmen in the PPF
-// of a FEN record. The first element of the array is '-' and as such
+// of a FEN string. The first element of the array is '-' and as such
 // isn't one of the 12 letters. The order of the letters correspond
 // to the Chessman enum type.
-const char FEN_PIECE_LETTERS[] = "-KQRBNPkqrbnp";
+const char PPF_CHESSMAN_LETTERS[] = "-KQRBNPkqrbnp";
 
 // Square navigation or direction data for each of the 64 squares of the
 // chessboard. A square either has or doesn't have another square near it it

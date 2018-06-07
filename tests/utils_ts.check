@@ -166,7 +166,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #tcase occupant_of_sq_tests
 
-#define STD_START_POS fen_to_pos( STD_START_POS_FEN )
+#define STD_START_POS fen_to_pos( FEN_STD_START_POS )
 
 #test C_occupant_of_sq_returns_EMPTY_SQUARE
     for( int i = 16; i <= 47; i++ ) {
@@ -743,7 +743,7 @@ free( bin_str );
 #test C_fen_fields_works
     char **ff, *exp_vals[ 6 ];
 
-    FEN_FIELDS_WORKS( STD_START_POS_FEN,
+    FEN_FIELDS_WORKS( FEN_STD_START_POS,
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
         "w", "KQkq", "-", "0", "1" )
     FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R "
@@ -1220,7 +1220,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
     char **ff;
 
-    RESOLVE_AMBIGUOUS_ECAF_TEST( STD_START_POS_FEN, "AHah" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( FEN_STD_START_POS, "AHah" )
     RESOLVE_AMBIGUOUS_ECAF_TEST( "4k3/8/8/8/8/8/8/1RK5 w B - 0 40", "B---" )
     RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
 
@@ -1384,3 +1384,36 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #undef GAME_OF_THE_CENTURY_EPPF
 #undef GAME_OF_THE_CENTURY_PPA
+
+//
+// Test case
+//
+#tcase occupant_of_sq_fen_v_tests
+
+#test C_occupant_of_sq_fen_v_tested_with_single_calls
+    ck_assert( occupant_of_sq_fen_v( FEN_STD_START_POS, "e1" ) == 'K' );
+
+#define FULL_TEST( expected_arg, fen_arg ) \
+    char expected[] = expected_arg, fen[] = fen_arg; \
+    ck_assert( strlen(expected) == 64 ); \
+    for( int i = 0; i < 64; i++ ) \
+        ck_assert( occupant_of_sq_fen_v( fen, SNA[i] ) == expected[i] );
+
+#test C_occupant_of_sq_fen_v_tested_with_std_start_pos
+    FULL_TEST(
+        "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr",
+        FEN_STD_START_POS )
+
+#test C_occupant_of_sq_fen_v_tested_with_personally_significant_pos
+    FULL_TEST(
+        "--K----R"
+        "-PP--P--"
+        "-P------"
+        "-p---p--"
+        "p---R---"
+        "------QP"
+        "r-q-b--n"
+        "------k-",
+        FEN_PERSONALLY_SIGNIFICANT )
+
+#undef FULL_TEST
