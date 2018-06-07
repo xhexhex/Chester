@@ -25,7 +25,7 @@ static bool x_validate_fen_test_12( const char *fen );
 static bool x_validate_fen_test_13( const char *fen );
 static bool x_validate_fen_test_14( const char *fen );
 static bool x_validate_fen_test_15( const char *fen );
-static bool x_validate_fen_test_16( const Pos *p );
+static bool x_validate_fen_test_16( const char *fen );
 static bool x_validate_fen_test_17( const Pos *p );
 static bool x_validate_fen_test_18( const Pos *p );
 static bool x_validate_fen_test_19( const Pos *p );
@@ -67,11 +67,11 @@ che_fen_validator( const char *fen )
     if( !x_validate_fen_test_13( fen ) ) return FEN_ROOK_PLACEMENT_CONTRADICTS_CAF_ERROR;
     if( !x_validate_fen_test_14( fen ) ) return FEN_EPTSF_CONTRADICTS_HMCF_ERROR;
     if( !x_validate_fen_test_15( fen ) ) return FEN_EPTSF_CONTRADICTS_ACF_ERROR;
+    if( !x_validate_fen_test_16( fen ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
 
     // At this point it should be safe to do the conversion
     Pos *p = fen_to_pos( fen );
 
-    if( !x_validate_fen_test_16( p ) ) return FEN_EPTSF_CONTRADICTS_PPF_ERROR;
     if( !x_validate_fen_test_17( p ) ) return FEN_PAWN_ON_INVALID_RANK_ERROR;
     if( !x_validate_fen_test_18( p ) ) return FEN_INVALID_NUMBER_OF_KINGS_ERROR;
     if( !x_validate_fen_test_19( p ) ) return FEN_KING_CAN_BE_CAPTURED_ERROR;
@@ -327,19 +327,26 @@ x_validate_fen_test_15( const char *fen )
 }
 
 static bool
-x_validate_fen_test_16( const Pos *p )
+x_validate_fen_test_16( const char *fen )
 {
-    const char *epts = epts_from_pos_var( p );
-    char sq_of_double_advanced_pawn[ 3 ] = { 0 };
+    char **ff = fen_fields(fen), *acf = ff[1], *eptsf = ff[3];
+    if( !strcmp( "-", eptsf ) ) {
+        free_fen_fields(ff);
+        return true;
+    }
 
-    if( !strcmp( "-", epts ) ) return true;
+    bool white_to_move = !strcmp( "w", acf ) ? true : false;
 
-    sq_of_double_advanced_pawn[ 0 ] = *epts;
-    sq_of_double_advanced_pawn[ 1 ] = whites_turn( p ) ? '5' : '4';
+    char sq_of_double_advanced_pawn[3] = { '\0' };
+    sq_of_double_advanced_pawn[0] = eptsf[0];
+    sq_of_double_advanced_pawn[ 1 ] = ( white_to_move ? '5' : '4' );
+    assert( strlen( sq_of_double_advanced_pawn ) == 2 );
 
-    return whites_turn( p ) ?
-        occupant_of_sq( p, sq_of_double_advanced_pawn ) == BLACK_PAWN :
-        occupant_of_sq( p, sq_of_double_advanced_pawn ) == WHITE_PAWN;
+    free_fen_fields(ff);
+
+    return white_to_move ?
+        occupant_of_sq_fen_v( fen, sq_of_double_advanced_pawn ) == 'p' :
+        occupant_of_sq_fen_v( fen, sq_of_double_advanced_pawn ) == 'P';
 }
 
 static bool
