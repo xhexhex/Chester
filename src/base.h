@@ -32,6 +32,8 @@ extern const char PPF_CHESSMAN_LETTERS[], STD_FEN_CAF_REGEX[];
 extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
+extern const char APM_DATA[];
+
 // FEN strings of special significance
 #define FEN_STD_START_POS \
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

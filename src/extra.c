@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#define ALL_POSSIBLE_MOVES \
+#define OLD_ALL_POSSIBLE_MOVES \
 	"a1b1", "a1c1", "a1d1", "a1e1", "a1f1", "a1g1", "a1h1", "a1a2", "a1b2", \
 	"a1c2", "a1a3", "a1b3", "a1c3", "a1a4", "a1d4", "a1a5", "a1e5", "a1a6", \
 	"a1f6", "a1a7", "a1g7", "a1a8", "a1h8", "b1a1", "b1c1", "b1d1", "b1e1", \
@@ -202,10 +202,10 @@
 	"h8f7", "h8g7", "h8h7", "h8a8", "h8b8", "h8c8", "h8d8", "h8e8", "h8f8", \
 	"h8g8"
 
-// APM, all possible moves. A move in this context means a valid source and
+// OLD_APM, all possible moves. A move in this context means a valid source and
 // destination square such as "a1d1" or "e4f6" but not "d4d4", "h1g4" or "x1b2".
-const char *APM[] = {
-	ALL_POSSIBLE_MOVES, NULL
+const char *OLD_APM[] = {
+	OLD_ALL_POSSIBLE_MOVES, NULL
 };
 
 #undef ALL_POSSIBLE_MOVES

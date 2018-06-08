@@ -1,4 +1,4 @@
-CFLAGS := -std=c99 -Wall -Wextra -Wpedantic -Werror-implicit-function-declaration
+CFLAGS := -std=c99 -Wall -Wextra -Wpedantic -Werror-implicit-function-declaration -Wno-overlength-strings
 TARGET := libchester.so
 SOURCES := $(wildcard src/*.c)
 HEADERS := $(wildcard src/*.h)
