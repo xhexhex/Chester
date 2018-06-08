@@ -7,5 +7,4 @@
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`
 * Rename `bb_is_sq_bit()` to `is_sq_bit()` and review
 * validation_ts: src/validation.c:368: x_validate_fen_test_20: Assertion `p->fmn >= 1 && p->fmn <= 30000` failed.
-* FEN_EPTSF_CONTRADICTS_PPF_ERROR: There should be two vacant squares behind
-the double-advanced pawn
+* `valid_sq_name()` => `is_sq_name()`

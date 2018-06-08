@@ -79,7 +79,8 @@ Apart from `FEN_NO_ERRORS`, each of the `enum che_fen_error` constants represent
     The EPTSF is not "-" and yet there is no pawn of the appropriate color on the
     square after the EPTS. For example, if the EPTS is "e3", then the pawn on e2
     has just made a double advance to e4. So it follows from EPTS being "e3" that
-    there is a white pawn on e4.
+    there is a white pawn on e4. Test failure should also occur if the origin
+    square of the double-advanced pawn or the EPTS itself has a chessman on it.
 17. `FEN_PAWN_ON_INVALID_RANK`  
     There are one or more pawns of either color on rank 1 or rank 8.
 18. `FEN_INVALID_NUMBER_OF_KINGS`  

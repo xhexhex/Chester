@@ -329,24 +329,31 @@ x_validate_fen_test_15( const char *fen )
 static bool
 x_validate_fen_test_16( const char *fen )
 {
-    char **ff = fen_fields(fen), *acf = ff[1], *eptsf = ff[3];
-    if( !strcmp( "-", eptsf ) ) {
-        free_fen_fields(ff);
+    char **ff = fen_fields(fen), acf[1 + 1], eptsf[2 + 1];
+    strcpy( acf, ff[1] ), strcpy( eptsf, ff[3] );
+    free_fen_fields(ff);
+
+    if( !strcmp( "-", eptsf ) )
         return true;
-    }
+    else if( occupant_of_sq_fen_v( fen, eptsf ) != '-' )
+        return false;
 
     bool white_to_move = !strcmp( "w", acf ) ? true : false;
 
-    char sq_of_double_advanced_pawn[3] = { '\0' };
-    sq_of_double_advanced_pawn[0] = eptsf[0];
-    sq_of_double_advanced_pawn[ 1 ] = ( white_to_move ? '5' : '4' );
-    assert( strlen( sq_of_double_advanced_pawn ) == 2 );
+    char current_sq_of_double_advanced_pawn[2 + 1] = { '\0' };
+    current_sq_of_double_advanced_pawn[0] = eptsf[0];
+    current_sq_of_double_advanced_pawn[1] = (white_to_move ? '5' : '4');
 
-    free_fen_fields(ff);
+    char origin_sq_of_double_advanced_pawn[2 + 1] = { '\0' };
+    origin_sq_of_double_advanced_pawn[0] = eptsf[0];
+    origin_sq_of_double_advanced_pawn[1] = (white_to_move ? '7' : '2');
+
+    if( occupant_of_sq_fen_v( fen, origin_sq_of_double_advanced_pawn ) != '-' )
+        return false;
 
     return white_to_move ?
-        occupant_of_sq_fen_v( fen, sq_of_double_advanced_pawn ) == 'p' :
-        occupant_of_sq_fen_v( fen, sq_of_double_advanced_pawn ) == 'P';
+        occupant_of_sq_fen_v( fen, current_sq_of_double_advanced_pawn ) == 'p' :
+        occupant_of_sq_fen_v( fen, current_sq_of_double_advanced_pawn ) == 'P';
 }
 
 static bool

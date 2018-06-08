@@ -714,7 +714,7 @@ resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 char
 occupant_of_sq_fen_v( const char *fen, const char *sq )
 {
-    assert( str_m_pat( sq, "^[a-h][1-8]$" ) );
+    assert( valid_sq_name( sq ) );
     char **ff = fen_fields(fen);
     assert(ff);
 
