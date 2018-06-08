@@ -290,7 +290,7 @@ print_pos_var( const Pos *p )
 const char *
 sq_navigator( const char *sq_name, enum sq_dir dir )
 {
-    assert( valid_sq_name( sq_name ) );
+    assert( is_sq_name( sq_name ) );
 
     if( dir >= NORTH && dir <= NORTHWEST )
         return x_sq_navigator_kings_sqs( sq_name, dir );
@@ -303,7 +303,7 @@ sq_navigator( const char *sq_name, enum sq_dir dir )
 const char *
 ALT_sq_navigator( const char *sq_name, enum sq_dir dir )
 {
-    assert( valid_sq_name( sq_name ) );
+    assert( is_sq_name( sq_name ) );
 
     if( dir >= NORTH && dir <= NORTHWEST )
         return x_ALT_sq_navigator_kings_sqs( sq_name, dir );
@@ -316,7 +316,7 @@ ALT_sq_navigator( const char *sq_name, enum sq_dir dir )
 int
 sq_name_index( const char *sq_name )
 {
-    assert( valid_sq_name( sq_name ) );
+    assert( is_sq_name( sq_name ) );
     int ret_val = ( sq_name[ 1 ] - '1' ) * 8 + ( sq_name[ 0 ] - 'a' );
 
     assert( ret_val >= 0 && ret_val <= 63 );
@@ -714,7 +714,7 @@ resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 char
 occupant_of_sq_fen_v( const char *fen, const char *sq )
 {
-    assert( valid_sq_name( sq ) );
+    assert( is_sq_name( sq ) );
     char **ff = fen_fields(fen);
     assert(ff);
 
@@ -801,7 +801,7 @@ x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
     if( dir == NORTHWEST || dir == NORTH || dir == NORTHEAST ) ++sq_name_copy[ 1 ];
     else if( dir == SOUTHWEST || dir == SOUTH || dir == SOUTHEAST ) --sq_name_copy[ 1 ];
 
-    return valid_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 static const char *
@@ -820,7 +820,7 @@ x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
     else if( dir == FOUR_OCLOCK || dir == EIGHT_OCLOCK ) --sq_name_copy[ 1 ];
     else sq_name_copy[ 1 ] -= 2;
 
-    return valid_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 /*

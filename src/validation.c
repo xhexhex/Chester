@@ -94,12 +94,13 @@ che_fen_validator( const char *fen )
  ****                      ****
  ******************************/
 
-// Validates a square name such as "a1" or "e4"
+// Returns true if and only if 'sq_name' is a valid square name
+// such as "a1" or "e4"
 bool
-valid_sq_name( const char *sq_name )
+is_sq_name( const char *sq_name )
 {
     return sq_name && str_m_pat( sq_name, "^[abcdefgh][12345678]$" );
-}
+} // Review: 2018-06-08
 
 // In the 'ppa' member of a Pos variable, exactly one bit should be set
 // per bit index. In logical terms this means that each square is either
@@ -128,7 +129,7 @@ valid_sq_name( const char *sq_name )
 // 0000000000001000000000000000000000001000000000000000000000001000    p
 //
 const char *
-ppa_integrity_check( const Bitboard ppa[] )
+ppa_integrity_check( const Bitboard *ppa )
 {
     for( int bit_index = 0; bit_index < 64; bit_index++ ) {
         int number_of_set_bits = 0;

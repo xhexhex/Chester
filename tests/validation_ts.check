@@ -607,18 +607,26 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
 //
 // Test case
 //
-#tcase valid_sq_name_tests
+#tcase is_sq_name_tests
 
-#test C_valid_sq_name_works_with_all_valid_inputs
-    for( int i = 0; i < 64; i++ ) ck_assert( valid_sq_name( SNA[ i ] ) );
+#test C_is_sq_name_returns_true_with_all_64_valid_square_names
+    for( int i = 0; i < 64; i++ )
+        ck_assert( is_sq_name( SNA[i] ) );
 
-#test C_valid_sq_name_returns_false
-    ck_assert( !valid_sq_name( NULL ) );
-    ck_assert( !valid_sq_name( "" ) );
-    ck_assert( !valid_sq_name( "a" ) );
-    ck_assert( !valid_sq_name( "aa" ) );
-    ck_assert( !valid_sq_name( "a11" ) );
-    ck_assert( !valid_sq_name( "bb2" ) );
+#test C_is_sq_name_returns_false
+    ck_assert( !is_sq_name( NULL ) );
+    ck_assert( !is_sq_name( "" ) );
+    ck_assert( !is_sq_name( "a" ) );
+    ck_assert( !is_sq_name( "aa" ) );
+    ck_assert( !is_sq_name( "a11" ) );
+    ck_assert( !is_sq_name( "bb2" ) );
+    ck_assert( !is_sq_name( "4e" ) );
+    ck_assert( !is_sq_name( "e4 " ) );
+    ck_assert( !is_sq_name( " e4" ) );
+    ck_assert( !is_sq_name( "a9" ) );
+    ck_assert( !is_sq_name( "i4" ) );
+    ck_assert( !is_sq_name( "i4" ) );
+    ck_assert( !is_sq_name( "`1" ) );
 
 //
 // Test case
