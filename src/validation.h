@@ -8,6 +8,7 @@
 
 bool is_sq_name( const char *sq_name );
 const char *ppa_integrity_check( const Bitboard *ppa );
+bool is_sq_bit( Bitboard bb );
 
 #endif
 // end VALIDATION_H

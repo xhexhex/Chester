@@ -494,7 +494,7 @@ has_castling_right( const Pos *p, const char *color, const char *side )
 
     uint8_t bit = ( white ? 8 : 2 );
     if( !kingside ) bit >>= 1;
-    assert( bb_is_sq_bit( (Bitboard) bit ) );
+    assert( is_sq_bit( bit ) );
 
     return bit & p->turn_and_ca_flags;
 }
@@ -524,7 +524,7 @@ epts( const Pos *p )
     Bitboard bb = p->epts_file;
     bb <<= ( whites_turn(p) ? 40 : 16 );
 
-    assert( bb_is_sq_bit(bb) );
+    assert( is_sq_bit(bb) );
     return bb;
 }
 
@@ -686,8 +686,8 @@ x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen )
     else if( ecaf[3] != '-' ) p->irp[1] |= ( 1 << ( ecaf[3] - 'a' ) );
     else p->irp[1] |= 0x80;
 
-    assert( bb_is_sq_bit( p->irp[0] ) );
-    assert( bb_is_sq_bit( p->irp[1] ) );
+    assert( is_sq_bit( p->irp[0] ) );
+    assert( is_sq_bit( p->irp[1] ) );
     assert( p->irp[0] < p->irp[1] );
 }
 

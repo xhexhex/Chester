@@ -145,6 +145,18 @@ ppa_integrity_check( const Bitboard *ppa )
     return NULL;
 } // Review: 2018-06-02
 
+// Returns true if and only if 'bb' is a square bit
+bool
+is_sq_bit( Bitboard bb )
+{
+    const uint64_t ONE = 1;
+    for( int exponent = 0; exponent <= 63; exponent++ )
+        if( bb == (ONE << exponent) )
+            return true;
+
+    return false;
+} // Review: 2018-06-08
+
 /****************************
  ****                    ****
  ****  Static functions  ****
@@ -368,7 +380,7 @@ x_validate_fen_test_17( const Pos *p )
 static bool
 x_validate_fen_test_18( const Pos *p )
 {
-    return bb_is_sq_bit( p->ppa[ WHITE_KING ] ) && bb_is_sq_bit( p->ppa[ BLACK_KING ] );
+    return is_sq_bit( p->ppa[ WHITE_KING ] ) && is_sq_bit( p->ppa[ BLACK_KING ] );
 }
 
 static bool

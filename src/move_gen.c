@@ -7,6 +7,7 @@
 #include "move_gen.h"
 #include "utils.h"
 #include "extra.h"
+#include "validation.h"
 
 static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
     int *num_of_sqs_north, int *num_of_sqs_east,
@@ -194,7 +195,7 @@ king_can_be_captured( const Pos *p )
 Bitboard
 kerc( const Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     int num_of_sqs_north, num_of_sqs_east, num_of_sqs_south, num_of_sqs_west;
     x_kerc_zero_one_or_two_sqs_in_dir( sq_bit, &num_of_sqs_north,
@@ -220,7 +221,7 @@ kerc( const Bitboard sq_bit )
 Bitboard
 dest_sqs( const Pos *p, Bitboard origin_sq )
 {
-    assert( bb_is_sq_bit( origin_sq ) );
+    assert( is_sq_bit( origin_sq ) );
 
     Bitboard dest_sqs = 0;
     Chessman cm = occupant_of_sq( p, sq_bit_to_sq_name( origin_sq ) );
@@ -610,9 +611,9 @@ x_castling_move_status_castling_rook( const Pos *p, bool kingside )
         file_of_queenside_rook <<= 1;
     file_of_kingside_rook = irpf ^ file_of_queenside_rook;
 
-    assert( bb_is_sq_bit( file_of_queenside_rook ) && file_of_queenside_rook >= 1 &&
+    assert( is_sq_bit( file_of_queenside_rook ) && file_of_queenside_rook >= 1 &&
         file_of_queenside_rook <= 32 );
-    assert( bb_is_sq_bit( file_of_kingside_rook ) && file_of_kingside_rook >= 4 &&
+    assert( is_sq_bit( file_of_kingside_rook ) && file_of_kingside_rook >= 4 &&
         file_of_kingside_rook <= 128 );
 
     Bitboard castling_rook = kingside ? file_of_kingside_rook : file_of_queenside_rook;

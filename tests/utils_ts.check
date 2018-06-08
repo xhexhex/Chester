@@ -152,18 +152,6 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
             SNA[ i ] ) );
     }
 
-#tcase bb_is_sq_bit_tests
-
-#test C_bb_is_sq_bit_returns_true
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( bb_is_sq_bit( SBA[ i ] ) );
-    }
-
-#test C_bb_is_sq_bit_returns_false
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( !bb_is_sq_bit( SBA[ i ] + ( rand() % 30000 ) + 1 ) );
-    }
-
 #tcase occupant_of_sq_tests
 
 #define STD_START_POS fen_to_pos( FEN_STD_START_POS )

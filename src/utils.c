@@ -175,7 +175,7 @@ sq_name_to_sq_bit( const char *sq_name )
 const char *
 sq_bit_to_sq_name( Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     char file = file_of_sq( sq_bit ), rank = rank_of_sq( sq_bit );
     int sq_name_array_index = file - 'a' + ( rank - '1' ) * 8;
@@ -188,7 +188,7 @@ sq_bit_to_sq_name( Bitboard sq_bit )
 char
 file_of_sq( const Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     if( sq_bit & SS_FILE_A ) return 'a';
     if( sq_bit & SS_FILE_B ) return 'b';
@@ -207,7 +207,7 @@ file_of_sq( const Bitboard sq_bit )
 char
 rank_of_sq( const Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     if( sq_bit & SS_RANK_1 ) return '1';
     if( sq_bit & SS_RANK_2 ) return '2';
@@ -220,16 +220,6 @@ rank_of_sq( const Bitboard sq_bit )
 
     assert( false );
     return '\0';
-}
-
-// Returns true if the argument is a square bit
-bool
-bb_is_sq_bit( Bitboard bb ) {
-    for( int i = 0; i < 64; i++ )
-        if( bb == SBA[ i ] )
-            return true;
-
-    return false;
 }
 
 // Returns the bit index of the square bit argument 'sq_bit'. The bit
@@ -348,7 +338,7 @@ num_of_sqs_in_sq_set( Bitboard bb )
 Bitboard
 sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
 {
-    assert( bb_is_sq_bit( upper_left ) && bb_is_sq_bit( lower_right ) );
+    assert( is_sq_bit( upper_left ) && is_sq_bit( lower_right ) );
 
     if( upper_left == lower_right ) return upper_left;
 
@@ -382,7 +372,7 @@ file_and_rank_to_sq_name( const char file, const char rank )
 Bitboard
 diag_of_sq( Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     for( int i = 0; i < 15; i++ )
         if( sq_bit & sq_set_of_diag( i ) )
@@ -396,7 +386,7 @@ diag_of_sq( Bitboard sq_bit )
 Bitboard
 antidiag_of_sq( Bitboard sq_bit )
 {
-    assert( bb_is_sq_bit( sq_bit ) );
+    assert( is_sq_bit( sq_bit ) );
 
     for( int i = 0; i < 15; i++ )
         if( sq_bit & sq_set_of_antidiag( i ) )
@@ -418,7 +408,7 @@ next_sq_of_ss( Bitboard *ss )
     while( !( ( *ss ) & sq ) ) sq <<= 1;
     *ss ^= sq;
 
-    assert( bb_is_sq_bit( sq ) );
+    assert( is_sq_bit( sq ) );
     return sq;
 }
 
