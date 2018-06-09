@@ -329,7 +329,7 @@ const char * const SHREDDER_FEN_CAFS[] = {
 // is greater than zero when using the regex.
 const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
 
-// https://fedoraproject.org/wiki/Understanding_GCC_Warnings_and_Errors
+// TODO: doc
 const char APM_DATA[] =
     "a1a2a1a3a1a4a1a5a1a6a1a7a1a8a1b1a1b2a1b3a1c1a1c2a1c3a1d1a1d4a1e1"
     "a1e5a1f1a1f6a1g1a1g7a1h1a1h8a2a1a2a3a2a4a2a5a2a6a2a7a2a8a2b1a2b2"

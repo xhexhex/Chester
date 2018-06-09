@@ -4,12 +4,49 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "../src/base.h"
 #include "../src/utils.h"
 #include "../src/move_gen.h"
 #include "../src/extra.h"
 #include "../src/validation.h"
+
+char *
+create_APM_DATA_duplicate()
+{
+    char *dup = (char *) malloc( 10000 * sizeof(char) );
+    assert(dup);
+
+    char *ptr = dup;
+
+    for( int file = 0; file <= 7; file++ ) {
+        for( int rank = 0; rank <= 56; rank += 8 ) {
+            int src = file + rank;
+            assert( src >= 0 && src <= 63 );
+            Bitboard dest_sqs = (
+                ROOK_SQS[src] | BISHOP_SQS[src] | KNIGHT_SQS[src] );
+            for( int file = 0; file <= 7; file++ ) {
+                for( int rank = 0; rank <= 56; rank += 8 ) {
+                    int dest = file + rank;
+                    assert( dest >= 0 && dest <= 63 );
+
+                    if( !(SBA[dest] & dest_sqs) ) continue;
+
+                    ptr[0] = SNA[src][0], ptr[1] = SNA[src][1],
+                        ptr[2] = SNA[dest][0], ptr[3] = SNA[dest][1];
+
+                    ptr += 4;
+                }
+            }
+        }
+    }
+
+    *ptr = '\0';
+
+    assert( (ptr - dup) == (int) strlen(APM_DATA) );
+    return dup;
+}
 
 #suite types_ts
 
@@ -631,3 +668,33 @@ ck_assert( counter == exp_count );
     }
     ck_assert( letter_count == 2*1792 );
     ck_assert( letter_count == digit_count );
+
+#test C_APM_DATA_compared_to_dynamically_created_duplicate
+    char *dup = create_APM_DATA_duplicate();
+    ck_assert( !strcmp( APM_DATA, dup ) );
+    free(dup);
+
+#test C_APM_DATA_tested_for_ascending_lexiographical_order
+    ck_assert( strcmp( "abc", "xyz" ) < 0 );
+
+    char left[4 + 1] = {'\0'}, right[4 + 1] = {'\0'};
+
+    int i = 0, pair_count = 0;
+    for( ; i < (int) strlen(APM_DATA) - 4; i += 4 ) {
+        for( int j = 0, lindex = i, rindex = i + 4; j < 4; j++ ) {
+            left[j]  = APM_DATA[lindex + j];
+            right[j] = APM_DATA[rindex + j];
+        }
+        ++pair_count;
+
+        assert( strlen(left) == 4 );
+        assert( strlen(right) == 4);
+        assert( str_m_pat( left,  "^[a-h][1-8][a-h][1-8]$" ) );
+        assert( str_m_pat( right, "^[a-h][1-8][a-h][1-8]$" ) );
+
+        // printf( "%s  %s\n", left, right );
+        ck_assert( strcmp( left, right ) < 0 );
+    }
+
+    assert( i + 4 == (int) strlen(APM_DATA) );
+    assert( pair_count == (int) (strlen(APM_DATA) / 4) - 1 );
