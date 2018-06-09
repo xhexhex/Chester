@@ -698,3 +698,29 @@ ck_assert( counter == exp_count );
 
     assert( i + 4 == (int) strlen(APM_DATA) );
     assert( pair_count == (int) (strlen(APM_DATA) / 4) - 1 );
+
+//
+// Test case
+//
+#tcase rawcode_tests
+
+#define RAWCODE_TEST(rawmove_arg, expected_rawcode) \
+    ck_assert( rawcode(rawmove_arg) == expected_rawcode );
+
+#test C_rawcode_tested_with_manually_selected_valid_rawmoves
+    RAWCODE_TEST("a1a2", 1)
+    RAWCODE_TEST("a1a4", 3)
+    RAWCODE_TEST("a1e5", 17)
+    RAWCODE_TEST("h8h7", 1792)
+    RAWCODE_TEST("h8h6", 1791)
+    RAWCODE_TEST("a3a4", 50)
+
+#test C_rawcode_tested_with_manually_selected_invalid_rawmoves
+    RAWCODE_TEST(NULL, 0)
+    RAWCODE_TEST("", 0)
+    RAWCODE_TEST("e2E4", 0)
+    RAWCODE_TEST("e2e4 ", 0)
+    RAWCODE_TEST("e2e2", 0)
+    RAWCODE_TEST("Henrik", 0)
+
+#undef RAWCODE_TEST

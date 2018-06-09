@@ -643,6 +643,42 @@ epts( const Pos *p )
     return bb;
 }
 
+// TODO: doc
+Rawcode
+rawcode( const char *rawmove )
+{
+    if( !rawmove || strlen(rawmove) != 4 ) return 0;
+
+    char src[2 + 1] = {'\0'}, dst[2 + 1] = {'\0'};
+    src[0] = rawmove[0], src[1] = rawmove[1];
+    dst[0] = rawmove[2], dst[1] = rawmove[3];
+    if( !is_sq_name(src) || !is_sq_name(dst) ) return 0;
+
+    char current[4 + 1] = {'\0'};
+    const int N = sizeof(APM_DATA)/4;
+    int left = 0, right = N - 1;
+
+    while( left <= right ) {
+        int middle = (left + right) / 2;
+        assert( middle >= 0 && middle < N );
+
+        for( int i = 0; i < 4; i++ )
+            current[i] = APM_DATA[4*middle + i];
+
+        if( strcmp( current, rawmove ) < 0 ) {
+            left = middle + 1;
+            continue;
+        } else if( strcmp( current, rawmove ) > 0 ) {
+            right = middle - 1;
+            continue;
+        }
+
+        return middle + 1;
+    }
+
+    return 0;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
