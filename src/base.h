@@ -100,7 +100,6 @@ Bitboard ss_black_army( const Pos *p );
 Bitboard sq_nav( Bitboard sq, enum sq_dir dir );
 bool has_castling_right( const Pos *p, const char *color, const char *side );
 Bitboard epts( const Pos *p );
-bool chess960_start_pos( const Pos *p );
 Rawcode rawcode( const char *rawmove );
 
 #endif

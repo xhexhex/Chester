@@ -450,8 +450,6 @@ const char APM_DATA[] =
 
 static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
-static bool x_chess960_start_pos_whites_first_rank( const Pos *p );
-static bool x_chess960_start_pos_blacks_first_rank( const Pos *p );
 static void x_fen_to_pos_init_ppa( Pos *p, const char ppf[] );
 static void x_fen_to_pos_init_turn_and_ca_flags(
     Pos *p, const char *acf, const char *caf, const char *fen );
@@ -614,21 +612,6 @@ has_castling_right( const Pos *p, const char *color, const char *side )
     return bit & p->turn_and_ca_flags;
 }
 
-// Returns true if 'p' is found to represent one of the 960 Chess960
-// starting positions.
-bool
-chess960_start_pos( const Pos *p )
-{
-    return
-        // p->info == 0x200001fU &&
-        p->ppa[ EMPTY_SQUARE ] ==
-            ( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6 ) &&
-        p->ppa[ WHITE_PAWN ] == SS_RANK_2 &&
-        p->ppa[ BLACK_PAWN ] == SS_RANK_7 &&
-        x_chess960_start_pos_whites_first_rank( p ) &&
-        x_chess960_start_pos_blacks_first_rank( p );
-}
-
 // Returns the square bit corresponding to the en passant target square
 // of the Pos variable 'p' or zero if there is no EPTS set.
 Bitboard
@@ -731,52 +714,6 @@ x_sq_set_of_antidiag( const int index )
 
         default: assert( false ); return 0u;
     }
-}
-
-static bool
-x_chess960_start_pos_whites_first_rank( const Pos *p )
-{
-    const Bitboard not_rank_1 = ~SS_RANK_1;
-
-    if(
-        p->ppa[ WHITE_KING ] & not_rank_1 ||
-        p->ppa[ WHITE_QUEEN ] & not_rank_1 ||
-        p->ppa[ WHITE_ROOK ] & not_rank_1 ||
-        p->ppa[ WHITE_BISHOP ] & not_rank_1 ||
-        p->ppa[ WHITE_KNIGHT ] & not_rank_1 ||
-        num_of_sqs_in_sq_set( p->ppa[ WHITE_KING ] ) != 1 ||
-        num_of_sqs_in_sq_set( p->ppa[ WHITE_QUEEN ] ) != 1 ||
-        num_of_sqs_in_sq_set( p->ppa[ WHITE_ROOK ] ) != 2 ||
-        num_of_sqs_in_sq_set( p->ppa[ WHITE_BISHOP ] ) != 2 ||
-        num_of_sqs_in_sq_set( p->ppa[ WHITE_KNIGHT ] ) != 2
-    )
-        return false;
-
-    Bitboard western_rook = SB.a1, king = p->ppa[ WHITE_KING ];
-    while( !( western_rook & p->ppa[ WHITE_ROOK ] ) )
-        western_rook <<= 1;
-    Bitboard eastern_rook = ( western_rook ^ p->ppa[ WHITE_ROOK ] );
-
-    if( !( western_rook < king ) || !( king < eastern_rook ) )
-        return false;
-
-    Bitboard black_sqs_of_rank_1 = SB.a1 | SB.c1 | SB.e1 | SB.g1,
-        white_sqs_of_rank_1 = SB.b1 | SB.d1 | SB.f1 | SB.h1,
-        bishops = p->ppa[ WHITE_BISHOP ];
-
-    return bishops & black_sqs_of_rank_1 &&
-        bishops & white_sqs_of_rank_1;
-}
-
-static bool
-x_chess960_start_pos_blacks_first_rank( const Pos *p )
-{
-    return
-        ( p->ppa[ WHITE_KING ] << 56 ) == p->ppa[ BLACK_KING ] &&
-        ( p->ppa[ WHITE_QUEEN ] << 56 ) == p->ppa[ BLACK_QUEEN ] &&
-        ( p->ppa[ WHITE_ROOK ] << 56 ) == p->ppa[ BLACK_ROOK ] &&
-        ( p->ppa[ WHITE_BISHOP ] << 56 ) == p->ppa[ BLACK_BISHOP ] &&
-        ( p->ppa[ WHITE_KNIGHT ] << 56 ) == p->ppa[ BLACK_KNIGHT ];
 }
 
 static void
