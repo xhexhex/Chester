@@ -720,7 +720,20 @@ ck_assert( counter == exp_count );
     RAWCODE_TEST("", 0)
     RAWCODE_TEST("e2E4", 0)
     RAWCODE_TEST("e2e4 ", 0)
+    RAWCODE_TEST(" g1f3", 0)
     RAWCODE_TEST("e2e2", 0)
     RAWCODE_TEST("Henrik", 0)
+    RAWCODE_TEST("e2", 0)
+
+#test C_rawcode_comprehensive_sequential_check
+    char current[4 + 1] = {'\0'};
+    assert( !current[4] );
+
+    for( int i = 0; i < APM_COUNT; i++ ) {
+        for( int j = 0; j < 4; j++ )
+            current[j] = APM_DATA[4*i + j];
+
+        RAWCODE_TEST(current, i + 1)
+    }
 
 #undef RAWCODE_TEST

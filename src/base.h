@@ -24,16 +24,22 @@ struct single_instance_variable_SB {
 
 extern const struct single_instance_variable_SB SB;
 extern const Bitboard SBA[], SQ_NAV[][16];
-extern const size_t PPF_MIN_LENGTH, PPF_MAX_LENGTH, FEN_MIN_LENGTH, FEN_MAX_LENGTH,
-    POSSIBLE_IRPF_VALUES_COUNT, SHREDDER_FEN_CAFS_COUNT;
+extern const size_t POSSIBLE_IRPF_VALUES_COUNT, SHREDDER_FEN_CAFS_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
-extern const uint64_t FEN_NUMERIC_FIELD_MAX;
 
 extern const char PPF_CHESSMAN_LETTERS[], STD_FEN_CAF_REGEX[];
 extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
 extern const char APM_DATA[];
+#define APM_COUNT 1792
+
+// The FEN string minimum and maximum lengths
+#define FEN_MIN_LENGTH 27
+#define FEN_MAX_LENGTH 92
+// The minimum and maximum lengths for the PPF of a FEN string
+#define PPF_MIN_LENGTH 17
+#define PPF_MAX_LENGTH 71
 
 // FEN strings of special significance
 #define FEN_STD_START_POS \
@@ -66,6 +72,7 @@ typedef struct {
     uint16_t hmc, fmn;
 } Pos;
 
+// Create macros FILE(X) and RANK(X)?
 // The square sets that correspond to the eight files and
 // the eight ranks of the chessboard
 extern const Bitboard

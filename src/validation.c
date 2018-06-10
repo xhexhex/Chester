@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #include "validation.h"
 #include "utils.h"
@@ -261,7 +262,7 @@ x_validate_fen_test_10( const char *fen )
 {
     COPY_NUMERIC_FIELD( hmcf, 4 )
     return !strcmp( hmcf, "0" ) || ( str_m_pat( hmcf, NUM_FIELD_REGEX ) &&
-        atoi( hmcf ) > 0 && atoi( hmcf ) <= (int) FEN_NUMERIC_FIELD_MAX );
+        atoi( hmcf ) > 0 && atoi( hmcf ) <= (int) UINT16_MAX );
 }
 
 static bool
@@ -269,7 +270,7 @@ x_validate_fen_test_11( const char *fen )
 {
     COPY_NUMERIC_FIELD( fmnf, 5 )
     return str_m_pat( fmnf, NUM_FIELD_REGEX ) && atoi( fmnf ) > 0 &&
-        atoi( fmnf ) <= (int) FEN_NUMERIC_FIELD_MAX;
+        atoi( fmnf ) <= (int) UINT16_MAX;
 }
 
 #undef COPY_NUMERIC_FIELD

@@ -260,14 +260,12 @@ const Bitboard
     SS_ANTIDIAG_H6F8 = 0x2040800000000000U, SS_ANTIDIAG_H7G8 = 0x4080000000000000U,
     SS_ANTIDIAG_H8H8 = 0x8000000000000000U;
 
-const size_t
-    // The minimum and maximum lengths for the PPF of a FEN string
-    PPF_MIN_LENGTH = 17, PPF_MAX_LENGTH = 71,
+//const size_t
     // The shortest possible FEN is something like "k7/8/8/8/8/8/8/K7 w - - 0 1"
     // which is 27 characters long. The following FEN is 90 chars long:
     // "rrrrkrrr/pppppppp/pppppppp/pppppppp/PPPPPPPP/PPPPPPPP/PPPPPPPP/RRRRKRRR w KQkq - 65535 65535"
     // Allowing FENs longer than this wouldn't seem to make sense.
-    FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 92;
+    // FEN_MIN_LENGTH = 27, FEN_MAX_LENGTH = 92;
 
 // The 21 ways rooks can be placed in a Chess960 starting position. Each of the values
 // is an 8-bit unsigned integer with exactly two bits set. The two set bits correspond
@@ -286,9 +284,6 @@ const uint8_t POSSIBLE_IRPF_VALUES[] = {
     8 + 32, 8 + 64, 8 + 128,
     16 + 64, 16 + 128,
     32 + 128 };
-
-// The maximum value for the numeric FEN fields (HMCF and FMNF)
-const uint64_t FEN_NUMERIC_FIELD_MAX = 0xffffU; // 65535
 
 // All the possible Shredder-FEN castling availability fields along with their number
 const size_t SHREDDER_FEN_CAFS_COUNT = 361;
@@ -329,7 +324,11 @@ const char * const SHREDDER_FEN_CAFS[] = {
 // is greater than zero when using the regex.
 const char STD_FEN_CAF_REGEX[] = "^(-|K?Q?k?q?)$";
 
-// TODO: doc
+// APM stands for "All Possible (raw)Moves". The following string should
+// logically be understood as the string array {"a1a2", "a1a3", ..., "h8h7"}
+// with 1792 elements. The rawmove "g1f3" is included in APM_DATA because
+// there exists a chessman that can move from g1 to f3. For the same reason
+// there is no such rawmove as "e1d4".
 const char APM_DATA[] =
     "a1a2a1a3a1a4a1a5a1a6a1a7a1a8a1b1a1b2a1b3a1c1a1c2a1c3a1d1a1d4a1e1"
     "a1e5a1f1a1f6a1g1a1g7a1h1a1h8a2a1a2a3a2a4a2a5a2a6a2a7a2a8a2b1a2b2"
@@ -455,6 +454,7 @@ static void x_fen_to_pos_init_turn_and_ca_flags(
     Pos *p, const char *acf, const char *caf, const char *fen );
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
+static bool x_rawcode_preliminary_checks( const char *rawmove );
 
 /****************************
  **** External functions ****
@@ -626,21 +626,19 @@ epts( const Pos *p )
     return bb;
 }
 
-// TODO: doc
+// Returns the rawcode corresponding to the 'rawmove' argument. If
+// 'rawmove' is not valid, then zero is returned.
 Rawcode
 rawcode( const char *rawmove )
 {
-    if( !rawmove || strlen(rawmove) != 4 ) return 0;
-
-    char src[2 + 1] = {'\0'}, dst[2 + 1] = {'\0'};
-    src[0] = rawmove[0], src[1] = rawmove[1];
-    dst[0] = rawmove[2], dst[1] = rawmove[3];
-    if( !is_sq_name(src) || !is_sq_name(dst) ) return 0;
+    if( !x_rawcode_preliminary_checks(rawmove) )
+        return 0;
 
     char current[4 + 1] = {'\0'};
     const int N = sizeof(APM_DATA)/4;
     int left = 0, right = N - 1;
 
+    // Binary search algorithm
     while( left <= right ) {
         int middle = (left + right) / 2;
         assert( middle >= 0 && middle < N );
@@ -788,4 +786,20 @@ x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] )
     char file = eptsf[0];
     assert( file >= 'a' && file <= 'h' );
     p->epts_file |= ( 1 << ( file - 'a' ) );
+}
+
+static bool
+x_rawcode_preliminary_checks( const char *rawmove )
+{
+    if( !rawmove || strlen(rawmove) != 4 )
+        return false;
+
+    char src[2 + 1] = {'\0'}, dst[2 + 1] = {'\0'};
+    src[0] = rawmove[0], src[1] = rawmove[1];
+    dst[0] = rawmove[2], dst[1] = rawmove[3];
+
+    if( !is_sq_name(src) || !is_sq_name(dst) )
+        return false;
+
+    return true;
 }
