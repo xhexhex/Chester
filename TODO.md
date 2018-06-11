@@ -8,3 +8,4 @@
 * Rename `bb_is_sq_bit()` to `is_sq_bit()` and review
 * validation_ts: src/validation.c:368: x_validate_fen_test_20: Assertion `p->fmn >= 1 && p->fmn <= 30000` failed.
 * `valid_sq_name()` => `is_sq_name()`
+* `FEN_HMCF_CONTRADICTS_FMNF_ERROR` is undocumented

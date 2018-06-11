@@ -8,7 +8,6 @@
 #include "chester.h"
 
 typedef uint64_t Bitboard;
-typedef uint16_t Rawcode;
 
 struct single_instance_variable_SB {
     const Bitboard

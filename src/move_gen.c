@@ -164,6 +164,17 @@ che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
     return 0;
 }
 
+// TODO: doc
+Rawcode *
+che_rawcodes( const char *fen )
+{
+    // We want to test this from the outside first. Dynamically allocate
+    // a Rawcode array such as {1,2,3,0}, return it, and have the external
+    // client call free().
+
+    return 0;
+}
+
 /****************************
  **** External functions ****
  ****************************/
