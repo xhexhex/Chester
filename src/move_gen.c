@@ -168,11 +168,15 @@ che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 Rawcode *
 che_rawcodes( const char *fen )
 {
+    // Pos *p = (Pos *) malloc( sizeof(Pos) );
     // We want to test this from the outside first. Dynamically allocate
     // a Rawcode array such as {1,2,3,0}, return it, and have the external
     // client call free().
 
-    return 0;
+    Rawcode *codes = (Rawcode *) malloc( 5*sizeof(Rawcode) );
+    codes[0] = 2, codes[1] = 3, codes[2] = 5, codes[3] = 7, codes[4] = 0;
+
+    return codes;
 }
 
 /****************************
