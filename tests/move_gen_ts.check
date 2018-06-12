@@ -222,35 +222,6 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         ck_assert( bb == BISHOP_SQS[ i ] );
     }
 
-#tcase che_move_gen_tests
-
-/*
-test C_che_move_gen_preparation
-    uint16_t **moves;
-    int num_mov_cm;
-    const char *fen = "rnbqkbnR/pppppppp/8/8/P3P3/8/1PPPPPP1/RNBQKBNR w KQq - 0 1";
-    ck_assert( !che_fen_str_validator( fen ) );
-
-    int num_moves = che_move_gen( fen, &moves, &num_mov_cm );
-    printf( "%s(): %d\n", __func__, num_mov_cm );
-    for( int i = 0; i < num_mov_cm; i++ ) {
-        for( int j = 0; j < moves[ i ][ 1 ] + 2; j++ )
-            printf( "%d ", moves[ i ][ j ] );
-        printf( "\n" );
-        free( moves[ i ] );
-    }
-    free( moves );
-*/
-
-#tcase dest_sqs_tests
-
-#test C_dest_sqs_lone_kings
-    // Pos *p;
-
-    // ck_assert( !che_fen_str_validator( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" ) );
-    // p = fen_to_pos( "8/8/4k3/8/4K3/8/8/8 w - - 0 50" );
-    // ck_assert( dest_sqs( p, SB.e4 ) == 0x28380000U );
-
 #tcase cm_attacking_sq_tests
 
 #define C_INIT_POS_PTR( fen ) \

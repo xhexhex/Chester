@@ -33,7 +33,6 @@ enum che_fen_error {
 
 // Function prototypes
 enum che_fen_error che_fen_validator( const char *fen );
-int che_move_gen( const char *fen, uint16_t ***moves, int *num_mv_cm );
 Rawcode *che_rawcodes( const char *fen );
 
 #endif
