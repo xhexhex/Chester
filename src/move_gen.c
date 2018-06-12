@@ -252,43 +252,47 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
 // constants. This list of chessmen identify the attackers. For example,
 // the following call returns all the white and black pawns attacking
 // square e4: cm_attacking_sq( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
+//
+// "7k/8/8/8/8/2n5/1B6/R3K3 w Q - 10 100"
 Bitboard
 cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, num_arg );
 
-    int attackers[ 13 ] = { 0 };
+    int attackers[13] = {0};
     x_cm_attacking_sq_prepare_attackers( attackers, arg_ptr, num_arg );
     // x_cm_attacking_sq_debug_print_attackers( attackers );
 
     Bitboard attackers_bb = 0;
 
-    if( attackers[ WHITE_KING ] )
+    // x_cm_attacking_sq_process_attackers
+
+    if( attackers[WHITE_KING] )
         attackers_bb |= x_cm_attacking_sq_kings( p, sq, true );
-    if( attackers[ WHITE_QUEEN ] ) {
-        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, true );
-        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, true ); }
-    if( attackers[ WHITE_ROOK ] )
+    if( attackers[WHITE_QUEEN] )
+        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, true ),
+        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, true );
+    if( attackers[WHITE_ROOK] )
         attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, false );
-    if( attackers[ WHITE_BISHOP ] )
+    if( attackers[WHITE_BISHOP] )
         attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, false );
-    if( attackers[ WHITE_KNIGHT ] )
+    if( attackers[WHITE_KNIGHT] )
         attackers_bb |= x_cm_attacking_sq_knights( p, sq, true );
-    if( attackers[ WHITE_PAWN ] )
+    if( attackers[WHITE_PAWN] )
         attackers_bb |= x_cm_attacking_sq_pawns( p, sq, true );
-    if( attackers[ BLACK_KING ] )
+    if( attackers[BLACK_KING] )
         attackers_bb |= x_cm_attacking_sq_kings( p, sq, false );
-    if( attackers[ BLACK_QUEEN ] ) {
+    if( attackers[BLACK_QUEEN] ) {
         attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, true );
         attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, true ); }
-    if( attackers[ BLACK_ROOK ] )
+    if( attackers[BLACK_ROOK] )
         attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, false );
-    if( attackers[ BLACK_BISHOP ] )
+    if( attackers[BLACK_BISHOP] )
         attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, false );
-    if( attackers[ BLACK_KNIGHT ] )
+    if( attackers[BLACK_KNIGHT] )
         attackers_bb |= x_cm_attacking_sq_knights( p, sq, false );
-    if( attackers[ BLACK_PAWN ] )
+    if( attackers[BLACK_PAWN] )
         attackers_bb |= x_cm_attacking_sq_pawns( p, sq, false );
 
     va_end( arg_ptr );
