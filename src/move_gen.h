@@ -27,6 +27,7 @@ Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
 Bitboard white_cm_attacking_sq( const Pos *p, Bitboard sq );
 Bitboard black_cm_attacking_sq( const Pos *p, Bitboard sq );
 enum cms castling_move_status( const Pos *p, const char *castle_type );
+Rawcode *rawcodes( const Pos *p );
 
 #endif
 // end MOVE_GEN_H

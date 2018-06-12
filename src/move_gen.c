@@ -47,6 +47,8 @@ static bool x_castling_move_status_ca_bit_set( const Pos *p, bool kingside );
 static bool x_castling_move_status_kings_path_cleared( const Pos *p, bool kingside );
 static bool x_castling_move_status_rooks_path_cleared( const Pos *p, bool kingside );
 static bool x_castling_move_status_kings_path_in_check( const Pos *p, bool kingside );
+static void x_rawcodes_king( const Pos *p, Rawcode *codes, int *vacant );
+static void x_rawcodes_castle( const Pos *p, Rawcode *codes, int *vacant );
 
 /***********************
  **** External data ****
@@ -168,13 +170,9 @@ che_move_gen( const char *fen, uint16_t ***moves, int *num_mov_cm )
 Rawcode *
 che_rawcodes( const char *fen )
 {
-    // Pos *p = (Pos *) malloc( sizeof(Pos) );
-    // We want to test this from the outside first. Dynamically allocate
-    // a Rawcode array such as {1,2,3,0}, return it, and have the external
-    // client call free().
-
-    Rawcode *codes = (Rawcode *) malloc( 5*sizeof(Rawcode) );
-    codes[0] = 2, codes[1] = 3, codes[2] = 5, codes[3] = 7, codes[4] = 0;
+    Pos *p = fen_to_pos(fen);
+    Rawcode *codes = rawcodes(p);
+    free(p);
 
     return codes;
 }
@@ -182,6 +180,39 @@ che_rawcodes( const char *fen )
 /****************************
  **** External functions ****
  ****************************/
+
+#define MAX_MOVE_COUNT_IN_POS 300
+
+// TODO: doc
+Rawcode *
+rawcodes( const Pos *p )
+{
+    Rawcode *codes = (Rawcode *) malloc(
+        (MAX_MOVE_COUNT_IN_POS + 1) * sizeof(Rawcode) );
+    assert(codes);
+    int vacant = 1;
+
+    x_rawcodes_castle( p, codes, &vacant );
+    x_rawcodes_king( p, codes, &vacant );
+
+    codes[0] = vacant - 1;
+    // realloc codes
+    return codes;
+}
+
+#undef MAX_MOVE_COUNT_IN_POS
+
+static void
+x_rawcodes_castle( const Pos *p, Rawcode *codes, int *vacant )
+{
+    // if( can_castle( p, "kingside" ) ...
+}
+
+static void
+x_rawcodes_king( const Pos *p, Rawcode *codes, int *vacant )
+{
+
+}
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in
