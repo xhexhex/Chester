@@ -23,9 +23,9 @@ extern const Bitboard BISHOP_SQS[];
 bool king_can_be_captured( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit ); // knight's effective range circle
 Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
-Bitboard cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... );
-Bitboard white_cm_attacking_sq( const Pos *p, Bitboard sq );
-Bitboard black_cm_attacking_sq( const Pos *p, Bitboard sq );
+Bitboard attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... );
+Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );
+Bitboard black_attackers( const Bitboard *ppa, Bitboard sq );
 enum cms castling_move_status( const Pos *p, const char *castle_type );
 Rawcode *rawcodes( const Pos *p );
 

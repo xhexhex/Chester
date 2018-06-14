@@ -24,19 +24,18 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
     const int num_of_sqs_south, const int num_of_sqs_west,
     const Bitboard upper_left, const Bitboard lower_right );
 static Bitboard x_dest_sqs_king( const Pos *p );
-// static void x_cm_attacking_sq_debug_print_attackers( int attackers[] );
-static void x_cm_attacking_sq_prepare_attackers(
-    int attackers[], va_list arg_ptr, int num_arg );
-static Bitboard x_cm_attacking_sq_kings( const Pos *p, Bitboard sq,
-    bool color_is_white );
-static Bitboard x_cm_attacking_sq_rooks_or_queens( const Pos *p,
-    Bitboard sq, bool color_is_white, bool cm_is_queen );
-static Bitboard x_cm_attacking_sq_bishops_or_queens( const Pos *p,
-    Bitboard sq, bool color_is_white, bool cm_is_queen );
-static Bitboard x_cm_attacking_sq_knights( const Pos *p, Bitboard sq,
-    bool color_is_white );
-static Bitboard x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq,
-    bool color_is_white );
+static void x_attackers_init_attacker_type(
+    bool *attacker_type, va_list arg_ptr, int num_arg );
+static Bitboard x_attackers_kings(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white );
+static Bitboard x_attackers_rooks_or_queens(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white, bool cm_is_queen );
+static Bitboard x_attackers_bishops_or_queens(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white, bool cm_is_queen );
+static Bitboard x_attackers_knights(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white );
+static Bitboard x_attackers_pawns(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white );
 static bool x_castling_move_status_valid_castle_type( const char *castle_type );
 static Bitboard x_castling_move_status_castling_king( const Pos *p );
 static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
@@ -190,8 +189,8 @@ bool
 king_can_be_captured( const Pos *p )
 {
     return whites_turn( p ) ?
-        white_cm_attacking_sq( p, p->ppa[ BLACK_KING ] ) :
-        black_cm_attacking_sq( p, p->ppa[ WHITE_KING ] );
+        white_attackers( p->ppa, p->ppa[BLACK_KING] ) :
+        black_attackers( p->ppa, p->ppa[WHITE_KING] );
 }
 
 // KERC, knight's effective range circle. The call kerc( SB.e4 ) would
@@ -251,69 +250,68 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
 // part of the parameter list should consist of one or more Chessman enum
 // constants. This list of chessmen identify the attackers. For example,
 // the following call returns all the white and black pawns attacking
-// square e4: cm_attacking_sq( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
+// square e4: attackers( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
 //
 // "7k/8/8/8/8/2n5/1B6/R3K3 w Q - 10 100"
 Bitboard
-cm_attacking_sq( const Pos *p, Bitboard sq, int num_arg, ... )
+attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... )
 {
     va_list arg_ptr;
     va_start( arg_ptr, num_arg );
 
-    int attackers[13] = {0};
-    x_cm_attacking_sq_prepare_attackers( attackers, arg_ptr, num_arg );
-    // x_cm_attacking_sq_debug_print_attackers( attackers );
+    bool attacker_type[13] = {0};
+    x_attackers_init_attacker_type( attacker_type, arg_ptr, num_arg );
 
-    Bitboard attackers_bb = 0;
+    Bitboard the_attackers = 0;
 
-    // x_cm_attacking_sq_process_attackers
+    // x_attackers_process_attacker_types
 
-    if( attackers[WHITE_KING] )
-        attackers_bb |= x_cm_attacking_sq_kings( p, sq, true );
-    if( attackers[WHITE_QUEEN] )
-        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, true ),
-        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, true );
-    if( attackers[WHITE_ROOK] )
-        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, true, false );
-    if( attackers[WHITE_BISHOP] )
-        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, true, false );
-    if( attackers[WHITE_KNIGHT] )
-        attackers_bb |= x_cm_attacking_sq_knights( p, sq, true );
-    if( attackers[WHITE_PAWN] )
-        attackers_bb |= x_cm_attacking_sq_pawns( p, sq, true );
-    if( attackers[BLACK_KING] )
-        attackers_bb |= x_cm_attacking_sq_kings( p, sq, false );
-    if( attackers[BLACK_QUEEN] ) {
-        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, true );
-        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, true ); }
-    if( attackers[BLACK_ROOK] )
-        attackers_bb |= x_cm_attacking_sq_rooks_or_queens( p, sq, false, false );
-    if( attackers[BLACK_BISHOP] )
-        attackers_bb |= x_cm_attacking_sq_bishops_or_queens( p, sq, false, false );
-    if( attackers[BLACK_KNIGHT] )
-        attackers_bb |= x_cm_attacking_sq_knights( p, sq, false );
-    if( attackers[BLACK_PAWN] )
-        attackers_bb |= x_cm_attacking_sq_pawns( p, sq, false );
+    if( attacker_type[WHITE_KING] )
+        the_attackers |= x_attackers_kings( ppa, sq, true );
+    if( attacker_type[WHITE_QUEEN] )
+        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, true ),
+        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, true );
+    if( attacker_type[WHITE_ROOK] )
+        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, false );
+    if( attacker_type[WHITE_BISHOP] )
+        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, false );
+    if( attacker_type[WHITE_KNIGHT] )
+        the_attackers |= x_attackers_knights( ppa, sq, true );
+    if( attacker_type[WHITE_PAWN] )
+        the_attackers |= x_attackers_pawns( ppa, sq, true );
+    if( attacker_type[BLACK_KING] )
+        the_attackers |= x_attackers_kings( ppa, sq, false );
+    if( attacker_type[BLACK_QUEEN] ) {
+        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, true );
+        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, true ); }
+    if( attacker_type[BLACK_ROOK] )
+        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, false );
+    if( attacker_type[BLACK_BISHOP] )
+        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, false );
+    if( attacker_type[BLACK_KNIGHT] )
+        the_attackers |= x_attackers_knights( ppa, sq, false );
+    if( attacker_type[BLACK_PAWN] )
+        the_attackers |= x_attackers_pawns( ppa, sq, false );
 
-    va_end( arg_ptr );
-    return attackers_bb;
+    va_end(arg_ptr);
+    return the_attackers;
 }
 
-// A convenience function for cm_attacking_sq(). Returns a bitboard of all the
+// A convenience function for attackers(). Returns a bitboard of all the
 // white chessmen attacking square 'sq'.
 Bitboard
-white_cm_attacking_sq( const Pos *p, Bitboard sq )
+white_attackers( const Bitboard *ppa, Bitboard sq )
 {
-    return cm_attacking_sq( p, sq, 6, WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
+    return attackers( ppa, sq, 6, WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
         WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN );
 }
 
-// A convenience function for cm_attacking_sq(). Returns a bitboard of all the
+// A convenience function for attackers(). Returns a bitboard of all the
 // black chessmen attacking square 'sq'.
 Bitboard
-black_cm_attacking_sq( const Pos *p, Bitboard sq )
+black_attackers( const Bitboard *ppa, Bitboard sq )
 {
-    return cm_attacking_sq( p, sq, 6, BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
+    return attackers( ppa, sq, 6, BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
         BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
 }
 
@@ -472,99 +470,89 @@ x_dest_sqs_king( const Pos *p )
     return dest_sqs;
 }
 
-/*
 static void
-x_cm_attacking_sq_debug_print_attackers( int attackers[] )
-{
-    printf( "%s():\n", __func__ );
-    for( int i = 0; i < 13; i++ ) {
-        printf( "\tattackers[ %2d ]: %d\n", i, attackers[ i ] );
-    }
-}
-*/
-
-static void
-x_cm_attacking_sq_prepare_attackers(
-    int attackers[], va_list arg_ptr, int num_arg )
+x_attackers_init_attacker_type(
+    bool *attacker_type, va_list arg_ptr, int num_arg )
 {
     for( ; num_arg; num_arg-- ) {
         Chessman cm = va_arg( arg_ptr, Chessman );
         assert( cm >= 1 && cm <= 12 );
-        ++attackers[ cm ];
+        attacker_type[cm] = true;
     }
 
     for( int i = 0; i < 13; i++ )
-        assert( attackers[ i ] == 0 || attackers[ i ] == 1 );
+        assert( attacker_type[i] == false || attacker_type[i] == true );
 }
 
 static Bitboard
-x_cm_attacking_sq_kings( const Pos *p, Bitboard sq, bool color_is_white )
+x_attackers_kings( const Bitboard *ppa, Bitboard sq, bool color_is_white )
 {
-    Bitboard king = p->ppa[ color_is_white ? WHITE_KING : BLACK_KING ];
-    if( king & KING_SQS[ sq_bit_index( sq ) ] )
+    Bitboard king = ppa[color_is_white ? WHITE_KING : BLACK_KING];
+    if( king & KING_SQS[sq_bit_index(sq)] )
         return king;
 
     return 0;
 }
 
-#define CHESSMEN_OF_INTEREST_SELECTOR( chessmen_of_interest, lesser_chessman_type ) \
-if( cm_is_queen ) chessmen_of_interest = \
-    p->ppa[ color_is_white ? WHITE_QUEEN : BLACK_QUEEN ]; \
-else chessmen_of_interest = \
-    p->ppa[ color_is_white ? \
-        WHITE_ ## lesser_chessman_type : BLACK_ ## lesser_chessman_type ];
+#define CHESSMEN_OF_INTEREST_SELECTOR( \
+        chessmen_of_interest, lesser_chessman_type ) \
+    if( cm_is_queen ) chessmen_of_interest = \
+        ppa[color_is_white ? WHITE_QUEEN : BLACK_QUEEN]; \
+    else chessmen_of_interest = \
+        ppa[color_is_white ? \
+            WHITE_ ## lesser_chessman_type : BLACK_ ## lesser_chessman_type];
 
 #define FOUR_DIRS_FOR_LOOP( first_dir, fourth_dir, chessmen_of_interest ) \
-for( enum sq_dir dir = first_dir; dir <= fourth_dir; dir += 2 ) { \
-    Bitboard sq_in_dir = sq; \
-    while( ( sq_in_dir = sq_nav( sq_in_dir, dir ) ) ) { \
-        if( sq_in_dir & chessmen_of_interest ) { \
-            attackers |= sq_in_dir; \
-            break; \
+    for( enum sq_dir dir = first_dir; dir <= fourth_dir; dir += 2 ) { \
+        Bitboard sq_in_dir = sq; \
+        while( ( sq_in_dir = sq_nav( sq_in_dir, dir ) ) ) { \
+            if( sq_in_dir & chessmen_of_interest ) { \
+                the_attackers |= sq_in_dir; \
+                break; \
+            } \
+            else if( !( sq_in_dir & ppa[EMPTY_SQUARE] ) ) \
+                break; \
         } \
-        else if( !( sq_in_dir & p->ppa[ EMPTY_SQUARE ] ) ) \
-            break; \
-    } \
-}
+    }
 
 static Bitboard
-x_cm_attacking_sq_rooks_or_queens( const Pos *p, Bitboard sq,
-    bool color_is_white, bool cm_is_queen )
+x_attackers_rooks_or_queens(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white, bool cm_is_queen )
 {
-    Bitboard rooks_or_queens, attackers = 0;
+    Bitboard rooks_or_queens, the_attackers = 0;
 
     CHESSMEN_OF_INTEREST_SELECTOR( rooks_or_queens, ROOK )
     FOUR_DIRS_FOR_LOOP( NORTH, WEST, rooks_or_queens )
 
-    return attackers;
+    return the_attackers;
 }
 
 static Bitboard
-x_cm_attacking_sq_bishops_or_queens( const Pos *p, Bitboard sq,
-    bool color_is_white, bool cm_is_queen )
+x_attackers_bishops_or_queens(
+    const Bitboard *ppa, Bitboard sq, bool color_is_white, bool cm_is_queen )
 {
-    Bitboard bishops_or_queens, attackers = 0;
+    Bitboard bishops_or_queens, the_attackers = 0;
 
     CHESSMEN_OF_INTEREST_SELECTOR( bishops_or_queens, BISHOP )
     FOUR_DIRS_FOR_LOOP( NORTHEAST, NORTHWEST, bishops_or_queens )
 
-    return attackers;
+    return the_attackers;
 }
 
 #undef CHESSMEN_OF_INTEREST_SELECTOR
 #undef FOUR_DIRS_FOR_LOOP
 
 static Bitboard
-x_cm_attacking_sq_knights( const Pos *p, Bitboard sq, bool color_is_white )
+x_attackers_knights( const Bitboard *ppa, Bitboard sq, bool color_is_white )
 {
-    return p->ppa[ color_is_white ? WHITE_KNIGHT : BLACK_KNIGHT ]
-        & KNIGHT_SQS[ sq_bit_index( sq ) ];
+    return ppa[color_is_white ? WHITE_KNIGHT : BLACK_KNIGHT]
+        & KNIGHT_SQS[sq_bit_index(sq)];
 }
 
 static Bitboard
-x_cm_attacking_sq_pawns( const Pos *p, Bitboard sq, bool color_is_white )
+x_attackers_pawns( const Bitboard *ppa, Bitboard sq, bool color_is_white )
 {
-    return p->ppa[ color_is_white ? WHITE_PAWN : BLACK_PAWN ] &
+    return ppa[color_is_white ? WHITE_PAWN : BLACK_PAWN] &
         ( sq_nav( sq, color_is_white ? SOUTHEAST : NORTHEAST ) |
         sq_nav( sq, color_is_white ? SOUTHWEST : NORTHWEST ) );
 }
@@ -664,8 +652,8 @@ x_castling_move_status_kings_path_in_check( const Pos *p, bool kingside )
 
     for( int i = 0; i < 64; i++ ) {
         Bitboard sq = SBA[ i ];
-        if( kings_path & sq && ( ( w && black_cm_attacking_sq( p, sq ) ) ||
-                ( !w && white_cm_attacking_sq( p, sq ) ) ) )
+        if( kings_path & sq && ( ( w && black_attackers( p->ppa, sq ) ) ||
+                ( !w && white_attackers( p->ppa, sq ) ) ) )
             return true;
     }
 
