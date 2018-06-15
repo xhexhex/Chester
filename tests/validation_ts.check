@@ -159,6 +159,8 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
         "2k5/8/8/2p5/8/8/8/2KR4 w D c6 0 50",
         FEN_PERSONALLY_SIGNIFICANT,
         "7k/8/8/8/8/2n5/1B6/R3K3 w Q - 10 100",
+        "rk5b/8/8/1b6/8/8/BN6/K1Q5 w - - 10 50",
+        "4k3/8/8/8/8/4p3/8/4K2R w K - 10 50",
         NULL };
 
     FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );

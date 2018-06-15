@@ -247,12 +247,32 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
 }
 
 // Returns a bitboard of the chessmen attacking square 'sq'. The variable
-// part of the parameter list should consist of one or more Chessman enum
+// part of the argument list should consist of one or more Chessman
 // constants. This list of chessmen identify the attackers. For example,
 // the following call returns all the white and black pawns attacking
-// square e4: attackers( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
+// square e4: attackers( ppa, SB.e4, 2, WHITE_PAWN, BLACK_PAWN ).
 //
-// "7k/8/8/8/8/2n5/1B6/R3K3 w Q - 10 100"
+// It's important to realize that not all chessmen attacking a square can
+// immediately move to that square. Consider the following position:
+// "rk5b/8/8/1b6/8/8/BN6/K1Q5 w - - 10 50"
+//
+// In the above position square c4 is attacked by four chessmen, namely
+// the black bishop as well as the white bishop, knight and queen. It's
+// White's turn so obviously the black bishop cannot immediately move
+// to square c4. Both the white knight and white bishop are in an
+// absolute pin so they cannot legally make the move to c4 even though
+// they are attacking the square. Only the white queen can immediately
+// make the move to c4.
+//
+// A chessman is attacking a square if and only if it could capture an enemy
+// chessman on that square. Here's another position to consider:
+// "4k3/8/8/8/8/4p3/8/4K2R w K - 10 50"
+//
+// The black pawn is attacking squares d2 and f2 but not square e2. Therefore
+// the white king can move to square e2 but not to either of the squares d2
+// or f2. The white king can immediately castle kingside yet it doesn't follow
+// that the white king is attacking square g1. Castling wouldn't be possible
+// if there were an enemy chessman on square g1.
 Bitboard
 attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... )
 {
@@ -295,7 +315,7 @@ attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... )
 
     va_end(arg_ptr);
     return the_attackers;
-}
+} // Review: TODO
 
 // A convenience function for attackers(). Returns a bitboard of all the
 // white chessmen attacking square 'sq'.
