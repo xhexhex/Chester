@@ -26,6 +26,9 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
 static Bitboard x_dest_sqs_king( const Pos *p );
 static void x_attackers_init_attacker_type(
     bool *attacker_type, va_list arg_ptr, int num_arg );
+static void x_attackers_find(
+    Bitboard *the_attackers, bool *attacker_type,
+        const Bitboard *ppa, Bitboard sq );
 static Bitboard x_attackers_kings(
     const Bitboard *ppa, Bitboard sq, bool color_is_white );
 static Bitboard x_attackers_rooks_or_queens(
@@ -283,35 +286,7 @@ attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... )
     x_attackers_init_attacker_type( attacker_type, arg_ptr, num_arg );
 
     Bitboard the_attackers = 0;
-
-    // x_attackers_process_attacker_types
-
-    if( attacker_type[WHITE_KING] )
-        the_attackers |= x_attackers_kings( ppa, sq, true );
-    if( attacker_type[WHITE_QUEEN] )
-        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, true ),
-        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, true );
-    if( attacker_type[WHITE_ROOK] )
-        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, false );
-    if( attacker_type[WHITE_BISHOP] )
-        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, false );
-    if( attacker_type[WHITE_KNIGHT] )
-        the_attackers |= x_attackers_knights( ppa, sq, true );
-    if( attacker_type[WHITE_PAWN] )
-        the_attackers |= x_attackers_pawns( ppa, sq, true );
-    if( attacker_type[BLACK_KING] )
-        the_attackers |= x_attackers_kings( ppa, sq, false );
-    if( attacker_type[BLACK_QUEEN] ) {
-        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, true );
-        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, true ); }
-    if( attacker_type[BLACK_ROOK] )
-        the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, false );
-    if( attacker_type[BLACK_BISHOP] )
-        the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, false );
-    if( attacker_type[BLACK_KNIGHT] )
-        the_attackers |= x_attackers_knights( ppa, sq, false );
-    if( attacker_type[BLACK_PAWN] )
-        the_attackers |= x_attackers_pawns( ppa, sq, false );
+    x_attackers_find( &the_attackers, attacker_type, ppa, sq );
 
     va_end(arg_ptr);
     return the_attackers;
@@ -502,6 +477,38 @@ x_attackers_init_attacker_type(
 
     for( int i = 0; i < 13; i++ )
         assert( attacker_type[i] == false || attacker_type[i] == true );
+}
+
+static void
+x_attackers_find( Bitboard *the_attackers, bool *attacker_type,
+    const Bitboard *ppa, Bitboard sq )
+{
+    if( attacker_type[WHITE_KING] )
+        *the_attackers |= x_attackers_kings( ppa, sq, true );
+    if( attacker_type[WHITE_QUEEN] )
+        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, true ),
+        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, true );
+    if( attacker_type[WHITE_ROOK] )
+        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, false );
+    if( attacker_type[WHITE_BISHOP] )
+        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, false );
+    if( attacker_type[WHITE_KNIGHT] )
+        *the_attackers |= x_attackers_knights( ppa, sq, true );
+    if( attacker_type[WHITE_PAWN] )
+        *the_attackers |= x_attackers_pawns( ppa, sq, true );
+    if( attacker_type[BLACK_KING] )
+        *the_attackers |= x_attackers_kings( ppa, sq, false );
+    if( attacker_type[BLACK_QUEEN] )
+        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, true ),
+        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, true );
+    if( attacker_type[BLACK_ROOK] )
+        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, false );
+    if( attacker_type[BLACK_BISHOP] )
+        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, false );
+    if( attacker_type[BLACK_KNIGHT] )
+        *the_attackers |= x_attackers_knights( ppa, sq, false );
+    if( attacker_type[BLACK_PAWN] )
+        *the_attackers |= x_attackers_pawns( ppa, sq, false );
 }
 
 static Bitboard
