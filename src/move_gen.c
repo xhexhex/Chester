@@ -290,7 +290,7 @@ attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... )
 
     va_end(arg_ptr);
     return the_attackers;
-} // Review: TODO
+} // Review: 2018-06-16
 
 // A convenience function for attackers(). Returns a bitboard of all the
 // white chessmen attacking square 'sq'.
@@ -299,7 +299,7 @@ white_attackers( const Bitboard *ppa, Bitboard sq )
 {
     return attackers( ppa, sq, 6, WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
         WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN );
-}
+} // Review: 2018-06-16
 
 // A convenience function for attackers(). Returns a bitboard of all the
 // black chessmen attacking square 'sq'.
@@ -308,7 +308,7 @@ black_attackers( const Bitboard *ppa, Bitboard sq )
 {
     return attackers( ppa, sq, 6, BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
         BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
-}
+} // Review: 2018-06-16
 
 // TODO: ...
 enum cms
@@ -486,12 +486,16 @@ x_attackers_find( Bitboard *the_attackers, bool *attacker_type,
     if( attacker_type[WHITE_KING] )
         *the_attackers |= x_attackers_kings( ppa, sq, true );
     if( attacker_type[WHITE_QUEEN] )
-        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, true ),
-        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, true );
+        *the_attackers |= x_attackers_rooks_or_queens(
+            ppa, sq, true, true ),
+        *the_attackers |= x_attackers_bishops_or_queens(
+            ppa, sq, true, true );
     if( attacker_type[WHITE_ROOK] )
-        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, true, false );
+        *the_attackers |= x_attackers_rooks_or_queens(
+            ppa, sq, true, false );
     if( attacker_type[WHITE_BISHOP] )
-        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, true, false );
+        *the_attackers |= x_attackers_bishops_or_queens(
+            ppa, sq, true, false );
     if( attacker_type[WHITE_KNIGHT] )
         *the_attackers |= x_attackers_knights( ppa, sq, true );
     if( attacker_type[WHITE_PAWN] )
@@ -499,12 +503,16 @@ x_attackers_find( Bitboard *the_attackers, bool *attacker_type,
     if( attacker_type[BLACK_KING] )
         *the_attackers |= x_attackers_kings( ppa, sq, false );
     if( attacker_type[BLACK_QUEEN] )
-        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, true ),
-        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, true );
+        *the_attackers |= x_attackers_rooks_or_queens(
+            ppa, sq, false, true ),
+        *the_attackers |= x_attackers_bishops_or_queens(
+            ppa, sq, false, true );
     if( attacker_type[BLACK_ROOK] )
-        *the_attackers |= x_attackers_rooks_or_queens( ppa, sq, false, false );
+        *the_attackers |= x_attackers_rooks_or_queens(
+            ppa, sq, false, false );
     if( attacker_type[BLACK_BISHOP] )
-        *the_attackers |= x_attackers_bishops_or_queens( ppa, sq, false, false );
+        *the_attackers |= x_attackers_bishops_or_queens(
+            ppa, sq, false, false );
     if( attacker_type[BLACK_KNIGHT] )
         *the_attackers |= x_attackers_knights( ppa, sq, false );
     if( attacker_type[BLACK_PAWN] )

@@ -294,99 +294,107 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #test C_attackers_tested_with_bishops
     INIT_POS_PTR( "b3B3/7B/6b1/k7/1bB3Bb/3bB3/2B1b1b1/2K4B w - - 10 50" )
 
-    ck_assert( 0x4000400U ==
-        attackers( p->ppa, SB.d3, 1, WHITE_BISHOP ) );
-    /*
-    ck_assert( 0x400000001000U ==
-        attackers( p, SB.d3, 1, BLACK_BISHOP ) );
-    ck_assert( 0x400004001400U ==
-        attackers( p, SB.d3, 2, WHITE_BISHOP, BLACK_BISHOP ) );
-    ck_assert( 0x2100000U ==
-        attackers( p, SB.d2, 2, WHITE_BISHOP, BLACK_BISHOP ) );
-    ck_assert( 0 ==
-        attackers( p, SB.e5, 2, WHITE_BISHOP, BLACK_BISHOP ) );
-    */
+    TEST_WITH_ARGS( SB.c2 | SB.c4, SB.d3, 1, WHITE_BISHOP )
+    TEST_WITH_ARGS( SB.e2 | SB.g6, SB.d3, 1, BLACK_BISHOP )
+    TEST_WITH_ARGS( SB.c2 | SB.e2 | SB.c4 | SB.g6,
+        SB.d3, 2, WHITE_BISHOP, BLACK_BISHOP )
+    TEST_WITH_ARGS( SB.e3 | SB.b4, SB.d2, 2, WHITE_BISHOP, BLACK_BISHOP )
+    TEST_WITH_ARGS( 0, SB.e5, 2, WHITE_BISHOP, BLACK_BISHOP )
+
+    free(p);
 
 #test C_attackers_tested_with_knights
     INIT_POS_PTR( "7k/8/3n1N2/2N1N1n1/3nnn2/2n1N1N1/3N1n2/K7 b - - 20 60" )
 
-    ck_assert( 0x200400400800U ==
-        attackers( p->ppa, SB.e4, 1, WHITE_KNIGHT ) );
-    /*
-    ck_assert( 0x84000042000U ==
-        attackers( p, SB.e4, 1, BLACK_KNIGHT ) );
-    ck_assert( 0x284400442800U ==
-        attackers( p, SB.e4, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
-    ck_assert( 0 ==
-        attackers( p, SB.b2, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
-    ck_assert( 0x400000U ==
-        attackers( p, SB.h1, 1, WHITE_KNIGHT ) );
-    ck_assert( 0x2000U ==
-        attackers( p, SB.h1, 1, BLACK_KNIGHT ) );
-    ck_assert( 0x402000U ==
-        attackers( p, SB.h1, 2, WHITE_KNIGHT, BLACK_KNIGHT ) );
-    */
+    TEST_WITH_ARGS( SB.d2 | SB.g3 | SB.c5 | SB.f6, SB.e4, 1, WHITE_KNIGHT )
+    TEST_WITH_ARGS( SB.f2 | SB.c3 | SB.g5 | SB.d6, SB.e4, 1, BLACK_KNIGHT )
+    TEST_WITH_ARGS(
+        SB.d2 | SB.g3 | SB.c5 | SB.f6 | SB.f2 | SB.c3 | SB.g5 | SB.d6,
+        SB.e4, 2, WHITE_KNIGHT, BLACK_KNIGHT )
+    TEST_WITH_ARGS( 0, SB.b2, 2, WHITE_KNIGHT, BLACK_KNIGHT )
+    TEST_WITH_ARGS( SB.g3, SB.h1, 1, WHITE_KNIGHT )
+    TEST_WITH_ARGS( SB.f2, SB.h1, 1, BLACK_KNIGHT )
+    TEST_WITH_ARGS( SB.f2 | SB.g3, SB.h1, 2, WHITE_KNIGHT, BLACK_KNIGHT )
+
+    free(p);
 
 #test C_attackers_tested_with_pawns
     INIT_POS_PTR( "7k/8/8/ppp5/8/PPP5/8/K7 w - - 0 100" )
 
-    ck_assert( 0x200020000U ==
-        attackers( p->ppa, SB.a4, 2, WHITE_PAWN, BLACK_PAWN ) );
-    /*
-    ck_assert( 0x500050000U ==
-        attackers( p, SB.b4, 2, WHITE_PAWN, BLACK_PAWN ) );
-    ck_assert( 0x200020000U ==
-        attackers( p, SB.c4, 2, WHITE_PAWN, BLACK_PAWN ) );
-    ck_assert( 0x400040000U ==
-        attackers( p, SB.d4, 2, WHITE_PAWN, BLACK_PAWN ) );
-    ck_assert( 0 ==
-        attackers( p, SB.e4, 2, WHITE_PAWN, BLACK_PAWN ) );
-    ck_assert( 0x50000U ==
-        attackers( p, SB.b4, 1, WHITE_PAWN ) );
-    ck_assert( 0x500000000U ==
-        attackers( p, SB.b4, 1, BLACK_PAWN ) );
-    */
+    TEST_WITH_ARGS( SB.b3 | SB.b5, SB.a4, 2, WHITE_PAWN, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.a3 | SB.c3 | SB.a5 | SB.c5,
+        SB.b4, 2, WHITE_PAWN, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.b3 | SB.b5, SB.c4, 2, WHITE_PAWN, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.c3 | SB.c5, SB.d4, 2, WHITE_PAWN, BLACK_PAWN )
+    TEST_WITH_ARGS( 0, SB.e4, 2, WHITE_PAWN, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.a3 | SB.c3, SB.b4, 1, WHITE_PAWN )
+    TEST_WITH_ARGS( SB.a5 | SB.c5, SB.b4, 1, BLACK_PAWN )
 
-#test C_attackers_tested_with_multiple_types_of_cm
+    free(p);
+
+#test C_attackers_tested_with_multiple_types_of_chessmen_1
     INIT_POS_PTR( "q3R3/5P1P/3n1N2/8/1r3k2/3B4/1p2Q1b1/2K5 w - - 0 40" )
 
-    ck_assert( 0 ==
-        attackers( p->ppa, SB.e4, 1, WHITE_KING ) );
-    /*
-    ck_assert( 0x1000U ==
-        attackers( p, SB.e4, 1, WHITE_QUEEN ) );
-    ck_assert( 0x1000000000000000U ==
-        attackers( p, SB.e4, 1, WHITE_ROOK ) );
-    ck_assert( 0x80000U ==
-        attackers( p, SB.e4, 1, WHITE_BISHOP ) );
-    ck_assert( 0x200000000000U ==
-        attackers( p, SB.e4, 1, WHITE_KNIGHT ) );
-    ck_assert( 0 ==
-        attackers( p, SB.e4, 1, WHITE_PAWN ) );
+    TEST_WITH_ARGS( 0, SB.e4, 1, WHITE_KING )
+    TEST_WITH_ARGS( SB.e2, SB.e4, 1, WHITE_QUEEN )
+    TEST_WITH_ARGS( SB.e8, SB.e4, 1, WHITE_ROOK )
+    TEST_WITH_ARGS( SB.d3, SB.e4, 1, WHITE_BISHOP )
+    TEST_WITH_ARGS( SB.f6, SB.e4, 1, WHITE_KNIGHT )
+    TEST_WITH_ARGS( 0, SB.e4, 1, WHITE_PAWN )
 
-    ck_assert( 0x20000000U ==
-        attackers( p, SB.e4, 1, BLACK_KING ) );
-    ck_assert( 0x100000000000000U ==
-        attackers( p, SB.e4, 1, BLACK_QUEEN ) );
-    ck_assert( 0x2000000U ==
-        attackers( p, SB.e4, 1, BLACK_ROOK ) );
-    ck_assert( 0x4000U ==
-        attackers( p, SB.e4, 1, BLACK_BISHOP ) );
-    ck_assert( 0x80000000000U ==
-        attackers( p, SB.e4, 1, BLACK_KNIGHT ) );
-    ck_assert( 0 ==
-        attackers( p, SB.e4, 1, BLACK_PAWN ) );
+    TEST_WITH_ARGS( SB.f4, SB.e4, 1, BLACK_KING )
+    TEST_WITH_ARGS( SB.a8, SB.e4, 1, BLACK_QUEEN )
+    TEST_WITH_ARGS( SB.b4, SB.e4, 1, BLACK_ROOK )
+    TEST_WITH_ARGS( SB.g2, SB.e4, 1, BLACK_BISHOP )
+    TEST_WITH_ARGS( SB.d6, SB.e4, 1, BLACK_KNIGHT )
+    TEST_WITH_ARGS( 0, SB.e4, 1, BLACK_PAWN )
 
-    ck_assert( 0x1000200000081000U ==
-        white_attackers( p, SB.e4 ) );
-    ck_assert( 0x100080022004000U ==
-        black_attackers( p, SB.e4 ) );
+    ck_assert( ( SB.e2 | SB.e8 | SB.d3 | SB.f6 ) ==
+        white_attackers( p->ppa, SB.e4 ) );
+    ck_assert( ( SB.f4 | SB.a8 | SB.b4 | SB.g2 | SB.d6 ) ==
+        black_attackers( p->ppa, SB.e4 ) );
 
-    ck_assert( 0x200U ==
-        attackers( p, SB.c1, 1, BLACK_PAWN ) );
-    ck_assert( 0xa0000000000000U ==
-        attackers( p, SB.g8, 1, WHITE_PAWN ) );
-    */
+    TEST_WITH_ARGS( SB.b2, SB.c1, 1, BLACK_PAWN )
+    TEST_WITH_ARGS( 0, SB.b1, 1, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.f7 | SB.h7, SB.g8, 1, WHITE_PAWN )
+    TEST_WITH_ARGS( 0, SB.f8, 1, WHITE_PAWN )
+
+    free(p);
+
+#test C_attackers_tested_with_multiple_types_of_chessmen_2
+    INIT_POS_PTR( "rk5b/8/8/1b6/8/8/BN6/K1Q5 w - - 10 50" )
+
+    ck_assert( ( SB.c1 | SB.a2 | SB.b2 ) ==
+        white_attackers( p->ppa, SB.c4 ) );
+    ck_assert( SB.b5 == black_attackers( p->ppa, SB.c4 ) );
+
+    TEST_WITH_ARGS( SB.c1 | SB.a2 | SB.b2 | SB.b5,
+        SB.c4, 12,
+        WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
+        WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+        BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
+        BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.a1 | SB.a8,
+        SB.a2, 12,
+        WHITE_KING, WHITE_QUEEN, WHITE_ROOK,
+        WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
+        BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
+        BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN )
+
+    free(p);
+
+#test C_attackers_tested_with_multiple_types_of_chessmen_3
+    INIT_POS_PTR( "4k3/8/8/8/8/4p3/8/4K2R w K - 10 50" )
+
+    TEST_WITH_ARGS( SB.e1, SB.f1, 1, WHITE_KING )
+    TEST_WITH_ARGS( 0, SB.g1, 1, WHITE_KING )
+    TEST_WITH_ARGS( SB.e1 | SB.e3, SB.d2, 2, WHITE_KING, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.e1, SB.e2, 2, WHITE_KING, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.e1 | SB.e3, SB.f2, 2, WHITE_KING, BLACK_PAWN )
+    TEST_WITH_ARGS( SB.h1, SB.g1, 1, WHITE_ROOK )
+    TEST_WITH_ARGS( SB.h1, SB.h8, 1, WHITE_ROOK )
+
+    free(p);
 
 #undef INIT_POS_PTR
 #undef TEST_WITH_ARGS
