@@ -600,10 +600,10 @@ has_castling_right( const Pos *p, const char *color, const char *side )
 {
     assert( !strcmp( color, "white" ) || !strcmp( color, "black" ) );
     assert( !strcmp( side, "queenside" ) || !strcmp( side, "kingside" ) ||
-        !strcmp( side, "a_side" ) || !strcmp( side, "h_side" ) );
+        !strcmp( side, "a-side" ) || !strcmp( side, "h-side" ) );
 
     bool white = !strcmp( color, "white" ), kingside =
-        ( !strcmp( side, "kingside" ) || !strcmp( side, "h_side" ) );
+        ( !strcmp( side, "kingside" ) || !strcmp( side, "h-side" ) );
 
     uint8_t bit = ( white ? 8 : 2 );
     if( !kingside ) bit >>= 1;

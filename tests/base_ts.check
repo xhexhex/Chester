@@ -566,10 +566,10 @@ ck_assert( counter == exp_count );
         has_castling_right( &pos, "black", "queenside" ) == evoc_4_and_8 \
     ); \
     ck_assert( \
-        has_castling_right( &pos, "white", "h_side" ) == evoc_1_and_5 && \
-        has_castling_right( &pos, "white", "a_side" ) == evoc_2_and_6 && \
-        has_castling_right( &pos, "black", "h_side" ) == evoc_3_and_7 && \
-        has_castling_right( &pos, "black", "a_side" ) == evoc_4_and_8 \
+        has_castling_right( &pos, "white", "h-side" ) == evoc_1_and_5 && \
+        has_castling_right( &pos, "white", "a-side" ) == evoc_2_and_6 && \
+        has_castling_right( &pos, "black", "h-side" ) == evoc_3_and_7 && \
+        has_castling_right( &pos, "black", "a-side" ) == evoc_4_and_8 \
     );
 
 #test C_has_castling_right_works

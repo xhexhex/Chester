@@ -15,6 +15,13 @@ enum cms {
     CMS_CASTLED_KING_IN_CHECK
 };
 
+enum castle_error_codes {
+    CASTLE_OK,
+    CASTLE_NO_CASTLING_RIGHT
+};
+
+extern enum castle_error_codes castle_error;
+
 extern const Bitboard KNIGHT_SQS[];
 extern const Bitboard KING_SQS[];
 extern const Bitboard ROOK_SQS[];
@@ -28,6 +35,7 @@ Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );
 Bitboard black_attackers( const Bitboard *ppa, Bitboard sq );
 enum cms castling_move_status( const Pos *p, const char *castle_type );
 Rawcode *rawcodes( const Pos *p );
+Rawcode castle( const Pos *p, const char *castle_type );
 
 #endif
 // end MOVE_GEN_H

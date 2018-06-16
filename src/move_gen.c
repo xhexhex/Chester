@@ -39,7 +39,7 @@ static Bitboard x_attackers_knights(
     const Bitboard *ppa, Bitboard sq, bool color_is_white );
 static Bitboard x_attackers_pawns(
     const Bitboard *ppa, Bitboard sq, bool color_is_white );
-static bool x_castling_move_status_valid_castle_type( const char *castle_type );
+static bool x_castle_valid_castle_type( const char *castle_type );
 static Bitboard x_castling_move_status_castling_king( const Pos *p );
 static Bitboard x_castling_move_status_castling_rook( const Pos *p, bool kingside );
 static bool x_castling_move_status_ca_bit_set( const Pos *p, bool kingside );
@@ -132,6 +132,9 @@ const Bitboard BISHOP_SQS[] = {
     0x2800284482010000U, 0x5000508804020100U, 0xa000a01008040201U, 0x4000402010080402U,
     0x2040810204080U, 0x5081020408000U, 0xa112040800000U, 0x14224180000000U,
     0x28448201000000U, 0x50880402010000U, 0xa0100804020100U, 0x40201008040201U };
+
+// TODO: doc
+enum castle_error_codes castle_error;
 
 /*************************************
  **** Chester interface functions ****
@@ -314,7 +317,7 @@ black_attackers( const Bitboard *ppa, Bitboard sq )
 enum cms
 castling_move_status( const Pos *p, const char *castle_type )
 {
-    assert( x_castling_move_status_valid_castle_type( castle_type ) );
+    assert( x_castle_valid_castle_type( castle_type ) );
 
     bool kingside = ( !strcmp( castle_type, "kingside" ) ||
         !strcmp( castle_type, "h_side" ) );
@@ -331,6 +334,29 @@ castling_move_status( const Pos *p, const char *castle_type )
         return CMS_CASTLED_KING_IN_CHECK;
 
     return CMS_AVAILABLE;
+}
+
+// TODO: doc
+Rawcode
+castle( const Pos *p, const char *castle_type )
+{
+    assert( x_castle_valid_castle_type( castle_type ) );
+
+    bool kingside = ( !strcmp( castle_type, "kingside" ) ||
+        !strcmp( castle_type, "h-side" ) );
+
+    castle_error = CASTLE_OK;
+
+    if( !has_castling_right( p, whites_turn(p) ? "white" : "black",
+            kingside ? "kingside" : "queenside" )
+    ) {
+        castle_error = CASTLE_NO_CASTLING_RIGHT;
+    }
+
+    if( castle_error )
+        return 0;
+
+    return 1337;
 }
 
 /**************************
@@ -593,7 +619,7 @@ x_attackers_pawns( const Bitboard *ppa, Bitboard sq, bool color_is_white )
 }
 
 static bool
-x_castling_move_status_valid_castle_type( const char *castle_type )
+x_castle_valid_castle_type( const char *castle_type )
 {
     return castle_type && (
         !strcmp( castle_type, "kingside" ) || !strcmp( castle_type, "h-side" ) ||

@@ -396,108 +396,28 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     free(p);
 
-#undef INIT_POS_PTR
 #undef TEST_WITH_ARGS
+#undef INIT_POS_PTR
 
 //
 // Test case
 //
-/*
-_tcase castling_move_status_tests
+#tcase castle_tests
 
-#define C_INIT_CHECK_AND_FREE( fen, castle_type, enum_cms_val, irp ) \
-ck_assert( !che_fen_validator( fen ) ); \
-ck_assert( p = fen_to_pos( fen ) ); \
-ck_assert( castling_move_status( p, castle_type ) == enum_cms_val ); \
-free( (Pos *) p );
+#define TEST_WITH_ARGS( fen, side, expected_rawcode, expected_castle_error ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    ck_assert( castle(p, side) == expected_rawcode ); \
+    ck_assert( castle_error == expected_castle_error ); \
+    free(p);
 
-_test C_castling_move_status_returns_CMS_AVAILABLE
+#test C_castle_returns_zero_1
     Pos *p;
-    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "kingside",
-        CMS_AVAILABLE, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w Q - 0 50", "queenside",
-        CMS_AVAILABLE, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "kingside",
-        CMS_AVAILABLE, 8 + 32 )
-    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/3RKR2 w DF - 5 50", "queenside",
-        CMS_AVAILABLE, 8 + 32 )
-    C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-        CMS_AVAILABLE, 1 + 64 )
-    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
-        CMS_AVAILABLE, 2 + 128 )
-
-_test C_castling_move_status_returns_CMS_CA_BIT_UNSET
-    Pos *p;
-    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R w K - 0 50", "queenside",
-        CMS_CA_BIT_UNSET, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "kingside",
-        CMS_CA_BIT_UNSET, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r3k2r/8/8/8/8/8/8/R3K2R b K - 0 50", "queenside",
-        CMS_CA_BIT_UNSET, 1 + 128 )
-
-_test C_castling_move_status_returns_CMS_KINGS_PATH_BLOCKED
-    Pos *p;
-    C_INIT_CHECK_AND_FREE( "4kr1r/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-        CMS_KINGS_PATH_BLOCKED, 8 + 128 )
-    C_INIT_CHECK_AND_FREE( "4k1rr/8/8/8/8/8/8/4K3 b k - 0 123", "kingside",
-        CMS_KINGS_PATH_BLOCKED, 8 + 128 )
-    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "kingside",
-        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR w KQkq - 0 50", "queenside",
-        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "kingside",
-        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r2Nk1nr/8/8/8/8/8/8/R2nK1NR b KQkq - 0 50", "queenside",
-        CMS_KINGS_PATH_BLOCKED, 1 + 128 )
-
-_test C_castling_move_status_returns_CMS_ROOKS_PATH_BLOCKED
-    Pos *p;
-    C_INIT_CHECK_AND_FREE( "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50", "queenside",
-        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "rn3nkr/8/8/8/8/8/8/6K1 b kq - 0 50", "kingside",
-        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "rn4kr/8/8/8/8/8/8/6K1 b kq - 0 50", "queenside",
-        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "1k6/8/8/8/8/8/8/RK1N4 w Q - 0 50", "queenside",
-        CMS_ROOKS_PATH_BLOCKED, 1 + 128 )
-
-_test C_castling_move_status_returns_CMS_KINGS_PATH_IN_CHECK
-    Pos *p;
-    C_INIT_CHECK_AND_FREE( "4kr2/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
-        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "4k1r1/8/8/8/8/8/8/4K2R w K - 0 50", "kingside",
-        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "r5k1/7P/8/8/8/8/8/4K3 b q - 0 50", "queenside",
-        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-    C_INIT_CHECK_AND_FREE( "6kr/7P/8/8/8/8/8/4K3 b k - 0 50", "kingside",
-        CMS_KINGS_PATH_IN_CHECK, 1 + 128 )
-
-#undef C_INIT_CHECK_AND_FREE
-*/
-
-//
-// Test case
-//
-/*
-_tcase a_side_castling_possible_tests
-
-_test C_a_side_castling_possible_returns_true
-    const char *a_side_castling_possible_fens[] = {
-        // King on square c1 or c8
-        "7k/8/8/8/8/8/8/1RK1NNBB w Q - 0 50",
-        "7k/8/8/8/8/8/8/R1K1NNBB w Q - 0 50",
-        // King to the left (west) of square c1 or c8
-        // King to the right (east) of square c1 or c8
-        // Based on standard starting position
-        // "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 50",
-        // "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 50",
-        NULL };
-
-    const Pos *p;
-    for( int i = 0; a_side_castling_possible_fens[ i ]; i++ ) {
-        ck_assert( !che_fen_validator( a_side_castling_possible_fens[ i ] ) );
-        p = (const Pos *) fen_to_pos( a_side_castling_possible_fens[ i ] );
-        ck_assert( true ? a_side_castling_possible( p ) :
-            !a_side_castling_possible( p ) );
-    }
-*/
+    TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 10 50", "kingside",
+        0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 10 50", "queenside",
+        0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R b KQq - 10 50", "h-side",
+        0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R b KQk - 10 50", "a-side",
+        0, CASTLE_NO_CASTLING_RIGHT )
