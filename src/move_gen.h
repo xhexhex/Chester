@@ -9,7 +9,8 @@ enum castle_error_codes {
     CASTLE_OK,
     CASTLE_NO_CASTLING_RIGHT,
     CASTLE_KING_IN_CHECK,
-    CASTLE_KINGS_PATH_BLOCKED
+    CASTLE_KINGS_PATH_BLOCKED,
+    CASTLE_KINGS_PATH_IN_CHECK
 };
 
 extern enum castle_error_codes castle_error;

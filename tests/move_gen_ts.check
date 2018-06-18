@@ -422,6 +422,13 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R b KQk - 10 50", "a-side",
         0, CASTLE_NO_CASTLING_RIGHT )
 
+#test C_castle_returns_zero_and_sets_CASTLE_KING_IN_CHECK
+    Pos *p;
+    TEST_WITH_ARGS( "4r1kr/8/8/8/8/8/6R1/6K1 b he - 5 50", "kingside",
+        0, CASTLE_KING_IN_CHECK )
+    TEST_WITH_ARGS( "4r1kr/8/8/8/8/8/6R1/6K1 b he - 5 50", "queenside",
+        0, CASTLE_KING_IN_CHECK )
+
 #test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_BLOCKED
     Pos *p;
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4K1NR w K - 0 100", "kingside",
@@ -433,11 +440,27 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( FEN_STD_START_POS, "queenside",
         0, CASTLE_KINGS_PATH_BLOCKED )
 
+#test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_IN_CHECK
+    Pos *p;
+    TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
+        0, CASTLE_KINGS_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "r5k1/8/8/8/8/8/5R2/5K2 b a - 0 123", "a-side", // Invert
+        0, CASTLE_KINGS_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "r5k1/8/2B5/8/8/8/8/5K2 b a - 0 123", "a-side",
+        0, CASTLE_KINGS_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "r5k1/2P5/8/8/8/8/8/5K2 b a - 0 123", "queenside",
+        0, CASTLE_KINGS_PATH_IN_CHECK )
+
 #test C_castle_returns_920_and_sets_CASTLE_OK
     Pos *p;
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4K2R w K - 0 50", "kingside",
         920, CASTLE_OK )
     TEST_WITH_ARGS( "b3k3/6Q1/8/8/8/3NN3/8/4K2R w H - 10 80", "h-side",
         920, CASTLE_OK )
+
+#test C_castle_returns_1576_and_sets_CASTLE_OK
+    Pos *p;
+    TEST_WITH_ARGS( "r5k1/P7/8/8/8/8/8/5K2 b a - 0 123", "queenside",
+        1576, CASTLE_OK )
 
 #undef TEST_WITH_ARGS

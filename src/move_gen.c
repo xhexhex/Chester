@@ -42,8 +42,11 @@ static Bitboard x_attackers_pawns(
 static bool x_castle_valid_castle_type( const char *castle_type );
 static void x_castle_set_castling_king_and_rook( const Pos *p, bool kingside,
     Bitboard *castling_king, Bitboard *castling_rook );
+static bool x_castle_king_in_check( const Pos *p );
 static bool x_castle_kings_path_blocked( const Pos *p, bool kingside,
     Bitboard castling_king, Bitboard castling_rook );
+static bool x_castle_kings_path_in_check( const Pos *p, bool kingside,
+    Bitboard castling_king );
 static Rawcode x_castle_rawcode(
     Bitboard castling_king, Bitboard castling_rook );
 static void x_rawcodes_king( /*const Pos *p, Rawcode *codes, int *vacant*/ );
@@ -353,16 +356,15 @@ castle( const Pos *p, const char *castle_type )
     castle_error = CASTLE_OK;
 
     if( !has_castling_right( p, whites_turn(p) ? "white" : "black",
-            kingside ? "kingside" : "queenside" )
-    ) {
+            kingside ? "kingside" : "queenside" ) )
         castle_error = CASTLE_NO_CASTLING_RIGHT;
-    } else if( false ) {
+    else if( x_castle_king_in_check(p) )
         castle_error = CASTLE_KING_IN_CHECK;
-    } else if( x_castle_kings_path_blocked(
-        p, kingside, castling_king, castling_rook )
-    ) {
+    else if( x_castle_kings_path_blocked( p, kingside, castling_king,
+            castling_rook ) )
         castle_error = CASTLE_KINGS_PATH_BLOCKED;
-    }
+    else if( x_castle_kings_path_in_check( p, kingside, castling_king ) )
+        castle_error = CASTLE_KINGS_PATH_IN_CHECK;
 
     if( castle_error ) return 0;
 
@@ -646,20 +648,29 @@ x_castle_set_castling_king_and_rook( const Pos *p, bool kingside,
 }
 
 static bool
+x_castle_king_in_check( const Pos *p )
+{
+    return
+        (  whites_turn(p) && black_attackers(p->ppa, p->ppa[WHITE_KING]) ) ||
+        ( !whites_turn(p) && white_attackers(p->ppa, p->ppa[BLACK_KING]) );
+}
+
+#define INIT_VARS \
+    Bitboard kings_dest = (kingside ? SB.g1 : SB.c1); \
+    if( !whites_turn(p) ) kings_dest <<= 56; \
+    Bitboard sqs_in_between = in_between( castling_king, kings_dest ); \
+    assert( num_of_sqs_in_sq_set(sqs_in_between) >= 0 && \
+        num_of_sqs_in_sq_set(sqs_in_between) <= 4 );
+
+static bool
 x_castle_kings_path_blocked( const Pos *p, bool kingside,
     Bitboard castling_king, Bitboard castling_rook )
 {
-    Bitboard kings_dst = (kingside ? SB.g1 : SB.c1 );
-    if( !whites_turn(p) ) kings_dst <<= 56;
-
-    Bitboard sqs_in_between = in_between( castling_king, kings_dst );
-    assert( num_of_sqs_in_sq_set(sqs_in_between) >= 0 &&
-        num_of_sqs_in_sq_set(sqs_in_between) <= 5 );
-    // printf( "sqs_in_between = %lu\n", sqs_in_between );
+    INIT_VARS
 
     // There's a chessman on the destination square or on one of the
     // in-between squares (excluding the castling rook).
-    if( ( sqs_in_between | kings_dst ) & (
+    if( ( sqs_in_between | kings_dest ) & (
         ( ss_white_army(p) | ss_black_army(p) ) ^ castling_rook )
     ) {
         return true;
@@ -667,6 +678,37 @@ x_castle_kings_path_blocked( const Pos *p, bool kingside,
 
     return false;
 }
+
+static bool
+x_castle_kings_path_in_check( const Pos *p, bool kingside,
+    Bitboard castling_king )
+{
+    INIT_VARS
+
+    // One or more enemy chessmen are attacking the destination
+    // square of the king
+    if( ( whites_turn(p) && black_attackers(p->ppa, kings_dest) ) ||
+            ( !whites_turn(p) && white_attackers(p->ppa, kings_dest) ) )
+        return true;
+
+    Bitboard bit = castling_king;
+
+    // Examine each of the squares between the origin and destination
+    // squares of the king
+    while(true) {
+        if( kingside ) bit <<= 1;
+        else bit >>= 1;
+        if( !(bit & sqs_in_between) ) break;
+
+        if( ( whites_turn(p) && black_attackers(p->ppa, bit) ) ||
+                ( !whites_turn(p) && white_attackers(p->ppa, bit) ) )
+            return true; // Square under attack by enemy chessmen
+    }
+
+    return false;
+}
+
+#undef INIT_VARS
 
 static Rawcode
 x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
@@ -677,8 +719,6 @@ x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
 
     rawmove[0] = orig_sq[0], rawmove[1] = orig_sq[1];
     rawmove[2] = dest_sq[0], rawmove[3] = dest_sq[1];
-
-    // printf( "The rawmove is \"%s\"\n", rawmove );
 
     return rawcode(rawmove);
 }
