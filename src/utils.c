@@ -729,6 +729,33 @@ occupant_of_sq_fen_v( const char *fen, const char *sq )
     return occupant;
 }
 
+// Returns a bitboard of the squares between squares 'sq_1' and 'sq_2'.
+// For example, the calls in_between(SB.c3,SB.f6) or in_between(SB.f6,SB.c3)
+// return (SB.d4 | SB.e5) and the calls in_between(SB.d1,SB.f1) or
+// in_between(SB.f1,SB.d1) return SB.e1. If the squares 'sq_1' and 'sq_2'
+// are either the same or adjacent, then the function returns zero. If
+// 'sq_1' and 'sq_2' are not on the same file, rank or (anti)diagonal,
+// then the function returns a bitboard with all the 64 bits set.
+Bitboard
+in_between( Bitboard sq_1, Bitboard sq_2 )
+{
+    assert( is_sq_bit(sq_1) );
+    assert( is_sq_bit(sq_2) );
+
+    if( sq_1 == sq_2 ) return 0;
+
+    for( enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++ ) {
+        Bitboard sq = sq_1, bb = 0;
+        while( (sq = sq_nav(sq, dir )) ) {
+            if( sq == sq_2 )
+                return bb;
+            bb |= sq;
+        }
+    }
+
+    return UINT64_MAX;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****

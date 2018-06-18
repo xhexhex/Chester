@@ -1391,3 +1391,71 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         FEN_PERSONALLY_SIGNIFICANT )
 
 #undef FULL_TEST
+
+//
+// Test case
+//
+#tcase in_between_tests
+
+#define TEST_WITH_ARGS( expected_bb, sq_1, sq_2 ) \
+    ck_assert( (expected_bb) == in_between( sq_1, sq_2 ) ); \
+    ck_assert( (expected_bb) == in_between( sq_2, sq_1 ) );
+
+#test C_in_between_tested_with_squares_not_on_the_same_file_rank_or_diagonal
+    TEST_WITH_ARGS( UINT64_MAX, SB.g1, SB.f3 )
+    TEST_WITH_ARGS( UINT64_MAX, SB.e1, SB.d8 )
+    TEST_WITH_ARGS( UINT64_MAX, SB.b2, SB.d5 )
+    TEST_WITH_ARGS( UINT64_MAX, SB.e4, SB.f6 )
+
+#test C_in_between_tested_with_identical_squares
+    for( int i = 0; i < 64; i++ ) {
+        TEST_WITH_ARGS( 0, SBA[i], SBA[i] )
+    }
+
+#test C_in_between_tested_with_adjacent_squares
+    TEST_WITH_ARGS( 0, SB.a1, SB.b1 )
+    TEST_WITH_ARGS( 0, SB.g7, SB.h8 )
+
+    TEST_WITH_ARGS( 0, SB.e4, SB.e5 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.f5 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.f4 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.f3 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.e3 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.d3 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.d4 )
+    TEST_WITH_ARGS( 0, SB.e4, SB.d5 )
+
+#test C_in_between_tested_with_squares_with_one_in_between_squares
+    TEST_WITH_ARGS( SB.a2, SB.a1, SB.a3 )
+    TEST_WITH_ARGS( SB.b2, SB.a1, SB.c3 )
+    TEST_WITH_ARGS( SB.b1, SB.a1, SB.c1 )
+
+#test C_in_between_tested_with_squares_with_two_in_between_squares
+    TEST_WITH_ARGS( SB.d5 | SB.d6, SB.d4, SB.d7 )
+    TEST_WITH_ARGS( SB.e5 | SB.f6, SB.d4, SB.g7 )
+    TEST_WITH_ARGS( SB.e4 | SB.f4, SB.d4, SB.g4 )
+    TEST_WITH_ARGS( SB.e3 | SB.f2, SB.d4, SB.g1 )
+    TEST_WITH_ARGS( SB.d3 | SB.d2, SB.d4, SB.d1 )
+    TEST_WITH_ARGS( SB.b2 | SB.c3, SB.d4, SB.a1 )
+    TEST_WITH_ARGS( SB.b4 | SB.c4, SB.d4, SB.a4 )
+    TEST_WITH_ARGS( SB.b6 | SB.c5, SB.d4, SB.a7 )
+
+    TEST_WITH_ARGS( SB.c1 | SB.d1, SB.b1, SB.e1 )
+    TEST_WITH_ARGS( SB.c3 | SB.d2, SB.b4, SB.e1 )
+    TEST_WITH_ARGS( SB.e2 | SB.e3, SB.e1, SB.e4 )
+    TEST_WITH_ARGS( SB.f2 | SB.g3, SB.h4, SB.e1 )
+    TEST_WITH_ARGS( SB.g1 | SB.f1, SB.e1, SB.h1 )
+
+#test C_in_between_tested_with_corner_squares
+    TEST_WITH_ARGS( SB.b2 | SB.c3 | SB.d4 | SB.e5 | SB.f6 | SB.g7,
+        SB.a1, SB.h8 )
+    TEST_WITH_ARGS( SB.g2 | SB.f3 | SB.e4 | SB.d5 | SB.c6 | SB.b7,
+        SB.h1, SB.a8 )
+
+#test C_in_between_tested_with_edge_squares
+    TEST_WITH_ARGS( SB.b4 | SB.c4 | SB.d4 | SB.e4 | SB.f4 | SB.g4,
+        SB.a4, SB.h4 )
+    TEST_WITH_ARGS( SB.h2 | SB.h3 | SB.h4 | SB.h5 | SB.h6 | SB.h7,
+        SB.h8, SB.h1 )
+
+#undef TEST_WITH_ARGS
