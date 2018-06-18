@@ -660,6 +660,32 @@ rawcode( const char *rawmove )
     return 0;
 }
 
+// Converts 'rawcode' into the corresponding rawmove and saves the
+// result in 'writable' which is assumed to point to an array of
+// at least five bytes.
+void
+rawmove( Rawcode rawcode, char *writable )
+{
+    assert( rawcode >= 1 );
+    assert( rawcode <= 1792 );
+
+    writable[4] = '\0';
+
+    const char *ptr = &APM_DATA[4*(rawcode - 1)];
+    for( int i = 0; i < 4; i++ )
+        writable[i] = ptr[i];
+}
+
+// TODO: doc
+/*
+void
+make_move( Pos *p, Rawcode code )
+{
+    char move[4 + 1];
+    rawmove( code, move );
+}
+*/
+
 /****************************
  ****                    ****
  ****  Static functions  ****

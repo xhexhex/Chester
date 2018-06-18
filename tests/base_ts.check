@@ -737,3 +737,27 @@ ck_assert( counter == exp_count );
     }
 
 #undef RAWCODE_TEST
+
+//
+// Test case
+//
+#tcase rawmove_tests
+
+#define TEST_WITH_ARGS( rawcode_arg, expected_rawmove ) \
+    rawmove( rawcode_arg, move ); \
+    ck_assert( !strcmp( move, expected_rawmove ) );
+
+#test C_rawmove_tested_with_manually_selected_valid_rawcodes
+    char move[4 + 1];
+    TEST_WITH_ARGS( 1, "a1a2" )
+    TEST_WITH_ARGS( 17, "a1e5" )
+    TEST_WITH_ARGS( 1792, "h8h7" )
+
+#undef TEST_WITH_ARGS
+
+#test C_rawmove_inverse_function_test_with_rawcode
+    char move[4 + 1];
+    for( int code = 1; code <= 1792; code++ ) {
+        rawmove( code, move );
+        ck_assert( rawcode(move) == code );
+    }

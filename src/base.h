@@ -107,6 +107,8 @@ Bitboard sq_nav( Bitboard sq, enum sq_dir dir );
 bool has_castling_right( const Pos *p, const char *color, const char *side );
 Bitboard epts( const Pos *p );
 Rawcode rawcode( const char *rawmove );
+void rawmove( Rawcode rawcode, char *writable );
+void make_move( Pos *p, Rawcode code );
 
 #endif
 // End BASE_H
