@@ -455,6 +455,10 @@ static void x_fen_to_pos_init_turn_and_ca_flags(
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
+static void x_make_move_set_orig_and_dest(
+    Rawcode code, int *orig, int *dest );
+static void x_make_move_toggle_turn( Pos *p );
+static void x_make_move_castle( Pos *p, int dest );
 
 /****************************
  **** External functions ****
@@ -677,14 +681,70 @@ rawmove( Rawcode rawcode, char *writable )
 }
 
 // TODO: doc
-/*
 void
 make_move( Pos *p, Rawcode code )
 {
-    char move[4 + 1];
-    rawmove( code, move );
+    int orig, dest;
+    x_make_move_set_orig_and_dest( code, &orig, &dest );
+
+    Chessman cm_to_move = EMPTY_SQUARE;
+    while( !(p->ppa[++cm_to_move] & SBA[orig]) );
+    assert(
+        ( whites_turn(p) &&
+            cm_to_move >= WHITE_KING && cm_to_move <= WHITE_PAWN ) ||
+        ( !whites_turn(p) &&
+            cm_to_move >= BLACK_KING && cm_to_move <= BLACK_PAWN ) );
+
+    if( ( cm_to_move == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
+            ( cm_to_move == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
+        x_make_move_castle( p, dest );
+
+    x_make_move_toggle_turn(p);
 }
-*/
+
+static void
+x_make_move_toggle_turn( Pos *p )
+{
+    if( whites_turn(p) )
+        p->turn_and_ca_flags ^= (1 << 7);
+    else
+        p->turn_and_ca_flags |= (1 << 7);
+}
+
+static void
+x_make_move_castle( Pos *p, int dest )
+{
+    Bitboard castling_rook = ( SBA[dest] &
+        (p->ppa[WHITE_ROOK] | p->ppa[BLACK_ROOK]) ),
+        tmp = castling_rook;
+    if( tmp > SB.h1 ) tmp >>= 56;
+
+    uint8_t file_of_castling_rook = tmp;
+    bool kingside = (file_of_castling_rook & p->irp[1]);
+
+    // printf( "Before: %lx\n", p->ppa[EMPTY_SQUARE] );
+    p->ppa[EMPTY_SQUARE] ^= p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING];
+    // printf( "After:  %lx\n", p->ppa[EMPTY_SQUARE] );
+    p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] = 0;
+    p->ppa[EMPTY_SQUARE] ^= p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK];
+    p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ^= castling_rook;
+
+    if( kingside && whites_turn(p) ) {
+        p->turn_and_ca_flags ^= 8;
+        p->ppa[WHITE_KING] = SB.g1, p->ppa[EMPTY_SQUARE] ^= SB.g1;
+        p->ppa[WHITE_ROOK] |= SB.f1, p->ppa[EMPTY_SQUARE] ^= SB.f1;
+    }
+    else if( kingside && !whites_turn(p) ) {
+        p->ppa[BLACK_KING] = SB.g8, p->ppa[BLACK_ROOK] |= SB.f8;
+    }
+    else if( whites_turn(p) ) { // !kingside
+        p->ppa[WHITE_KING] = SB.c1, p->ppa[WHITE_ROOK] |= SB.d1;
+    }
+    else if( !whites_turn(p) ) { // !kingside
+        p->ppa[BLACK_KING] = SB.c8, p->ppa[BLACK_ROOK] |= SB.d8;
+    }
+    else assert(false);
+}
 
 /****************************
  ****                    ****
@@ -828,4 +888,20 @@ x_rawcode_preliminary_checks( const char *rawmove )
         return false;
 
     return true;
+}
+
+static void
+x_make_move_set_orig_and_dest( Rawcode code, int *orig, int *dest )
+{
+    char move[4 + 1], orig_sq_name[2 + 1] = {0},
+        dest_sq_name[2 + 1] = {0};
+
+    rawmove( code, move );
+    orig_sq_name[0] = move[0], orig_sq_name[1] = move[1];
+    dest_sq_name[0] = move[2], dest_sq_name[1] = move[3];
+    assert( is_sq_name( orig_sq_name ) );
+    assert( is_sq_name( dest_sq_name ) );
+
+    *orig = sq_name_index( orig_sq_name );
+    *dest = sq_name_index( dest_sq_name );
 }
