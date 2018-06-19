@@ -61,6 +61,12 @@ enum sq_dir {
     SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
 };
 
+enum move_info_bit {
+    MIB_CASTLE, MIB_KINGSIDE,
+    MIB_CAPTURE, MIB_WITH_PIECE, MIB_WITH_PAWN, MIB_EN_PASSANT,
+    MIB_PAWN_ADVANCE, MIB_DOUBLE, MIB_SINGLE, MIB_PROMOTION
+};
+
 // The Pos type or "Pos variable" is Chester's internal representation
 // of chess positions. A Pos variable contains the same information as
 // a FEN string. See doc/pos-spec.md for a comprehensive description of
@@ -108,7 +114,7 @@ bool has_castling_right( const Pos *p, const char *color, const char *side );
 Bitboard epts( const Pos *p );
 Rawcode rawcode( const char *rawmove );
 void rawmove( Rawcode rawcode, char *writable );
-void make_move( Pos *p, Rawcode code );
+uint32_t make_move( Pos *p, Rawcode code, char promotion );
 
 #endif
 // End BASE_H

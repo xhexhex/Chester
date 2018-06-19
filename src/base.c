@@ -683,8 +683,8 @@ rawmove( Rawcode rawcode, char *writable )
 }
 
 // TODO: doc
-void
-make_move( Pos *p, Rawcode code )
+uint32_t
+make_move( Pos *p, Rawcode code, char promotion )
 {
     int orig, dest;
     x_make_move_set_orig_and_dest( code, &orig, &dest );
@@ -710,6 +710,8 @@ make_move( Pos *p, Rawcode code )
     if( whites_turn(p) ) p->fmn++;
 
     assert( !ppa_integrity_check( p->ppa ) );
+
+    return promotion;
 }
 
 /****************************
