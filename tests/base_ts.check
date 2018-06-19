@@ -767,24 +767,74 @@ ck_assert( counter == exp_count );
 //
 #tcase make_move_tests
 
-#test C_make_move_tested_with_kingside_castling_moves_for_white
-    ck_assert( !che_fen_validator( "4k3/8/8/8/8/8/8/4K2R w K - 0 1" ) );
-    Pos *p = fen_to_pos( "4k3/8/8/8/8/8/8/4K2R w K - 0 1" );
-    make_move( p, 920 );
-    ck_assert( p->ppa[EMPTY_SQUARE] == ~( SB.f1 | SB.g1 | SB.e8 ) );
-    ck_assert( p->ppa[WHITE_KING] == SB.g1 );
-    ck_assert( p->ppa[WHITE_QUEEN] == 0 );
-    ck_assert( p->ppa[WHITE_ROOK] == SB.f1 );
-    ck_assert( p->ppa[WHITE_BISHOP] == 0 );
-    ck_assert( p->ppa[WHITE_KNIGHT] == 0 );
-    ck_assert( p->ppa[WHITE_PAWN] == 0 );
-    ck_assert( p->ppa[BLACK_KING] == SB.e8 );
-    ck_assert( p->ppa[BLACK_QUEEN] == 0 );
-    ck_assert( p->ppa[BLACK_ROOK] == 0 );
-    ck_assert( p->ppa[BLACK_BISHOP] == 0 );
-    ck_assert( p->ppa[BLACK_KNIGHT] == 0 );
-    ck_assert( p->ppa[BLACK_PAWN] == 0 );
-
-    ck_assert( p->turn_and_ca_flags == 0 );
-
+#define TEST_WITH_ARGS( fen_arg, code, empty, \
+        wking, wqueen, wrook, wbishop, wknight, wpawn, \
+        bking, bqueen, brook, bbishop, bknight, bpawn, \
+        turn_and_ca_flags_arg, irp0_arg, irp1_arg, \
+        epts_file_arg, hmc_arg, fmn_arg ) \
+    ck_assert( !che_fen_validator( fen_arg ) ); \
+    p = fen_to_pos( fen_arg ); \
+    make_move( p, code ); \
+    ck_assert( p->ppa[EMPTY_SQUARE] == (empty) ); \
+    ck_assert( p->ppa[WHITE_KING] == (wking) ); \
+    ck_assert( p->ppa[WHITE_QUEEN] == (wqueen) ); \
+    ck_assert( p->ppa[WHITE_ROOK] == (wrook) ); \
+    ck_assert( p->ppa[WHITE_BISHOP] == (wbishop) ); \
+    ck_assert( p->ppa[WHITE_KNIGHT] == (wknight) ); \
+    ck_assert( p->ppa[WHITE_PAWN] == (wpawn) ); \
+    ck_assert( p->ppa[BLACK_KING] == (bking) ); \
+    ck_assert( p->ppa[BLACK_QUEEN] == (bqueen) ); \
+    ck_assert( p->ppa[BLACK_ROOK] == (brook) ); \
+    ck_assert( p->ppa[BLACK_BISHOP] == (bbishop) ); \
+    ck_assert( p->ppa[BLACK_KNIGHT] == (bknight) ); \
+    ck_assert( p->ppa[BLACK_PAWN] == (bpawn) ); \
+    ck_assert( p->turn_and_ca_flags == (turn_and_ca_flags_arg) ); \
+    ck_assert( p->irp[0] == (irp0_arg) ); \
+    ck_assert( p->irp[1] == (irp1_arg) ); \
+    ck_assert( p->epts_file == (epts_file_arg) ); \
+    ck_assert( p->hmc == (hmc_arg) ); \
+    ck_assert( p->fmn == (fmn_arg) ); \
     free(p);
+
+#test C_make_move_tested_with_kingside_castling_moves_for_white
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/4K2R w K - 0 1", 920,
+        ~( SB.f1 | SB.g1 | SB.e8 ),
+        SB.g1, 0, SB.f1, 0, 0, 0,
+        SB.e8, 0, 0, 0, 0, 0,
+        0, 1, 128, 0, 1, 1 )
+
+#test C_make_move_tested_with_queenside_castling_moves_for_white
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/R3K3 w Q - 12 99", 897,
+        ~( SB.c1 | SB.d1 | SB.e8 ),
+        SB.c1, 0, SB.d1, 0, 0, 0,
+        SB.e8, 0, 0, 0, 0, 0,
+        0, 1, 128, 0, 13, 99 )
+
+#test C_make_move_tested_with_kingside_castling_moves_for_black
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/4P3/8/8/R3K2R b KQkq e3 0 99", 1140,
+        ~( SB.a1 | SB.e1 | SB.h1 | SB.e4 | SB.a8 | SB.f8 | SB.g8 ),
+        SB.e1, 0, SB.a1 | SB.h1, 0, 0, SB.e4,
+        SB.g8, 0, SB.a8 | SB.f8, 0, 0, 0,
+        140, 1, 128, 0, 1, 100 )
+
+#test C_make_move_tested_with_queenside_castling_moves_for_black
+    Pos *p;
+    // printf("> %d\n", rawcode("e8a8"));
+
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/4P3/8/8/R3K2R b KQkq e3 0 149", 1117,
+        ~( SB.a1 | SB.e1 | SB.h1 | SB.e4 | SB.c8 | SB.d8 | SB.h8 ),
+        SB.e1, 0, SB.a1 | SB.h1, 0, 0, SB.e4,
+        SB.c8, 0, SB.d8 | SB.h8, 0, 0, 0,
+        140, 1, 128, 0, 1, 150 )
+
+#undef TEST_WITH_ARGS
