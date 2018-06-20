@@ -757,6 +757,26 @@ in_between( Bitboard sq_1, Bitboard sq_2 )
     return UINT64_MAX;
 }
 
+// Finds the origin and destination square bit indexes of the rawcode
+// argument 'code' and saves the result in 'orig' and 'dest'. For example,
+// if 'code' equals 1, then the bit index values 0 and 8 will be saved
+// in 'orig' and 'dest', respectively.
+void
+rawcode_bit_indexes( Rawcode code, int *orig, int *dest )
+{
+    char move[4 + 1], orig_sq_name[2 + 1] = {0},
+        dest_sq_name[2 + 1] = {0};
+
+    rawmove( code, move ); // 'code' gets validated in rawmove()
+    orig_sq_name[0] = move[0], orig_sq_name[1] = move[1];
+    dest_sq_name[0] = move[2], dest_sq_name[1] = move[3];
+    assert( is_sq_name( orig_sq_name ) );
+    assert( is_sq_name( dest_sq_name ) );
+
+    *orig = sq_name_index( orig_sq_name );
+    *dest = sq_name_index( dest_sq_name );
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****

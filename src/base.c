@@ -455,8 +455,6 @@ static void x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
-static void x_make_move_set_orig_and_dest( Rawcode code, int *orig,
-    int *dest );
 static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, int dest, uint32_t *info_bits );
 static void x_make_move_remove_castling_rights( Pos *p, const char *color,
@@ -682,7 +680,6 @@ rawmove( Rawcode rawcode, char *writable )
         writable[i] = ptr[i];
 }
 
-static Chessman x_make_move_type_of_moving_chessman( const Pos *p, int orig );
 static uint32_t x_make_move_set_move_info_bits( const Pos *p,
     Chessman mover, int orig, int dest );
 
@@ -690,12 +687,16 @@ static uint32_t x_make_move_set_move_info_bits( const Pos *p,
 uint32_t
 make_move( Pos *p, Rawcode code, char promotion )
 {
-    // void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
     int orig, dest;
-    x_make_move_set_orig_and_dest( code, &orig, &dest );
+    rawcode_bit_indexes( code, &orig, &dest );
 
-    // More general: type_of_cm( p, bi )
-    Chessman mover = x_make_move_type_of_moving_chessman( p, orig );
+    Chessman mover = occupant_of_sq( p, SBA[orig] );
+    assert(
+        ( whites_turn(p) &&
+            mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
+        ( !whites_turn(p) &&
+            mover >= BLACK_KING && mover <= BLACK_PAWN ) );
+
     uint32_t info_bits =
         x_make_move_set_move_info_bits( p, mover, orig, dest );
 
@@ -732,21 +733,6 @@ x_make_move_set_move_info_bits( const Pos *p, Chessman mover,
     }
 
     return info_bits;
-}
-
-static Chessman
-x_make_move_type_of_moving_chessman( const Pos *p, int orig )
-{
-    Chessman mover = EMPTY_SQUARE;
-    while( !(p->ppa[++mover] & SBA[orig]) );
-
-    assert(
-        ( whites_turn(p) &&
-            mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) &&
-            mover >= BLACK_KING && mover <= BLACK_PAWN ) );
-
-    return mover;
 }
 
 /****************************
@@ -891,22 +877,6 @@ x_rawcode_preliminary_checks( const char *rawmove )
         return false;
 
     return true;
-}
-
-static void
-x_make_move_set_orig_and_dest( Rawcode code, int *orig, int *dest )
-{
-    char move[4 + 1], orig_sq_name[2 + 1] = {0},
-        dest_sq_name[2 + 1] = {0};
-
-    rawmove( code, move );
-    orig_sq_name[0] = move[0], orig_sq_name[1] = move[1];
-    dest_sq_name[0] = move[2], dest_sq_name[1] = move[3];
-    assert( is_sq_name( orig_sq_name ) );
-    assert( is_sq_name( dest_sq_name ) );
-
-    *orig = sq_name_index( orig_sq_name );
-    *dest = sq_name_index( dest_sq_name );
 }
 
 static void
