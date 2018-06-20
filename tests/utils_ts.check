@@ -1465,3 +1465,39 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     TEST_WITH_ARGS( 1792, 63, 55 )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase copy_pos_tests
+
+#define TEST_WITH_ARGS( fen_arg ) \
+    ck_assert( !che_fen_validator( fen_arg ) ); \
+    Pos *p = fen_to_pos( fen_arg ); \
+    Pos copy; \
+    copy_pos( p, &copy ); \
+    ck_assert( p->ppa[EMPTY_SQUARE] == copy.ppa[EMPTY_SQUARE] ); \
+    ck_assert( p->ppa[WHITE_KING] == copy.ppa[WHITE_KING] ); \
+    ck_assert( p->ppa[WHITE_QUEEN] == copy.ppa[WHITE_QUEEN] ); \
+    ck_assert( p->ppa[WHITE_ROOK] == copy.ppa[WHITE_ROOK] ); \
+    ck_assert( p->ppa[WHITE_BISHOP] == copy.ppa[WHITE_BISHOP] ); \
+    ck_assert( p->ppa[WHITE_KNIGHT] == copy.ppa[WHITE_KNIGHT] ); \
+    ck_assert( p->ppa[WHITE_PAWN] == copy.ppa[WHITE_PAWN] ); \
+    ck_assert( p->ppa[BLACK_KING] == copy.ppa[BLACK_KING] ); \
+    ck_assert( p->ppa[BLACK_QUEEN] == copy.ppa[BLACK_QUEEN] ); \
+    ck_assert( p->ppa[BLACK_ROOK] == copy.ppa[BLACK_ROOK] ); \
+    ck_assert( p->ppa[BLACK_BISHOP] == copy.ppa[BLACK_BISHOP] ); \
+    ck_assert( p->ppa[BLACK_KNIGHT] == copy.ppa[BLACK_KNIGHT] ); \
+    ck_assert( p->ppa[BLACK_PAWN] == copy.ppa[BLACK_PAWN] ); \
+    ck_assert( p->turn_and_ca_flags == copy.turn_and_ca_flags ); \
+    ck_assert( p->irp[0] == copy.irp[0] ); \
+    ck_assert( p->irp[1] == copy.irp[1] ); \
+    ck_assert( p->epts_file == copy.epts_file ); \
+    ck_assert( p->hmc == copy.hmc ); \
+    ck_assert( p->fmn == copy.fmn ); \
+    free(p);
+
+#test C_copy_pos_tested_with_std_start_pos
+    TEST_WITH_ARGS( FEN_STD_START_POS )
+
+#undef TEST_WITH_ARGS

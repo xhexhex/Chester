@@ -59,6 +59,7 @@ void resolve_ambiguous_ecaf( char *ecaf, const char *fen );
 char occupant_of_sq_fen_v( const char *fen, const char *sq );
 Bitboard in_between( Bitboard sq_1, Bitboard sq_2 );
 void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
+void copy_pos( const Pos *p, Pos *copy );
 
 #endif
 // end UTILS_H

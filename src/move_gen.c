@@ -168,16 +168,7 @@ rawcodes( const Pos *p )
      * Rawcode castle( const Pos *p, const char *castle_type ). We call
      * it twice and -- assuming non-zero is returned -- add the returned
      * zero, one or two rawcodes into the 'pseudo' array.
-     */
-
-    Rawcode pseudo[MAX_MOVE_COUNT_IN_POS], O_O, O_O_O;
-    int vacant = 0;
-    if( (O_O = castle(p, "kingside")) )
-        pseudo[vacant++] = O_O;
-    if( (O_O_O = castle(p, "queenside")) )
-        pseudo[vacant++] = O_O_O;
-
-     /*
+     *
      * En passant is also treated as a special case. If p->epts_file is
      * non-zero, then zero, one or two enemy pawns can capture and move
      * to the EPTS. The rawcodes of any potential en passant captures
@@ -196,6 +187,24 @@ rawcodes( const Pos *p )
      * a dynamically allocated Rawcode array 'codes'. 'codes[0]' is the
      * number of rawcodes, that is, codes[0] = n for codes[1]...codes[n].
      */
+
+    Rawcode pseudo[MAX_MOVE_COUNT_IN_POS];
+    int vacant = 0;
+
+    Rawcode O_O, O_O_O;
+    if( (O_O = castle(p, "kingside")) )
+        pseudo[vacant++] = O_O;
+    if( (O_O_O = castle(p, "queenside")) )
+        pseudo[vacant++] = O_O_O;
+
+    for( int i = 1; i <= vacant; i++ ) {
+        // Copy 'p' into 'copy'
+        // copy_pos( p, &copy );
+        // void copy_pos( const Pos *p, Pos *copy );
+
+        // Make the move pseudo[i]
+        // If king can be captured in 'copy', write zero to pseudo[i]
+    }
 
     /*
     Rawcode *codes = (Rawcode *) malloc(
@@ -336,30 +345,6 @@ black_attackers( const Bitboard *ppa, Bitboard sq )
     return attackers( ppa, sq, 6, BLACK_KING, BLACK_QUEEN, BLACK_ROOK,
         BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
 } // Review: 2018-06-16
-
-/*
-enum cms
-castling_move_status( const Pos *p, const char *castle_type )
-{
-    assert( x_castle_valid_castle_type( castle_type ) );
-
-    bool kingside = ( !strcmp( castle_type, "kingside" ) ||
-        !strcmp( castle_type, "h_side" ) );
-
-    if( !x_castling_move_status_ca_bit_set( p, kingside ) )
-        return CMS_CA_BIT_UNSET;
-    if( !x_castling_move_status_kings_path_cleared( p, kingside ) )
-        return CMS_KINGS_PATH_BLOCKED;
-    if( !x_castling_move_status_rooks_path_cleared( p, kingside ) )
-        return CMS_ROOKS_PATH_BLOCKED;
-    if( x_castling_move_status_kings_path_in_check( p, kingside ) )
-        return CMS_KINGS_PATH_IN_CHECK;
-    if( false )
-        return CMS_CASTLED_KING_IN_CHECK;
-
-    return CMS_AVAILABLE;
-}
-*/
 
 // TODO: doc
 Rawcode

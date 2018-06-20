@@ -777,6 +777,30 @@ rawcode_bit_indexes( Rawcode code, int *orig, int *dest )
     *dest = sq_name_index( dest_sq_name );
 }
 
+// Copies the Pos variable 'p' into 'copy'. After the operation all the
+// fields of 'p' and 'copy' should be the same.
+void
+copy_pos( const Pos *p, Pos *copy )
+{
+    for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
+        copy->ppa[cm] = p->ppa[cm];
+
+    copy->turn_and_ca_flags = p->turn_and_ca_flags;
+    copy->irp[0] = p->irp[0];
+    copy->irp[1] = p->irp[1];
+    copy->epts_file = p->epts_file;
+    copy->hmc = p->hmc;
+    copy->fmn = p->fmn;
+
+    /*
+    typedef struct {
+        Bitboard ppa[13];
+        uint8_t turn_and_ca_flags, irp[2], epts_file;
+        uint16_t hmc, fmn;
+    } Pos;
+    */
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
