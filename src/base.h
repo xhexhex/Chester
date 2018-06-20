@@ -125,7 +125,7 @@ bool has_castling_right( const Pos *p, const char *color, const char *side );
 Bitboard epts( const Pos *p );
 Rawcode rawcode( const char *rawmove );
 void rawmove( Rawcode rawcode, char *writable );
-uint32_t make_move( Pos *p, Rawcode code, char promotion );
+void make_move( Pos *p, Rawcode code, char promotion );
 
 #endif
 // End BASE_H

@@ -464,3 +464,48 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         1576, CASTLE_OK )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase move_info_tests
+
+#define TEST_WITH_ARGS( fen_arg, code_arg, expected_mibs ) \
+    ck_assert( !che_fen_validator(fen_arg) ); \
+    p = fen_to_pos(fen_arg); \
+    ck_assert( move_info(p, code_arg) == (expected_mibs) ); \
+    free(p);
+
+#test C_move_info_tested_with_kingside_castling_moves
+    Pos *p;
+    ck_assert( (MIB_CASTLE | MIB_KINGSIDE) == 3 ); // 3 = 2^1 + 2^0
+
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/4K2R w K - 0 1",
+        920, MIB_CASTLE | MIB_KINGSIDE )
+    TEST_WITH_ARGS(
+        "qrnb1krn/p1p2ppp/1p6/1b1p4/3P4/4P3/PP2NPPP/QR1BBKRN w BGbg - 0 6",
+        1160, MIB_CASTLE | MIB_KINGSIDE )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/4P3/8/8/R3K2R b KQkq e3 0 99",
+        1140, MIB_CASTLE | MIB_KINGSIDE )
+    TEST_WITH_ARGS(
+        "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7",
+        1140, MIB_CASTLE | MIB_KINGSIDE )
+
+#test C_move_info_tested_with_queenside_castling_moves
+    Pos *p;
+    ck_assert( MIB_CASTLE == 1 );
+
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/R3K3 w Q - 12 99",
+        897, MIB_CASTLE )
+    TEST_WITH_ARGS(
+        "1r2krbq/p1pp2bp/4p1p1/3nPp2/3P1P2/1N1N2P1/PPP4P/1R2KRBQ w FBfb f6 0 11",
+        899, MIB_CASTLE )
+    TEST_WITH_ARGS( "r3k2r/8/8/8/4P3/8/8/R3K2R b KQkq e3 0 149",
+        1117, MIB_CASTLE )
+    TEST_WITH_ARGS( "3rk1r1/P7/8/8/8/8/8/4K1R1 b Gdg - 10 50",
+        1125, MIB_CASTLE )
+
+    // printf( "Code: %u\n", rawcode( "e8a8" ) );
+
+#undef TEST_WITH_ARGS

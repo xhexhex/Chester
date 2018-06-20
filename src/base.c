@@ -7,6 +7,7 @@
 #include "base.h"
 #include "utils.h"
 #include "validation.h"
+#include "move_gen.h"
 
 /*************************
  ****                 ****
@@ -456,7 +457,7 @@ static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_toggle_turn( Pos *p );
-static void x_make_move_castle( Pos *p, int dest, uint32_t *info_bits );
+static void x_make_move_castle( Pos *p, Rawcode code );
 static void x_make_move_remove_castling_rights( Pos *p, const char *color,
     const char *side );
 
@@ -680,32 +681,16 @@ rawmove( Rawcode rawcode, char *writable )
         writable[i] = ptr[i];
 }
 
-static uint32_t x_make_move_set_move_info_bits( const Pos *p,
-    Chessman mover, int orig, int dest );
-
 // TODO: doc
-uint32_t
+void
 make_move( Pos *p, Rawcode code, char promotion )
 {
-    int orig, dest;
-    rawcode_bit_indexes( code, &orig, &dest );
+    uint32_t info_bits = move_info( p, code );
 
-    Chessman mover = occupant_of_sq( p, SBA[orig] );
-    assert(
-        ( whites_turn(p) &&
-            mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) &&
-            mover >= BLACK_KING && mover <= BLACK_PAWN ) );
-
-    uint32_t info_bits =
-        x_make_move_set_move_info_bits( p, mover, orig, dest );
-
-    // Should come up with an enum and a function to identify the move type
     p->epts_file = 0;
 
-    if( ( mover == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
-            ( mover == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
-        x_make_move_castle( p, dest, &info_bits );
+    if( info_bits & MIB_CASTLE )
+        x_make_move_castle( p, code );
 
     x_make_move_toggle_turn(p);
 
@@ -713,26 +698,6 @@ make_move( Pos *p, Rawcode code, char promotion )
     if( whites_turn(p) ) p->fmn++;
 
     assert( !ppa_integrity_check( p->ppa ) );
-
-    uint32_t shit = 0;
-    shit |= MIB_CASTLE, shit |= MIB_CAPTURE;
-    return shit;
-}
-
-static uint32_t
-x_make_move_set_move_info_bits( const Pos *p, Chessman mover,
-    int orig, int dest )
-{
-    uint32_t info_bits = 0;
-
-    if( ( mover == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
-        ( mover == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
-    {
-        // MIB_KINGSIDE is set later, if need be
-        info_bits |= MIB_CASTLE;
-    }
-
-    return info_bits;
 }
 
 /****************************
@@ -914,8 +879,11 @@ x_make_move_toggle_turn( Pos *p )
 }
 
 static void
-x_make_move_castle( Pos *p, int dest, uint32_t *info_bits )
+x_make_move_castle( Pos *p, Rawcode code )
 {
+    int orig, dest;
+    rawcode_bit_indexes( code, &orig, &dest );
+
     Bitboard castling_rook = ( SBA[dest] &
         (p->ppa[WHITE_ROOK] | p->ppa[BLACK_ROOK]) ),
         tmp = castling_rook;
