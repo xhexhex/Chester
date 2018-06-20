@@ -64,13 +64,16 @@ enum sq_dir {
 enum move_info_bit {
     MIB_CASTLE       = (1 <<  0),
     MIB_KINGSIDE     = (1 <<  1),
+
     MIB_CAPTURE      = (1 <<  2),
     MIB_WITH_PIECE   = (1 <<  3),
     MIB_WITH_PAWN    = (1 <<  4),
     MIB_EN_PASSANT   = (1 <<  5),
+
     MIB_PAWN_ADVANCE = (1 <<  6),
     MIB_DOUBLE       = (1 <<  7),
     MIB_SINGLE       = (1 <<  8),
+
     MIB_PROMOTION    = (1 <<  9),
     MIB_TO_QUEEN     = (1 << 10),
     MIB_TO_ROOK      = (1 << 11),

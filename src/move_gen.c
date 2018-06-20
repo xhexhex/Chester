@@ -156,6 +156,17 @@ che_rawcodes( const char *fen )
  **** External functions ****
  ****************************/
 
+// Relocate, rename
+int
+qsort_rawcode_comp_fn( const void *a, const void *b )
+{
+    Rawcode x = *( (Rawcode *) a ), y = *( (Rawcode *) b );
+
+    if( x < y ) return -1;
+    else if( x > y ) return 1;
+    else return 0;
+}
+
 #define MAX_MOVE_COUNT_IN_POS 300
 
 // TODO: doc
@@ -197,26 +208,44 @@ rawcodes( const Pos *p )
     if( (O_O_O = castle(p, "queenside")) )
         pseudo[vacant++] = O_O_O;
 
-    for( int i = 1; i <= vacant; i++ ) {
-        // Copy 'p' into 'copy'
-        // copy_pos( p, &copy );
-        // void copy_pos( const Pos *p, Pos *copy );
+    pseudo[vacant++] = rawcode( "e1f1" );
+    pseudo[vacant++] = rawcode( "e1d1" );
+    pseudo[vacant++] = rawcode( "e1e2" );
+    pseudo[vacant++] = rawcode( "e1f2" );
+    pseudo[vacant++] = rawcode( "e1d2" );
 
-        // Make the move pseudo[i]
-        // If king can be captured in 'copy', write zero to pseudo[i]
+    printf( "vacant = %d\n", vacant );
+
+    int updated_vacant = vacant;
+    for( int i = 0; i < vacant; i++ ) {
+        printf( "i = %d\n", i );
+
+        Pos copy;
+        copy_pos( p, &copy );
+
+        make_move( &copy, pseudo[i], '-' );
+
+        if( king_can_be_captured( &copy ) ) {
+            pseudo[i] = 0;
+            --updated_vacant;
+        }
     }
+    printf( "updated_vacant = %u\n", updated_vacant );
 
-    /*
-    Rawcode *codes = (Rawcode *) malloc(
-        (MAX_MOVE_COUNT_IN_POS + 1) * sizeof(Rawcode) );
+    Rawcode *codes = (Rawcode *) malloc( (updated_vacant + 2) * sizeof(Rawcode) );
     assert(codes);
-    int vacant = 1;
 
-    codes[0] = vacant - 1;
-    // realloc codes
-    return p ? codes : NULL;
-    */
-    return NULL;
+    // Let's assume 'codes' contains the rawcodes 1, 2 and 3. The whole
+    // dynamically allocated array should be the following: {3,1,2,3,0}
+    *codes = updated_vacant;
+    *(codes + updated_vacant + 1) = 0;
+
+    for( int i = 0, j = 0; i < codes[0]; i++ )
+        if( pseudo[i] )
+            codes[++j] = pseudo[i];
+
+    qsort( codes + 1, *codes, sizeof(Rawcode), qsort_rawcode_comp_fn );
+    return codes;
 }
 
 #undef MAX_MOVE_COUNT_IN_POS

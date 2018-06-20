@@ -460,6 +460,7 @@ static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, Rawcode code );
 static void x_make_move_remove_castling_rights( Pos *p, const char *color,
     const char *side );
+static void x_make_move_regular( Pos *p, Rawcode code );
 
 /****************************
  **** External functions ****
@@ -691,6 +692,8 @@ make_move( Pos *p, Rawcode code, char promotion )
 
     if( info_bits & MIB_CASTLE )
         x_make_move_castle( p, code );
+    else
+        x_make_move_regular( p, code );
 
     x_make_move_toggle_turn(p);
 
@@ -917,4 +920,10 @@ x_make_move_castle( Pos *p, Rawcode code )
 
     x_make_move_remove_castling_rights(
         p, whites_turn(p) ? "white" : "black", "both" );
+}
+
+static void
+x_make_move_regular( Pos *p, Rawcode code )
+{
+
 }

@@ -765,7 +765,7 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_tests
+#tcase make_move_castling_tests
 
 #define TEST_WITH_ARGS( fen_arg, code, empty, \
         wking, wqueen, wrook, wbishop, wknight, wpawn, \
@@ -869,45 +869,20 @@ ck_assert( counter == exp_count );
         SB.c8, 0, SB.d8 | SB.g8, 0, 0, 0,
         136, 8, 64, 0, 11, 51 )
 
-#undef TEST_WITH_ARGS
-
-#define TEST_WITH_ARGS( fen_arg, code, empty, \
-        wking, wqueen, wrook, wbishop, wknight, wpawn, \
-        bking, bqueen, brook, bbishop, bknight, bpawn ) \
-    ck_assert( !che_fen_validator( fen_arg ) ); \
-    p = fen_to_pos( fen_arg ); \
-    make_move( p, code, '-' ); \
-    ck_assert( p->ppa[EMPTY_SQUARE] == (empty) ); \
-    ck_assert( p->ppa[WHITE_KING] == (wking) ); \
-    ck_assert( p->ppa[WHITE_QUEEN] == (wqueen) ); \
-    ck_assert( p->ppa[WHITE_ROOK] == (wrook) ); \
-    ck_assert( p->ppa[WHITE_BISHOP] == (wbishop) ); \
-    ck_assert( p->ppa[WHITE_KNIGHT] == (wknight) ); \
-    ck_assert( p->ppa[WHITE_PAWN] == (wpawn) ); \
-    ck_assert( p->ppa[BLACK_KING] == (bking) ); \
-    ck_assert( p->ppa[BLACK_QUEEN] == (bqueen) ); \
-    ck_assert( p->ppa[BLACK_ROOK] == (brook) ); \
-    ck_assert( p->ppa[BLACK_BISHOP] == (bbishop) ); \
-    ck_assert( p->ppa[BLACK_KNIGHT] == (bknight) ); \
-    ck_assert( p->ppa[BLACK_PAWN] == (bpawn) ); \
-    ck_assert( p->turn_and_ca_flags == 0 ); \
-    ck_assert( p->irp[0] == 1 ); \
-    ck_assert( p->irp[1] == 128 ); \
-    ck_assert( p->epts_file == 0 ); \
-    ck_assert( p->hmc == 1 ); \
-    ck_assert( p->fmn == 100 ); \
-    free(p);
+//
+// Test case
+//
+#tcase make_move_regular_move_tests
 
 #test C_make_move_tested_with_white_king
-    /*
     Pos *p;
-    // printf( "Code: %u\n", rawcode("e4f3") );
+    printf( "Code: %u\n", rawcode("e4d4") );
 
     TEST_WITH_ARGS(
-        "8/8/4k3/8/4K3/3N1b2/4R3/8 w - - 0 100", 1007, // "e4f3"
+        "8/8/4k3/8/4K3/3N1b2/4R3/8 w - - 0 100", 996, // "e4d4"
         0,
         0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0 )
-    */
 
 #undef TEST_WITH_ARGS
