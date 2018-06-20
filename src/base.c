@@ -458,7 +458,7 @@ static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_set_orig_and_dest( Rawcode code, int *orig,
     int *dest );
 static void x_make_move_toggle_turn( Pos *p );
-static void x_make_move_castle( Pos *p, int dest );
+static void x_make_move_castle( Pos *p, int dest, uint32_t *info_bits );
 static void x_make_move_remove_castling_rights( Pos *p, const char *color,
     const char *side );
 
@@ -682,27 +682,29 @@ rawmove( Rawcode rawcode, char *writable )
         writable[i] = ptr[i];
 }
 
+static Chessman x_make_move_type_of_moving_chessman( const Pos *p, int orig );
+static uint32_t x_make_move_set_move_info_bits( const Pos *p,
+    Chessman mover, int orig, int dest );
+
 // TODO: doc
 uint32_t
 make_move( Pos *p, Rawcode code, char promotion )
 {
+    // void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
     int orig, dest;
     x_make_move_set_orig_and_dest( code, &orig, &dest );
 
-    Chessman cm_to_move = EMPTY_SQUARE;
-    while( !(p->ppa[++cm_to_move] & SBA[orig]) );
-    assert(
-        ( whites_turn(p) &&
-            cm_to_move >= WHITE_KING && cm_to_move <= WHITE_PAWN ) ||
-        ( !whites_turn(p) &&
-            cm_to_move >= BLACK_KING && cm_to_move <= BLACK_PAWN ) );
+    // More general: type_of_cm( p, bi )
+    Chessman mover = x_make_move_type_of_moving_chessman( p, orig );
+    uint32_t info_bits =
+        x_make_move_set_move_info_bits( p, mover, orig, dest );
 
     // Should come up with an enum and a function to identify the move type
     p->epts_file = 0;
 
-    if( ( cm_to_move == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
-            ( cm_to_move == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
-        x_make_move_castle( p, dest );
+    if( ( mover == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
+            ( mover == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
+        x_make_move_castle( p, dest, &info_bits );
 
     x_make_move_toggle_turn(p);
 
@@ -711,7 +713,40 @@ make_move( Pos *p, Rawcode code, char promotion )
 
     assert( !ppa_integrity_check( p->ppa ) );
 
-    return promotion;
+    uint32_t shit = 0;
+    shit |= MIB_CASTLE, shit |= MIB_CAPTURE;
+    return shit;
+}
+
+static uint32_t
+x_make_move_set_move_info_bits( const Pos *p, Chessman mover,
+    int orig, int dest )
+{
+    uint32_t info_bits = 0;
+
+    if( ( mover == WHITE_KING && (SBA[dest] & p->ppa[WHITE_ROOK]) ) ||
+        ( mover == BLACK_KING && (SBA[dest] & p->ppa[BLACK_ROOK]) ) )
+    {
+        // MIB_KINGSIDE is set later, if need be
+        info_bits |= MIB_CASTLE;
+    }
+
+    return info_bits;
+}
+
+static Chessman
+x_make_move_type_of_moving_chessman( const Pos *p, int orig )
+{
+    Chessman mover = EMPTY_SQUARE;
+    while( !(p->ppa[++mover] & SBA[orig]) );
+
+    assert(
+        ( whites_turn(p) &&
+            mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
+        ( !whites_turn(p) &&
+            mover >= BLACK_KING && mover <= BLACK_PAWN ) );
+
+    return mover;
 }
 
 /****************************
@@ -909,7 +944,7 @@ x_make_move_toggle_turn( Pos *p )
 }
 
 static void
-x_make_move_castle( Pos *p, int dest )
+x_make_move_castle( Pos *p, int dest, uint32_t *info_bits )
 {
     Bitboard castling_rook = ( SBA[dest] &
         (p->ppa[WHITE_ROOK] | p->ppa[BLACK_ROOK]) ),

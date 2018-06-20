@@ -29,7 +29,7 @@ bool str_m_pat( const char *str, const char *pat );
 void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );
 void set_bits( uint64_t *bits, const uint64_t BITMASK );
 void unset_bits( uint64_t *bits, const uint64_t BITMASK );
-Chessman occupant_of_sq( const Pos *p, const char *sq_name );
+Chessman occupant_of_sq( const Pos *p, Bitboard sq_bit );
 Bitboard sq_name_to_sq_bit( const char *sq_name );
 const char *sq_bit_to_sq_name( Bitboard sq_bit );
 char file_of_sq( const Bitboard sq_bit );

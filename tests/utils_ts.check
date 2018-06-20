@@ -152,60 +152,46 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
             SNA[ i ] ) );
     }
 
+//
+// Test case
+//
 #tcase occupant_of_sq_tests
 
-#define STD_START_POS fen_to_pos( FEN_STD_START_POS )
+#define TEST_WITH_ARGS( sq_bit_arg, expected_cm ) \
+    ck_assert( occupant_of_sq(p, sq_bit_arg) == expected_cm );
 
-#test C_occupant_of_sq_returns_EMPTY_SQUARE
+#test C_occupant_of_sq_tested_with_the_standard_starting_position
+    Pos *p = fen_to_pos(FEN_STD_START_POS);
+
     for( int i = 16; i <= 47; i++ ) {
-        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == EMPTY_SQUARE );
+        TEST_WITH_ARGS( SBA[i], EMPTY_SQUARE )
     }
-
-#test C_occupant_of_sq_returns_WHITE_KING
-    ck_assert( occupant_of_sq( STD_START_POS, "e1" ) == WHITE_KING );
-
-#test C_occupant_of_sq_returns_WHITE_QUEEN
-    ck_assert( occupant_of_sq( STD_START_POS, "d1" ) == WHITE_QUEEN );
-
-#test C_occupant_of_sq_returns_WHITE_ROOK
-    ck_assert( occupant_of_sq( STD_START_POS, "a1" ) == WHITE_ROOK );
-    ck_assert( occupant_of_sq( STD_START_POS, "h1" ) == WHITE_ROOK );
-
-#test C_occupant_of_sq_returns_WHITE_BISHOP
-    ck_assert( occupant_of_sq( STD_START_POS, "c1" ) == WHITE_BISHOP );
-    ck_assert( occupant_of_sq( STD_START_POS, "f1" ) == WHITE_BISHOP );
-
-#test C_occupant_of_sq_returns_WHITE_KNIGHT
-    ck_assert( occupant_of_sq( STD_START_POS, "b1" ) == WHITE_KNIGHT );
-    ck_assert( occupant_of_sq( STD_START_POS, "g1" ) == WHITE_KNIGHT );
-
-#test C_occupant_of_sq_returns_WHITE_PAWN
+    TEST_WITH_ARGS( SB.e1, WHITE_KING )
+    TEST_WITH_ARGS( SB.d1, WHITE_QUEEN )
+    TEST_WITH_ARGS( SB.a1, WHITE_ROOK )
+    TEST_WITH_ARGS( SB.h1, WHITE_ROOK )
+    TEST_WITH_ARGS( SB.c1, WHITE_BISHOP )
+    TEST_WITH_ARGS( SB.f1, WHITE_BISHOP )
+    TEST_WITH_ARGS( SB.b1, WHITE_KNIGHT )
+    TEST_WITH_ARGS( SB.g1, WHITE_KNIGHT )
     for( int i = 8; i <= 15; i++ ) {
-        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == WHITE_PAWN );
+        TEST_WITH_ARGS( SBA[i], WHITE_PAWN )
     }
-
-#test C_occupant_of_sq_returns_BLACK_KING
-    ck_assert( occupant_of_sq( STD_START_POS, "e8" ) == BLACK_KING );
-
-#test C_occupant_of_sq_returns_BLACK_QUEEN
-    ck_assert( occupant_of_sq( STD_START_POS, "d8" ) == BLACK_QUEEN );
-
-#test C_occupant_of_sq_returns_BLACK_ROOK
-    ck_assert( occupant_of_sq( STD_START_POS, "a8" ) == BLACK_ROOK );
-    ck_assert( occupant_of_sq( STD_START_POS, "h8" ) == BLACK_ROOK );
-
-#test C_occupant_of_sq_returns_BLACK_BISHOP
-    ck_assert( occupant_of_sq( STD_START_POS, "c8" ) == BLACK_BISHOP );
-    ck_assert( occupant_of_sq( STD_START_POS, "f8" ) == BLACK_BISHOP );
-
-#test C_occupant_of_sq_returns_BLACK_KNIGHT
-    ck_assert( occupant_of_sq( STD_START_POS, "b8" ) == BLACK_KNIGHT );
-    ck_assert( occupant_of_sq( STD_START_POS, "g8" ) == BLACK_KNIGHT );
-
-#test C_occupant_of_sq_returns_BLACK_PAWN
+    TEST_WITH_ARGS( SB.e8, BLACK_KING )
+    TEST_WITH_ARGS( SB.d8, BLACK_QUEEN )
+    TEST_WITH_ARGS( SB.a8, BLACK_ROOK )
+    TEST_WITH_ARGS( SB.h8, BLACK_ROOK )
+    TEST_WITH_ARGS( SB.c8, BLACK_BISHOP )
+    TEST_WITH_ARGS( SB.f8, BLACK_BISHOP )
+    TEST_WITH_ARGS( SB.b8, BLACK_KNIGHT )
+    TEST_WITH_ARGS( SB.g8, BLACK_KNIGHT )
     for( int i = 48; i <= 55; i++ ) {
-        ck_assert( occupant_of_sq( STD_START_POS, SNA[ i ] ) == BLACK_PAWN );
+        TEST_WITH_ARGS( SBA[i], BLACK_PAWN )
     }
+
+    free(p);
+
+#undef TEST_WITH_ARGS
 
 //
 // Test case

@@ -148,18 +148,19 @@ unset_bits( uint64_t *bits, const uint64_t BITMASK )
     set_or_unset_bits( bits, BITMASK, 0 );
 }
 
-// Returns the type of chessman on a particular square of a particular position
+// Returns the type of chessman on square 'sq_bit' in position 'p'. For
+// example, if we assume 'p' represents the standard starting position,
+// then the call occupant_of_sq(p, SB.e1) would return WHITE_KING.
 Chessman
-occupant_of_sq( const Pos *p, const char *sq_name )
+occupant_of_sq( const Pos *p, Bitboard sq_bit )
 {
-    Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
-
-    for( Chessman cm = WHITE_KING; cm <= BLACK_PAWN; cm++ )
-        if( sq_bit & p->ppa[ cm ] )
+    for( Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++ )
+        if( sq_bit & p->ppa[cm] )
             return cm;
 
-    return EMPTY_SQUARE;
-}
+    assert(false);
+    return -1;
+} // Review: 2018-06-20
 
 // Converts a square name such as "c2" to a square bit such as 0x400
 Bitboard

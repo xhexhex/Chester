@@ -49,8 +49,6 @@ static bool x_castle_kings_path_in_check( const Pos *p, bool kingside,
     Bitboard castling_king );
 static Rawcode x_castle_rawcode(
     Bitboard castling_king, Bitboard castling_rook );
-static void x_rawcodes_king( /*const Pos *p, Rawcode *codes, int *vacant*/ );
-static void x_rawcodes_castle( /*const Pos *p, Rawcode *codes, int *vacant*/ );
 
 /***********************
  **** External data ****
@@ -164,32 +162,55 @@ che_rawcodes( const char *fen )
 Rawcode *
 rawcodes( const Pos *p )
 {
+    /*
+     * The first thing is to determine the potential castling moves
+     * in position 'p'. For this we have
+     * Rawcode castle( const Pos *p, const char *castle_type ). We call
+     * it twice and -- assuming non-zero is returned -- add the returned
+     * zero, one or two rawcodes into the 'pseudo' array.
+     */
+
+    Rawcode pseudo[MAX_MOVE_COUNT_IN_POS], O_O, O_O_O;
+    int vacant = 0;
+    if( (O_O = castle(p, "kingside")) )
+        pseudo[vacant++] = O_O;
+    if( (O_O_O = castle(p, "queenside")) )
+        pseudo[vacant++] = O_O_O;
+
+     /*
+     * En passant is also treated as a special case. If p->epts_file is
+     * non-zero, then zero, one or two enemy pawns can capture and move
+     * to the EPTS. The rawcodes of any potential en passant captures
+     * are added into 'pseudo'.
+     *
+     * It's time to start dealing with p->ppa[cm] starting from the
+     * king of the AC and ending in the pawns of the AC. All the potential
+     * moves are added into 'pseudo'.
+     *
+     * Now 'pseudo' should contain moves that are all legal assuming that
+     * king capture is not possible after executing them. We check each
+     * of these pseudo-legal moves with make_move() and
+     * king_can_be_captured(). The illegal moves in pseudo are marked.
+     *
+     * The last step is to copy the non-marked moves from 'pseudo' into
+     * a dynamically allocated Rawcode array 'codes'. 'codes[0]' is the
+     * number of rawcodes, that is, codes[0] = n for codes[1]...codes[n].
+     */
+
+    /*
     Rawcode *codes = (Rawcode *) malloc(
         (MAX_MOVE_COUNT_IN_POS + 1) * sizeof(Rawcode) );
     assert(codes);
     int vacant = 1;
 
-    x_rawcodes_castle( /*p, codes, &vacant*/ );
-    x_rawcodes_king( /*p, codes, &vacant*/ );
-
     codes[0] = vacant - 1;
     // realloc codes
     return p ? codes : NULL;
+    */
+    return NULL;
 }
 
 #undef MAX_MOVE_COUNT_IN_POS
-
-static void
-x_rawcodes_castle( /*const Pos *p, Rawcode *codes, int *vacant*/ )
-{
-    // if( can_castle( p, "kingside" ) ...
-}
-
-static void
-x_rawcodes_king( /*const Pos *p, Rawcode *codes, int *vacant*/ )
-{
-
-}
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in
@@ -247,7 +268,7 @@ dest_sqs( const Pos *p, Bitboard origin_sq )
     assert( is_sq_bit( origin_sq ) );
 
     Bitboard dest_sqs = 0;
-    Chessman cm = occupant_of_sq( p, sq_bit_to_sq_name( origin_sq ) );
+    Chessman cm = occupant_of_sq( p, origin_sq );
 
     if( cm == WHITE_KING || cm == BLACK_KING )
         dest_sqs = x_dest_sqs_king( p );
