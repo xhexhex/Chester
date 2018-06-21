@@ -686,6 +686,9 @@ rawmove( Rawcode rawcode, char *writable )
 void
 make_move( Pos *p, Rawcode code, char promotion )
 {
+    promotion = 0;
+    if(promotion) assert(false);
+
     uint32_t info_bits = move_info( p, code );
 
     p->epts_file = 0;
@@ -925,5 +928,14 @@ x_make_move_castle( Pos *p, Rawcode code )
 static void
 x_make_move_regular( Pos *p, Rawcode code )
 {
+    int orig, dest;
+    rawcode_bit_indexes( code, &orig, &dest );
+    Chessman mover = occupant_of_sq( p, SBA[orig] ),
+        target = occupant_of_sq( p, SBA[dest] );
+    assert( mover != EMPTY_SQUARE && mover != target );
 
+    // Make the origin square vacant
+    p->ppa[mover] ^= SBA[orig], p->ppa[EMPTY_SQUARE] |= SBA[orig];
+    // Make the moving chessman "reappear" in the destination square
+    p->ppa[mover] |= SBA[dest], p->ppa[target] ^= SBA[dest];
 }

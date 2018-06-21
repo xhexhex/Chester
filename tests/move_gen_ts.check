@@ -515,7 +515,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 //
 #tcase rawcodes_tests_with_simple_positions
 
-#test C_rawcodes_tested_with_kings_and_rooks_only
+/*
+test C_rawcodes_tested_the_very_first_time
     const char fen[] = "8/8/8/8/8/4k3/8/R3K2R w KQ - 1 100";
     ck_assert( !che_fen_validator(fen) );
     Pos *p = fen_to_pos(fen);
@@ -524,8 +525,49 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     printf( "codes[0] = %u\n", codes[0] );
     for( int i = 1; i <= codes[0]; i++ ) {
         char move[4 + 1];
+        // printf( "codes[%d] == %u\n", i, codes[i] );
         rawmove( codes[i], move );
         printf( "RESULT: %s (%u)\n", move, codes[i] );
+    }
+    free(codes);
+    free(p);
+*/
+
+#test C_rawcodes_tested_with_kings_and_rooks
+    Rawcode expected[23 + 2];
+    expected[ 1] = rawcode( "a1a2" ),
+    expected[ 2] = rawcode( "a1a3" ),
+    expected[ 3] = rawcode( "a1a4" ),
+    expected[ 4] = rawcode( "a1a5" ),
+    expected[ 5] = rawcode( "a1a6" ),
+    expected[ 6] = rawcode( "a1a7" ),
+    expected[ 7] = rawcode( "a1a8" ),
+    expected[ 8] = rawcode( "a1b1" ),
+    expected[ 9] = rawcode( "a1c1" ),
+    expected[10] = rawcode( "a1d1" ),
+    expected[11] = rawcode( "e1a1" ),
+    expected[12] = rawcode( "e1d1" ),
+    expected[13] = rawcode( "e1f1" ),
+    expected[14] = rawcode( "e1h1" ),
+    expected[15] = rawcode( "h1f1" ),
+    expected[16] = rawcode( "h1g1" ),
+    expected[17] = rawcode( "h1h2" ),
+    expected[18] = rawcode( "h1h3" ),
+    expected[19] = rawcode( "h1h4" ),
+    expected[20] = rawcode( "h1h5" ),
+    expected[21] = rawcode( "h1h6" ),
+    expected[22] = rawcode( "h1h7" ),
+    expected[23] = rawcode( "h1h8" );
+
+    // The milestone position! :)
+    const char fen[] = "8/8/8/8/8/4k3/8/R3K2R w KQ - 1 100";
+    ck_assert( !che_fen_validator(fen) );
+    Pos *p = fen_to_pos(fen);
+    Rawcode *codes = rawcodes(p);
+    ck_assert( !codes[ codes[0] + 1 ] );
+    for( int i = 1; i <= codes[0]; i++ ) {
+        printf( "%2d: Testing %4u == %4u\n", i, codes[i], expected[i] );
+        ck_assert( codes[i] == expected[i] );
     }
     free(codes);
     free(p);
