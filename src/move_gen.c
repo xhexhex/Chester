@@ -50,8 +50,8 @@ static bool x_castle_kings_path_in_check( const Pos *p, bool kingside,
 static Rawcode x_castle_rawcode(
     Bitboard castling_king, Bitboard castling_rook );
 static void x_rawcodes_king( const Pos *p, Rawcode *pseudo, int *vacant );
-static void x_rawcodes_rook( const Pos *p, int mover, Rawcode *pseudo,
-    int *vacant );
+static void x_rawcodes_rook_and_bishop( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant, bool rook );
 
 /***********************
  **** External data ****
@@ -176,32 +176,6 @@ qsort_rawcode_comp_fn( const void *a, const void *b )
 Rawcode *
 rawcodes( const Pos *p )
 {
-    /*
-     * The first thing is to determine the potential castling moves
-     * in position 'p'. For this we have
-     * Rawcode castle( const Pos *p, const char *castle_type ). We call
-     * it twice and -- assuming non-zero is returned -- add the returned
-     * zero, one or two rawcodes into the 'pseudo' array.
-     *
-     * En passant is also treated as a special case. If p->epts_file is
-     * non-zero, then zero, one or two enemy pawns can capture and move
-     * to the EPTS. The rawcodes of any potential en passant captures
-     * are added into 'pseudo'.
-     *
-     * It's time to start dealing with p->ppa[cm] starting from the
-     * king of the AC and ending in the pawns of the AC. All the potential
-     * moves are added into 'pseudo'.
-     *
-     * Now 'pseudo' should contain moves that are all legal assuming that
-     * king capture is not possible after executing them. We check each
-     * of these pseudo-legal moves with make_move() and
-     * king_can_be_captured(). The illegal moves in pseudo are marked.
-     *
-     * The last step is to copy the non-marked moves from 'pseudo' into
-     * a dynamically allocated Rawcode array 'codes'. 'codes[0]' is the
-     * number of rawcodes, that is, codes[0] = n for codes[1]...codes[n].
-     */
-
     Rawcode pseudo[MAX_MOVE_COUNT_IN_POS];
     int vacant = 0;
 
@@ -214,33 +188,26 @@ rawcodes( const Pos *p )
     for( int i = 0; i < 64; i++ ) {
         Bitboard bit = SBA[i];
         if( bit & p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] ) {
-            // printf( "King on \"%s\"\n", SNA[i] );
             x_rawcodes_king( p, pseudo, &vacant );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
-            // printf( "Queen on \"%s\"\n", SNA[i] );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ) {
-            // printf( "Rook on \"%s\"\n", SNA[i] );
-            x_rawcodes_rook( p, sq_bit_index(bit), pseudo, &vacant );
+            x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
+                &vacant, true );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_BISHOP : BLACK_BISHOP] ) {
-            // printf( "Bishop on \"%s\"\n", SNA[i] );
+            x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
+                &vacant, false );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
-            // printf( "Knight on \"%s\"\n", SNA[i] );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
-            // printf( "Pawn on \"%s\"\n", SNA[i] );
         }
     }
 
-    // printf( "vacant = %d\n", vacant );
-
     int updated_vacant = vacant;
     for( int i = 0; i < vacant; i++ ) {
-        // printf( "i = %d\n", i );
-
         Pos copy;
         copy_pos( p, &copy );
 
@@ -251,7 +218,6 @@ rawcodes( const Pos *p )
             --updated_vacant;
         }
     }
-    // printf( "updated_vacant = %u\n", updated_vacant );
 
     Rawcode *codes = (Rawcode *) malloc( (updated_vacant + 2) * sizeof(Rawcode) );
     assert(codes);
@@ -270,8 +236,12 @@ rawcodes( const Pos *p )
     assert( j == updated_vacant );
 
     qsort( codes + 1, *codes, sizeof(Rawcode), qsort_rawcode_comp_fn );
-    printf( "codes: " );
-    for( int i = 0; i <= codes[0] + 1; i++ ) printf( "%u ", codes[i] );
+    printf( "Rawmoves: " );
+    for( int i = 1; i <= codes[0] + 0; i++ ) {
+        char move[4 + 1];
+        rawmove( codes[i], move );
+        printf( "%s ", move );
+    }
     printf("\n");
     return codes;
 }
@@ -843,15 +813,21 @@ x_rawcodes_king( const Pos *p, Rawcode *pseudo, int *vacant )
 }
 
 static void
-x_rawcodes_rook( const Pos *p, int mover, Rawcode *pseudo, int *vacant )
+x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
+    int *vacant, bool rook )
 {
     char move[4 + 1] = {0};
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
 
-    Bitboard friendly_cm = (
-        whites_turn(p) ? ss_white_army(p) : ss_black_army(p) );
+    Bitboard
+        friendly_cm =
+            whites_turn(p) ? ss_white_army(p) : ss_black_army(p),
+        enemy_cm =
+            whites_turn(p) ? ss_black_army(p) : ss_white_army(p);
 
-    for( enum sq_dir d = NORTH; d <= WEST; d += 2 ) {
+    for( enum sq_dir d = rook ? NORTH : NORTHEAST;
+        d <= ( rook ? WEST : NORTHWEST ); d += 2 )
+    {
         Bitboard bit = SBA[mover];
         while( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
             // printf( "%s ", SNA[sq_bit_index(bit)] );
@@ -860,6 +836,7 @@ x_rawcodes_rook( const Pos *p, int mover, Rawcode *pseudo, int *vacant )
             assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
             // printf( "Rook move: %s\n", move );
             pseudo[(*vacant)++] = rawcode(move);
+            if( bit & enemy_cm ) break;
         }
         // printf("\n");
     }
