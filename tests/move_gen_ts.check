@@ -691,6 +691,15 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "1R5K/8/8/8/8/8/4n3/k1n3R1 b - - 0 1", expected )
 
+#test C_rawcodes_tested_with_kings_and_pawns_1
+    Rawcode expected[2 + 1];
+
+    expected[ 0] = 2,
+    expected[ 1] = rawcode( "h2h3" ),
+    expected[ 2] = rawcode( "h2h4" );
+
+    TEST_WITH_ARGS( "8/8/8/8/8/8/7P/5k1K w - - 0 1", expected )
+
 #test C_rawcodes_tested_with_stalemate_positions
     Rawcode expected[0 + 1];
 
@@ -698,5 +707,49 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "8/8/3p4/3R4/4k3/3R4/4p2B/4K3 b - - 0 99", expected )
     // TODO: Assert that the king is not in check
+
+#test C_rawcodes_tested_with_game_of_the_century_after_11_Bg5
+    Rawcode expected[37 + 1];
+
+    expected[ 0] = 37,
+    expected[ 1] = rawcode( "a7a5" ),
+    expected[ 2] = rawcode( "a7a6" ),
+    expected[ 3] = rawcode( "a8b8" ),
+    expected[ 4] = rawcode( "a8c8" ),
+    expected[ 5] = rawcode( "b6a4" ),
+    expected[ 6] = rawcode( "b6c4" ),
+    expected[ 7] = rawcode( "b6c8" ),
+    expected[ 8] = rawcode( "b6d5" ),
+    expected[ 9] = rawcode( "b6d7" ),
+    expected[10] = rawcode( "d8b8" ),
+    expected[11] = rawcode( "d8c7" ),
+    expected[12] = rawcode( "d8c8" ),
+    expected[13] = rawcode( "d8d4" ),
+    expected[14] = rawcode( "d8d5" ),
+    expected[15] = rawcode( "d8d6" ),
+    expected[16] = rawcode( "d8d7" ),
+    expected[17] = rawcode( "d8e8" ),
+    expected[18] = rawcode( "e7e5" ),
+    expected[19] = rawcode( "e7e6" ),
+    expected[20] = rawcode( "f6d5" ),
+    expected[21] = rawcode( "f6d7" ),
+    expected[22] = rawcode( "f6e4" ),
+    expected[23] = rawcode( "f6e8" ),
+    expected[24] = rawcode( "f6h5" ),
+    expected[25] = rawcode( "f8e8" ),
+    expected[26] = rawcode( "g4c8" ),
+    expected[27] = rawcode( "g4d7" ),
+    expected[28] = rawcode( "g4e6" ),
+    expected[29] = rawcode( "g4f3" ),
+    expected[30] = rawcode( "g4f5" ),
+    expected[31] = rawcode( "g4h3" ),
+    expected[32] = rawcode( "g4h5" ),
+    expected[33] = rawcode( "g7h6" ),
+    expected[34] = rawcode( "g7h8" ),
+    expected[35] = rawcode( "g8h8" ),
+    expected[36] = rawcode( "h7h5" ),
+    expected[37] = rawcode( "h7h6" );
+
+    TEST_WITH_ARGS( FEN_GAME_OF_THE_CENTURY, expected )
 
 #undef TEST_WITH_ARGS

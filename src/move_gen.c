@@ -53,6 +53,8 @@ static void x_rawcodes_king_and_knight( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant, bool rook );
 static void x_rawcodes_rook_and_bishop( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant, bool rook );
+static void x_rawcodes_pawn_advance( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant );
 
 /***********************
  **** External data ****
@@ -210,6 +212,8 @@ rawcodes( const Pos *p )
                 pseudo, &vacant, false );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
+            x_rawcodes_pawn_advance( p, sq_bit_index(bit),
+                pseudo, &vacant );
         }
     }
 
@@ -243,6 +247,7 @@ rawcodes( const Pos *p )
     assert( j == updated_vacant );
 
     qsort( codes + 1, *codes, sizeof(Rawcode), qsort_rawcode_comp_fn );
+    /*
     printf( "Rawmoves: " );
     for( int i = 1; i <= codes[0] + 0; i++ ) {
         char move[4 + 1];
@@ -250,6 +255,7 @@ rawcodes( const Pos *p )
         printf( "%s ", move );
     }
     printf("\n");
+    */
     return codes;
 }
 
@@ -842,4 +848,33 @@ x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
             if( bit & enemy_cm ) break;
         }
     }
+}
+
+static void
+x_rawcodes_pawn_advance( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant )
+{
+    Bitboard sq_in_front =
+        sq_nav( SBA[mover], whites_turn(p) ? NORTH : SOUTH );
+    assert( sq_in_front );
+    if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) return;
+
+    char move[4 + 1] = {0};
+    move[0] = SNA[mover][0], move[1] = SNA[mover][1];
+    move[2] = SNA[sq_bit_index(sq_in_front)][0];
+    move[3] = SNA[sq_bit_index(sq_in_front)][1];
+    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+
+    pseudo[(*vacant)++] = rawcode(move);
+
+    sq_in_front = sq_nav( sq_in_front, whites_turn(p) ? NORTH : SOUTH );
+    if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) return;
+    if( !(whites_turn(p) && (SS_RANK_2 & SBA[mover])) &&
+        !(!whites_turn(p) && (SS_RANK_7 & SBA[mover])) ) return;
+    move[0] = SNA[mover][0], move[1] = SNA[mover][1];
+    move[2] = SNA[sq_bit_index(sq_in_front)][0];
+    move[3] = SNA[sq_bit_index(sq_in_front)][1];
+    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+
+    pseudo[(*vacant)++] = rawcode(move);
 }
