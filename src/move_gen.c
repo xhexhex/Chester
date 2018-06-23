@@ -49,7 +49,8 @@ static bool x_castle_kings_path_in_check( const Pos *p, bool kingside,
     Bitboard castling_king );
 static Rawcode x_castle_rawcode(
     Bitboard castling_king, Bitboard castling_rook );
-static void x_rawcodes_king( const Pos *p, Rawcode *pseudo, int *vacant );
+static void x_rawcodes_king_and_knight( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant, bool rook );
 static void x_rawcodes_rook_and_bishop( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant, bool rook );
 
@@ -188,7 +189,8 @@ rawcodes( const Pos *p )
     for( int i = 0; i < 64; i++ ) {
         Bitboard bit = SBA[i];
         if( bit & p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] ) {
-            x_rawcodes_king( p, pseudo, &vacant );
+            x_rawcodes_king_and_knight( p, sq_bit_index(bit),
+                pseudo, &vacant, true );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
             for( int i = 0; i <= 1; i++ )
@@ -204,6 +206,8 @@ rawcodes( const Pos *p )
                 &vacant, false );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
+            x_rawcodes_king_and_knight( p, sq_bit_index(bit),
+                pseudo, &vacant, false );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
         }
@@ -789,29 +793,26 @@ x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
 }
 
 static void
-x_rawcodes_king( const Pos *p, Rawcode *pseudo, int *vacant )
+x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
+    int *vacant, bool king )
 {
-    int king = sq_bit_index(
-        whites_turn(p) ? p->ppa[WHITE_KING] : p->ppa[BLACK_KING] );
-    Bitboard kings_army = (
-        whites_turn(p) ? ss_white_army(p) : ss_black_army(p) ),
-        dest_sqs = KING_SQS[king];
-
-    for( int i = 0; i < 64; i++ ) {
-        Bitboard bit = SBA[i];
-        if( (bit & kings_army) && (bit & dest_sqs) ) dest_sqs ^= bit;
-    }
-
     char move[4 + 1] = {0};
-    move[0] = SNA[king][0], move[1] = SNA[king][1];
+    move[0] = SNA[mover][0], move[1] = SNA[mover][1];
 
-    for( int i = 0; i < 64; i++ ) {
-        Bitboard bit = SBA[i];
-        if( !(bit & dest_sqs) ) continue;
+    Bitboard friendly_cm =
+        whites_turn(p) ? ss_white_army(p) : ss_black_army(p);
 
-        move[2] = SNA[i][0], move[3] = SNA[i][1];
-        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
-        pseudo[(*vacant)++] = rawcode(move);
+    for( enum sq_dir d = king ? NORTH : ONE_OCLOCK;
+        d <= ( king ? NORTHWEST : ELEVEN_OCLOCK ); d++ )
+    {
+        Bitboard bit = SBA[mover];
+        if( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
+            move[2] = SNA[sq_bit_index(bit)][0];
+            move[3] = SNA[sq_bit_index(bit)][1];
+            assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+
+            pseudo[(*vacant)++] = rawcode(move);
+        }
     }
 }
 
@@ -833,14 +834,12 @@ x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
     {
         Bitboard bit = SBA[mover];
         while( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
-            // printf( "%s ", SNA[sq_bit_index(bit)] );
             move[2] = SNA[sq_bit_index(bit)][0];
             move[3] = SNA[sq_bit_index(bit)][1];
             assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
-            // printf( "Rook move: %s\n", move );
+
             pseudo[(*vacant)++] = rawcode(move);
             if( bit & enemy_cm ) break;
         }
-        // printf("\n");
     }
 }
