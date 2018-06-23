@@ -528,7 +528,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
 #test C_rawcodes_tested_with_kings_and_rooks_1
     Rawcode expected[23 + 1];
-    expected[ 0] = 23;
+
+    expected[ 0] = 23,
     expected[ 1] = rawcode( "a1a2" ),
     expected[ 2] = rawcode( "a1a3" ),
     expected[ 3] = rawcode( "a1a4" ),
@@ -557,7 +558,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
 #test C_rawcodes_tested_with_kings_and_rooks_2
     Rawcode expected[9 + 1];
-    expected[ 0] = 9;
+
+    expected[ 0] = 9,
     expected[ 1] = rawcode( "e6d6" ),
     expected[ 2] = rawcode( "e6e1" ),
     expected[ 3] = rawcode( "e6e2" ),
@@ -572,15 +574,17 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
 #test C_rawcodes_tested_with_kings_and_rooks_3
     Rawcode expected[2 + 1];
-    expected[ 0] = 2;
+
+    expected[ 0] = 2,
     expected[ 1] = rawcode( "h3h2" ),
-    expected[ 2] = rawcode( "h3h4" ),
+    expected[ 2] = rawcode( "h3h4" );
 
     TEST_WITH_ARGS( "8/8/8/8/7r/7R/r7/5k1K w - - 0 1", expected )
 
 #test C_rawcodes_tested_with_kings_and_bishops_1
     Rawcode expected[13 + 1];
-    expected[ 0] = 13;
+
+    expected[ 0] = 13,
     expected[ 1] = rawcode( "d4a1" ),
     expected[ 2] = rawcode( "d4a7" ),
     expected[ 3] = rawcode( "d4b2" ),
@@ -593,20 +597,70 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     expected[10] = rawcode( "d4f6" ),
     expected[11] = rawcode( "d4g1" ),
     expected[12] = rawcode( "d4g7" ),
-    expected[13] = rawcode( "d4h8" ),
+    expected[13] = rawcode( "d4h8" );
 
     TEST_WITH_ARGS( "8/8/8/8/3B4/6b1/8/5k1K w - - 0 1", expected )
 
 #test C_rawcodes_tested_with_kings_and_bishops_2
     Rawcode expected[2 + 1];
-    expected[ 0] = 2;
+
+    expected[ 0] = 2,
     expected[ 1] = rawcode( "b7c6" ),
     expected[ 2] = rawcode( "b7d5" );
 
     TEST_WITH_ARGS( "k7/1b6/8/3B4/4K3/8/7B/6B1 b - - 0 1", expected )
 
+#test C_rawcodes_tested_with_kings_and_queens_1
+    Rawcode expected[27 + 1];
+
+    expected[ 0] = 27,
+    expected[ 1] = rawcode( "d4a1" ),
+    expected[ 2] = rawcode( "d4a4" ),
+    expected[ 3] = rawcode( "d4a7" ),
+    expected[ 4] = rawcode( "d4b2" ),
+    expected[ 5] = rawcode( "d4b4" ),
+    expected[ 6] = rawcode( "d4b6" ),
+    expected[ 7] = rawcode( "d4c3" ),
+    expected[ 8] = rawcode( "d4c4" ),
+    expected[ 9] = rawcode( "d4c5" ),
+    expected[10] = rawcode( "d4d1" ),
+    expected[11] = rawcode( "d4d2" ),
+    expected[12] = rawcode( "d4d3" ),
+    expected[13] = rawcode( "d4d5" ),
+    expected[14] = rawcode( "d4d6" ),
+    expected[15] = rawcode( "d4d7" ),
+    expected[16] = rawcode( "d4d8" ),
+    expected[17] = rawcode( "d4e3" ),
+    expected[18] = rawcode( "d4e4" ),
+    expected[19] = rawcode( "d4e5" ),
+    expected[20] = rawcode( "d4f2" ),
+    expected[21] = rawcode( "d4f4" ),
+    expected[22] = rawcode( "d4f6" ),
+    expected[23] = rawcode( "d4g1" ),
+    expected[24] = rawcode( "d4g4" ),
+    expected[25] = rawcode( "d4g7" ),
+    expected[26] = rawcode( "d4h4" ),
+    expected[27] = rawcode( "d4h8" );
+
+    TEST_WITH_ARGS( "k1K5/4q3/8/8/3Q4/8/8/8 w - - 0 1", expected )
+
+#test C_rawcodes_tested_with_kings_and_queens_2
+    Rawcode expected[7 + 1];
+
+    expected[ 0] = 7,
+    expected[ 1] = rawcode( "h1g1" ),
+    expected[ 2] = rawcode( "h1g2" ),
+    expected[ 3] = rawcode( "h1h2" ),
+    expected[ 4] = rawcode( "h1h3" ),
+    expected[ 5] = rawcode( "h1h4" ),
+    expected[ 6] = rawcode( "h1h5" ),
+    expected[ 7] = rawcode( "h6g6" );
+
+    TEST_WITH_ARGS( "7K/8/7k/Q7/8/6p1/6Q1/6Qq b - - 0 1", expected )
+
 #test C_rawcodes_tested_with_stalemate_positions
     Rawcode expected[0 + 1];
+
     expected[0] = 0;
 
     TEST_WITH_ARGS( "8/8/3p4/3R4/4k3/3R4/4p2B/4K3 b - - 0 99", expected )

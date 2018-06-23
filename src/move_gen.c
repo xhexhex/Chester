@@ -191,6 +191,9 @@ rawcodes( const Pos *p )
             x_rawcodes_king( p, pseudo, &vacant );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
+            for( int i = 0; i <= 1; i++ )
+                x_rawcodes_rook_and_bishop( p, sq_bit_index(bit),
+                    pseudo, &vacant, i );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ) {
             x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
