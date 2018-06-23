@@ -700,6 +700,35 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "8/8/8/8/8/8/7P/5k1K w - - 0 1", expected )
 
+#test C_rawcodes_tested_with_kings_and_pawns_2
+    Rawcode expected[2 + 1];
+
+    expected[ 0] = 2,
+    expected[ 1] = rawcode( "e7e5" ),
+    expected[ 2] = rawcode( "e7e6" );
+
+    TEST_WITH_ARGS( "1k6/1P2p3/1K6/8/8/8/8/8 b - - 0 1", expected )
+
+#test C_rawcodes_tested_with_kings_and_pawns_3
+    Rawcode expected[3 + 1];
+
+    expected[ 0] = 3,
+    expected[ 1] = rawcode( "e1f1" ),
+    expected[ 2] = rawcode( "e2d3" );
+    expected[ 3] = rawcode( "e2f3" );
+
+    TEST_WITH_ARGS( "8/8/8/8/8/3qkp2/4P3/4K3 w - - 0 1", expected )
+
+#test C_rawcodes_tested_with_kings_and_pawns_4
+    Rawcode expected[3 + 1];
+
+    expected[ 0] = 3,
+    expected[ 1] = rawcode( "d2c1" ),
+    expected[ 2] = rawcode( "d2d1" );
+    expected[ 3] = rawcode( "d2e1" );
+
+    TEST_WITH_ARGS( "8/8/8/8/1Q6/3k4/1K1p4/2B1R3 b - - 0 1", expected )
+
 #test C_rawcodes_tested_with_stalemate_positions
     Rawcode expected[0 + 1];
 
@@ -751,5 +780,40 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     expected[37] = rawcode( "h7h6" );
 
     TEST_WITH_ARGS( FEN_GAME_OF_THE_CENTURY, expected )
+
+#test C_rawcodes_tested_with_marshall_attack_position
+    Rawcode expected[26 + 1];
+
+    expected[ 0] = 26,
+    expected[ 1] = rawcode( "a2a3" ),
+    expected[ 2] = rawcode( "a2a4" ),
+    expected[ 3] = rawcode( "b1a3" ),
+    expected[ 4] = rawcode( "b3a4" ),
+    expected[ 5] = rawcode( "b3c2" ),
+    expected[ 6] = rawcode( "b3c4" ),
+    expected[ 7] = rawcode( "b3d5" ),
+    expected[ 8] = rawcode( "c3c4" ),
+    expected[ 9] = rawcode( "d1c2" ),
+    expected[10] = rawcode( "d1e2" ),
+    expected[11] = rawcode( "d2d3" ),
+    expected[12] = rawcode( "d2d4" ),
+    expected[13] = rawcode( "e1e2" ),
+    expected[14] = rawcode( "e1e3" ),
+    expected[15] = rawcode( "e1f1" ),
+    expected[16] = rawcode( "e4d5" ),
+    expected[17] = rawcode( "f3d4" ),
+    expected[18] = rawcode( "f3e5" ),
+    expected[19] = rawcode( "f3g5" ),
+    expected[20] = rawcode( "f3h4" ),
+    expected[21] = rawcode( "g1f1" ),
+    expected[22] = rawcode( "g1h1" ),
+    expected[23] = rawcode( "g2g3" ),
+    expected[24] = rawcode( "g2g4" ),
+    expected[25] = rawcode( "h2h3" ),
+    expected[26] = rawcode( "h2h4" );
+
+    TEST_WITH_ARGS(
+        "r1bq1rk1/2p1bppp/p1n2n2/1p1pp3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w - - 0 9",
+        expected )
 
 #undef TEST_WITH_ARGS

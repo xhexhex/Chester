@@ -55,6 +55,8 @@ static void x_rawcodes_rook_and_bishop( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant, bool rook );
 static void x_rawcodes_pawn_advance( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant );
+static void x_rawcodes_pawn_capture( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant );
 
 /***********************
  **** External data ****
@@ -212,8 +214,8 @@ rawcodes( const Pos *p )
                 pseudo, &vacant, false );
         }
         else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
-            x_rawcodes_pawn_advance( p, sq_bit_index(bit),
-                pseudo, &vacant );
+            x_rawcodes_pawn_advance( p, sq_bit_index(bit), pseudo, &vacant );
+            x_rawcodes_pawn_capture( p, sq_bit_index(bit), pseudo, &vacant );
         }
     }
 
@@ -877,4 +879,36 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
     assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
 
     pseudo[(*vacant)++] = rawcode(move);
+}
+
+static void
+x_rawcodes_pawn_capture( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant )
+{
+    Bitboard
+        w_capture_sq =
+            sq_nav( SBA[mover], whites_turn(p) ? NORTHWEST : SOUTHWEST ),
+        e_capture_sq =
+            sq_nav( SBA[mover], whites_turn(p) ? NORTHEAST : SOUTHEAST ),
+        enemy_cm =
+            whites_turn(p) ? ss_black_army(p) : ss_white_army(p);
+    assert( w_capture_sq || e_capture_sq );
+
+    if( !( (w_capture_sq | e_capture_sq) & enemy_cm) ) return;
+
+    char move[4 + 1] = {0};
+    move[0] = SNA[mover][0], move[1] = SNA[mover][1];
+
+    if( w_capture_sq & enemy_cm ) {
+        move[2] = SNA[sq_bit_index(w_capture_sq)][0];
+        move[3] = SNA[sq_bit_index(w_capture_sq)][1];
+        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        pseudo[(*vacant)++] = rawcode(move);
+    }
+    if( e_capture_sq & enemy_cm ) {
+        move[2] = SNA[sq_bit_index(e_capture_sq)][0];
+        move[3] = SNA[sq_bit_index(e_capture_sq)][1];
+        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        pseudo[(*vacant)++] = rawcode(move);
+    }
 }
