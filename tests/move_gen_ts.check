@@ -411,8 +411,9 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     ck_assert( castle_error == expected_castle_error ); \
     free(p);
 
-#test C_castle_returns_zero_and_sets_CASTLE_NO_CASTLING_RIGHT
+#test castle_returns_zero_and_sets_castle_error_to_CASTLE_NO_CASTLING_RIGHT
     Pos *p;
+
     TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R w Qkq - 10 50", "kingside",
         0, CASTLE_NO_CASTLING_RIGHT )
     TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R w Kkq - 10 50", "queenside",
@@ -421,6 +422,18 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         0, CASTLE_NO_CASTLING_RIGHT )
     TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/R3K2R b KQk - 10 50", "a-side",
         0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "8/8/3k4/8/3K4/8/8/8 w - - 0 100", "kingside",
+        0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "8/8/3k4/8/3K4/8/8/8 b - - 0 100", "queenside",
+        0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN w Bbf - 0 1",
+        "kingside", 0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN w Fbf - 0 1",
+        "queenside", 0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN b BFb - 0 1",
+        "kingside", 0, CASTLE_NO_CASTLING_RIGHT )
+    TEST_WITH_ARGS( "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN b BFf - 0 1",
+        "queenside", 0, CASTLE_NO_CASTLING_RIGHT )
 
 #test C_castle_returns_zero_and_sets_CASTLE_KING_IN_CHECK
     Pos *p;
