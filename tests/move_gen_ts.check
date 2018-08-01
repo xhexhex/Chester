@@ -435,12 +435,21 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN b BFf - 0 1",
         "queenside", 0, CASTLE_NO_CASTLING_RIGHT )
 
-#test C_castle_returns_zero_and_sets_CASTLE_KING_IN_CHECK
+#test castle_returns_zero_and_sets_castle_error_to_CASTLE_KING_IN_CHECK
     Pos *p;
+
     TEST_WITH_ARGS( "4r1kr/8/8/8/8/8/6R1/6K1 b he - 5 50", "kingside",
         0, CASTLE_KING_IN_CHECK )
     TEST_WITH_ARGS( "4r1kr/8/8/8/8/8/6R1/6K1 b he - 5 50", "queenside",
         0, CASTLE_KING_IN_CHECK )
+    TEST_WITH_ARGS( "2k5/8/8/8/8/8/PPPpPPPP/QRKBBRNN w BF - 0 123",
+        "kingside", 0, CASTLE_KING_IN_CHECK )
+    TEST_WITH_ARGS( "2k5/8/8/8/8/8/PPPpPPPP/QRKBBRNN w BF - 0 123",
+        "queenside", 0, CASTLE_KING_IN_CHECK )
+    TEST_WITH_ARGS( "2k5/8/q7/8/8/8/8/4RK1R w EH - 0 50",
+        "kingside", 0, CASTLE_KING_IN_CHECK )
+    TEST_WITH_ARGS( "2k5/8/8/8/8/6n1/8/4RK1R w EH - 0 50",
+        "queenside", 0, CASTLE_KING_IN_CHECK )
 
 #test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_BLOCKED
     Pos *p;
