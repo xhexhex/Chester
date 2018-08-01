@@ -478,23 +478,56 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         0, CASTLE_KINGS_PATH_BLOCKED )
     TEST_WITH_ARGS( "4kr2/8/8/8/8/8/8/4K1RR w K - 5 100", "h-side",
         0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "4k3/8/8/8/b7/8/8/3RKRr1 w DF - 3 50", "kingside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
 
-#test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_IN_CHECK
+#test castle_returns_zero_and_sets_castle_error_to_CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK
     Pos *p;
-    TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
-        0, CASTLE_KINGS_PATH_IN_CHECK )
-    TEST_WITH_ARGS( "r5k1/8/8/8/8/8/5R2/5K2 b a - 0 123", "a-side", // Invert
-        0, CASTLE_KINGS_PATH_IN_CHECK )
-    TEST_WITH_ARGS( "r5k1/8/2B5/8/8/8/8/5K2 b a - 0 123", "a-side",
-        0, CASTLE_KINGS_PATH_IN_CHECK )
-    TEST_WITH_ARGS( "r5k1/2P5/8/8/8/8/8/5K2 b a - 0 123", "queenside",
-        0, CASTLE_KINGS_PATH_IN_CHECK )
 
+    TEST_WITH_ARGS( "r5k1/8/8/8/8/8/5R2/5K2 b a - 0 123", "a-side",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "r5k1/8/2B5/8/8/8/8/5K2 b a - 0 123", "a-side",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "r5k1/2P5/8/8/8/8/8/5K2 b a - 0 123", "queenside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/3n1q2/8/1K5R w K - 0 75", "kingside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/1p6/1K5R w K - 0 75", "kingside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/5n2/1K5R w K - 0 75", "kingside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/4q3/3P4/8/1K5R w K - 0 75", "kingside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/7b/8/1K5R w K - 0 75", "kingside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "4k3/8/8/8/b7/8/8/3RKRr1 w DF - 3 50", "queenside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "3rk3/8/8/8/8/8/8/3RK3 w D - 4 75", "queenside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+    TEST_WITH_ARGS( "1r3k2/3ppppp/5N2/8/8/8/8/5K2 b b - 0 100", "queenside",
+        0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
+
+//
 // Rook's path blocked test
+//
     /*
     TEST_WITH_ARGS( "rr4k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
         rawcode("g8a8"), CASTLE_ROOKS_PATH_BLOCKED )
     */
+
+#test castle_returns_1380_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    // King can be captured after castling
+    TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
+        rawcode("f8h8"), CASTLE_OK )
+
+#test castle_returns_217_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    // King can be captured after castling
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/7p/1K5R w K - 0 75", "kingside",
+        rawcode("b1h1"), CASTLE_OK )
 
 #test C_castle_returns_920_and_sets_CASTLE_OK
     Pos *p;

@@ -45,8 +45,8 @@ static void x_castle_set_castling_king_and_rook( const Pos *p, bool kingside,
 static bool x_castle_king_in_check( const Pos *p );
 static bool x_castle_kings_path_blocked( const Pos *p, bool kingside,
     Bitboard castling_king, Bitboard castling_rook );
-static bool x_castle_kings_path_in_check( const Pos *p, bool kingside,
-    Bitboard castling_king );
+static bool x_castle_kings_exclusive_path_in_check( const Pos *p,
+    bool kingside, Bitboard castling_king );
 static Rawcode x_castle_rawcode(
     Bitboard castling_king, Bitboard castling_rook );
 static void x_rawcodes_king_and_knight( const Pos *p, int mover,
@@ -411,8 +411,8 @@ castle( const Pos *p, const char *castle_type )
     else if( x_castle_kings_path_blocked( p, kingside, castling_king,
             castling_rook ) )
         castle_error = CASTLE_KINGS_PATH_BLOCKED;
-    else if( x_castle_kings_path_in_check( p, kingside, castling_king ) )
-        castle_error = CASTLE_KINGS_PATH_IN_CHECK;
+    else if( x_castle_kings_exclusive_path_in_check( p, kingside, castling_king ) )
+        castle_error = CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK;
 
     if( castle_error ) return 0;
 
@@ -757,16 +757,20 @@ x_castle_kings_path_blocked( const Pos *p, bool kingside,
 }
 
 static bool
-x_castle_kings_path_in_check( const Pos *p, bool kingside,
+x_castle_kings_exclusive_path_in_check( const Pos *p, bool kingside,
     Bitboard castling_king )
 {
     INIT_VARS
 
     // One or more enemy chessmen are attacking the destination
     // square of the king
+    // UPDATE: No longer appropriate as the king's path is now considered
+    // "exclusive" (destination square not included).
+    /*
     if( ( whites_turn(p) && black_attackers(p->ppa, kings_dest) ) ||
             ( !whites_turn(p) && white_attackers(p->ppa, kings_dest) ) )
         return true;
+    */
 
     Bitboard bit = castling_king;
 
