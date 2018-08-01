@@ -451,8 +451,9 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "2k5/8/8/8/8/6n1/8/4RK1R w EH - 0 50",
         "queenside", 0, CASTLE_KING_IN_CHECK )
 
-#test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_BLOCKED
+#test castle_returns_zero_and_sets_castle_error_to_CASTLE_KINGS_PATH_BLOCKED
     Pos *p;
+
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4K1NR w K - 0 100", "kingside",
         0, CASTLE_KINGS_PATH_BLOCKED )
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4KB1R w K - 0 100", "h-side",
@@ -460,6 +461,22 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( FEN_STD_START_POS, "kingside",
         0, CASTLE_KINGS_PATH_BLOCKED )
     TEST_WITH_ARGS( FEN_STD_START_POS, "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r4Nk1/8/8/8/8/8/8/RRK5 b a - 10 100", "a-side",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r4rk1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r3B1k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r2q2k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r1N3k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r1b3k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "4kr2/8/8/8/8/8/8/4KR1R w K - 5 100", "kingside",
+        0, CASTLE_KINGS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "4kr2/8/8/8/8/8/8/4K1RR w K - 5 100", "h-side",
         0, CASTLE_KINGS_PATH_BLOCKED )
 
 #test C_castle_returns_zero_and_sets_CASTLE_KINGS_PATH_IN_CHECK
@@ -472,6 +489,12 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         0, CASTLE_KINGS_PATH_IN_CHECK )
     TEST_WITH_ARGS( "r5k1/2P5/8/8/8/8/8/5K2 b a - 0 123", "queenside",
         0, CASTLE_KINGS_PATH_IN_CHECK )
+
+// Rook's path blocked test
+    /*
+    TEST_WITH_ARGS( "rr4k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
+        rawcode("g8a8"), CASTLE_ROOKS_PATH_BLOCKED )
+    */
 
 #test C_castle_returns_920_and_sets_CASTLE_OK
     Pos *p;

@@ -174,6 +174,7 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
         "3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1",
         FEN_GAME_OF_THE_CENTURY,
         "qrkbbrnn/pppppppp/8/8/8/8/PPPPPPPP/QRKBBRNN w BFbf - 0 1",
+        "rr4k1/8/8/8/8/8/8/RRK5 b a - 10 100",
         NULL };
 
     FEN_ARRAY_FOR_LOOP( valid_fens, FEN_NO_ERRORS );
