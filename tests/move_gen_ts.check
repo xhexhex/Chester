@@ -514,7 +514,22 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         0, CASTLE_ROOKS_PATH_BLOCKED )
     TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/RN2K3 w Q - 0 51", "queenside",
         0, CASTLE_ROOKS_PATH_BLOCKED )
-    // __MORE__
+    TEST_WITH_ARGS( "r1kr4/8/8/8/8/8/8/2K5 b a - 1 10", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "6k1/8/8/8/8/8/8/5bKR w H - 2 222", "kingside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "8/8/8/8/8/8/8/RK1k4 w A - 3 99", "a-side",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/RK1Q4 w A - 3 99", "a-side",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "rNk5/8/8/8/8/8/8/4K3 b a - 4 75", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "r1kB4/8/8/8/8/8/8/4K3 b a - 4 75", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "rn2k3/8/8/8/8/8/8/R3K3 b Qq - 0 1", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "rn2k3/8/8/8/8/8/8/Rn2K3 w Qq - 0 1", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
 
 #test castle_returns_217_and_sets_castle_error_to_CASTLE_OK
     Pos *p;
