@@ -507,20 +507,14 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "1r3k2/3ppppp/5N2/8/8/8/8/5K2 b b - 0 100", "queenside",
         0, CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK )
 
-//
-// Rook's path blocked test
-//
-    /*
-    TEST_WITH_ARGS( "rr4k1/8/8/8/8/8/8/RRK5 b a - 10 100", "queenside",
-        rawcode("g8a8"), CASTLE_ROOKS_PATH_BLOCKED )
-    */
-
-#test castle_returns_1380_and_sets_castle_error_to_CASTLE_OK
+#test castle_returns_zero_and_sets_castle_error_to_CASTLE_ROOKS_PATH_BLOCKED
     Pos *p;
 
-    // King can be captured after castling
-    TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
-        rawcode("f8h8"), CASTLE_OK )
+    TEST_WITH_ARGS( "rrk5/8/8/8/8/8/8/2K5 b a - 0 43", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/RN2K3 w Q - 0 51", "queenside",
+        0, CASTLE_ROOKS_PATH_BLOCKED )
+    // __MORE__
 
 #test castle_returns_217_and_sets_castle_error_to_CASTLE_OK
     Pos *p;
@@ -529,12 +523,25 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "4k3/8/8/8/8/8/7p/1K5R w K - 0 75", "kingside",
         rawcode("b1h1"), CASTLE_OK )
 
+#test castle_returns_633_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "rrk5/8/8/8/8/8/8/2K5 b b - 0 43", "queenside",
+        rawcode("c8b8"), CASTLE_OK )
+
 #test C_castle_returns_920_and_sets_CASTLE_OK
     Pos *p;
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4K2R w K - 0 50", "kingside",
         920, CASTLE_OK )
     TEST_WITH_ARGS( "b3k3/6Q1/8/8/8/3NN3/8/4K2R w H - 10 80", "h-side",
         920, CASTLE_OK )
+
+#test castle_returns_1380_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    // King can be captured after castling
+    TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
+        rawcode("f8h8"), CASTLE_OK )
 
 #test C_castle_returns_1576_and_sets_CASTLE_OK
     Pos *p;
