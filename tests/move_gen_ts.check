@@ -536,7 +536,6 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "4k3/8/8/3b4/8/8/8/1K5R w H - 1 75", "kingside",
         rawcode("b1h1"), CASTLE_OK )
-    // King can be captured after castling
     TEST_WITH_ARGS( "4k3/8/8/8/8/8/7p/1K5R w K - 0 75", "kingside",
         rawcode("b1h1"), CASTLE_OK )
     TEST_WITH_ARGS( "4k3/8/8/8/3b4/8/8/1K5R w H - 1 75", "kingside",
@@ -548,6 +547,12 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "rrk5/8/8/8/8/8/8/2K5 b b - 0 43", "queenside",
         rawcode("c8b8"), CASTLE_OK )
 
+#test castle_returns_904_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "4kr2/8/8/8/8/8/8/3RK2R w HD - 0 1", "queenside",
+        rawcode("e1d1"), CASTLE_OK )
+
 #test castle_returns_920_and_sets_castle_error_to_CASTLE_OK
     Pos *p;
 
@@ -556,17 +561,38 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "b3k3/6Q1/8/8/8/3NN3/8/4K2R w H - 10 80", "h-side",
         rawcode("e1h1"), CASTLE_OK )
 
+#test castle_returns_1135_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "4kr2/8/8/8/8/8/8/3RK2R b f - 0 1", "kingside",
+        rawcode("e8f8"), CASTLE_OK )
+
+#test castle_returns_1138_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "b1n1k1r1/p1p2ppp/1q4n1/2b1p3/2P5/1P6/P2P1PPP/BR1QK1RN "
+        "b GBg - 2 11", "kingside", rawcode("e8g8"), CASTLE_OK )
+    TEST_WITH_ARGS( "brnqk1r1/pppp1ppp/6n1/2b1p3/4P3/1P4N1/P1PPNPPP/BR1QKBR1 "
+        "b BGbg - 4 4", "kingside", rawcode("e8g8"), CASTLE_OK )
+
 #test castle_returns_1380_and_sets_castle_error_to_CASTLE_OK
     Pos *p;
 
-    // King can be captured after castling
     TEST_WITH_ARGS( "4rk1r/8/8/8/8/8/6R1/6K1 b he - 5 50", "h-side",
         rawcode("f8h8"), CASTLE_OK )
+
+#test castle_returns_1402_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "r5kr/8/8/8/8/8/8/R5KR w AHah - 5 50", "kingside",
+        rawcode("g1h1"), CASTLE_OK )
 
 #test castle_returns_1576_and_sets_castle_error_to_CASTLE_OK
     Pos *p;
 
     TEST_WITH_ARGS( "r5k1/P7/8/8/8/8/8/5K2 b a - 0 123", "queenside",
+        rawcode("g8a8"), CASTLE_OK )
+    TEST_WITH_ARGS( "r5kr/8/8/8/8/8/8/R5KR b AHah - 5 50", "queenside",
         rawcode("g8a8"), CASTLE_OK )
 
 #undef TEST_WITH_ARGS

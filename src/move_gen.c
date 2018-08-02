@@ -413,7 +413,8 @@ castle( const Pos *p, const char *castle_type )
     else if( x_castle_kings_path_blocked( p, kingside, castling_king,
             castling_rook ) )
         castle_error = CASTLE_KINGS_PATH_BLOCKED;
-    else if( x_castle_kings_exclusive_path_in_check( p, kingside, castling_king ) )
+    else if( x_castle_kings_exclusive_path_in_check( p, kingside,
+            castling_king ) )
         castle_error = CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK;
     else if( x_castle_rooks_path_blocked( p, kingside, castling_rook,
             castling_king ) )
