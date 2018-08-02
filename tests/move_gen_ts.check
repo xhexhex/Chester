@@ -560,6 +560,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         rawcode("e1h1"), CASTLE_OK )
     TEST_WITH_ARGS( "b3k3/6Q1/8/8/8/3NN3/8/4K2R w H - 10 80", "h-side",
         rawcode("e1h1"), CASTLE_OK )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/4K2R w K - 0 1", "kingside",
+        rawcode("e1h1"), CASTLE_OK )
 
 #test castle_returns_1135_and_sets_castle_error_to_CASTLE_OK
     Pos *p;

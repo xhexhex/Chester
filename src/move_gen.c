@@ -143,7 +143,9 @@ const Bitboard BISHOP_SQS[] = {
     0x2040810204080U, 0x5081020408000U, 0xa112040800000U, 0x14224180000000U,
     0x28448201000000U, 0x50880402010000U, 0xa0100804020100U, 0x40201008040201U };
 
-// TODO: doc
+// Used by function castle() to store the outcome of castling move
+// evaluation. The purpose of the global variable is to faciliate
+// Check unit testing of castle().
 enum castle_error_codes castle_error;
 
 /*************************************
@@ -369,7 +371,18 @@ black_attackers( const Bitboard *ppa, Bitboard sq )
         BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN );
 } // Review: 2018-06-16
 
-// TODO: doc
+// Returns zero if the type of castling specified by 'castle_type' is
+// not (immediately) available in position 'p'. The 'castle_type' parameter
+// indicates either short or long castling (O-O or O-O-O) and should be
+// one of the strings "kingside", "h-side", "queenside" or "a-side". If
+// the specified type of castling is available as a move in position 'p',
+// the function returns the rawcode corresponding to the castling move.
+//
+// In Chester, as far as coordinate notation is concerned, castling moves
+// are encoded as the castling king capturing the castling rook. Consider
+// the following made-up position: "4k3/8/8/8/8/8/8/4K2R w K - 0 1".
+// White's kingside castling move O-O is represented as "e1h1" in
+// coordinate notation which in turn translates to the rawcode 920.
 Rawcode
 castle( const Pos *p, const char *castle_type )
 {
@@ -382,6 +395,7 @@ castle( const Pos *p, const char *castle_type )
     x_castle_set_castling_king_and_rook(
         p, kingside, &castling_king, &castling_rook );
 
+    // The global variable is for unit testing purposes
     castle_error = CASTLE_OK;
 
     if( !has_castling_right( p, whites_turn(p) ? "white" : "black",
@@ -777,7 +791,7 @@ static Rawcode
 x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
 {
     const char *orig_sq = SNA[sq_bit_index(castling_king)],
-        *dest_sq  = SNA[sq_bit_index(castling_rook)];
+        *dest_sq = SNA[sq_bit_index(castling_rook)];
     char rawmove[4 + 1] = {0};
 
     rawmove[0] = orig_sq[0], rawmove[1] = orig_sq[1];
