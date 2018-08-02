@@ -23,7 +23,6 @@ extern const Bitboard BISHOP_SQS[];
 
 bool king_can_be_captured( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit ); // knight's effective range circle
-Bitboard dest_sqs( const Pos *p, Bitboard origin_sq );
 Bitboard attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... );
 Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );
 Bitboard black_attackers( const Bitboard *ppa, Bitboard sq );

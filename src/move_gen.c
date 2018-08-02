@@ -23,7 +23,6 @@ static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
     const int num_of_sqs_north, const int num_of_sqs_east,
     const int num_of_sqs_south, const int num_of_sqs_west,
     const Bitboard upper_left, const Bitboard lower_right );
-static Bitboard x_dest_sqs_king( const Pos *p );
 static void x_attackers_init_attacker_type(
     bool *attacker_type, va_list arg_ptr, int num_arg );
 static void x_attackers_find(
@@ -309,26 +308,6 @@ kerc( const Bitboard sq_bit )
         num_of_sqs_south, num_of_sqs_west, upper_left, lower_right );
 }
 
-// Returns the destination squares of the origin square parameter in the
-// context of the position represented by 'p'. Another way of saying this
-// is that dest_sqs() finds the moves for the chessman on the square
-// indicated by 'origin_sq'. For example, if 'p' is the standard starting
-// position and 'origin_sq' is 0x40U (square g1), then dest_sqs() returns
-// the value 0xa00000U (squares f3 and h3).
-Bitboard
-dest_sqs( const Pos *p, Bitboard origin_sq )
-{
-    assert( is_sq_bit( origin_sq ) );
-
-    Bitboard dest_sqs = 0;
-    Chessman cm = occupant_of_sq( p, origin_sq );
-
-    if( cm == WHITE_KING || cm == BLACK_KING )
-        dest_sqs = x_dest_sqs_king( p );
-
-    return dest_sqs;
-}
-
 // Returns a bitboard of the chessmen attacking square 'sq'. The variable
 // part of the argument list should consist of one or more Chessman
 // constants. This list of chessmen identify the attackers. For example,
@@ -571,19 +550,6 @@ x_kerc_unset_corner_bits( Bitboard sq_rect,
         sq_rect ^= upper_left;
 
     return sq_rect;
-}
-
-static Bitboard
-x_dest_sqs_king( const Pos *p )
-{
-    Bitboard dest_sqs = 0;
-    int king_bi = sq_bit_index(
-        p->ppa[ whites_turn( p ) ? WHITE_KING : BLACK_KING ] );
-
-    dest_sqs = KING_SQS[ king_bi ];
-
-    // printf( "%s(): About to return %lx\n", __func__, dest_sqs );
-    return dest_sqs;
 }
 
 static void
