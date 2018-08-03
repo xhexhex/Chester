@@ -29,6 +29,8 @@ Bitboard black_attackers( const Bitboard *ppa, Bitboard sq );
 Rawcode *rawcodes( const Pos *p );
 Rawcode castle( const Pos *p, const char *castle_type );
 uint32_t move_info( const Pos *p, Rawcode code );
+bool short_castle( const Pos *p, Rawcode code );
+bool long_castle( const Pos *p, Rawcode code );
 
 #endif
 // end MOVE_GEN_H

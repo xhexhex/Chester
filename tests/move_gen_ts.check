@@ -951,3 +951,46 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         expected )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase short_and_long_castle_tests
+
+#define TEST_WITH_ARGS( fen_arg, move, expected_O_O, expected_O_O_O ) \
+    ck_assert( !che_fen_validator(fen_arg) ); \
+    p = fen_to_pos(fen_arg); \
+    ck_assert( short_castle( p, rawcode(move) ) == expected_O_O ); \
+    ck_assert( long_castle( p, rawcode(move) ) == expected_O_O_O ); \
+    free( (Pos *) p );
+
+#test short_and_long_castle_test_01
+    const Pos *p;
+    const char fen[] = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+
+    TEST_WITH_ARGS( fen, "e1h1", true, false )
+    TEST_WITH_ARGS( fen, "e1a1", false, true )
+    TEST_WITH_ARGS( fen, "e1e2", false, false )
+    TEST_WITH_ARGS( fen, "a1a4", false, false )
+    TEST_WITH_ARGS( fen, "h1h8", false, false )
+
+#test short_and_long_castle_test_02
+    const Pos *p;
+    const char fen[] = "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1";
+
+    TEST_WITH_ARGS( fen, "e8h8", true, false )
+    TEST_WITH_ARGS( fen, "e8a8", false, true )
+    TEST_WITH_ARGS( fen, "e8e7", false, false )
+    TEST_WITH_ARGS( fen, "a8a5", false, false )
+    TEST_WITH_ARGS( fen, "h8h1", false, false )
+
+#test short_and_long_castle_test_03
+    const Pos *p;
+    const char fen[] = "6k1/8/8/8/8/8/5r2/5RKR w FH - 1 5";
+
+    TEST_WITH_ARGS( fen, "g1h1", true, false )
+    TEST_WITH_ARGS( fen, "g1f1", false, true )
+    TEST_WITH_ARGS( fen, "g1f2", false, false )
+    TEST_WITH_ARGS( fen, "g1g2", false, false )
+
+#undef TEST_WITH_ARGS
