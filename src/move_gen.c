@@ -459,6 +459,43 @@ is_long_castle( const Pos *p, Rawcode code )
 
 #undef RETURN_STATEMENT
 
+// Returns true if the move represented by 'code' is a capture in
+// position 'p'; otherwise returns false.
+bool
+is_capture( const Pos *p, Rawcode code )
+{
+    Chessman mover, target;
+    int orig, dest;
+    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
+        &orig, &dest );
+
+    assert( target != WHITE_KING && target != BLACK_KING );
+
+    return
+        (
+            mover >= WHITE_KING && mover <= WHITE_PAWN &&
+            target >= BLACK_QUEEN && target <= BLACK_PAWN
+        ) ||
+        (
+            mover >= BLACK_KING && mover <= BLACK_PAWN &&
+            target >= WHITE_QUEEN && target <= WHITE_PAWN
+        );
+}
+
+// Returns true if the move represented by 'code' is a pawn advance
+// in position 'p'; otherwise returns false.
+bool
+is_pawn_advance( const Pos *p, Rawcode code )
+{
+    Chessman mover, target;
+    int orig, dest;
+    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
+        &orig, &dest );
+
+    return (mover == WHITE_PAWN || mover == BLACK_PAWN) &&
+        target == EMPTY_SQUARE;
+}
+
 /**************************
  **** Static functions ****
  **************************/

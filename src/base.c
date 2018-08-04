@@ -689,18 +689,27 @@ make_move( Pos *p, Rawcode code, char promotion )
     promotion = 0;
     if(promotion) assert(false);
 
+    bool move_is_capture = is_capture(p, code),
+        move_is_pawn_advance = is_pawn_advance(p, code),
+        move_is_short_castle = is_short_castle(p, code),
+        move_is_long_castle = is_long_castle(p, code);
+
     p->epts_file = 0;
 
-    if( is_short_castle(p, code) || is_long_castle(p, code) ) {
-        assert( !( is_short_castle(p, code) && is_long_castle(p, code) ) );
+    if( move_is_short_castle || move_is_long_castle ) {
+        assert( !( move_is_short_castle && move_is_long_castle ) );
         x_make_move_castle(p, code);
     } else {
-        x_make_move_regular( p, code );
+        x_make_move_regular(p, code);
     }
 
     x_make_move_toggle_turn(p);
 
-    if( true ) p->hmc++;
+    if( move_is_capture || move_is_pawn_advance ) p->hmc = 0;
+    else p->hmc++;
+
+    // is_double_pawn_advance()
+
     if( whites_turn(p) ) p->fmn++;
 
     assert( !ppa_integrity_check( p->ppa ) );

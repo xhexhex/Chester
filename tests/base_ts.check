@@ -908,17 +908,25 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_regular_move_tests
+#tcase make_move_non_castling_non_pawn_move_tests
 
-#test C_make_move_tested_with_white_king
+#test make_move_tested_with_white_king_moves
     Pos *p;
-    // printf( "Code: %u\n", rawcode("e4d4") );
 
+    // Non-captures
     TEST_WITH_ARGS(
-        "8/8/4k3/8/4K3/3N1b2/4R3/8 w - - 0 100", 996, // "e4d4"
+        "8/8/4k3/8/4K3/3N1b2/4R3/8 w - - 0 100", rawcode("e4d4"),
         ~( SB.e2 | SB.d3 | SB.f3 | SB.d4 | SB.e6 ),
         SB.d4, 0, SB.e2, 0, SB.d3, 0,
         SB.e6, 0, 0, SB.f3, 0, 0,
         0, 1, 128, 0, 1, 100 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "8/8/4k3/8/4K3/3N1b2/4R3/8 w - - 0 100", rawcode("e4f3"),
+        ~( SB.e2 | SB.d3 | SB.f3 | SB.e6 ),
+        SB.f3, 0, SB.e2, 0, SB.d3, 0,
+        SB.e6, 0, 0, 0, 0, 0,
+        0, 1, 128, 0, 0, 100 )
 
 #undef TEST_WITH_ARGS

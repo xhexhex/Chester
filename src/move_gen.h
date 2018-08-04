@@ -30,6 +30,8 @@ Rawcode *rawcodes( const Pos *p );
 Rawcode castle( const Pos *p, const char *castle_type );
 bool is_short_castle( const Pos *p, Rawcode code );
 bool is_long_castle( const Pos *p, Rawcode code );
+bool is_capture( const Pos *p, Rawcode code );
+bool is_pawn_advance( const Pos *p, Rawcode code );
 
 #endif
 // end MOVE_GEN_H
