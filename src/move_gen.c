@@ -463,7 +463,7 @@ move_info( const Pos *p, Rawcode code )
 // Returns true if the move represented by 'code' is O-O in position 'p';
 // otherwise returns false.
 bool
-short_castle( const Pos *p, Rawcode code )
+is_short_castle( const Pos *p, Rawcode code )
 {
     Chessman mover, target;
     int orig, dest;
@@ -476,7 +476,7 @@ short_castle( const Pos *p, Rawcode code )
 // Returns true if the move represented by 'code' is O-O-O in position 'p';
 // otherwise returns false.
 bool
-long_castle( const Pos *p, Rawcode code )
+is_long_castle( const Pos *p, Rawcode code )
 {
     Chessman mover, target;
     int orig, dest;

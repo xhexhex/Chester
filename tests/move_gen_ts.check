@@ -960,8 +960,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #define TEST_WITH_ARGS( fen_arg, move, expected_O_O, expected_O_O_O ) \
     ck_assert( !che_fen_validator(fen_arg) ); \
     p = fen_to_pos(fen_arg); \
-    ck_assert( short_castle( p, rawcode(move) ) == expected_O_O ); \
-    ck_assert( long_castle( p, rawcode(move) ) == expected_O_O_O ); \
+    ck_assert( is_short_castle( p, rawcode(move) ) == expected_O_O ); \
+    ck_assert( is_long_castle( p, rawcode(move) ) == expected_O_O_O ); \
     free( (Pos *) p );
 
 #test short_and_long_castle_test_01
