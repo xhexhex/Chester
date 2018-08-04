@@ -420,35 +420,6 @@ castle( const Pos *p, const char *castle_type )
     return x_castle_rawcode( castling_king, castling_rook );
 }
 
-uint32_t
-move_info( const Pos *p, Rawcode code )
-{
-    uint32_t info_bits = 0;
-    int orig, dest;
-    rawcode_bit_indexes( code, &orig, &dest );
-    Chessman mover = occupant_of_sq( p, SBA[orig] ),
-        target = occupant_of_sq( p, SBA[dest] );
-
-    assert(
-        ( whites_turn(p) &&
-            mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) &&
-            mover >= BLACK_KING && mover <= BLACK_PAWN ) );
-
-    if( ( mover == WHITE_KING && target == WHITE_ROOK ) ||
-        ( mover == BLACK_KING && target == BLACK_ROOK ) )
-    {
-        info_bits |= MIB_CASTLE;
-        if( (  whites_turn(p) && (SBA[dest] & p->irp[1]) ) ||
-            ( !whites_turn(p) && ((SBA[dest] >> 56) & p->irp[1]) ) )
-        {
-            info_bits |= MIB_KINGSIDE;
-        }
-    }
-
-    return info_bits;
-}
-
 #define RETURN_STATEMENT(index) \
     return \
         ( \

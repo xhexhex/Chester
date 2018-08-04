@@ -689,17 +689,16 @@ make_move( Pos *p, Rawcode code, char promotion )
     promotion = 0;
     if(promotion) assert(false);
 
-    uint32_t info_bits = move_info( p, code );
-
     p->epts_file = 0;
 
     // bool short_castle( const Pos *p, Rawcode code );
     // bool long_castle( const Pos *p, Rawcode code );
-    // if( short_castle(p, code) || long_castle(p, code) )
-    if( info_bits & MIB_CASTLE )
-        x_make_move_castle( p, code );
-    else
+    if( is_short_castle(p, code) || is_long_castle(p, code) ) {
+        assert( !( is_short_castle(p, code) && is_long_castle(p, code) ) );
+        x_make_move_castle(p, code);
+    } else {
         x_make_move_regular( p, code );
+    }
 
     x_make_move_toggle_turn(p);
 
