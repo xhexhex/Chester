@@ -691,8 +691,6 @@ make_move( Pos *p, Rawcode code, char promotion )
 
     p->epts_file = 0;
 
-    // bool short_castle( const Pos *p, Rawcode code );
-    // bool long_castle( const Pos *p, Rawcode code );
     if( is_short_castle(p, code) || is_long_castle(p, code) ) {
         assert( !( is_short_castle(p, code) && is_long_castle(p, code) ) );
         x_make_move_castle(p, code);
