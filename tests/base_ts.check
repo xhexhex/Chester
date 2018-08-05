@@ -929,4 +929,89 @@ ck_assert( counter == exp_count );
         SB.e6, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 100 )
 
+    // Test with castling rights here
+    ck_assert(false);
+
+#test make_move_tested_with_black_king_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "8/8/4k3/3R4/4K3/8/8/8 b - - 10 100", rawcode("e6f6"),
+        ~( SB.e4 | SB.d5 | SB.f6 ),
+        SB.e4, 0, SB.d5, 0, 0, 0,
+        SB.f6, 0, 0, 0, 0, 0,
+        128, 1, 128, 0, 11, 101 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "8/8/4k3/3R4/4K3/8/8/8 b - - 10 100", rawcode("e6d5"),
+        ~( SB.e4 | SB.d5 ),
+        SB.e4, 0, 0, 0, 0, 0,
+        SB.d5, 0, 0, 0, 0, 0,
+        128, 1, 128, 0, 0, 101 )
+
+#test make_move_tested_with_white_queen_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "r4k1r/2pq1pp1/1p2p3/p6p/2P5/P3QN2/1P1b1NPP/R2K3R w - - 0 20",
+        rawcode("e3g5"),
+        0x5e93ed3efbde1576U,
+        SB.d1, SB.g5, (SB.a1 | SB.h1), 0, (SB.f2 | SB.f3),
+            (SB.a3 | SB.b2 | SB.c4 | SB.g2 | SB.h2),
+        SB.f8, SB.d7, (SB.a8 | SB.h8), SB.d2, 0,
+            (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7 | SB.h5),
+        0, 1, 128, 0, 1, 20 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "r4k1r/2pq1pp1/1p2p3/p6p/2P5/P3QN2/1P1b1NPP/R2K3R w - - 0 20",
+        rawcode("e3d2"),
+        0x5e93ed7efbde1576U,
+        SB.d1, SB.d2, (SB.a1 | SB.h1), 0, (SB.f2 | SB.f3),
+            (SB.a3 | SB.b2 | SB.c4 | SB.g2 | SB.h2),
+        SB.f8, SB.d7, (SB.a8 | SB.h8), 0, 0,
+            (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7 | SB.h5),
+        0, 1, 128, 0, 0, 20 )
+
+#test make_move_tested_with_black_queen_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "3qk3/8/8/8/8/8/8/3QK3 b - - 10 100", rawcode("d8a5"),
+        ~( SB.d1 | SB.e1 | SB.a5 | SB.e8 ),
+        SB.e1, SB.d1, 0, 0, 0, 0,
+        SB.e8, SB.a5, 0, 0, 0, 0,
+        128, 1, 128, 0, 11, 101 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "3qk3/8/8/8/8/8/8/3QK3 b - - 10 100", rawcode("d8d1"),
+        ~( SB.d1 | SB.e1 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, 0,
+        SB.e8, SB.d1, 0, 0, 0, 0,
+        128, 1, 128, 0, 0, 101 )
+
+#test make_move_tested_with_white_rook_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 1", rawcode("d1d7"),
+        ~( SB.e1 | SB.f1 | SB.d7 | SB.d8 | SB.e8 | SB.f8 ),
+        SB.e1, 0, (SB.f1 | SB.d7), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
+        (1 | 2 | 8), 8, 32, 0, 1, 1 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 1", rawcode("f1f8"),
+        ~( SB.d1 | SB.e1 | SB.d8 | SB.e8 | SB.f8 ),
+        SB.e1, 0, (SB.d1 | SB.f8), 0, 0, 0,
+        SB.e8, 0, SB.d8, 0, 0, 0,
+        5, 8, 32, 0, 1, 1 )
+
 #undef TEST_WITH_ARGS
