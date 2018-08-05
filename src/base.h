@@ -111,6 +111,7 @@ Bitboard epts( const Pos *p );
 Rawcode rawcode( const char *rawmove );
 void rawmove( Rawcode rawcode, char *writable );
 void make_move( Pos *p, Rawcode code, char promotion );
+void remove_castling_rights( Pos *p, const char *color, const char *side );
 
 #endif
 // End BASE_H

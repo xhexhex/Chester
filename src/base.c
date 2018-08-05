@@ -458,9 +458,7 @@ static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, Rawcode code );
-static void x_make_move_remove_castling_rights( Pos *p, const char *color,
-    const char *side );
-static void x_make_move_regular( Pos *p, Rawcode code );
+static void x_make_move_non_castling( Pos *p, Rawcode code );
 
 /****************************
  **** External functions ****
@@ -700,7 +698,7 @@ make_move( Pos *p, Rawcode code, char promotion )
         assert( !( move_is_short_castle && move_is_long_castle ) );
         x_make_move_castle(p, code);
     } else {
-        x_make_move_regular(p, code);
+        x_make_move_non_castling(p, code);
     }
 
     x_make_move_toggle_turn(p);
@@ -713,6 +711,31 @@ make_move( Pos *p, Rawcode code, char promotion )
     if( whites_turn(p) ) p->fmn++;
 
     assert( !ppa_integrity_check( p->ppa ) );
+}
+
+// TODO: doc
+void
+remove_castling_rights( Pos *p, const char *color, const char *side )
+{
+    assert( !strcmp(color, "white") || !strcmp(color, "black") );
+    assert( !strcmp(side, "both") || !strcmp(side, "kingside") ||
+        !strcmp(side, "h-side") || !strcmp(side, "queenside") ||
+        !strcmp(side, "a-side") );
+
+    bool white = !strcmp(color, "white") ? true : false;
+
+    if( !strcmp(side, "both") || !strcmp(side, "kingside") ||
+            !strcmp(side, "h-side") ) {
+        if( p->turn_and_ca_flags & (white ? 8 : 2) ) {
+            p->turn_and_ca_flags ^= (white ? 8 : 2);
+        }
+    }
+    if( !strcmp(side, "both") || !strcmp(side, "queenside") ||
+            !strcmp(side, "a-side") ) {
+        if( p->turn_and_ca_flags & (white ? 4 : 1) ) {
+            p->turn_and_ca_flags ^= (white ? 4 : 1);
+        }
+    }
 }
 
 /****************************
@@ -860,31 +883,6 @@ x_rawcode_preliminary_checks( const char *rawmove )
 }
 
 static void
-x_make_move_remove_castling_rights( Pos *p, const char *color,
-    const char *side )
-{
-    assert( !strcmp(color, "white") || !strcmp(color, "black") );
-    assert( !strcmp(side, "both") || !strcmp(side, "kingside") ||
-        !strcmp(side, "h-side") || !strcmp(side, "queenside") ||
-        !strcmp(side, "a-side") );
-
-    bool white = !strcmp(color, "white") ? true : false;
-
-    if( !strcmp(side, "both") || !strcmp(side, "kingside") ||
-            !strcmp(side, "h-side") ) {
-        if( p->turn_and_ca_flags & (white ? 8 : 2) ) {
-            p->turn_and_ca_flags ^= (white ? 8 : 2);
-        }
-    }
-    if( !strcmp(side, "both") || !strcmp(side, "queenside") ||
-            !strcmp(side, "a-side") ) {
-        if( p->turn_and_ca_flags & (white ? 4 : 1) ) {
-            p->turn_and_ca_flags ^= (white ? 4 : 1);
-        }
-    }
-}
-
-static void
 x_make_move_toggle_turn( Pos *p )
 {
     if( whites_turn(p) )
@@ -930,12 +928,12 @@ x_make_move_castle( Pos *p, Rawcode code )
     }
     else assert(false); // Should be impossible
 
-    x_make_move_remove_castling_rights(
+    remove_castling_rights(
         p, whites_turn(p) ? "white" : "black", "both" );
 }
 
 static void
-x_make_move_regular( Pos *p, Rawcode code )
+x_make_move_non_castling( Pos *p, Rawcode code )
 {
     int orig, dest;
     rawcode_bit_indexes( code, &orig, &dest );
