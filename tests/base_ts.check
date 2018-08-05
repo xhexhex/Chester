@@ -1017,3 +1017,88 @@ ck_assert( counter == exp_count );
     */
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase remove_castling_rights_tests
+
+#define TEST_WITH_ARGS( fen, color, side, expected ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    remove_castling_rights( p, color, side ); \
+    ck_assert( p->turn_and_ca_flags == (expected) ); \
+    free( (Pos *) p );
+
+#test remove_castling_rights_test_01
+    Pos *p;
+
+    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "kingside",
+        (128 + 4 + 2 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "h-side",
+        (128 + 4 + 2 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "queenside",
+        (128 + 8 + 2 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "a-side",
+        (128 + 8 + 2 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "both",
+        (128 + 2 + 1) )
+
+    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "kingside",
+        (128 + 8 + 4 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "h-side",
+        (128 + 8 + 4 + 1) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "queenside",
+        (128 + 8 + 4 + 2) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "a-side",
+        (128 + 8 + 4 + 2) )
+    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "both",
+        (128 + 8 + 4) )
+
+#test remove_castling_rights_test_02
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "white", "kingside", (4 + 2 + 1) )
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "white", "queenside", (8 + 2 + 1) )
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "white", "both", (2 + 1) )
+
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "black", "kingside", (8 + 4 + 1) )
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "black", "queenside", (8 + 4 + 2) )
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "black", "both", (8 + 4) )
+
+#test remove_castling_rights_test_03
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "white", "kingside", (128 + 4 + 2 + 1) )
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "white", "queenside", (128 + 8 + 2 + 1) )
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "white", "both", (128 + 2 + 1) )
+
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "black", "kingside", (128 + 8 + 4 + 1) )
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "black", "queenside", (128 + 8 + 4 + 2) )
+    TEST_WITH_ARGS(
+        "brknrnqb/pppppppp/8/8/8/8/PPPPPPPP/BRKNRNQB w BEbe - 0 1",
+        "black", "both", (128 + 8 + 4) )
+
+#undef TEST_WITH_ARGS

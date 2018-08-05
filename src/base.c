@@ -713,7 +713,15 @@ make_move( Pos *p, Rawcode code, char promotion )
     assert( !ppa_integrity_check( p->ppa ) );
 }
 
-// TODO: doc
+// Removes the castling right(s) specified by the 'color' and 'side'
+// parameters from position 'p'. The valid values for 'color' are "white"
+// and "black"; for 'side' the valid values are "kingside", "h-side",
+// "queenside", "a-side" and "both".
+//
+// For example, if 'p' corresponds to the standard starting position,
+// then the call remove_castling_rights(p, "black", "both") would result
+// in the Pos variable equilent to the FEN
+// "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1".
 void
 remove_castling_rights( Pos *p, const char *color, const char *side )
 {
