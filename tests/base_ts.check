@@ -920,6 +920,12 @@ ck_assert( counter == exp_count );
         SB.d4, 0, SB.e2, 0, SB.d3, 0,
         SB.e6, 0, 0, SB.f3, 0, 0,
         0, 1, 128, 0, 1, 100 )
+    TEST_WITH_ARGS(
+        "3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 1", rawcode("e1e2"),
+        ~( SB.d1 | SB.f1 | SB.e2 | SB.d8 | SB.e8 | SB.f8 ),
+        SB.e2, 0, (SB.d1 | SB.f1), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
+        (2 + 1), 8, 32, 0, 1, 1 )
 
     // Captures
     TEST_WITH_ARGS(
@@ -928,9 +934,6 @@ ck_assert( counter == exp_count );
         SB.f3, 0, SB.e2, 0, SB.d3, 0,
         SB.e6, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 100 )
-
-    // Test with castling rights here
-    // ck_assert(false);
 
 #test make_move_tested_with_black_king_moves
     Pos *p;

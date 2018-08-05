@@ -947,10 +947,16 @@ x_make_move_non_castling( Pos *p, Rawcode code )
     rawcode_bit_indexes( code, &orig, &dest );
     Chessman mover = occupant_of_sq( p, SBA[orig] ),
         target = occupant_of_sq( p, SBA[dest] );
+
     assert( mover != EMPTY_SQUARE && mover != target );
+    assert( (whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN) ||
+        (!whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN) );
 
     // Make the origin square vacant
     p->ppa[mover] ^= SBA[orig], p->ppa[EMPTY_SQUARE] |= SBA[orig];
     // Make the moving chessman "reappear" in the destination square
     p->ppa[mover] |= SBA[dest], p->ppa[target] ^= SBA[dest];
+
+    if( mover == WHITE_KING || mover == BLACK_KING )
+        remove_castling_rights(p, whites_turn(p) ? "white" : "black", "both");
 }
