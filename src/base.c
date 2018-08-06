@@ -958,5 +958,24 @@ x_make_move_non_castling( Pos *p, Rawcode code )
     p->ppa[mover] |= SBA[dest], p->ppa[target] ^= SBA[dest];
 
     if( mover == WHITE_KING || mover == BLACK_KING )
-        remove_castling_rights(p, whites_turn(p) ? "white" : "black", "both");
+        remove_castling_rights(
+            p, whites_turn(p) ? "white" : "black", "both");
+
+    if( (mover == WHITE_ROOK && SBA[orig] == p->irp[1]) ||
+            (target == WHITE_ROOK && SBA[dest] == p->irp[1]) )
+        remove_castling_rights(p, "white", "kingside");
+    else if( (mover == WHITE_ROOK && SBA[orig] == p->irp[0]) ||
+            (target == WHITE_ROOK && SBA[dest] == p->irp[0]) )
+        remove_castling_rights(p, "white", "queenside");
+
+    if( (mover == BLACK_ROOK && SBA[orig] ==
+            ((Bitboard) p->irp[1] << 56)) ||
+            (target == BLACK_ROOK && SBA[dest] ==
+            ((Bitboard) p->irp[1] << 56)) )
+        remove_castling_rights(p, "black", "kingside");
+    else if( (mover == BLACK_ROOK && SBA[orig] ==
+            ((Bitboard) p->irp[0] << 56)) ||
+            (target == BLACK_ROOK && SBA[dest] ==
+            ((Bitboard) p->irp[0] << 56)) )
+        remove_castling_rights(p, "black", "queenside");
 }

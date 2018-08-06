@@ -934,6 +934,12 @@ ck_assert( counter == exp_count );
         SB.f3, 0, SB.e2, 0, SB.d3, 0,
         SB.e6, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 100 )
+    TEST_WITH_ARGS(
+        "3rkr2/8/8/8/8/8/4b3/3RKR2 w DFdf - 0 1", rawcode("e1e2"),
+        ~( SB.d1 | SB.f1 | SB.e2 | SB.d8 | SB.e8 | SB.f8 ),
+        SB.e2, 0, (SB.d1 | SB.f1), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
+        (2 + 1), 8, 32, 0, 0, 1 )
 
 #test make_move_tested_with_black_king_moves
     Pos *p;
@@ -945,6 +951,12 @@ ck_assert( counter == exp_count );
         SB.e4, 0, SB.d5, 0, 0, 0,
         SB.f6, 0, 0, 0, 0, 0,
         128, 1, 128, 0, 11, 101 )
+    TEST_WITH_ARGS(
+        "3Bk2r/8/8/8/8/8/8/R3K3 b Qk - 50 100", rawcode("e8f8"),
+        ~( SB.a1 | SB.e1 | SB.d8 | SB.f8 | SB.h8 ),
+        SB.e1, 0, SB.a1, SB.d8, 0, 0,
+        SB.f8, 0, SB.h8, 0, 0, 0,
+        (128 + 4), 1, 128, 0, 51, 101 )
 
     // Captures
     TEST_WITH_ARGS(
@@ -953,6 +965,12 @@ ck_assert( counter == exp_count );
         SB.e4, 0, 0, 0, 0, 0,
         SB.d5, 0, 0, 0, 0, 0,
         128, 1, 128, 0, 0, 101 )
+    TEST_WITH_ARGS(
+        "3Bk2r/8/8/8/8/8/8/R3K3 b Qk - 50 100", rawcode("e8d8"),
+        ~( SB.a1 | SB.e1 | SB.d8 | SB.h8 ),
+        SB.e1, 0, SB.a1, 0, 0, 0,
+        SB.d8, 0, SB.h8, 0, 0, 0,
+        (128 + 4), 1, 128, 0, 0, 101 )
 
 #test make_move_tested_with_white_queen_moves
     Pos *p;
@@ -999,16 +1017,33 @@ ck_assert( counter == exp_count );
         128, 1, 128, 0, 0, 101 )
 
 #test make_move_tested_with_white_rook_moves
-    // Pos *p;
+    Pos *p;
 
-    /*
     // Non-captures
     TEST_WITH_ARGS(
         "3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 1", rawcode("d1d7"),
         ~( SB.e1 | SB.f1 | SB.d7 | SB.d8 | SB.e8 | SB.f8 ),
         SB.e1, 0, (SB.f1 | SB.d7), 0, 0, 0,
         SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
-        (1 | 2 | 8), 8, 32, 0, 1, 1 )
+        (8 + 2 + 1), 8, 32, 0, 1, 1 )
+    TEST_WITH_ARGS(
+        "1q2k3/8/8/8/8/8/8/1RR1K1R1 w GC - 1 123", rawcode("b1a1"),
+        ~( SB.a1 | SB.c1 | SB.e1 | SB.g1 | SB.b8 | SB.e8 ),
+        SB.e1, 0, (SB.a1 | SB.c1 | SB.g1), 0, 0, 0,
+        SB.e8, SB.b8, 0, 0, 0, 0,
+        (8 + 4), 4, 64, 0, 2, 123 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R w Qq - 0 1", rawcode("h1h2"),
+        ~( SB.a1 | SB.e1 | SB.h2 | SB.a8 | SB.e8 | SB.h8 ),
+        SB.e1, 0, (SB.a1 | SB.h2), 0, 0, 0,
+        SB.e8, 0, (SB.a8 | SB.h8), 0, 0, 0,
+        (4 + 1), 1, 128, 0, 1, 1 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R w Qq - 0 1", rawcode("a1b1"),
+        ~( SB.b1 | SB.e1 | SB.h1 | SB.a8 | SB.e8 | SB.h8 ),
+        SB.e1, 0, (SB.b1 | SB.h1), 0, 0, 0,
+        SB.e8, 0, (SB.a8 | SB.h8), 0, 0, 0,
+        1, 1, 128, 0, 1, 1 )
 
     // Captures
     TEST_WITH_ARGS(
@@ -1016,8 +1051,19 @@ ck_assert( counter == exp_count );
         ~( SB.d1 | SB.e1 | SB.d8 | SB.e8 | SB.f8 ),
         SB.e1, 0, (SB.d1 | SB.f8), 0, 0, 0,
         SB.e8, 0, SB.d8, 0, 0, 0,
-        5, 8, 32, 0, 1, 1 )
-    */
+        (4 + 1), 8, 32, 0, 0, 1 )
+    TEST_WITH_ARGS(
+        "1q2k3/8/8/8/8/8/8/1RR1K1R1 w GC - 1 123", rawcode("b1b8"),
+        ~( SB.c1 | SB.e1 | SB.g1 | SB.b8 | SB.e8 ),
+        SB.e1, 0, (SB.b8 | SB.c1 | SB.g1), 0, 0, 0,
+        SB.e8, 0, 0, 0, 0, 0,
+        (8 + 4), 4, 64, 0, 0, 123 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R w Qq - 0 1", rawcode("a1a8"),
+        ~( SB.e1 | SB.h1 | SB.a8 | SB.e8 | SB.h8 ),
+        SB.e1, 0, (SB.a8 | SB.h1), 0, 0, 0,
+        SB.e8, 0, SB.h8, 0, 0, 0,
+        0, 1, 128, 0, 0, 1 )
 
 #undef TEST_WITH_ARGS
 
