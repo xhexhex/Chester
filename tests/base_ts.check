@@ -1065,6 +1065,151 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.h8, 0, 0, 0,
         0, 1, 128, 0, 0, 1 )
 
+#test make_move_tested_with_black_rook_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/R3r3/1K6/8/8 b - - 0 1", rawcode("e4e3"),
+        ~( SB.b3 | SB.a4 | SB.e3 | SB.e8 ),
+        SB.b3, 0, SB.a4, 0, 0, 0,
+        SB.e8, 0, SB.e3, 0, 0, 0,
+        128, 1, 128, 0, 1, 2 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 1 13", rawcode("a8d8"),
+        ~( SB.a1 | SB.e1 | SB.h1 | SB.d8 | SB.e8 | SB.h8 ),
+        SB.e1, 0, (SB.a1 | SB.h1), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.h8), 0, 0, 0,
+        (128 + 8 + 4 + 2), 1, 128, 0, 2, 14 )
+    TEST_WITH_ARGS(
+        "1rkr4/1r6/8/8/8/8/8/1RKR4 b BDbd - 1 1", rawcode("b7c7"),
+        ~( SB.b1 | SB.c1 | SB.d1 | SB.c7 | SB.b8 | SB.c8 | SB.d8 ),
+        SB.c1, 0, (SB.b1 | SB.d1), 0, 0, 0,
+        SB.c8, 0, (SB.b8 | SB.d8 | SB.c7), 0, 0, 0,
+        (128 + 8 + 4 + 2 + 1), 2, 8, 0, 2, 2 )
+    TEST_WITH_ARGS(
+        "1rkr4/1r6/8/8/8/8/8/1RKR4 b BDbd - 1 1", rawcode("d8d7"),
+        ~( SB.b1 | SB.c1 | SB.d1 | SB.b7 | SB.b8 | SB.c8 | SB.d7 ),
+        SB.c1, 0, (SB.b1 | SB.d1), 0, 0, 0,
+        SB.c8, 0, (SB.b8 | SB.d7 | SB.b7), 0, 0, 0,
+        (128 + 8 + 4 + 1), 2, 8, 0, 2, 2 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/R3r3/1K6/8/8 b - - 0 1", rawcode("e4a4"),
+        ~( SB.b3 | SB.a4 | SB.e8 ),
+        SB.b3, 0, 0, 0, 0, 0,
+        SB.e8, 0, SB.a4, 0, 0, 0,
+        128, 1, 128, 0, 0, 2 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 1 13", rawcode("a8a1"),
+        ~( SB.a1 | SB.e1 | SB.h1 | SB.e8 | SB.h8 ),
+        SB.e1, 0, SB.h1, 0, 0, 0,
+        SB.e8, 0, (SB.a1 | SB.h8), 0, 0, 0,
+        (128 + 8 + 2), 1, 128, 0, 0, 14 )
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 1 13", rawcode("h8h1"),
+        ~( SB.a1 | SB.e1 | SB.h1 | SB.a8 | SB.e8 ),
+        SB.e1, 0, SB.a1, 0, 0, 0,
+        SB.e8, 0, (SB.a8 | SB.h1), 0, 0, 0,
+        (128 + 4 + 1), 1, 128, 0, 0, 14 )
+    TEST_WITH_ARGS(
+        "1rkr4/1r6/8/8/8/8/8/1RKR4 b BDbd - 1 1", rawcode("b7b1"),
+        ~( SB.b1 | SB.c1 | SB.d1 | SB.b8 | SB.c8 | SB.d8 ),
+        SB.c1, 0, SB.d1, 0, 0, 0,
+        SB.c8, 0, (SB.b1 | SB.b8 | SB.d8), 0, 0, 0,
+        (128 + 8 + 2 + 1), 2, 8, 0, 0, 2 )
+    TEST_WITH_ARGS(
+        "1rkr4/1r6/8/8/8/8/8/1RKR4 b BDbd - 1 1", rawcode("d8d1"),
+        ~( SB.b1 | SB.c1 | SB.d1 | SB.b7 | SB.b8 | SB.c8 ),
+        SB.c1, 0, SB.b1, 0, 0, 0,
+        SB.c8, 0, (SB.b8 | SB.d1 | SB.b7), 0, 0, 0,
+        (128 + 4 + 1), 2, 8, 0, 0, 2 )
+
+#test make_move_tested_with_white_bishop_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "rq1k3r/1bp2ppp/1p2p3/p1b5/2P3n1/3B1N2/PP3PPP/RQBKN2R w AHah - 2 10",
+        rawcode("d3f5"),
+        0x7419eddabbdf1c60U,
+        SB.d1, SB.b1, (SB.a1 | SB.h1), (SB.c1 | SB.f5), (SB.e1 | SB.f3),
+            (SB.a2 | SB.b2 | SB.c4 | SB.f2 | SB.g2 | SB.h2),
+        SB.d8, SB.b8, (SB.a8 | SB.h8), (SB.c5 | SB.b7), SB.g4,
+            (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7 | SB.h7),
+        (8 + 4 + 2 + 1), 1, 128, 0, 3, 10 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "rq1k3r/1bp2ppp/1p2p3/p1b5/2P3n1/3B1N2/PP3PPP/RQBKN2R w AHah - 2 10",
+        rawcode("d3h7"),
+        0x7419edfabbdf1c60U,
+        SB.d1, SB.b1, (SB.a1 | SB.h1), (SB.c1 | SB.h7), (SB.e1 | SB.f3),
+            (SB.a2 | SB.b2 | SB.c4 | SB.f2 | SB.g2 | SB.h2),
+        SB.d8, SB.b8, (SB.a8 | SB.h8), (SB.c5 | SB.b7), SB.g4,
+            (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7),
+        (8 + 4 + 2 + 1), 1, 128, 0, 0, 10 )
+
+#test make_move_tested_with_black_bishop_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "b3k3/8/8/8/3P4/8/8/4K2R b K d3 0 9",
+        rawcode("a8d5"),
+        ~( SB.e1 | SB.h1 | SB.d4 | SB.d5 | SB.e8 ),
+        SB.e1, 0, SB.h1, 0, 0, SB.d4,
+        SB.e8, 0, 0, SB.d5, 0, 0,
+        (128 + 8), 1, 128, 0, 1, 10 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "b3k3/8/8/8/3P4/8/8/4K2R b K d3 0 9",
+        rawcode("a8h1"),
+        ~( SB.e1 | SB.h1 | SB.d4 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, SB.d4,
+        SB.e8, 0, 0, SB.h1, 0, 0,
+        128, 1, 128, 0, 0, 10 )
+
+#test make_move_tested_with_white_knight_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "8/p7/1p2k2p/1P1NP2b/4P3/4K3/8/8 w - - 0 77", rawcode("d5c7"),
+        0xfffa6d6defefffffU,
+        SB.e3, 0, 0, 0, SB.c7, (SB.b5 | SB.e4 | SB.e5),
+        SB.e6, 0, 0, SB.h5, 0, (SB.a7 | SB.b6 | SB.h6),
+        0, 1, 128, 0, 1, 77 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "8/p7/1p2k2p/1P1NP2b/4Pp2/4K3/8/8 w - - 0 77", rawcode("d5f4"),
+        0xfffe6d6dcfefffffU,
+        SB.e3, 0, 0, 0, SB.f4, (SB.b5 | SB.e4 | SB.e5),
+        SB.e6, 0, 0, SB.h5, 0, (SB.a7 | SB.b6 | SB.h6),
+        0, 1, 128, 0, 0, 77 )
+
+#test make_move_tested_with_black_knight_moves
+    Pos *p;
+
+    // Non-captures
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/4P3/1n6/8/R3K3 b Q e3 0 1", rawcode("b3d2"),
+        ~( SB.a1 | SB.e1 | SB.d2 | SB.e4 | SB.e8 ),
+        SB.e1, 0, SB.a1, 0, 0, SB.e4,
+        SB.e8, 0, 0, 0, SB.d2, 0,
+        (128 + 4), 1, 128, 0, 1, 2 )
+
+    // Captures
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/4P3/1n6/8/R3K3 b Q e3 0 1", rawcode("b3a1"),
+        ~( SB.a1 | SB.e1 | SB.e4 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, SB.e4,
+        SB.e8, 0, 0, 0, SB.a1, 0,
+        128, 1, 128, 0, 0, 2 )
+
 #undef TEST_WITH_ARGS
 
 //
