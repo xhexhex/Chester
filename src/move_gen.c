@@ -921,8 +921,8 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
 
     sq_in_front = sq_nav( sq_in_front, whites_turn(p) ? NORTH : SOUTH );
     if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) return;
-    if( !(whites_turn(p) && (SS_RANK_2 & SBA[mover])) &&
-        !(!whites_turn(p) && (SS_RANK_7 & SBA[mover])) ) return;
+    if( !(whites_turn(p) && (rank('2') & SBA[mover])) &&
+        !(!whites_turn(p) && (rank('7') & SBA[mover])) ) return;
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
     move[2] = SNA[sq_bit_index(sq_in_front)][0];
     move[3] = SNA[sq_bit_index(sq_in_front)][1];

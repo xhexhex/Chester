@@ -73,12 +73,6 @@ typedef struct {
     uint16_t hmc, fmn;
 } Pos;
 
-// The square sets that correspond to the eight files and
-// the eight ranks of the chessboard
-extern const Bitboard
-    SS_RANK_1, SS_RANK_2, SS_RANK_3, SS_RANK_4,
-    SS_RANK_5, SS_RANK_6, SS_RANK_7, SS_RANK_8;
-
 // The square sets for the 15 diagonals and 15 antidiagonals of the chessboard
 extern const Bitboard
     SS_DIAG_H1H1, SS_DIAG_G1H2, SS_DIAG_F1H3, SS_DIAG_E1H4, SS_DIAG_D1H5,
@@ -96,7 +90,6 @@ extern const Bitboard
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
 const char *pos_to_fen( /* const Pos *p */ );
-Bitboard sq_set_of_rank( const char rank );
 Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );

@@ -227,9 +227,9 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 #tcase file_of_sq_tests
 
 #define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \
-const int START_VAL = file_char - 'a'; \
-for( int i = START_VAL; i <= START_VAL + 56; i += 8 ) { \
-    ck_assert( file_of_sq( SBA[ i ] ) == file_char ); }
+    const int START_VAL = file_char - 'a'; \
+    for( int i = START_VAL; i <= START_VAL + 56; i += 8 ) \
+        ck_assert( file_of_sq( SBA[ i ] ) == file_char );
 
 #test C_file_of_sq_test_on_file_a
     SQ_BIT_FILE_TEST_FOR_LOOP( 'a' )
@@ -255,12 +255,15 @@ for( int i = START_VAL; i <= START_VAL + 56; i += 8 ) { \
 #test C_file_of_sq_test_on_file_h
     SQ_BIT_FILE_TEST_FOR_LOOP( 'h' )
 
+//
+// Test case
+//
 #tcase rank_of_sq_tests
 
 #define SQ_BIT_RANK_TEST_FOR_LOOP( rank_char ) \
-const int START_VAL = ( rank_char - '1' ) * 8; \
-for( int i = START_VAL; i <= START_VAL + 7; i++ ) { \
-    ck_assert( rank_of_sq( SBA[ i ] ) == rank_char ); }
+    const int START_VAL = ( rank_char - '1' ) * 8; \
+    for( int i = START_VAL; i <= START_VAL + 7; i++ ) \
+        ck_assert( rank_of_sq( SBA[ i ] ) == rank_char );
 
 #test C_rank_of_sq_test_on_rank_1
     SQ_BIT_RANK_TEST_FOR_LOOP( '1' )
@@ -387,8 +390,8 @@ free( bin_str );
     for( int file_letter = 'a'; file_letter <= 'h'; file_letter++ ) {
         ck_assert( 8 == num_of_sqs_in_sq_set( file( file_letter ) ) );
     }
-    for( int rank = '1'; rank <= '8'; rank++ ) {
-        ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_rank( rank ) ) );
+    for( int rank_number = '1'; rank_number <= '8'; rank_number++ ) {
+        ck_assert( 8 == num_of_sqs_in_sq_set( rank( rank_number ) ) );
     }
 
 #test C_num_of_sqs_in_sq_set_returns_64
@@ -434,7 +437,7 @@ free( bin_str );
 
 #test C_sq_rectangle_ranks_test
     for( int i = '1'; i <= '8'; i++ )
-        ck_assert( sq_set_of_rank( i ) ==
+        ck_assert( rank( i ) ==
             sq_rectangle(
                 sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
                 sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );

@@ -373,9 +373,10 @@ x_validate_fen_test_16( const char *fen )
 static bool
 x_validate_fen_test_17( const Pos *p )
 {
-    return
-        !( p->ppa[ WHITE_PAWN ] & SS_RANK_1 ) && !( p->ppa[ BLACK_PAWN ] & SS_RANK_1 ) &&
-        !( p->ppa[ WHITE_PAWN ] & SS_RANK_8 ) && !( p->ppa[ BLACK_PAWN ] & SS_RANK_8 );
+    return !( p->ppa[ WHITE_PAWN ] & rank('1') ) &&
+        !( p->ppa[ BLACK_PAWN ] & rank('1') ) &&
+        !( p->ppa[ WHITE_PAWN ] & rank('8') ) &&
+        !( p->ppa[ BLACK_PAWN ] & rank('8') );
 }
 
 static bool

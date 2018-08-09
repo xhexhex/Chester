@@ -235,12 +235,6 @@ const Bitboard SQ_NAV[][ 16 ] = {
     0x400000000000U, 0x20000000000000U, 0x0U, 0x0U } };
 
 const Bitboard
-    SS_RANK_1 = 0xffu, SS_RANK_2 = 0xff00u, SS_RANK_3 = 0xff0000u,
-    SS_RANK_4 = 0xff000000u, SS_RANK_5 = 0xff00000000u,
-    SS_RANK_6 = 0xff0000000000u, SS_RANK_7 = 0xff000000000000u,
-    SS_RANK_8 = 0xff00000000000000u;
-
-const Bitboard
     SS_DIAG_H1H1 = 0x80U, SS_DIAG_G1H2 = 0x8040U, SS_DIAG_F1H3 = 0x804020U,
     SS_DIAG_E1H4 = 0x80402010U, SS_DIAG_D1H5 = 0x8040201008U,
     SS_DIAG_C1H6 = 0x804020100804U, SS_DIAG_B1H7 = 0x80402010080402U,
@@ -500,24 +494,6 @@ pos_to_fen( /* const Pos *p */ )
     // 2. Use compress_eppf()
 
     return NULL;
-}
-
-// The call sq_set_of_rank( '1' ) would return the constant SS_RANK_1.
-Bitboard
-sq_set_of_rank( const char rank )
-{
-    switch( rank ) {
-        case '1': return SS_RANK_1;
-        case '2': return SS_RANK_2;
-        case '3': return SS_RANK_3;
-        case '4': return SS_RANK_4;
-        case '5': return SS_RANK_5;
-        case '6': return SS_RANK_6;
-        case '7': return SS_RANK_7;
-        case '8': return SS_RANK_8;
-
-        default: assert( false ); return 0;
-    }
 }
 
 // Can be used to collectively access the SS_DIAG_* constants as if they

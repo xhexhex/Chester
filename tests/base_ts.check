@@ -199,10 +199,10 @@ create_APM_DATA_duplicate()
     Pos *p = fen_to_pos(
         "brnqkbrn/pppppppp/8/8/8/8/PPPPPPPP/BRNQKBRN w BGbg - 0 1" );
 
-    PPA_CHECK( SS_RANK_3 | SS_RANK_4 | SS_RANK_5 | SS_RANK_6,
-        0x10, 0x8, 0x42, 0x21, 0x84, SS_RANK_2,
+    PPA_CHECK( rank('3') | rank('4') | rank('5') | rank('6'),
+        0x10, 0x8, 0x42, 0x21, 0x84, rank('2'),
         0x1000000000000000, 0x800000000000000, 0x4200000000000000,
-        0x2100000000000000, 0x8400000000000000, SS_RANK_7 )
+        0x2100000000000000, 0x8400000000000000, rank('7') )
     CASTLING_RIGHTS_CHECK( true, true, true, true )
     ck_assert( p->turn_and_ca_flags == 0x8f );
     REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
@@ -310,15 +310,6 @@ create_APM_DATA_duplicate()
 #test C_BLACK_PAWN_equals_12
     Chessman cm = BLACK_PAWN;
     ck_assert( cm == 12 );
-
-#tcase sq_set_of_rank_tests
-
-#test C_sq_set_of_rank_test
-    const Bitboard rank_1 = 0xffU;
-    for( int rank = '1'; rank <= '8'; rank++ ) {
-        ck_assert( sq_set_of_rank( rank ) ==
-            ( rank_1 << ( ( rank - 'a' ) * 8 ) ) );
-    }
 
 #tcase SS_DIAG_tests
 
