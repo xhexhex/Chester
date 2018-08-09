@@ -1507,7 +1507,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 #tcase file_tests
 
-#test file_test
+#test file_test_01
 
     ck_assert( file('a') == 0x101010101010101U );
     ck_assert( file('b') ==
@@ -1515,3 +1515,17 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     ck_assert( file('e') == 0x1010101010101010U );
     ck_assert( file('h') ==
         (SB.h1 | SB.h2 | SB.h3 | SB.h4 | SB.h5 | SB.h6 | SB.h7 | SB.h8) );
+
+//
+// Test case
+//
+#tcase rank_tests
+
+#test rank_test_01
+
+    ck_assert( rank('1') == 0xffU );
+    ck_assert( rank('2') ==
+        (SB.a2 | SB.b2 | SB.c2 | SB.d2 | SB.e2 | SB.f2 | SB.g2 | SB.h2) );
+    ck_assert( rank('5') == 0xff00000000U );
+    ck_assert( rank('8') ==
+        (SB.a8 | SB.b8 | SB.c8 | SB.d8 | SB.e8 | SB.f8 | SB.g8 | SB.h8) );

@@ -803,6 +803,18 @@ file( char letter )
     return file_bb << (letter - 'a');
 }
 
+// Analogous to function file(). Argument 'number' (the indicator of the
+// chessboard rank) should be a character between '1' and '8'.
+Bitboard
+rank( char number )
+{
+    assert( number >= '1' && number <= '8' );
+
+    Bitboard rank_bb =
+        (SB.a1 | SB.b1 | SB.c1 | SB.d1 | SB.e1 | SB.f1 | SB.g1 | SB.h1);
+    return rank_bb << ( 8*(number - '1') );
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****

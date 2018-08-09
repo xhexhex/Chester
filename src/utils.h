@@ -61,6 +61,7 @@ Bitboard in_between( Bitboard sq_1, Bitboard sq_2 );
 void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
 void copy_pos( const Pos *p, Pos *copy );
 Bitboard file( char letter );
+Bitboard rank( char number );
 
 #endif
 // end UTILS_H
