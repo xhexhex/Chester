@@ -494,6 +494,7 @@ is_pawn_advance( const Pos *p, Rawcode code )
 
     return (mover == WHITE_PAWN || mover == BLACK_PAWN) &&
         target == EMPTY_SQUARE;
+    // return is_single_step_pawn_advance() || is_double_step_pawn_advance();
 }
 
 /**************************

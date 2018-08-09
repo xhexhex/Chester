@@ -459,6 +459,8 @@ static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, Rawcode code );
 static void x_make_move_non_castling( Pos *p, Rawcode code );
+static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
+    char promotion );
 
 /****************************
  **** External functions ****
@@ -684,26 +686,23 @@ rawmove( Rawcode rawcode, char *writable )
 void
 make_move( Pos *p, Rawcode code, char promotion )
 {
-    promotion = 0;
-    if(promotion) assert(false);
+    x_make_move_sanity_checks( p, code, promotion );
 
-    bool move_is_capture = is_capture(p, code),
-        move_is_pawn_advance = is_pawn_advance(p, code),
-        move_is_short_castle = is_short_castle(p, code),
-        move_is_long_castle = is_long_castle(p, code);
+    Pos unmodified_p;
+    copy_pos(p, &unmodified_p);
 
     p->epts_file = 0;
 
-    if( move_is_short_castle || move_is_long_castle ) {
-        assert( !( move_is_short_castle && move_is_long_castle ) );
+    if( is_short_castle(&unmodified_p, code) ||
+            is_long_castle(&unmodified_p, code) )
         x_make_move_castle(p, code);
-    } else {
-        x_make_move_non_castling(p, code);
-    }
+    else x_make_move_non_castling(p, code);
 
     x_make_move_toggle_turn(p);
 
-    if( move_is_capture || move_is_pawn_advance ) p->hmc = 0;
+    if( is_capture(&unmodified_p, code) ||
+            is_pawn_advance(&unmodified_p, code) )
+        p->hmc = 0;
     else p->hmc++;
 
     // is_double_pawn_advance()
@@ -978,4 +977,13 @@ x_make_move_non_castling( Pos *p, Rawcode code )
             (target == BLACK_ROOK && SBA[dest] ==
             ((Bitboard) p->irp[0] << 56)) )
         remove_castling_rights(p, "black", "queenside");
+}
+
+static void
+x_make_move_sanity_checks( const Pos *p, Rawcode code, char promotion )
+{
+    promotion = 0, assert( !promotion );
+
+    // Castling move is either O-O or O-O-O but not both
+    assert( !(is_short_castle(p, code) && is_long_castle(p, code)) );
 }

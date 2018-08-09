@@ -1210,6 +1210,23 @@ ck_assert( counter == exp_count );
         SB.e8, 0, 0, 0, SB.a1, 0,
         128, 1, 128, 0, 0, 2 )
 
+//
+// Test case
+//
+#tcase make_move_pawn_move_tests
+
+#test make_move_tested_with_double_advancing_white_pawns
+    /*
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/4P3/4K3 w - - 1 50", rawcode("e2e4"),
+        ~( SB.e1 | SB.e4 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, SB.e4,
+        SB.e8, 0, 0, 0, 0, 0,
+        0, 1, 128, 16, 0, 50 )
+    */
+
 #undef TEST_WITH_ARGS
 
 //

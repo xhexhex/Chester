@@ -1501,3 +1501,17 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     TEST_WITH_ARGS( FEN_STD_START_POS )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase file_tests
+
+#test file_test
+
+    ck_assert( file('a') == 0x101010101010101U );
+    ck_assert( file('b') ==
+        (SB.b1 | SB.b2 | SB.b3 | SB.b4 | SB.b5 | SB.b6 | SB.b7 | SB.b8) );
+    ck_assert( file('e') == 0x1010101010101010U );
+    ck_assert( file('h') ==
+        (SB.h1 | SB.h2 | SB.h3 | SB.h4 | SB.h5 | SB.h6 | SB.h7 | SB.h8) );

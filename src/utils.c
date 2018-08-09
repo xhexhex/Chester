@@ -791,14 +791,20 @@ copy_pos( const Pos *p, Pos *copy )
     copy->epts_file = p->epts_file;
     copy->hmc = p->hmc;
     copy->fmn = p->fmn;
+}
 
-    /*
-    typedef struct {
-        Bitboard ppa[13];
-        uint8_t turn_and_ca_flags, irp[2], epts_file;
-        uint16_t hmc, fmn;
-    } Pos;
-    */
+// Returns the bitboard corresponding to the chessboard file indicated
+// by 'letter'. For example, the call file('e') returns a bitboard that
+// has each of the eight squares of the e-file set. The 'letter' argument
+// should be a lowercase character between 'a' and 'h'.
+Bitboard
+file( char letter )
+{
+    assert( letter >= 'a' && letter <= 'h' );
+
+    Bitboard file_bb =
+        (SB.a1 | SB.a2 | SB.a3 | SB.a4 | SB.a5 | SB.a6 | SB.a7 | SB.a8);
+    return file_bb << (letter - 'a');
 }
 
 /****************************
