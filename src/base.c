@@ -235,10 +235,6 @@ const Bitboard SQ_NAV[][ 16 ] = {
     0x400000000000U, 0x20000000000000U, 0x0U, 0x0U } };
 
 const Bitboard
-    SS_FILE_A = 0x101010101010101u, SS_FILE_B = 0x202020202020202u,
-    SS_FILE_C = 0x404040404040404u, SS_FILE_D = 0x808080808080808u,
-    SS_FILE_E = 0x1010101010101010u, SS_FILE_F = 0x2020202020202020u,
-    SS_FILE_G = 0x4040404040404040u, SS_FILE_H = 0x8080808080808080u,
     SS_RANK_1 = 0xffu, SS_RANK_2 = 0xff00u, SS_RANK_3 = 0xff0000u,
     SS_RANK_4 = 0xff000000u, SS_RANK_5 = 0xff00000000u,
     SS_RANK_6 = 0xff0000000000u, SS_RANK_7 = 0xff000000000000u,
@@ -506,28 +502,7 @@ pos_to_fen( /* const Pos *p */ )
     return NULL;
 }
 
-// The call sq_set_of_file( 'a' ) would return the constant SS_FILE_A.
-// The main purpose of the function is to not have to define an array
-// version of the SS_FILE_? constants.
-Bitboard
-sq_set_of_file( const char file )
-{
-    switch( file ) {
-        case 'a': return SS_FILE_A;
-        case 'b': return SS_FILE_B;
-        case 'c': return SS_FILE_C;
-        case 'd': return SS_FILE_D;
-        case 'e': return SS_FILE_E;
-        case 'f': return SS_FILE_F;
-        case 'g': return SS_FILE_G;
-        case 'h': return SS_FILE_H;
-
-        default: assert( false ); return 0;
-    }
-}
-
 // The call sq_set_of_rank( '1' ) would return the constant SS_RANK_1.
-// The main purpose of the function is the same as in sq_set_of_file().
 Bitboard
 sq_set_of_rank( const char rank )
 {

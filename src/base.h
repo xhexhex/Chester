@@ -73,12 +73,9 @@ typedef struct {
     uint16_t hmc, fmn;
 } Pos;
 
-// Create macros FILE(X) and RANK(X)?
 // The square sets that correspond to the eight files and
 // the eight ranks of the chessboard
 extern const Bitboard
-    SS_FILE_A, SS_FILE_B, SS_FILE_C, SS_FILE_D,
-    SS_FILE_E, SS_FILE_F, SS_FILE_G, SS_FILE_H,
     SS_RANK_1, SS_RANK_2, SS_RANK_3, SS_RANK_4,
     SS_RANK_5, SS_RANK_6, SS_RANK_7, SS_RANK_8;
 
@@ -99,7 +96,6 @@ extern const Bitboard
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
 const char *pos_to_fen( /* const Pos *p */ );
-Bitboard sq_set_of_file( const char file );
 Bitboard sq_set_of_rank( const char rank );
 Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );

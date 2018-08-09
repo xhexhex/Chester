@@ -32,7 +32,7 @@ void unset_bits( uint64_t *bits, const uint64_t BITMASK );
 Chessman occupant_of_sq( const Pos *p, Bitboard sq_bit );
 Bitboard sq_name_to_sq_bit( const char *sq_name );
 const char *sq_bit_to_sq_name( Bitboard sq_bit );
-char file_of_sq( const Bitboard sq_bit );
+char file_of_sq( Bitboard sq_bit );
 char rank_of_sq( const Bitboard sq_bit );
 int sq_bit_index( Bitboard sq_bit );
 char *uint64_to_bin_str( uint64_t uint64 );

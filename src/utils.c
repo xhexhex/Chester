@@ -185,23 +185,19 @@ sq_bit_to_sq_name( Bitboard sq_bit )
     return SNA[ sq_name_array_index ];
 }
 
-// Returns the file of the square bit argument
+// Returns the chessboard file of the square bit argument 'sq_bit'.
+// For example, file_of_sq(SB.e4) returns 'e'.
 char
 file_of_sq( const Bitboard sq_bit )
 {
-    assert( is_sq_bit( sq_bit ) );
+    assert( is_sq_bit(sq_bit) );
 
-    if( sq_bit & SS_FILE_A ) return 'a';
-    if( sq_bit & SS_FILE_B ) return 'b';
-    if( sq_bit & SS_FILE_C ) return 'c';
-    if( sq_bit & SS_FILE_D ) return 'd';
-    if( sq_bit & SS_FILE_E ) return 'e';
-    if( sq_bit & SS_FILE_F ) return 'f';
-    if( sq_bit & SS_FILE_G ) return 'g';
-    if( sq_bit & SS_FILE_H ) return 'h';
+    for( char file_letter = 'a'; file_letter <= 'h'; file_letter++ )
+        if( sq_bit & file(file_letter) )
+            return file_letter;
 
-    assert( false );
-    return '\0';
+    assert(false);
+    return 0;
 }
 
 // Returns the rank of the square bit argument
@@ -825,13 +821,13 @@ x_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
     Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
     FIND_SQUARE_IN_DIRECTION( NORTH, SS_RANK_8, 8 )
-    FIND_SQUARE_IN_DIRECTION( NORTHEAST, SS_FILE_H | SS_RANK_8, 9 )
-    FIND_SQUARE_IN_DIRECTION( EAST, SS_FILE_H, 1 )
-    FIND_SQUARE_IN_DIRECTION( SOUTHEAST, SS_FILE_H | SS_RANK_1, -7 )
+    FIND_SQUARE_IN_DIRECTION( NORTHEAST, file('h') | SS_RANK_8, 9 )
+    FIND_SQUARE_IN_DIRECTION( EAST, file('h'), 1 )
+    FIND_SQUARE_IN_DIRECTION( SOUTHEAST, file('h') | SS_RANK_1, -7 )
     FIND_SQUARE_IN_DIRECTION( SOUTH, SS_RANK_1, -8 )
-    FIND_SQUARE_IN_DIRECTION( SOUTHWEST, SS_FILE_A | SS_RANK_1, -9 )
-    FIND_SQUARE_IN_DIRECTION( WEST, SS_FILE_A, -1 )
-    FIND_SQUARE_IN_DIRECTION( NORTHWEST, SS_FILE_A | SS_RANK_8, 7 )
+    FIND_SQUARE_IN_DIRECTION( SOUTHWEST, file('a') | SS_RANK_1, -9 )
+    FIND_SQUARE_IN_DIRECTION( WEST, file('a'), -1 )
+    FIND_SQUARE_IN_DIRECTION( NORTHWEST, file('a') | SS_RANK_8, 7 )
 
     assert( false );
     return "";
@@ -842,14 +838,14 @@ x_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 {
     Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
 
-    FIND_SQUARE_IN_DIRECTION( ONE_OCLOCK,    SS_FILE_H | SS_RANK_7 | SS_RANK_8,  17 )
-    FIND_SQUARE_IN_DIRECTION( TWO_OCLOCK,    SS_FILE_G | SS_FILE_H | SS_RANK_8,  10 )
-    FIND_SQUARE_IN_DIRECTION( FOUR_OCLOCK,   SS_FILE_G | SS_FILE_H | SS_RANK_1,  -6 )
-    FIND_SQUARE_IN_DIRECTION( FIVE_OCLOCK,   SS_FILE_H | SS_RANK_1 | SS_RANK_2, -15 )
-    FIND_SQUARE_IN_DIRECTION( SEVEN_OCLOCK,  SS_FILE_A | SS_RANK_1 | SS_RANK_2, -17 )
-    FIND_SQUARE_IN_DIRECTION( EIGHT_OCLOCK,  SS_FILE_A | SS_FILE_B | SS_RANK_1, -10 )
-    FIND_SQUARE_IN_DIRECTION( TEN_OCLOCK,    SS_FILE_A | SS_FILE_B | SS_RANK_8,   6 )
-    FIND_SQUARE_IN_DIRECTION( ELEVEN_OCLOCK, SS_FILE_A | SS_RANK_7 | SS_RANK_8,  15 )
+    FIND_SQUARE_IN_DIRECTION( ONE_OCLOCK,    file('h') | SS_RANK_7 | SS_RANK_8,  17 )
+    FIND_SQUARE_IN_DIRECTION( TWO_OCLOCK,    file('g') | file('h') | SS_RANK_8,  10 )
+    FIND_SQUARE_IN_DIRECTION( FOUR_OCLOCK,   file('g') | file('h') | SS_RANK_1,  -6 )
+    FIND_SQUARE_IN_DIRECTION( FIVE_OCLOCK,   file('h') | SS_RANK_1 | SS_RANK_2, -15 )
+    FIND_SQUARE_IN_DIRECTION( SEVEN_OCLOCK,  file('a') | SS_RANK_1 | SS_RANK_2, -17 )
+    FIND_SQUARE_IN_DIRECTION( EIGHT_OCLOCK,  file('a') | file('b') | SS_RANK_1, -10 )
+    FIND_SQUARE_IN_DIRECTION( TEN_OCLOCK,    file('a') | file('b') | SS_RANK_8,   6 )
+    FIND_SQUARE_IN_DIRECTION( ELEVEN_OCLOCK, file('a') | SS_RANK_7 | SS_RANK_8,  15 )
 
     assert( false );
     return "";

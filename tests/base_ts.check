@@ -311,17 +311,6 @@ create_APM_DATA_duplicate()
     Chessman cm = BLACK_PAWN;
     ck_assert( cm == 12 );
 
-//
-// Test case
-//
-#tcase sq_set_of_file_tests
-
-#test C_sq_set_of_file_test
-    const Bitboard file_a = 0x101010101010101U;
-    for( int file = 'a'; file <= 'h'; file++ ) {
-        ck_assert( sq_set_of_file( file ) == ( file_a << ( file - 'a' ) ) );
-    }
-
 #tcase sq_set_of_rank_tests
 
 #test C_sq_set_of_rank_test

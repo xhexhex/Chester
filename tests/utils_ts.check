@@ -384,8 +384,8 @@ free( bin_str );
     }
 
 #test C_num_of_sqs_in_sq_set_returns_8
-    for( int file = 'a'; file <= 'h'; file++ ) {
-        ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_file( file ) ) );
+    for( int file_letter = 'a'; file_letter <= 'h'; file_letter++ ) {
+        ck_assert( 8 == num_of_sqs_in_sq_set( file( file_letter ) ) );
     }
     for( int rank = '1'; rank <= '8'; rank++ ) {
         ck_assert( 8 == num_of_sqs_in_sq_set( sq_set_of_rank( rank ) ) );
@@ -427,7 +427,7 @@ free( bin_str );
 
 #test C_sq_rectangle_files_test
     for( int i = 'a'; i <= 'h'; i++ )
-        ck_assert( sq_set_of_file( i ) ==
+        ck_assert( file( i ) ==
             sq_rectangle(
                 sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
                 sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
