@@ -28,10 +28,12 @@ Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );
 Bitboard black_attackers( const Bitboard *ppa, Bitboard sq );
 Rawcode *rawcodes( const Pos *p );
 Rawcode castle( const Pos *p, const char *castle_type );
-bool is_short_castle( const Pos *p, Rawcode code );
-bool is_long_castle( const Pos *p, Rawcode code );
-bool is_capture( const Pos *p, Rawcode code );
-bool is_pawn_advance( const Pos *p, Rawcode code );
+bool is_short_castle( const Pos *p, Rawcode move );
+bool is_long_castle( const Pos *p, Rawcode move );
+bool is_capture( const Pos *p, Rawcode move );
+bool is_pawn_advance( const Pos *p, Rawcode move );
+bool is_single_step_pawn_advance( const Pos *p, Rawcode move );
+bool is_double_step_pawn_advance( const Pos *p, Rawcode move );
 
 #endif
 // end MOVE_GEN_H

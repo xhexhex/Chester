@@ -431,43 +431,38 @@ castle( const Pos *p, const char *castle_type )
             ( !whites_turn(p) && ((SBA[dest] >> 56) & p->irp[index]) ) \
         );
 
-// Returns true if the move represented by 'code' is O-O in position 'p';
-// otherwise returns false.
-bool
-is_short_castle( const Pos *p, Rawcode code )
-{
-    Chessman mover, target;
-    int orig, dest;
-    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
+#define INIT_VARS \
+    Chessman mover, target; \
+    int orig, dest; \
+    x_set_mover_target_orig_and_dest( p, move, &mover, &target, \
         &orig, &dest );
 
+// Returns true if the move represented by 'move' is O-O in position 'p';
+// otherwise returns false.
+bool
+is_short_castle( const Pos *p, Rawcode move )
+{
+    INIT_VARS
     RETURN_STATEMENT(1)
 }
 
-// Returns true if the move represented by 'code' is O-O-O in position 'p';
+// Returns true if the move represented by 'move' is O-O-O in position 'p';
 // otherwise returns false.
 bool
-is_long_castle( const Pos *p, Rawcode code )
+is_long_castle( const Pos *p, Rawcode move )
 {
-    Chessman mover, target;
-    int orig, dest;
-    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
-        &orig, &dest );
-
+    INIT_VARS
     RETURN_STATEMENT(0)
 }
 
 #undef RETURN_STATEMENT
 
-// Returns true if the move represented by 'code' is a capture in
+// Returns true if the move represented by 'move' is a capture in
 // position 'p'; otherwise returns false.
 bool
-is_capture( const Pos *p, Rawcode code )
+is_capture( const Pos *p, Rawcode move )
 {
-    Chessman mover, target;
-    int orig, dest;
-    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
-        &orig, &dest );
+    INIT_VARS
 
     assert( target != WHITE_KING && target != BLACK_KING );
 
@@ -482,20 +477,46 @@ is_capture( const Pos *p, Rawcode code )
         );
 }
 
-// Returns true if the move represented by 'code' is a pawn advance
+// Returns true if the move represented by 'move' is a pawn advance
 // in position 'p'; otherwise returns false.
 bool
-is_pawn_advance( const Pos *p, Rawcode code )
+is_pawn_advance( const Pos *p, Rawcode move )
 {
-    Chessman mover, target;
-    int orig, dest;
-    x_set_mover_target_orig_and_dest( p, code, &mover, &target,
-        &orig, &dest );
+    INIT_VARS
 
     return (mover == WHITE_PAWN || mover == BLACK_PAWN) &&
         target == EMPTY_SQUARE;
     // return is_single_step_pawn_advance() || is_double_step_pawn_advance();
 }
+
+// Not tested
+#define ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK \
+    assert( (mover != WHITE_PAWN && mover != BLACK_PAWN) || \
+        ( !(SBA[orig] & rank('1')) && !(SBA[orig] & rank('8')) ) );
+
+// Returns true if 'move' is a single step pawn advance in
+// position 'p'; otherwise returns false.
+bool
+is_single_step_pawn_advance( const Pos *p, Rawcode move )
+{
+    INIT_VARS
+    ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
+
+    return (mover == WHITE_PAWN && SBA[dest] == (SBA[orig] << 8)) ||
+        (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 8));
+}
+
+bool
+is_double_step_pawn_advance( const Pos *p, Rawcode move )
+{
+    INIT_VARS
+    ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
+
+    return true;
+}
+
+#undef ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
+#undef INIT_VARS
 
 /**************************
  **** Static functions ****

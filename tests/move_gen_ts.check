@@ -1021,3 +1021,50 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( fen, "d5d4", true )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase is_single_step_pawn_advance_tests
+
+#define TEST_WITH_ARGS( fen, move, expected ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    ck_assert( is_single_step_pawn_advance( \
+        p, rawcode(move) ) == expected ); \
+    free( (Pos *) p );
+
+#test is_single_step_pawn_advance_test_01
+    const Pos *p;
+    const char fen[] =
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
+
+    TEST_WITH_ARGS( fen, "d2d3", true )
+    TEST_WITH_ARGS( fen, "d2d4", false )
+    TEST_WITH_ARGS( fen, "d2d5", false )
+    TEST_WITH_ARGS( fen, "a2a3", true )
+    TEST_WITH_ARGS( fen, "h2h4", false )
+    TEST_WITH_ARGS( fen, "h2g3", false )
+    TEST_WITH_ARGS( fen, "g1f3", false )
+    TEST_WITH_ARGS( fen, "b1a3", false )
+    TEST_WITH_ARGS( fen, "g2g3", true )
+    TEST_WITH_ARGS( fen, "e4e5", true )
+    TEST_WITH_ARGS( fen, "e4e3", false )
+    TEST_WITH_ARGS( fen, "e4e6", false )
+
+#test is_single_step_pawn_advance_test_02
+    const Pos *p;
+    const char fen[] =
+        "4k3/7p/6R1/4p3/8/8/p7/4K3 b - - 0 1";
+
+    TEST_WITH_ARGS( fen, "a2a1", true )
+    TEST_WITH_ARGS( fen, "e5e4", true )
+    TEST_WITH_ARGS( fen, "e5e3", false )
+    TEST_WITH_ARGS( fen, "e5e6", false )
+    TEST_WITH_ARGS( fen, "h7g6", false )
+    TEST_WITH_ARGS( fen, "h7h6", true )
+    TEST_WITH_ARGS( fen, "h7h5", false )
+    TEST_WITH_ARGS( fen, "e8e7", false )
+    TEST_WITH_ARGS( fen, "e8d7", false )
+
+#undef TEST_WITH_ARGS
