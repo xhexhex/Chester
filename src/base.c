@@ -451,6 +451,7 @@ static void x_make_move_castle( Pos *p, Rawcode code );
 static void x_make_move_non_castling( Pos *p, Rawcode code );
 static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
     char promotion );
+static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 
 /****************************
  **** External functions ****
@@ -635,28 +636,29 @@ rawmove( Rawcode rawcode, char *writable )
 
 // TODO: doc
 void
-make_move( Pos *p, Rawcode code, char promotion )
+make_move( Pos *p, Rawcode move, char promotion )
 {
-    x_make_move_sanity_checks( p, code, promotion );
+    x_make_move_sanity_checks( p, move, promotion );
 
     Pos unmodified_p;
     copy_pos(p, &unmodified_p);
 
-    p->epts_file = 0;
-
-    if( is_short_castle(&unmodified_p, code) ||
-            is_long_castle(&unmodified_p, code) )
-        x_make_move_castle(p, code);
-    else x_make_move_non_castling(p, code);
+    // TODO: Add function is_castle()
+    if( is_short_castle(&unmodified_p, move) ||
+            is_long_castle(&unmodified_p, move) )
+        x_make_move_castle(p, move);
+    else x_make_move_non_castling(p, move);
 
     x_make_move_toggle_turn(p);
 
-    if( is_capture(&unmodified_p, code) ||
-            is_pawn_advance(&unmodified_p, code) )
+    if( is_capture(&unmodified_p, move) ||
+            is_pawn_advance(&unmodified_p, move) )
         p->hmc = 0;
     else p->hmc++;
 
-    // is_double_pawn_advance()
+    if( is_double_step_pawn_advance(&unmodified_p, move) )
+        x_make_move_set_epts_file(&p->epts_file, move);
+    else p->epts_file = 0;
 
     if( whites_turn(p) ) p->fmn++;
 
@@ -937,4 +939,12 @@ x_make_move_sanity_checks( const Pos *p, Rawcode code, char promotion )
 
     // Castling move is either O-O or O-O-O but not both
     assert( !(is_short_castle(p, code) && is_long_castle(p, code)) );
+}
+
+static void
+x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move )
+{
+    char the_rawmove[4 + 1];
+    rawmove(move, the_rawmove);
+    *epts_file = (1 << (the_rawmove[0] - 'a'));
 }

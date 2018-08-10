@@ -1196,7 +1196,6 @@ ck_assert( counter == exp_count );
 #tcase make_move_pawn_move_tests
 
 #test make_move_tested_with_double_advancing_white_pawns
-    /*
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1205,7 +1204,44 @@ ck_assert( counter == exp_count );
         SB.e1, 0, 0, 0, 0, SB.e4,
         SB.e8, 0, 0, 0, 0, 0,
         0, 1, 128, 16, 0, 50 )
-    */
+    TEST_WITH_ARGS(
+        "k7/8/8/p7/8/8/P7/K7 w - a6 0 100", rawcode("a2a4"),
+        ~( SB.a1 | SB.a4 | SB.a5 | SB.a8 ),
+        SB.a1, 0, 0, 0, 0, SB.a4,
+        SB.a8, 0, 0, 0, 0, SB.a5,
+        0, 1, 128, 1, 0, 100 )
+    TEST_WITH_ARGS(
+        "8/8/8/6k1/8/8/7P/7K w - - 1 100", rawcode("h2h4"),
+        ~( SB.h1 | SB.h4 | SB.g5 ),
+        SB.h1, 0, 0, 0, 0, SB.h4,
+        SB.g5, 0, 0, 0, 0, 0,
+        0, 1, 128, 128, 0, 100 )
+
+#test make_move_tested_with_double_advancing_black_pawns
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        rawcode("c7c5"),
+        0x4fffbefff1000U,
+        SB.e1, SB.d1, (SB.a1 | SB.h1), (SB.c1 | SB.f1), (SB.b1 | SB.g1),
+            (SB.a2 | SB.b2 | SB.c2 | SB.d2 | SB.e4 | SB.f2 | SB.g2 | SB.h2),
+        SB.e8, SB.d8, (SB.a8 | SB.h8), (SB.c8 | SB.f8), (SB.b8 | SB.g8),
+            (SB.a7 | SB.b7 | SB.c5 | SB.d7 | SB.e7 | SB.f7 | SB.g7 | SB.h7),
+        128 + 8 + 4 + 2 + 1, 1, 128, 4, 0, 2 )
+    TEST_WITH_ARGS(
+        "k7/p7/8/1K6/8/8/8/8 b - - 1 123", rawcode("a7a5"),
+        ~( SB.a5 | SB.b5 | SB.a8 ),
+        SB.b5, 0, 0, 0, 0, 0,
+        SB.a8, 0, 0, 0, 0, SB.a5,
+        128, 1, 128, 1, 0, 124 )
+    TEST_WITH_ARGS(
+        "1r1kr3/7p/8/6P1/7P/8/8/1R1KR3 b BEbe h3 0 50", rawcode("h7h5"),
+        ~( SB.b1 | SB.d1 | SB.e1 | SB.h4 | SB.g5 | SB.h5 |
+            SB.b8 | SB.d8 | SB.e8 ),
+        SB.d1, 0, (SB.b1 | SB.e1), 0, 0, (SB.h4 | SB.g5),
+        SB.d8, 0, (SB.b8 | SB.e8), 0, 0, SB.h5,
+        128 + 8 + 4 + 2 + 1, 2, 16, 128, 0, 51 )
 
 #undef TEST_WITH_ARGS
 
