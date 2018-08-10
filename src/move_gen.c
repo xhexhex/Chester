@@ -483,10 +483,11 @@ bool
 is_pawn_advance( const Pos *p, Rawcode move )
 {
     INIT_VARS
+    assert( !is_single_step_pawn_advance(p, move) ||
+        !is_double_step_pawn_advance(p, move) );
 
-    return (mover == WHITE_PAWN || mover == BLACK_PAWN) &&
-        target == EMPTY_SQUARE;
-    // return is_single_step_pawn_advance() || is_double_step_pawn_advance();
+    return is_single_step_pawn_advance(p, move) ||
+        is_double_step_pawn_advance(p, move);
 }
 
 // Not tested
@@ -494,7 +495,7 @@ is_pawn_advance( const Pos *p, Rawcode move )
     assert( (mover != WHITE_PAWN && mover != BLACK_PAWN) || \
         ( !(SBA[orig] & rank('1')) && !(SBA[orig] & rank('8')) ) );
 
-// Returns true if 'move' is a single step pawn advance in
+// Returns true if 'move' is a *single step* pawn advance in
 // position 'p'; otherwise returns false.
 bool
 is_single_step_pawn_advance( const Pos *p, Rawcode move )
@@ -506,13 +507,23 @@ is_single_step_pawn_advance( const Pos *p, Rawcode move )
         (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 8));
 }
 
+// Returns true if 'move' is a *double step* pawn advance in
+// position 'p'; otherwise returns false.
 bool
 is_double_step_pawn_advance( const Pos *p, Rawcode move )
 {
     INIT_VARS
     ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
 
-    return true;
+    return
+        (
+            mover == WHITE_PAWN && (SBA[orig] & rank('2')) &&
+                SBA[dest] == (SBA[orig] << 16)
+        ) ||
+        (
+            mover == BLACK_PAWN && (SBA[orig] & rank('7')) &&
+                SBA[dest] == (SBA[orig] >> 16)
+        );
 }
 
 #undef ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK

@@ -1068,3 +1068,46 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( fen, "e8d7", false )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase is_double_step_pawn_advance_tests
+
+#define TEST_WITH_ARGS( fen, move, expected ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    ck_assert( is_double_step_pawn_advance( \
+        p, rawcode(move) ) == expected ); \
+    free( (Pos *) p );
+
+#test is_double_step_pawn_advance_test_01
+    const Pos *p;
+    const char fen[] =
+        "4k3/4p2p/p7/1Rp2P2/3P4/8/8/4K3 b - d3 0 123";
+
+    TEST_WITH_ARGS( fen, "e7e5", true )
+    TEST_WITH_ARGS( fen, "e7e6", false )
+    TEST_WITH_ARGS( fen, "a6b5", false )
+    TEST_WITH_ARGS( fen, "a6a5", false )
+    TEST_WITH_ARGS( fen, "c5c7", false )
+    TEST_WITH_ARGS( fen, "c5d4", false )
+    TEST_WITH_ARGS( fen, "h7h6", false )
+    TEST_WITH_ARGS( fen, "h7h5", true )
+    TEST_WITH_ARGS( fen, "e8d8", false )
+
+#test is_double_step_pawn_advance_test_02
+    const Pos *p;
+    const char fen[] =
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2";
+
+    TEST_WITH_ARGS( fen, "d2d4", true )
+    TEST_WITH_ARGS( fen, "a2a4", true )
+    TEST_WITH_ARGS( fen, "h2h4", true )
+    TEST_WITH_ARGS( fen, "e4e5", false )
+    TEST_WITH_ARGS( fen, "f1c4", false )
+    TEST_WITH_ARGS( fen, "g2g3", false )
+    TEST_WITH_ARGS( fen, "g2g4", true )
+    TEST_WITH_ARGS( fen, "g1f3", false )
+
+#undef TEST_WITH_ARGS
