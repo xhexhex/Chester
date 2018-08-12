@@ -1243,6 +1243,23 @@ ck_assert( counter == exp_count );
         SB.d8, 0, (SB.b8 | SB.e8), 0, 0, SB.h5,
         128 + 8 + 4 + 2 + 1, 2, 16, 128, 0, 51 )
 
+#test make_move_tested_with_white_pawns_doing_non_en_passant_captures
+    Pos *p;
+
+    // No promotion
+    TEST_WITH_ARGS(
+        "4k3/8/8/3rbp2/4P3/8/8/4K3 w - f6 0 100", rawcode("e4d5"),
+        ~( SB.e1 | SB.d5 | SB.e5 | SB.f5 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, SB.d5,
+        SB.e8, 0, 0, SB.e5, 0, SB.f5,
+        0, 1, 128, 0, 0, 100 )
+    TEST_WITH_ARGS(
+        "4k3/8/8/3rbp2/4P3/8/8/4K3 w - - 1 100", rawcode("e4f5"),
+        ~( SB.e1 | SB.d5 | SB.e5 | SB.f5 | SB.e8 ),
+        SB.e1, 0, 0, 0, 0, SB.f5,
+        SB.e8, 0, SB.d5, SB.e5, 0, 0,
+        0, 1, 128, 0, 0, 100 )
+
 #undef TEST_WITH_ARGS
 
 //

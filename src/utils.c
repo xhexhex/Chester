@@ -811,6 +811,22 @@ rank( char number )
     return rank_bb << ( 8*(number - '1') );
 }
 
+// Uses the information in 'p' and 'move' to set the values of the four
+// pointer arguments 'mover', 'target', 'orig' and 'dest'. For example,
+// if 'p' corresponds to the standard starting position and 'move' to
+// the move 1.e4, then the four pointer arguments will be set as follows:
+// *mover = WHITE_PAWN, *target = EMPTY_SQUARE, *orig = 12, *dest = 28.
+// The 'orig' and 'dest' arguments mean the bit indexes of the square bits
+// that indicate the origin and destination squares of the 'move' argument.
+void
+set_mover_target_orig_and_dest( const Pos *p, Rawcode move, Chessman *mover,
+    Chessman *target, int *orig, int *dest )
+{
+    rawcode_bit_indexes( move, orig, dest );
+    *mover = occupant_of_sq( p, SBA[*orig] );
+    *target = occupant_of_sq( p, SBA[*dest] );
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****

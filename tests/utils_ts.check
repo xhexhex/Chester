@@ -1532,3 +1532,38 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     ck_assert( rank('5') == 0xff00000000U );
     ck_assert( rank('8') ==
         (SB.a8 | SB.b8 | SB.c8 | SB.d8 | SB.e8 | SB.f8 | SB.g8 | SB.h8) );
+
+//
+// Test case
+//
+#tcase set_mover_target_orig_and_dest_tests
+
+#define TEST_WITH_ARGS( \
+        fen, move, exp_mover, exp_target, exp_orig, exp_dest ) \
+    Chessman mover, target; \
+    int orig, dest; \
+    ck_assert( !che_fen_validator( fen ) ); \
+    const Pos *p = fen_to_pos( fen ); \
+    set_mover_target_orig_and_dest( p, rawcode(move), \
+        &mover, &target, &orig, &dest ); \
+    ck_assert( mover == exp_mover ); \
+    ck_assert( target == exp_target ); \
+    ck_assert( orig == exp_orig ); \
+    ck_assert( dest == exp_dest ); \
+    free( (Pos *) p );
+
+#test set_mover_target_orig_and_dest_test_01
+    TEST_WITH_ARGS( FEN_STD_START_POS, "e2e4",
+        WHITE_PAWN, EMPTY_SQUARE, 12, 28 )
+
+#test set_mover_target_orig_and_dest_test_02
+    TEST_WITH_ARGS(
+        "nqrk2rn/ppp1ppbp/6p1/1b1p4/3P4/2P3N1/PPNBPPPP/1QRK1BR1 b CGcg - 2 5",
+        "d8c8", BLACK_KING, BLACK_ROOK, 59, 58 )
+
+#test set_mover_target_orig_and_dest_test_03
+    TEST_WITH_ARGS(
+        "nqrk2rn/ppp1ppbp/6p1/1b1p4/3P4/2P3N1/PPNBPPPP/1QRK1BR1 b CGcg - 2 5",
+        "g7d4", BLACK_BISHOP, WHITE_PAWN, 54, 27 )
+
+#undef TEST_WITH_ARGS

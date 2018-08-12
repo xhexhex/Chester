@@ -933,12 +933,24 @@ x_make_move_non_castling( Pos *p, Rawcode code )
 }
 
 static void
-x_make_move_sanity_checks( const Pos *p, Rawcode code, char promotion )
+x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
 {
+    Chessman mover, target; int orig, dest;
+    set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
+
     promotion = 0, assert( !promotion );
 
-    // Castling move is either O-O or O-O-O but not both
-    assert( !(is_short_castle(p, code) && is_long_castle(p, code)) );
+    // On White's turn only white chessmen can move; the same for Black
+    assert(
+        ( whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
+        ( !whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN ) );
+    // A castling move is either O-O or O-O-O but not both
+    assert( !(is_short_castle(p, move) && is_long_castle(p, move)) );
+    // A pawn advance such as e2–e4 cannot involve a capture
+    assert( !is_pawn_advance(p, move) || target == EMPTY_SQUARE );
+
+    // King can be captured
+    // ...
 }
 
 static void

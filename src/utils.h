@@ -62,6 +62,8 @@ void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
 void copy_pos( const Pos *p, Pos *copy );
 Bitboard file( char letter );
 Bitboard rank( char number );
+void set_mover_target_orig_and_dest( const Pos *p, Rawcode move,
+    Chessman *mover, Chessman *target, int *orig, int *dest );
 
 #endif
 // end UTILS_H

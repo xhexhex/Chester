@@ -58,8 +58,6 @@ static void x_rawcodes_pawn_advance( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant );
 static void x_rawcodes_pawn_capture( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant );
-static void x_set_mover_target_orig_and_dest( const Pos *p, Rawcode code,
-    Chessman *mover, Chessman *target, int *orig, int *dest );
 
 /***********************
  **** External data ****
@@ -434,7 +432,7 @@ castle( const Pos *p, const char *castle_type )
 #define INIT_VARS \
     Chessman mover, target; \
     int orig, dest; \
-    x_set_mover_target_orig_and_dest( p, move, &mover, &target, \
+    set_mover_target_orig_and_dest( p, move, &mover, &target, \
         &orig, &dest );
 
 // Returns true if the move represented by 'move' is O-O in position 'p';
@@ -993,20 +991,4 @@ x_rawcodes_pawn_capture( const Pos *p, int mover,
         assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
         pseudo[(*vacant)++] = rawcode(move);
     }
-}
-
-static void
-x_set_mover_target_orig_and_dest( const Pos *p, Rawcode code, Chessman *mover,
-    Chessman *target, int *orig, int *dest )
-{
-    rawcode_bit_indexes( code, orig, dest );
-
-    *mover = occupant_of_sq( p, SBA[*orig] );
-    *target = occupant_of_sq( p, SBA[*dest] );
-
-    assert(
-        ( whites_turn(p) &&
-            *mover >= WHITE_KING && *mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) &&
-            *mover >= BLACK_KING && *mover <= BLACK_PAWN ) );
 }
