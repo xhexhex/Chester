@@ -452,6 +452,7 @@ static void x_make_move_non_castling( Pos *p, Rawcode code );
 static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
     char promotion );
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
+static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
 /****************************
  **** External functions ****
@@ -648,6 +649,9 @@ make_move( Pos *p, Rawcode move, char promotion )
             is_long_castle(&unmodified_p, move) )
         x_make_move_castle(p, move);
     else x_make_move_non_castling(p, move);
+
+    if( is_promotion(&unmodified_p, move) )
+        x_make_move_promote_pawn(p, move, promotion);
 
     x_make_move_toggle_turn(p);
 
@@ -938,7 +942,9 @@ x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
     Chessman mover, target; int orig, dest;
     set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
 
-    promotion = 0, assert( !promotion );
+    // 'promotion' should be one of the five valid character values
+    assert( promotion == '-' || promotion == 'q' || promotion == 'r' ||
+        promotion == 'b' || promotion == 'n' );
 
     // On White's turn only white chessmen can move; the same for Black
     assert(
@@ -961,4 +967,31 @@ x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move )
     char the_rawmove[4 + 1];
     rawmove(move, the_rawmove);
     *epts_file = (1 << (the_rawmove[0] - 'a'));
+}
+
+static void
+x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion )
+{
+    Bitboard exactly_one_pawn =
+        ( p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) &
+        (rank('1') | rank('8'));
+    assert( num_of_sqs_in_sq_set(exactly_one_pawn) == 1 );
+
+    int orig, dest;
+    rawcode_bit_indexes( move, &orig, &dest );
+    Bitboard pawn = SBA[dest];
+    assert( pawn == exactly_one_pawn );
+
+    p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ^= pawn;
+
+    Chessman promote_to = WHITE_QUEEN;
+
+    if( promotion == 'r' ) promote_to = WHITE_ROOK;
+    else if( promotion == 'b' ) promote_to = WHITE_BISHOP;
+    else if( promotion == 'n' ) promote_to = WHITE_KNIGHT;
+
+    if( !whites_turn(p) ) promote_to += 6;
+
+    assert( !(p->ppa[promote_to] & pawn) );
+    p->ppa[promote_to] |= pawn;
 }

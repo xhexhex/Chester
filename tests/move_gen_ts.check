@@ -1132,6 +1132,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "8/3kPK2/8/8/8/8/8/8 w - - 1 123", "e7e8", true )
     TEST_WITH_ARGS( "4k3/7P/8/8/8/8/8/4K3 w - - 1 83", "h7h8", true )
     TEST_WITH_ARGS( "4k3/7P/8/8/8/8/8/4K3 w - - 1 83", "e1e2", false )
+    TEST_WITH_ARGS( "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123", "a7a8", true )
 
 #test is_promotion_tested_with_non_capturing_black_pawn_promotions
     const Pos *p;
