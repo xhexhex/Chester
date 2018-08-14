@@ -525,6 +525,36 @@ is_double_step_pawn_advance( const Pos *p, Rawcode move )
 }
 
 #undef ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
+
+// Returns true if and only if 'move' is a pawn promotion move
+// in position 'p'.
+bool
+is_promotion( const Pos *p, Rawcode move )
+{
+    INIT_VARS
+
+    if( mover != WHITE_PAWN && mover != BLACK_PAWN ) return false;
+
+    // pros_prom_sq: prospective promotion square
+    Bitboard pawn = SBA[orig], pros_prom_sq = SBA[dest];
+
+    assert( !(pawn & rank('1')) && (!(pawn & rank('8'))) );
+
+    // Pawn advance as opposed to pawn capture
+    assert( !is_pawn_advance(p, move) || target == EMPTY_SQUARE );
+
+    if( mover == WHITE_PAWN )
+        return ( (pawn & SB.a7) && ( pros_prom_sq & (SB.a8 | SB.b8) ) ) ||
+            ( (pawn & SB.h7) && ( pros_prom_sq & (SB.g8 | SB.h8) ) ) ||
+            ( ( pawn & (SB.b7 | SB.c7 | SB.d7 | SB.e7 | SB.f7 | SB.g7) ) &&
+            ( dest >= orig + 7 && dest <= orig + 9 ) );
+
+    return ( (pawn & SB.a2) && ( pros_prom_sq & (SB.a1 | SB.b1) ) ) ||
+        ( (pawn & SB.h2) && ( pros_prom_sq & (SB.g1 | SB.h1) ) ) ||
+        ( (pawn & (SB.b2 | SB.c2 | SB.d2 | SB.e2 | SB.f2 | SB.g2) ) &&
+        (dest >= orig - 9 && dest <= orig - 7) );
+}
+
 #undef INIT_VARS
 
 /**************************

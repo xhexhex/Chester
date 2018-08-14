@@ -951,6 +951,8 @@ x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
 
     // King can be captured
     // ...
+
+    // No pawns on first/last rows
 }
 
 static void
