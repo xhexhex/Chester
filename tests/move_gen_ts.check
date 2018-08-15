@@ -1206,13 +1206,23 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "e1e2", false )
 
 #test is_en_passant_capture_tested_with_black_as_active_color_01
-    // const Pos *p;
+    const Pos *p;
 
-    ck_assert(false);
+    TEST_WITH_ARGS( "4k3/8/8/1p6/PpP5/2P5/8/4K3 b - a3 0 20", "b4a3", true )
+    TEST_WITH_ARGS( "4k3/8/8/1p6/PpP5/2P5/8/4K3 b - a3 0 20", "b4c3", false )
+    TEST_WITH_ARGS( "4k3/8/8/1p6/PpP5/2P5/8/4K3 b - a3 0 20", "b5a4", false )
+    TEST_WITH_ARGS( "4k3/8/8/1p6/PpP5/2P5/8/4K3 b - a3 0 20", "b5c4", false )
+    TEST_WITH_ARGS( "4k3/8/8/1p6/PpP5/2P5/8/4K3 b - a3 0 20", "e8d8", false )
 
 #test is_en_passant_capture_tested_with_black_as_active_color_02
-    // const Pos *p;
+    const Pos *p;
 
-    ck_assert(false);
+    TEST_WITH_ARGS( "4k3/8/8/8/pP6/8/8/4K3 b - b3 0 20", "a4b3", true )
+    TEST_WITH_ARGS( "4k3/8/8/8/pP6/8/8/4K3 b - b3 0 20", "a4a3", false )
+    TEST_WITH_ARGS( "4k3/8/8/8/6Pp/8/8/4K3 b - g3 0 20", "h4g3", true )
+    TEST_WITH_ARGS( "4k3/8/8/8/6Pp/8/8/4K3 b - g3 0 20", "e8e7", false )
+    TEST_WITH_ARGS( "4k3/8/8/8/5PpP/5N2/8/4K3 b - h3 0 20", "g4h3", true )
+    TEST_WITH_ARGS( "4k3/8/8/8/5PpP/5N2/8/4K3 b - h3 0 20", "g4f3", false )
+    TEST_WITH_ARGS( "4k3/8/8/8/5PpP/5N2/8/4K3 b - h3 0 20", "g4g3", false )
 
 #undef TEST_WITH_ARGS
