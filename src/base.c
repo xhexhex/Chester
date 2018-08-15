@@ -942,9 +942,15 @@ x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
     Chessman mover, target; int orig, dest;
     set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
 
-    // 'promotion' should be one of the five valid character values
+    // 'promotion' should be one of the five valid character values.
+    // If 'promotion' is not the char '-', then the move involved
+    // should be a promotion.
     assert( promotion == '-' || promotion == 'q' || promotion == 'r' ||
         promotion == 'b' || promotion == 'n' );
+    assert( ( promotion == '-' && !is_promotion(p, move) ) ||
+        ( (promotion == 'q' || promotion == 'r' || promotion == 'b' ||
+            promotion == 'n') &&
+        is_promotion(p, move) ) );
 
     // On White's turn only white chessmen can move; the same for Black
     assert(
@@ -954,9 +960,19 @@ x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
     assert( !(is_short_castle(p, move) && is_long_castle(p, move)) );
     // A pawn advance such as e2–e4 cannot involve a capture
     assert( !is_pawn_advance(p, move) || target == EMPTY_SQUARE );
+    // If a pawn moves a single square diagonally "upwards", it should
+    // involve a capture
+    assert( !( mover == (whites_turn(p) ? WHITE_PAWN : BLACK_PAWN) &&
+        ( SBA[dest] == sq_nav(SBA[orig], whites_turn(p) ? NORTHWEST :
+                SOUTHWEST) ||
+            SBA[dest] == sq_nav(SBA[orig], whites_turn(p) ? NORTHEAST :
+                SOUTHEAST) ) ) ||
+        is_capture(p, move) );
 
-    // King can be captured
-    // ...
+    // It's OK for make_move() to execute moves that result in a position
+    // where a king can be captured. However, the position should be legal
+    // before the execution of the move.
+    assert( !king_can_be_captured(p) );
 
     // No pawns on first/last rows
 }

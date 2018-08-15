@@ -1260,14 +1260,32 @@ ck_assert( counter == exp_count );
         0, 1, 128, 0, 0, 100 )
 
 #test make_move_tested_with_black_pawns_doing_non_en_passant_captures
+    Pos *p;
 
-    printf( "FORGOT ME?\n" );
+    TEST_WITH_ARGS(
+        "4k2r/1p6/P7/4p3/3N4/8/6p1/K6B b - - 10 20", rawcode("b7a6"), '-',
+        ~( SB.a1 | SB.h1 | SB.g2 | SB.d4 | SB.e5 | SB.a6 | SB.e8 | SB.h8 ),
+        SB.a1, 0, 0, SB.h1, SB.d4, 0,
+        SB.e8, 0, SB.h8, 0, 0, (SB.g2 | SB.e5 | SB.a6),
+        128, 1, 128, 0, 0, 21 )
+    TEST_WITH_ARGS(
+        "4k2r/1p6/P7/4p3/3N4/8/6p1/K6B b - - 10 20", rawcode("e5d4"), '-',
+        ~( SB.a1 | SB.h1 | SB.g2 | SB.d4 | SB.a6 | SB.b7 | SB.e8 | SB.h8 ),
+        SB.a1, 0, 0, SB.h1, 0, SB.a6,
+        SB.e8, 0, SB.h8, 0, 0, (SB.g2 | SB.d4 | SB.b7),
+        128, 1, 128, 0, 0, 21 )
+    TEST_WITH_ARGS(
+        "4k2r/1p6/P7/4p3/3N4/8/6p1/K6B b - - 10 20", rawcode("g2h1"), 'n',
+        ~( SB.a1 | SB.h1 | SB.d4 | SB.e5 | SB.a6 | SB.b7 | SB.e8 | SB.h8 ),
+        SB.a1, 0, 0, 0, SB.d4, SB.a6,
+        SB.e8, 0, SB.h8, 0, SB.h1, (SB.e5 | SB.b7),
+        128, 1, 128, 0, 0, 21 )
 
 #test make_move_tested_with_white_pawns_getting_a_promotion
     Pos *p;
 
     TEST_WITH_ARGS(
-        "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123", rawcode("a7a8"), '-',
+        "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123", rawcode("a7a8"), 'q',
         ~( SB.a1 | SB.h1 | SB.e7 | SB.a8 | SB.d8 ),
         SB.a1, SB.a8, 0, 0, 0, SB.e7,
         SB.h1, 0, 0, SB.d8, 0, 0,
@@ -1284,6 +1302,32 @@ ck_assert( counter == exp_count );
         SB.a1, 0, SB.d8, 0, 0, SB.a7,
         SB.h1, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 123 )
+
+#test make_move_tested_with_black_pawns_getting_a_promotion
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/7P/8/1p2p3/RK3R2 b AF h3 0 100", rawcode("b2a1"), 'q',
+        ~( SB.a1 | SB.b1 | SB.f1 | SB.e2 | SB.h4 | SB.e8 ),
+        SB.b1, 0, SB.f1, 0, 0, SB.h4,
+        SB.e8, SB.a1, 0, 0, 0, SB.e2,
+        128 + 8, 1, 32, 0, 0, 101 )
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/7P/8/1p2p3/RK3R2 b AF h3 0 100", rawcode("e2e1"), 'r',
+        ~( SB.a1 | SB.b1 | SB.e1 | SB.f1 | SB.b2 | SB.h4 | SB.e8 ),
+        SB.b1, 0, (SB.a1 | SB.f1), 0, 0, SB.h4,
+        SB.e8, 0, SB.e1, 0, 0, SB.b2,
+        128 + 8 + 4, 1, 32, 0, 0, 101 )
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/7P/8/1p2p3/RK3R2 b AF h3 0 100", rawcode("e2f1"), 'b',
+        ~( SB.a1 | SB.b1 | SB.f1 | SB.b2 | SB.h4 | SB.e8 ),
+        SB.b1, 0, SB.a1, 0, 0, SB.h4,
+        SB.e8, 0, 0, SB.f1, 0, SB.b2,
+        128 + 4, 1, 32, 0, 0, 101 )
+
+#test make_move_tested_with_white_pawns_doing_en_passant_captures
+
+    ck_assert(false);
 
 #undef TEST_WITH_ARGS
 
