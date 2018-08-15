@@ -9,3 +9,4 @@
 * validation_ts: src/validation.c:368: x_validate_fen_test_20: Assertion `p->fmn >= 1 && p->fmn <= 30000` failed.
 * `valid_sq_name()` => `is_sq_name()`
 * `FEN_HMCF_CONTRADICTS_FMNF_ERROR` is undocumented
+* If it's White's turn and EPTS is set, the full move number should be greater than one

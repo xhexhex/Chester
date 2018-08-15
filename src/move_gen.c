@@ -555,6 +555,32 @@ is_promotion( const Pos *p, Rawcode move )
         (dest >= orig - 9 && dest <= orig - 7) );
 }
 
+// Returns true if and only if 'move' is an en passant capture
+// in position 'p'.
+bool
+is_en_passant_capture( const Pos *p, Rawcode move )
+{
+    INIT_VARS
+
+    Bitboard epts_bb = epts(p);
+
+    if( !epts_bb || SBA[dest] != epts(p) ||
+            (mover != WHITE_PAWN && mover != BLACK_PAWN) )
+        return false;
+
+    if( ( mover == WHITE_PAWN &&
+            ( (orig == 32 && dest == 41) || (orig == 39 && dest == 46) ) ) ||
+        ( mover == BLACK_PAWN &&
+            ( (orig == 24 && dest == 17) || (orig == 31 && dest == 22) ) )
+    ) return true;
+
+    if( ( mover == WHITE_PAWN && (dest == orig + 7 || dest == orig + 9) ) ||
+            ( mover == BLACK_PAWN && (dest == orig - 7 || dest == orig - 9) )
+    ) return true;
+
+    return false;
+}
+
 #undef INIT_VARS
 
 /**************************

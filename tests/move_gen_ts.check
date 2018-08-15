@@ -1174,3 +1174,45 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "8/8/8/8/3p4/2B2k2/p1p2p1p/1N1BRKR1 b EG - 1 25", "h2g1", true )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase is_en_passant_capture_tests
+
+#define TEST_WITH_ARGS( fen, move, expected ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    ck_assert( is_en_passant_capture(p, rawcode(move)) == expected ); \
+    free( (Pos *) p );
+
+#test is_en_passant_capture_tested_with_white_as_active_color_01
+    const Pos *p;
+
+    TEST_WITH_ARGS( "4k3/8/8/Pp6/8/8/8/4K3 w - b6 0 10", "a5b6", true )
+    TEST_WITH_ARGS( "4k3/8/1p6/P7/8/8/8/4K3 w - - 0 10", "a5b6", false )
+    TEST_WITH_ARGS( "4k3/8/8/6pP/8/8/8/4K3 w - g6 0 10", "h5g6", true )
+    TEST_WITH_ARGS( "4k3/8/8/6pP/8/8/8/4K3 w - g6 0 10", "h5h6", false )
+    TEST_WITH_ARGS( "4k3/8/8/6pP/8/8/8/4K3 w - g6 0 10", "e1e2", false )
+
+#test is_en_passant_capture_tested_with_white_as_active_color_02
+    const Pos *p;
+
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "f5e6", true )
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "d5e6", true )
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - - 0 20", "f5e6", false )
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - - 0 20", "d5e6", false )
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "f5f6", false )
+    TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "e1e2", false )
+
+#test is_en_passant_capture_tested_with_black_as_active_color_01
+    // const Pos *p;
+
+    ck_assert(false);
+
+#test is_en_passant_capture_tested_with_black_as_active_color_02
+    // const Pos *p;
+
+    ck_assert(false);
+
+#undef TEST_WITH_ARGS
