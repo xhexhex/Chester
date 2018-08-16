@@ -584,6 +584,16 @@ is_en_passant_capture( const Pos *p, Rawcode move )
 
 #undef INIT_VARS
 
+// Returns true if and only if 'move' is a castling move
+// (either O-O or O-O-O) in position 'p'.
+// TODO: Add Check test case
+bool
+is_castle( const Pos *p, Rawcode move )
+{
+    assert( !( is_short_castle(p, move) && is_long_castle(p, move) ) );
+    return is_short_castle(p, move) || is_long_castle(p, move);
+}
+
 /**************************
  **** Static functions ****
  **************************/

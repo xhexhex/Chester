@@ -635,7 +635,20 @@ rawmove( Rawcode rawcode, char *writable )
         writable[i] = ptr[i];
 }
 
-// TODO: doc
+// Makes the move 'move' in position 'p'. This invariably involves
+// modifying or updating 'p'. If the move made is a pawn promotion,
+// parameter 'promotion' indicates the piece the pawn gets promoted
+// to ('q' for queen, 'r' for rook, 'b' for bishop and 'n' for knight).
+// If the move is not a pawn promotion, the value passed to the
+// 'promotion' parameter should be the character '-'.
+//
+// Along with any legal move the function can be used to make illegal
+// moves as well. In fact, it's supposed to be possible to execute any
+// pseudo-legal move with the function (pseudo-legal moves are moves
+// that otherwise obey the rules of chess but leave a king liable to
+// being captured in the position that results from the move being
+// executed). The reason for this is that the function is used as part
+// of the process of legal moves generation.
 void
 make_move( Pos *p, Rawcode move, char promotion )
 {
@@ -644,10 +657,7 @@ make_move( Pos *p, Rawcode move, char promotion )
     Pos unmodified_p;
     copy_pos(p, &unmodified_p);
 
-    // TODO: Add function is_castle()
-    if( is_short_castle(&unmodified_p, move) ||
-            is_long_castle(&unmodified_p, move) )
-        x_make_move_castle(p, move);
+    if( is_castle(&unmodified_p, move) ) x_make_move_castle(p, move);
     else x_make_move_non_castling(p, move);
 
     if( is_promotion(&unmodified_p, move) )
