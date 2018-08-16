@@ -1334,6 +1334,12 @@ ck_assert( counter == exp_count );
         SB.e1, 0, 0, 0, 0, SB.e6,
         SB.e8, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 2 )
+    TEST_WITH_ARGS(
+        "8/2k5/8/Pp6/2K5/8/8/8 w - b6 0 100", rawcode("a5b6"), '-',
+        ~( SB.c4 | SB.b6 | SB.c7 ),
+        SB.c4, 0, 0, 0, 0, SB.b6,
+        SB.c7, 0, 0, 0, 0, 0,
+        0, 1, 128, 0, 0, 100 )
 
 #test make_move_tested_with_black_pawns_doing_en_passant_captures
     Pos *p;
@@ -1344,6 +1350,35 @@ ck_assert( counter == exp_count );
         SB.h1, 0, 0, 0, 0, 0,
         SB.e8, 0, SB.h8, 0, 0, SB.g3,
         128 + 2, 1, 128, 0, 0, 76 )
+    TEST_WITH_ARGS(
+        "3rk1r1/8/8/8/pPp5/8/8/3RK1R1 b DGdg b3 0 123", rawcode("a4b3"), '-',
+        ~( SB.d1 | SB.e1 | SB.g1 | SB.b3 | SB.c4 | SB.d8 | SB.e8 | SB.g8 ),
+        SB.e1, 0, (SB.d1 | SB.g1), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.g8), 0, 0, (SB.b3 | SB.c4),
+        128 + 8 + 4 + 2 + 1, 8, 64, 0, 0, 124 )
+    TEST_WITH_ARGS(
+        "3rk1r1/8/8/8/pPp5/8/8/3RK1R1 b DGdg b3 0 123", rawcode("c4b3"), '-',
+        ~( SB.d1 | SB.e1 | SB.g1 | SB.b3 | SB.a4 | SB.d8 | SB.e8 | SB.g8 ),
+        SB.e1, 0, (SB.d1 | SB.g1), 0, 0, 0,
+        SB.e8, 0, (SB.d8 | SB.g8), 0, 0, (SB.b3 | SB.a4),
+        128 + 8 + 4 + 2 + 1, 8, 64, 0, 0, 124 )
+
+//
+// Test case
+//
+#tcase make_move_misc_tests
+
+#test make_move_tested_with_misc_positions_batch_01
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        FEN_GAME_OF_THE_CENTURY, rawcode("b6a4"), '-',
+        0x960c9bbba6db1c47U,
+        SB.e1, SB.c5, (SB.d1 | SB.h1), (SB.f1 | SB.g5), (SB.c3 | SB.f3),
+            (SB.a2 | SB.b2 | SB.d4 | SB.e4 | SB.f2 | SB.g2 | SB.h2),
+        SB.g8, SB.d8, (SB.a8 | SB.f8), (SB.g4 | SB.g7), (SB.a4 | SB.f6),
+            (SB.a7 | SB.b7 | SB.c6 | SB.e7 | SB.f7 | SB.g6 | SB.h7),
+        128 + 8, 1, 128, 0, 7, 12 )
 
 #undef TEST_WITH_ARGS
 
