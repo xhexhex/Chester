@@ -10,3 +10,4 @@
 * `valid_sq_name()` => `is_sq_name()`
 * `FEN_HMCF_CONTRADICTS_FMNF_ERROR` is undocumented
 * If it's White's turn and EPTS is set, the full move number should be greater than one
+* If EPTS is set, then the two squares behind should be empty along with the EPTS itself

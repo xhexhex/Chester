@@ -1205,6 +1205,12 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "f5f6", false )
     TEST_WITH_ARGS( "8/5k2/8/3PpP2/8/8/8/4K3 w - e6 0 20", "e1e2", false )
 
+#test is_en_passant_capture_tested_with_white_as_active_color_03
+    const Pos *p;
+
+    TEST_WITH_ARGS( "4k3/8/8/3BpP2/8/8/8/4K3 w - e6 0 75", "f5e6", true )
+    TEST_WITH_ARGS( "4k3/8/8/3BpP2/8/8/8/4K3 w - e6 0 75", "d5e6", false )
+
 #test is_en_passant_capture_tested_with_black_as_active_color_01
     const Pos *p;
 

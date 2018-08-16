@@ -1326,7 +1326,6 @@ ck_assert( counter == exp_count );
         128 + 4, 1, 32, 0, 0, 101 )
 
 #test make_move_tested_with_white_pawns_doing_en_passant_captures
-    /*
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1335,7 +1334,16 @@ ck_assert( counter == exp_count );
         SB.e1, 0, 0, 0, 0, SB.e6,
         SB.e8, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 2 )
-    */
+
+#test make_move_tested_with_black_pawns_doing_en_passant_captures
+    Pos *p;
+
+    TEST_WITH_ARGS(
+        "4k2r/8/8/8/6Pp/8/8/7K b k g3 0 75", rawcode("h4g3"), '-',
+        ~( SB.h1 | SB.g3 | SB.e8 | SB.h8 ),
+        SB.h1, 0, 0, 0, 0, 0,
+        SB.e8, 0, SB.h8, 0, 0, SB.g3,
+        128 + 2, 1, 128, 0, 0, 76 )
 
 #undef TEST_WITH_ARGS
 

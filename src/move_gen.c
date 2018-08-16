@@ -465,6 +465,7 @@ is_capture( const Pos *p, Rawcode move )
     assert( target != WHITE_KING && target != BLACK_KING );
 
     return
+        is_en_passant_capture(p, move) ||
         (
             mover >= WHITE_KING && mover <= WHITE_PAWN &&
             target >= BLACK_QUEEN && target <= BLACK_PAWN

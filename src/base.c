@@ -448,7 +448,7 @@ static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, Rawcode code );
-static void x_make_move_non_castling( Pos *p, Rawcode code );
+static void x_make_move_non_castling( Pos *p, Rawcode move );
 static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
     char promotion );
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
@@ -897,16 +897,38 @@ x_make_move_castle( Pos *p, Rawcode code )
 }
 
 static void
-x_make_move_non_castling( Pos *p, Rawcode code )
+x_make_move_non_castling( Pos *p, Rawcode move )
 {
+    Chessman mover, target;
     int orig, dest;
-    rawcode_bit_indexes( code, &orig, &dest );
-    Chessman mover = occupant_of_sq( p, SBA[orig] ),
-        target = occupant_of_sq( p, SBA[dest] );
+    set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
 
-    assert( mover != EMPTY_SQUARE && mover != target );
+    assert( mover != EMPTY_SQUARE );
     assert( (whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN) ||
         (!whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN) );
+
+    if( is_en_passant_capture(p, move) ) {
+        Bitboard double_advanced_pawn =
+            sq_nav( epts(p), whites_turn(p) ? SOUTH : NORTH );
+
+        // The EPTS is set
+        assert( epts(p) );
+        // The EPTS is empty
+        assert( ( epts(p) & p->ppa[EMPTY_SQUARE] ) && target == EMPTY_SQUARE );
+        // The square "after" the EPTS is occupied by a pawn of the
+        // non-active color
+        assert( double_advanced_pawn &
+            p->ppa[whites_turn(p) ? BLACK_PAWN : WHITE_PAWN] );
+
+        // Make the pawn that has made a double-step advance go
+        // backwards a single step
+        p->ppa[EMPTY_SQUARE] ^= epts(p);
+        p->ppa[whites_turn(p) ? BLACK_PAWN : WHITE_PAWN] |= epts(p);
+        p->ppa[EMPTY_SQUARE] |= double_advanced_pawn;
+        p->ppa[whites_turn(p) ? BLACK_PAWN : WHITE_PAWN] ^= double_advanced_pawn;
+
+        target = whites_turn(p) ? BLACK_PAWN : WHITE_PAWN;
+    }
 
     // Make the origin square vacant
     p->ppa[mover] ^= SBA[orig], p->ppa[EMPTY_SQUARE] |= SBA[orig];
