@@ -608,7 +608,6 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     ck_assert( !che_fen_validator(fen_arg) ); \
     Pos *p = fen_to_pos(fen_arg); \
     Rawcode *codes = rawcodes(p); \
-    ck_assert( !codes[ codes[0] + 1 ] ); \
     ck_assert( expected[0] == codes[0] ); \
     for( int i = 1; i <= codes[0]; i++ ) \
         ck_assert( codes[i] == expected[i] ); \
@@ -818,13 +817,36 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "8/8/8/8/1Q6/3k4/1K1p4/2B1R3 b - - 0 1", expected )
 
+#test C_rawcodes_tested_with_kings_and_pawns_5
+    Rawcode expected[5 + 1];
+
+    expected[ 0] = 5,
+    expected[ 1] = rawcode( "c5c6" );
+    expected[ 2] = rawcode( "c5d6" );
+    expected[ 3] = rawcode( "e5d6" );
+    expected[ 4] = rawcode( "e5e6" );
+    expected[ 5] = rawcode( "h1g1" ),
+
+    // Two white pawns can do an en passant capture
+    TEST_WITH_ARGS( "8/8/8/2PpP3/8/7k/8/7K w - d6 0 75", expected )
+
+#test C_rawcodes_tested_with_kings_and_pawns_6
+    Rawcode expected[2 + 1];
+
+    expected[ 0] = 2,
+    expected[ 1] = rawcode( "b4a3" );
+    expected[ 2] = rawcode( "h8g8" );
+
+    // Black pawn can do en passant capture
+    TEST_WITH_ARGS( "7k/8/7K/8/Pp6/1P6/8/8 b - a3 0 123", expected )
+
+
 #test C_rawcodes_tested_with_stalemate_positions
     Rawcode expected[0 + 1];
 
     expected[0] = 0;
 
     TEST_WITH_ARGS( "8/8/3p4/3R4/4k3/3R4/4p2B/4K3 b - - 0 99", expected )
-    // TODO: Assert that the king is not in check
 
 #test C_rawcodes_tested_with_game_of_the_century_after_11_Bg5
     Rawcode expected[37 + 1];

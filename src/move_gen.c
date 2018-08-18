@@ -58,6 +58,9 @@ static void x_rawcodes_pawn_advance( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant );
 static void x_rawcodes_pawn_capture( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant );
+static void x_rawcodes_en_passant( const Pos *p, int mover,
+    Rawcode *pseudo, int *vacant );
+static int x_qsort_rawcode_compare( const void *a, const void *b );
 
 /***********************
  **** External data ****
@@ -167,25 +170,17 @@ che_rawcodes( const char *fen )
  **** External functions ****
  ****************************/
 
-// Relocate, rename
-int
-qsort_rawcode_comp_fn( const void *a, const void *b )
-{
-    Rawcode x = *( (Rawcode *) a ), y = *( (Rawcode *) b );
-
-    if( x < y ) return -1;
-    else if( x > y ) return 1;
-    else return 0;
-}
-
-#define MAX_MOVE_COUNT_IN_POS 300
-
 // TODO: doc
 Rawcode *
 rawcodes( const Pos *p )
 {
-    Rawcode pseudo[MAX_MOVE_COUNT_IN_POS];
-    int vacant = 0;
+    // It is assumed that no chess position can have more than 500
+    // pseudo-legal moves (according to some sources the maximum
+    // known number of *legal* moves in a chess position is 218 as
+    // is the case in
+    // "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1").
+    Rawcode pseudo[500]; // Array for pseudo-legal moves
+    int vacant = 0; // Index of first vacant slot in 'pseudo'
 
     Rawcode O_O, O_O_O;
     if( (O_O = castle(p, "kingside")) )
@@ -195,76 +190,61 @@ rawcodes( const Pos *p )
 
     for( int i = 0; i < 64; i++ ) {
         Bitboard bit = SBA[i];
+
         if( bit & p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] ) {
             x_rawcodes_king_and_knight( p, sq_bit_index(bit),
                 pseudo, &vacant, true );
-        }
-        else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
+        } else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
             for( int i = 0; i <= 1; i++ )
                 x_rawcodes_rook_and_bishop( p, sq_bit_index(bit),
                     pseudo, &vacant, i );
-        }
-        else if( bit & p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ) {
+        } else if( bit & p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ) {
             x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
                 &vacant, true );
-        }
-        else if( bit & p->ppa[whites_turn(p) ? WHITE_BISHOP : BLACK_BISHOP] ) {
+        } else if( bit & p->ppa[whites_turn(p) ? WHITE_BISHOP : BLACK_BISHOP] ) {
             x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
                 &vacant, false );
-        }
-        else if( bit & p->ppa[whites_turn(p) ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
+        } else if( bit & p->ppa[whites_turn(p) ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
             x_rawcodes_king_and_knight( p, sq_bit_index(bit),
                 pseudo, &vacant, false );
-        }
-        else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
+        } else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
             x_rawcodes_pawn_advance( p, sq_bit_index(bit), pseudo, &vacant );
             x_rawcodes_pawn_capture( p, sq_bit_index(bit), pseudo, &vacant );
+            x_rawcodes_en_passant( p, sq_bit_index(bit), pseudo, &vacant );
         }
     }
 
     int updated_vacant = vacant;
-    for( int i = 0; i < vacant; i++ ) {
+    for( int i = 0; i < vacant; i++ ) { // For each non-vacant slot in 'pseudo'
         Pos copy;
         copy_pos( p, &copy );
 
         make_move( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
-
-        if( king_can_be_captured( &copy ) ) {
-            pseudo[i] = 0;
-            --updated_vacant;
-        }
+        if( king_can_be_captured( &copy ) ) pseudo[i] = 0, --updated_vacant;
     }
 
-    Rawcode *codes = (Rawcode *) malloc( (updated_vacant + 2) * sizeof(Rawcode) );
+    Rawcode *codes =
+        (Rawcode *) malloc( (updated_vacant + 1) * sizeof(Rawcode) );
     assert(codes);
 
-    // Let's assume 'codes' contains the rawcodes 1, 2 and 3. The whole
-    // dynamically allocated array should be the following: {3,1,2,3,0}
     *codes = updated_vacant;
-    *(codes + updated_vacant + 1) = 0;
 
     int j = 0;
-    for( int i = 0; i < vacant; i++ ) {
-        if( pseudo[i] ) {
+    for( int i = 0; i < vacant; i++ )
+        // Illegal moves have previously been replaced with zero
+        if( pseudo[i] )
             codes[++j] = pseudo[i];
-        }
-    }
     assert( j == updated_vacant );
 
-    qsort( codes + 1, *codes, sizeof(Rawcode), qsort_rawcode_comp_fn );
-    /*
-    printf( "Rawmoves: " );
-    for( int i = 1; i <= codes[0] + 0; i++ ) {
-        char move[4 + 1];
-        rawmove( codes[i], move );
-        printf( "%s ", move );
-    }
-    printf("\n");
-    */
+    // Let's assume 'codes' contains the rawcodes 1, 2 and 3. The whole
+    // dynamically allocated array should be the following after sorting:
+    // {3,1,2,3}. Note that the first element of 'codes' always indicates
+    // the remaining number of elements in the array, i.e., the number of
+    // rawcodes the array contains (three in this case).
+    qsort( codes + 1, *codes, sizeof(Rawcode), x_qsort_rawcode_compare );
+
     return codes;
 }
-
-#undef MAX_MOVE_COUNT_IN_POS
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in
@@ -1058,4 +1038,34 @@ x_rawcodes_pawn_capture( const Pos *p, int mover,
         assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
         pseudo[(*vacant)++] = rawcode(move);
     }
+}
+
+static void
+x_rawcodes_en_passant( const Pos *p, int mover, Rawcode *pseudo, int *vacant )
+{
+    if( !epts(p) ) return;
+
+    Chessman cm = occupant_of_sq(p, SBA[mover]);
+    if( cm != WHITE_PAWN && cm != BLACK_PAWN ) return;
+
+    if( epts(p) == sq_nav(SBA[mover], whites_turn(p) ? NORTHWEST : SOUTHWEST) ||
+        epts(p) == sq_nav(SBA[mover], whites_turn(p) ? NORTHEAST : SOUTHEAST)
+    ) {
+        char move[4 + 1] = {0};
+        move[0] = SNA[mover][0], move[1] = SNA[mover][1],
+            move[2] = SNA[sq_bit_index(epts(p))][0],
+            move[3] = SNA[sq_bit_index(epts(p))][1];
+        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        pseudo[(*vacant)++] = rawcode(move);
+    }
+}
+
+static int
+x_qsort_rawcode_compare( const void *a, const void *b )
+{
+    Rawcode x = *( (Rawcode *) a ), y = *( (Rawcode *) b );
+
+    if( x < y ) return -1;
+    else if( x > y ) return 1;
+    else return 0;
 }
