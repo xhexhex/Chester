@@ -840,13 +840,19 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     // Black pawn can do en passant capture
     TEST_WITH_ARGS( "7k/8/7K/8/Pp6/1P6/8/8 b - a3 0 123", expected )
 
-
-#test C_rawcodes_tested_with_stalemate_positions
+#test C_rawcodes_tested_with_stalemate_positions_1
     Rawcode expected[0 + 1];
 
     expected[0] = 0;
 
     TEST_WITH_ARGS( "8/8/3p4/3R4/4k3/3R4/4p2B/4K3 b - - 0 99", expected )
+
+#test C_rawcodes_tested_with_stalemate_positions_2
+    Rawcode expected[0 + 1];
+
+    expected[0] = 0;
+
+    TEST_WITH_ARGS( "8/8/8/8/8/4k3/4p3/4K3 w - - 0 99", expected )
 
 #test C_rawcodes_tested_with_game_of_the_century_after_11_Bg5
     Rawcode expected[37 + 1];
@@ -926,6 +932,34 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS(
         "r1bq1rk1/2p1bppp/p1n2n2/1p1pp3/4P3/1BP2N2/PP1P1PPP/RNBQR1K1 w - - 0 9",
         expected )
+
+#test C_rawcodes_tested_with_made_up_position_1
+    Rawcode expected[21 + 1];
+
+    expected[ 0] = 21,
+    expected[ 1] = rawcode( "b1a1" ),
+    expected[ 2] = rawcode( "b1b2" ),
+    expected[ 3] = rawcode( "b1b3" ),
+    expected[ 4] = rawcode( "b1b4" ),
+    expected[ 5] = rawcode( "b1b5" ),
+    expected[ 6] = rawcode( "b1b6" ),
+    expected[ 7] = rawcode( "b7b8" ),
+    expected[ 8] = rawcode( "b7c8" ),
+    expected[ 9] = rawcode( "c1b1" ),
+    expected[10] = rawcode( "c1b2" ),
+    expected[11] = rawcode( "c1d1" ),
+    expected[12] = rawcode( "c1d2" ),
+    expected[13] = rawcode( "c1g1" ),
+    expected[14] = rawcode( "g1d1" ),
+    expected[15] = rawcode( "g1e1" ),
+    expected[16] = rawcode( "g1f1" ),
+    expected[17] = rawcode( "g1h1" ),
+    expected[18] = rawcode( "g2g3" ),
+    expected[19] = rawcode( "g2g4" ),
+    expected[20] = rawcode( "h5g6" ),
+    expected[21] = rawcode( "h5h6" );
+
+    TEST_WITH_ARGS( "2q1k3/1P6/8/6pP/8/8/2B3P1/1RK3R1 w BG g6 0 123", expected )
 
 #undef TEST_WITH_ARGS
 
