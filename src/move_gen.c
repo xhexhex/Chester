@@ -927,6 +927,9 @@ x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
     return rawcode(rawmove);
 }
 
+#define ASSERT_THAT_MOVE_IS_VALID \
+    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+
 static void
 x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
     int *vacant, bool king )
@@ -944,7 +947,7 @@ x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
         if( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
             move[2] = SNA[sq_bit_index(bit)][0];
             move[3] = SNA[sq_bit_index(bit)][1];
-            assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+            ASSERT_THAT_MOVE_IS_VALID
 
             pseudo[(*vacant)++] = rawcode(move);
         }
@@ -971,7 +974,7 @@ x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
         while( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
             move[2] = SNA[sq_bit_index(bit)][0];
             move[3] = SNA[sq_bit_index(bit)][1];
-            assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+            ASSERT_THAT_MOVE_IS_VALID
 
             pseudo[(*vacant)++] = rawcode(move);
             if( bit & enemy_cm ) break;
@@ -992,7 +995,7 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
     move[2] = SNA[sq_bit_index(sq_in_front)][0];
     move[3] = SNA[sq_bit_index(sq_in_front)][1];
-    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+    ASSERT_THAT_MOVE_IS_VALID
 
     pseudo[(*vacant)++] = rawcode(move);
 
@@ -1003,7 +1006,7 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
     move[2] = SNA[sq_bit_index(sq_in_front)][0];
     move[3] = SNA[sq_bit_index(sq_in_front)][1];
-    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+    ASSERT_THAT_MOVE_IS_VALID
 
     pseudo[(*vacant)++] = rawcode(move);
 }
@@ -1013,9 +1016,9 @@ x_rawcodes_pawn_capture( const Pos *p, int mover,
     Rawcode *pseudo, int *vacant )
 {
     Bitboard
-        w_capture_sq =
+        w_capture_sq = // "w" for "western"
             sq_nav( SBA[mover], whites_turn(p) ? NORTHWEST : SOUTHWEST ),
-        e_capture_sq =
+        e_capture_sq = // "e" for "eastern"
             sq_nav( SBA[mover], whites_turn(p) ? NORTHEAST : SOUTHEAST ),
         enemy_cm =
             whites_turn(p) ? ss_black_army(p) : ss_white_army(p);
@@ -1026,16 +1029,17 @@ x_rawcodes_pawn_capture( const Pos *p, int mover,
     char move[4 + 1] = {0};
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
 
+    // Copy-paste coding
     if( w_capture_sq & enemy_cm ) {
         move[2] = SNA[sq_bit_index(w_capture_sq)][0];
         move[3] = SNA[sq_bit_index(w_capture_sq)][1];
-        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
     if( e_capture_sq & enemy_cm ) {
         move[2] = SNA[sq_bit_index(e_capture_sq)][0];
         move[3] = SNA[sq_bit_index(e_capture_sq)][1];
-        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
 }
@@ -1055,10 +1059,12 @@ x_rawcodes_en_passant( const Pos *p, int mover, Rawcode *pseudo, int *vacant )
         move[0] = SNA[mover][0], move[1] = SNA[mover][1],
             move[2] = SNA[sq_bit_index(epts(p))][0],
             move[3] = SNA[sq_bit_index(epts(p))][1];
-        assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+        ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
 }
+
+#undef ASSERT_THAT_MOVE_IS_VALID
 
 static int
 x_qsort_rawcode_compare( const void *a, const void *b )
