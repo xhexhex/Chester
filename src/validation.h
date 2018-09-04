@@ -6,6 +6,16 @@
 
 #include "base.h"
 
+enum status_code_che_is_san {
+    CIS_INVALID_LENGTH,
+    CIS_INVALID_CHAR,
+    CIS_CASTLING_MOVE,
+    CIS_PAWN_MOVE,
+    CIS_PIECE_MOVE
+};
+
+extern enum status_code_che_is_san sc_che_is_san;
+
 bool is_sq_name( const char *sq_name );
 const char *ppa_integrity_check( const Bitboard *ppa );
 bool is_sq_bit( Bitboard bb );

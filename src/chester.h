@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef uint16_t Rawcode;
 
@@ -32,17 +33,11 @@ enum che_fen_error {
     FEN_HMCF_CONTRADICTS_FMNF_ERROR
 };
 
-enum che_san_error {
-    SERR_NO_ERRORS,
-    SERR_LENGTH_ERROR,
-    SERR_CHARS_ERROR
-};
-
 // Function prototypes
 enum che_fen_error che_fen_validator( const char *fen );
 Rawcode *che_rawcodes( const char *fen );
 char *che_make_move( const char *fen, const char *san );
-enum che_san_error che_san_validator( const char *san );
+bool che_is_san( const char *san );
 
 #endif
 // end CHESTER_H

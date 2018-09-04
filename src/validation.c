@@ -43,6 +43,16 @@ static bool x_no_rook_on_square_indicated_by_caf(
 static bool x_rook_on_wrong_side_of_king(
     const char *r1, const char *r8, const char *ecaf );
 
+/*************************
+ ****                 ****
+ ****  External data  ****
+ ****                 ****
+ *************************/
+
+// Used by function che_is_san() to store status information. The purpose
+// of this is to faciliate Check unit testing.
+enum status_code_che_is_san sc_che_is_san;
+
 /*****************************
  ****                     ****
  ****  Chester interface  ****
@@ -82,19 +92,33 @@ che_fen_validator( const char *fen )
 }
 
 // The function for SAN validation
-enum che_san_error
-che_san_validator( const char *san )
+bool
+che_is_san( const char *san )
 {
-    return san ? SERR_NO_ERRORS : SERR_LENGTH_ERROR;
+    /*
+    >>> b = chess.Board("3k3r/6P1/8/8/8/8/p7/R3K3 w Q - 19 75")
+    >>> b.legal_moves
+    <LegalMoveGenerator at 0x7f0245295ef0 (Kf2, Ke2, Kd2, Kf1, Kd1,
+        Rxa2, Rd1+, Rc1, Rb1, O-O-O+,
+        gxh8=Q+, gxh8=R+, gxh8=B, gxh8=N,
+        g8=Q+, g8=R+, g8=B, g8=N)>
+     */
+
+    const size_t MIN_SAN_LENGTH = 2, MAX_SAN_LENGTH = 7;
+    if( !san || strlen(san) < MIN_SAN_LENGTH || strlen(san) > MAX_SAN_LENGTH ) {
+        sc_che_is_san = CIS_INVALID_LENGTH;
+        return false;
+    }
+
+    // Deal with castling moves as a special case
+    if( str_m_pat(san, "^O-O(-O)?[+#]?$") ) {
+        // printf( "%s(): \"%s\" is a valid castling move\n", __func__, san );
+        sc_che_is_san = CIS_CASTLING_MOVE;
+        return true;
+    }
+
+    return true;
 }
-
-/*************************
- ****                 ****
- ****  External data  ****
- ****                 ****
- *************************/
-
-// (empty)
 
 /******************************
  ****                      ****

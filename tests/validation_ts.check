@@ -766,31 +766,37 @@
 //
 // Test case
 //
-#tcase che_san_validator_tests
+#tcase che_is_san_tests
 
-#define ASSERT_FOR_EACH_SAN( str_array_name, expected_ret_val ) \
+#define ASSERT_FOR_EACH_SAN( str_array_name, expected_result, expected_status ) \
     for( int i = 0; str_array_name[i]; i++ ) { \
-        enum che_san_error real_ret_val = \
-            che_san_validator( (char *) str_array_name[i] ); \
-        ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
-            "[%d] produced invalid return value %d", i, real_ret_val ); }
+        bool actual_result = che_is_san( (char *) str_array_name[i] ); \
+        ck_assert( actual_result == expected_result ); \
+        ck_assert( sc_che_is_san == expected_status ); }
 
-#test che_san_validator_returns_SERR_NO_ERRORS_batch_1
-    const char *valid_san[] = {
-        "e4",
-        "Nf3",
+#test che_is_san_returns_true_and_sets_status_to_CIS_CASTLING_MOVE
+    const char *castling_san[] = {
+        "O-O",
+        "O-O+",
+        "O-O#",
+        "O-O-O",
+        "O-O-O+",
+        "O-O-O#",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( valid_san, SERR_NO_ERRORS );
+    ASSERT_FOR_EACH_SAN( castling_san, true, CIS_CASTLING_MOVE );
 
-#test che_san_validator_returns_SERR_LENGTH_ERROR
+#test che_is_san_returns_false_and_sets_status_to_CIS_INVALID_LENGTH
     const char *invalid_length_san[] = {
         "",
         "Chess can be a lot of fun",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( invalid_length_san, SERR_LENGTH_ERROR );
+    ASSERT_FOR_EACH_SAN( invalid_length_san, false, CIS_INVALID_LENGTH );
 
-    // Null test!
+    // Also null should produce false as the return value and set the
+    // status code to CIS_INVALID_LENGTH
+    ck_assert( !che_is_san(NULL) );
+    ck_assert( sc_che_is_san == CIS_INVALID_LENGTH );
 
 #undef ASSERT_FOR_EACH_SAN

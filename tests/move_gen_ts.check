@@ -987,6 +987,25 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
     TEST_WITH_ARGS( "r3k2r/p6p/8/8/3pP3/2P5/8/7K b kq e3 0 123", expected )
 
+#test C_rawcodes_tested_with_made_up_position_3
+    Rawcode expected[12 + 1];
+
+    expected[ 0] = 12,
+    expected[ 1] = rawcode( "a1a2" ),
+    expected[ 2] = rawcode( "a1b1" ),
+    expected[ 3] = rawcode( "a1c1" ),
+    expected[ 4] = rawcode( "a1d1" ),
+    expected[ 5] = rawcode( "e1a1" ),
+    expected[ 6] = rawcode( "e1d1" ),
+    expected[ 7] = rawcode( "e1d2" ),
+    expected[ 8] = rawcode( "e1e2" ),
+    expected[ 9] = rawcode( "e1f1" ),
+    expected[10] = rawcode( "e1f2" ),
+    expected[11] = rawcode( "g7g8" ),
+    expected[12] = rawcode( "g7h8" );
+
+    TEST_WITH_ARGS( "3k3r/6P1/8/8/8/8/p7/R3K3 w Q - 19 75", expected )
+
 #undef TEST_WITH_ARGS
 
 //
