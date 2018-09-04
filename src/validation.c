@@ -91,7 +91,7 @@ che_fen_validator( const char *fen )
     return FEN_NO_ERRORS;
 }
 
-// The function for SAN validation
+// TODO: doc
 bool
 che_is_san( const char *san )
 {
@@ -104,20 +104,28 @@ che_is_san( const char *san )
         g8=Q+, g8=R+, g8=B, g8=N)>
      */
 
+    sc_che_is_san = CIS_UNSET;
+
     const size_t MIN_SAN_LENGTH = 2, MAX_SAN_LENGTH = 7;
     if( !san || strlen(san) < MIN_SAN_LENGTH || strlen(san) > MAX_SAN_LENGTH ) {
         sc_che_is_san = CIS_INVALID_LENGTH;
-        return false;
-    }
+        return false; }
 
-    // Deal with castling moves as a special case
+    if( str_m_pat(san, "^.*[^a-h1-8KQRBN+#=xO-].*$") ) {
+        sc_che_is_san = CIS_INVALID_CHAR;
+        return false; }
+
     if( str_m_pat(san, "^O-O(-O)?[+#]?$") ) {
-        // printf( "%s(): \"%s\" is a valid castling move\n", __func__, san );
         sc_che_is_san = CIS_CASTLING_MOVE;
-        return true;
-    }
+        return true; }
 
-    return true;
+    if( str_m_pat(san, "^([a-h]x)?[a-h][1-8](=[QRBN])?[+#]?$") ) {
+        // Something like "axc1" is not valid!
+        // Neither is "e4=Q"
+        sc_che_is_san = CIS_PAWN_MOVE;
+        return true; }
+
+    return false;
 }
 
 /******************************

@@ -7,6 +7,7 @@
 #include "base.h"
 
 enum status_code_che_is_san {
+    CIS_UNSET,
     CIS_INVALID_LENGTH,
     CIS_INVALID_CHAR,
     CIS_CASTLING_MOVE,

@@ -774,22 +774,11 @@
         ck_assert( actual_result == expected_result ); \
         ck_assert( sc_che_is_san == expected_status ); }
 
-#test che_is_san_returns_true_and_sets_status_to_CIS_CASTLING_MOVE
-    const char *castling_san[] = {
-        "O-O",
-        "O-O+",
-        "O-O#",
-        "O-O-O",
-        "O-O-O+",
-        "O-O-O#",
-        NULL };
-
-    ASSERT_FOR_EACH_SAN( castling_san, true, CIS_CASTLING_MOVE );
-
 #test che_is_san_returns_false_and_sets_status_to_CIS_INVALID_LENGTH
     const char *invalid_length_san[] = {
         "",
         "Chess can be a lot of fun",
+        "e", "Ne4xf6##", "10101010",
         NULL };
 
     ASSERT_FOR_EACH_SAN( invalid_length_san, false, CIS_INVALID_LENGTH );
@@ -798,5 +787,31 @@
     // status code to CIS_INVALID_LENGTH
     ck_assert( !che_is_san(NULL) );
     ck_assert( sc_che_is_san == CIS_INVALID_LENGTH );
+
+#test che_is_san_returns_false_and_sets_status_to_CIS_INVALID_CHAR
+    const char *invalid_char_san[] = {
+        "0-0", "0-0-0", "o-o", "o-o-o",
+        "E4", "eXd4", "Pc5", "Rhd9",
+        "qxe8#", "kf3+", "a0", "Babe!",
+        "c 4", "e2_e4",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( invalid_char_san, false, CIS_INVALID_CHAR );
+
+#test che_is_san_returns_true_and_sets_status_to_CIS_CASTLING_MOVE
+    const char *castling_san[] = {
+        "O-O", "O-O+", "O-O#",
+        "O-O-O", "O-O-O+", "O-O-O#",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( castling_san, true, CIS_CASTLING_MOVE );
+
+#test che_is_san_returns_true_and_sets_status_to_CIS_PAWN_MOVE
+    const char *pawn_move_san[] = {
+        "a1", "a8", "e1", "e4+", "e8", "h1#", "h7", "h8",
+        "axb1", "exd5", "gxh8", "g8=B", "e1=N", "gxh8=Q+", "gxh8=B",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_MOVE );
 
 #undef ASSERT_FOR_EACH_SAN
