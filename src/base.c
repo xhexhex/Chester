@@ -454,6 +454,18 @@ static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
+/*************************************
+ **** Chester interface functions ****
+ *************************************/
+
+// TODO: doc
+char *
+che_make_move( const char *fen, const char *san )
+{
+    // Rawcode move = san_to_rawcode(p, san);
+    return (fen && san) ? "" : NULL;
+}
+
 /****************************
  **** External functions ****
  ****************************/

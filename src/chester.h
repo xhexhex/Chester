@@ -35,6 +35,7 @@ enum che_fen_error {
 // Function prototypes
 enum che_fen_error che_fen_validator( const char *fen );
 Rawcode *che_rawcodes( const char *fen );
+char *che_make_move( const char *fen, const char *san );
 
 #endif
 // end CHESTER_H
