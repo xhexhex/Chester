@@ -7,11 +7,11 @@
 #suite validation_ts
 
 #define FEN_ARRAY_FOR_LOOP( str_array_name, expected_ret_val ) \
-for( int i = 0; str_array_name[ i ]; i++ ) { \
-    enum che_fen_error real_ret_val = \
-        che_fen_validator( (char *) str_array_name[ i ] ); \
-    ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
-        "[ %d ] produced invalid return value %d", i, real_ret_val ); }
+    for( int i = 0; str_array_name[ i ]; i++ ) { \
+        enum che_fen_error real_ret_val = \
+            che_fen_validator( (char *) str_array_name[ i ] ); \
+        ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
+            "[%d] produced invalid return value %d", i, real_ret_val ); }
 
 #tcase che_fen_validator_tests
 
@@ -762,3 +762,35 @@ for( int i = 0; str_array_name[ i ]; i++ ) { \
     ck_assert( !is_sq_bit(0x50a200000040001) );
     ck_assert( !is_sq_bit(0x808000000) );
     ck_assert( !is_sq_bit(0x8000000000000001) );
+
+//
+// Test case
+//
+#tcase che_san_validator_tests
+
+#define ASSERT_FOR_EACH_SAN( str_array_name, expected_ret_val ) \
+    for( int i = 0; str_array_name[i]; i++ ) { \
+        enum che_san_error real_ret_val = \
+            che_san_validator( (char *) str_array_name[i] ); \
+        ck_assert_msg( real_ret_val == expected_ret_val, #str_array_name \
+            "[%d] produced invalid return value %d", i, real_ret_val ); }
+
+#test che_san_validator_returns_SERR_NO_ERRORS_batch_1
+    const char *valid_san[] = {
+        "e4",
+        "Nf3",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( valid_san, SERR_NO_ERRORS );
+
+#test che_san_validator_returns_SERR_LENGTH_ERROR
+    const char *invalid_length_san[] = {
+        "",
+        "Chess can be a lot of fun",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( invalid_length_san, SERR_LENGTH_ERROR );
+
+    // Null test!
+
+#undef ASSERT_FOR_EACH_SAN

@@ -49,7 +49,7 @@ static bool x_rook_on_wrong_side_of_king(
  ****                     ****
  *****************************/
 
-// The function for FEN string validation
+// The function for FEN validation
 enum che_fen_error
 che_fen_validator( const char *fen )
 {
@@ -79,6 +79,13 @@ che_fen_validator( const char *fen )
     if( !x_validate_fen_test_20( p ) ) return FEN_HMCF_CONTRADICTS_FMNF_ERROR;
 
     return FEN_NO_ERRORS;
+}
+
+// The function for SAN validation
+enum che_san_error
+che_san_validator( const char *san )
+{
+    return san ? SERR_NO_ERRORS : SERR_LENGTH_ERROR;
 }
 
 /*************************
