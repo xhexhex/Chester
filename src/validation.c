@@ -42,6 +42,9 @@ static bool x_no_rook_on_square_indicated_by_caf(
     const char *r1, const char *r8, const char *ecaf );
 static bool x_rook_on_wrong_side_of_king(
     const char *r1, const char *r8, const char *ecaf );
+static bool x_che_is_san_length_and_char_check( const char *san );
+static bool x_che_is_san_castling_move( const char *san );
+static bool x_che_is_san_pawn_advance( const char *san );
 
 /*************************
  ****                 ****
@@ -104,26 +107,11 @@ che_is_san( const char *san )
         g8=Q+, g8=R+, g8=B, g8=N)>
      */
 
-    sc_che_is_san = CIS_UNSET;
+    sc_che_is_san = CIS_DEFAULT;
 
-    const size_t MIN_SAN_LENGTH = 2, MAX_SAN_LENGTH = 7;
-    if( !san || strlen(san) < MIN_SAN_LENGTH || strlen(san) > MAX_SAN_LENGTH ) {
-        sc_che_is_san = CIS_INVALID_LENGTH;
-        return false; }
-
-    if( str_m_pat(san, "^.*[^a-h1-8KQRBN+#=xO-].*$") ) {
-        sc_che_is_san = CIS_INVALID_CHAR;
-        return false; }
-
-    if( str_m_pat(san, "^O-O(-O)?[+#]?$") ) {
-        sc_che_is_san = CIS_CASTLING_MOVE;
-        return true; }
-
-    if( str_m_pat(san, "^([a-h]x)?[a-h][1-8](=[QRBN])?[+#]?$") ) {
-        // Something like "axc1" is not valid!
-        // Neither is "e4=Q"
-        sc_che_is_san = CIS_PAWN_MOVE;
-        return true; }
+    if( !x_che_is_san_length_and_char_check(san) ) return false;
+    if( x_che_is_san_castling_move(san) ) return true;
+    if( x_che_is_san_pawn_advance(san) ) return true;
 
     return false;
 }
@@ -514,3 +502,42 @@ x_rook_on_wrong_side_of_king( const char *r1, const char *r8, const char *ecaf )
 
     return false;
 }
+
+static bool
+x_che_is_san_length_and_char_check( const char *san )
+{
+    const size_t MIN_SAN_LENGTH = 2, MAX_SAN_LENGTH = 7;
+
+    if( !san || strlen(san) < MIN_SAN_LENGTH || strlen(san) > MAX_SAN_LENGTH ) {
+        sc_che_is_san = CIS_INVALID_LENGTH;
+        return false; }
+
+    if( str_m_pat(san, "^.*[^a-h1-8KQRBN+#=xO-].*$") ) {
+        sc_che_is_san = CIS_INVALID_CHAR;
+        return false; }
+
+    return true;
+}
+
+static bool
+x_che_is_san_castling_move( const char *san )
+{
+    if( str_m_pat(san, "^O-O(-O)?[+#]?$") ) {
+        sc_che_is_san = CIS_CASTLING_MOVE;
+        return true; }
+
+    return false;
+}
+
+static bool
+x_che_is_san_pawn_advance( const char *san )
+{
+    if( str_m_pat(san, "^[a-h][2-7][+#]?$") ||
+            str_m_pat(san, "^[a-h][18]=[QRBN][+#]?$") ) {
+        sc_che_is_san = CIS_PAWN_ADVANCE;
+        return true; }
+
+    return false;
+}
+
+// "^([a-h]x)?[a-h][1-8](=[QRBN])?[+#]?$"

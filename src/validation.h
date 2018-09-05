@@ -7,11 +7,12 @@
 #include "base.h"
 
 enum status_code_che_is_san {
-    CIS_UNSET,
+    CIS_DEFAULT,
     CIS_INVALID_LENGTH,
     CIS_INVALID_CHAR,
     CIS_CASTLING_MOVE,
-    CIS_PAWN_MOVE,
+    CIS_PAWN_ADVANCE,
+    CIS_PAWN_CAPTURE,
     CIS_PIECE_MOVE
 };
 
