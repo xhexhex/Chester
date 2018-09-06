@@ -13,7 +13,8 @@ enum status_code_che_is_san {
     CIS_CASTLING_MOVE,
     CIS_PAWN_ADVANCE,
     CIS_PAWN_CAPTURE,
-    CIS_PIECE_MOVE
+    CIS_NON_UNAMBIGUATED_PIECE_MOVE,
+    CIS_UNAMBIGUATED_PIECE_MOVE
 };
 
 extern enum status_code_che_is_san sc_che_is_san;

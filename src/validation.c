@@ -46,6 +46,7 @@ static bool x_che_is_san_length_and_char_check( const char *san );
 static bool x_che_is_san_castling_move( const char *san );
 static bool x_che_is_san_pawn_advance( const char *san );
 static bool x_che_is_san_pawn_capture( const char *san );
+static bool x_che_is_san_non_unambiguated_piece_move( const char *san );
 
 /*************************
  ****                 ****
@@ -114,6 +115,7 @@ che_is_san( const char *san )
     if( x_che_is_san_castling_move(san) ) return true;
     if( x_che_is_san_pawn_advance(san) ) return true;
     if( x_che_is_san_pawn_capture(san) ) return true;
+    if( x_che_is_san_non_unambiguated_piece_move(san) ) return true;
 
     return false;
 }
@@ -549,6 +551,18 @@ x_che_is_san_pawn_capture( const char *san )
             str_m_pat(san, "^[a-h]x[a-h][18]=[QRBN][+#]?$") ) &&
             abs(san[0] - san[2]) == 1 ) {
         sc_che_is_san = CIS_PAWN_CAPTURE;
+        return true; }
+
+    return false;
+}
+
+// An "unambiguated" piece move is something like "Rde8", "N2xe4"
+// or "Ne1f3+"
+static bool
+x_che_is_san_non_unambiguated_piece_move( const char *san )
+{
+    if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
+        sc_che_is_san = CIS_NON_UNAMBIGUATED_PIECE_MOVE;
         return true; }
 
     return false;

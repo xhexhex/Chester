@@ -808,19 +808,30 @@
     ASSERT_FOR_EACH_SAN( castling_san, true, CIS_CASTLING_MOVE );
 
 #test che_is_san_returns_true_and_sets_status_to_CIS_PAWN_ADVANCE
-    const char *pawn_move_san[] = {
+    const char *pawn_advance_san[] = {
         "e2", "e4+", "e7", "a2+", "a6", "a7#", "h2", "h3#", "h4+", "h7",
         "g8=B", "e1=N", "a1=Q#", "h1=R+", "a8=N", "c8=Q+", "h8=R#",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_ADVANCE );
+    ASSERT_FOR_EACH_SAN( pawn_advance_san, true, CIS_PAWN_ADVANCE );
 
 #test che_is_san_returns_true_and_sets_status_to_CIS_PAWN_CAPTURE
-    const char *pawn_move_san[] = {
+    const char *pawn_capture_san[] = {
         "dxc5", "axb1=Q+", "cxb1=N", "hxg7", "gxh2#", "exd5+", "fxe8=B#",
         "bxa2", "gxh7",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_CAPTURE );
+    ASSERT_FOR_EACH_SAN( pawn_capture_san, true, CIS_PAWN_CAPTURE );
+
+#test che_is_san_returns_true_and_sets_status_to_CIS_NON_UNAMBIGUATED_PIECE_MOVE
+    const char *non_unambiguated_piece_move_san[] = {
+        "Ka1", "Qa8", "Rh1", "Bh8", "Ne1",
+        "Ka8+", "Qa1#", "Rh8+", "Bh1#", "Ne1+",
+        "Kxa1", "Qxa8", "Rxh1", "Bxh8", "Nxe1",
+        "Kxa8+", "Qxa1#", "Rxh8+", "Bxh1#", "Nxe1+",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( non_unambiguated_piece_move_san, true,
+        CIS_NON_UNAMBIGUATED_PIECE_MOVE );
 
 #undef ASSERT_FOR_EACH_SAN
