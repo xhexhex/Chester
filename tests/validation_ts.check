@@ -815,14 +815,12 @@
 
     ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_ADVANCE );
 
-/*
-test che_is_san_returns_true_and_sets_status_to_CIS_PAWN_MOVE
+#test che_is_san_returns_true_and_sets_status_to_CIS_PAWN_CAPTURE
     const char *pawn_move_san[] = {
-        "a1", "a8", "e1", "e4+", "e8", "h1#", "h7", "h8",
-        "axb1", "exd5", "gxh8", "g8=B", "e1=N", "gxh8=Q+", "gxh8=B",
+        "dxc5", "axb1=Q+", "cxb1=N", "hxg7", "gxh2#", "exd5+", "fxe8=B#",
+        "bxa2", "gxh7",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_MOVE );
-*/
+    ASSERT_FOR_EACH_SAN( pawn_move_san, true, CIS_PAWN_CAPTURE );
 
 #undef ASSERT_FOR_EACH_SAN

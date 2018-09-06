@@ -45,6 +45,7 @@ static bool x_rook_on_wrong_side_of_king(
 static bool x_che_is_san_length_and_char_check( const char *san );
 static bool x_che_is_san_castling_move( const char *san );
 static bool x_che_is_san_pawn_advance( const char *san );
+static bool x_che_is_san_pawn_capture( const char *san );
 
 /*************************
  ****                 ****
@@ -112,6 +113,7 @@ che_is_san( const char *san )
     if( !x_che_is_san_length_and_char_check(san) ) return false;
     if( x_che_is_san_castling_move(san) ) return true;
     if( x_che_is_san_pawn_advance(san) ) return true;
+    if( x_che_is_san_pawn_capture(san) ) return true;
 
     return false;
 }
@@ -540,4 +542,14 @@ x_che_is_san_pawn_advance( const char *san )
     return false;
 }
 
-// "^([a-h]x)?[a-h][1-8](=[QRBN])?[+#]?$"
+static bool
+x_che_is_san_pawn_capture( const char *san )
+{
+    if( ( str_m_pat(san, "^[a-h]x[a-h][2-7][+#]?$") ||
+            str_m_pat(san, "^[a-h]x[a-h][18]=[QRBN][+#]?$") ) &&
+            abs(san[0] - san[2]) == 1 ) {
+        sc_che_is_san = CIS_PAWN_CAPTURE;
+        return true; }
+
+    return false;
+}
