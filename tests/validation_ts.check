@@ -823,15 +823,26 @@
 
     ASSERT_FOR_EACH_SAN( pawn_capture_san, true, CIS_PAWN_CAPTURE );
 
-#test che_is_san_returns_true_and_sets_status_to_CIS_NON_UNAMBIGUATED_PIECE_MOVE
-    const char *non_unambiguated_piece_move_san[] = {
+#test che_is_san_returns_true_and_sets_status_to_CIS_NON_DISAMBIGUATED_PIECE_MOVE
+    const char *non_disambiguated_piece_move_san[] = {
         "Ka1", "Qa8", "Rh1", "Bh8", "Ne1",
         "Ka8+", "Qa1#", "Rh8+", "Bh1#", "Ne1+",
         "Kxa1", "Qxa8", "Rxh1", "Bxh8", "Nxe1",
         "Kxa8+", "Qxa1#", "Rxh8+", "Bxh1#", "Nxe1+",
         NULL };
 
-    ASSERT_FOR_EACH_SAN( non_unambiguated_piece_move_san, true,
-        CIS_NON_UNAMBIGUATED_PIECE_MOVE );
+    ASSERT_FOR_EACH_SAN( non_disambiguated_piece_move_san, true,
+        CIS_NON_DISAMBIGUATED_PIECE_MOVE );
+
+#test che_is_san_returns_true_and_sets_status_to_CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE
+    const char *singly_disambiguated_piece_move_san[] = {
+        "Qae4", "Qbxh2+", "Q2b4#", "Q8xe4+", "Q1h2",
+        "Rae8", "Rbxh2+", "R2a4#", "R8xh4+", "R1a2",
+        "Bae8", "Bbxh2+", "B2a4#", "B8xh4+", "B1a2",
+        "Nac8", "Ngxh2+", "N2a4#", "N8xh6+", "N1a2",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( singly_disambiguated_piece_move_san, true,
+        CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE );
 
 #undef ASSERT_FOR_EACH_SAN

@@ -46,7 +46,8 @@ static bool x_che_is_san_length_and_char_check( const char *san );
 static bool x_che_is_san_castling_move( const char *san );
 static bool x_che_is_san_pawn_advance( const char *san );
 static bool x_che_is_san_pawn_capture( const char *san );
-static bool x_che_is_san_non_unambiguated_piece_move( const char *san );
+static bool x_che_is_san_non_disambiguated_piece_move( const char *san );
+static bool x_che_is_san_singly_disambiguated_piece_move( const char *san );
 
 /*************************
  ****                 ****
@@ -115,7 +116,8 @@ che_is_san( const char *san )
     if( x_che_is_san_castling_move(san) ) return true;
     if( x_che_is_san_pawn_advance(san) ) return true;
     if( x_che_is_san_pawn_capture(san) ) return true;
-    if( x_che_is_san_non_unambiguated_piece_move(san) ) return true;
+    if( x_che_is_san_non_disambiguated_piece_move(san) ) return true;
+    if( x_che_is_san_singly_disambiguated_piece_move(san) ) return true;
 
     return false;
 }
@@ -556,14 +558,42 @@ x_che_is_san_pawn_capture( const char *san )
     return false;
 }
 
-// An "unambiguated" piece move is something like "Rde8", "N2xe4"
+// An disambiguated piece move is something like "Rde8", "N2xe4"
 // or "Ne1f3+"
 static bool
-x_che_is_san_non_unambiguated_piece_move( const char *san )
+x_che_is_san_non_disambiguated_piece_move( const char *san )
 {
     if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
-        sc_che_is_san = CIS_NON_UNAMBIGUATED_PIECE_MOVE;
+        sc_che_is_san = CIS_NON_DISAMBIGUATED_PIECE_MOVE;
         return true; }
 
     return false;
 }
+
+#define SET_STATUS_AND_RETURN_TRUE \
+{ sc_che_is_san = CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE; return true; }
+
+// A "singly disambiguated" piece move is something like "Raxe8" or "N2e4"
+static bool
+x_che_is_san_singly_disambiguated_piece_move( const char *san )
+{
+    if( strlen(san) < 4 ) return false;
+
+    char dest_sq[2 + 1] = {0};
+    dest_sq[0] = ( san[2] == 'x' ? san[3] : san[2] );
+    dest_sq[1] = ( san[2] == 'x' ? san[4] : san[3] );
+
+    if( str_m_pat(san, "^[QR]([a-h]|[1-8])x?[a-h][1-8][+#]?$") )
+        SET_STATUS_AND_RETURN_TRUE
+    if( ( str_m_pat(san, "^B([a-h]|[1-8])x?[a-h][1-8][+#]?$") &&
+            san[1] != dest_sq[isalpha(san[1]) ? 0 : 1] ) )
+        SET_STATUS_AND_RETURN_TRUE
+    if( str_m_pat(san, "^N([a-h]|[1-8])x?[a-h][1-8][+#]?$") && (
+            abs(san[1] - dest_sq[isalpha(san[1]) ? 0 : 1]) == 1 ||
+            abs(san[1] - dest_sq[isalpha(san[1]) ? 0 : 1]) == 2 ) )
+        SET_STATUS_AND_RETURN_TRUE
+
+    return false;
+}
+
+#undef SET_STATUS_AND_RETURN_TRUE
