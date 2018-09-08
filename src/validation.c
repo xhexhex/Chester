@@ -48,6 +48,7 @@ static bool x_che_is_san_pawn_advance( const char *san );
 static bool x_che_is_san_pawn_capture( const char *san );
 static bool x_che_is_san_non_disambiguated_piece_move( const char *san );
 static bool x_che_is_san_singly_disambiguated_piece_move( const char *san );
+static bool x_che_is_san_doubly_disambiguated_piece_move( const char *san );
 
 /*************************
  ****                 ****
@@ -101,23 +102,16 @@ che_fen_validator( const char *fen )
 bool
 che_is_san( const char *san )
 {
-    /*
-    >>> b = chess.Board("3k3r/6P1/8/8/8/8/p7/R3K3 w Q - 19 75")
-    >>> b.legal_moves
-    <LegalMoveGenerator at 0x7f0245295ef0 (Kf2, Ke2, Kd2, Kf1, Kd1,
-        Rxa2, Rd1+, Rc1, Rb1, O-O-O+,
-        gxh8=Q+, gxh8=R+, gxh8=B, gxh8=N,
-        g8=Q+, g8=R+, g8=B, g8=N)>
-     */
-
     sc_che_is_san = CIS_DEFAULT;
-
     if( !x_che_is_san_length_and_char_check(san) ) return false;
-    if( x_che_is_san_castling_move(san) ) return true;
-    if( x_che_is_san_pawn_advance(san) ) return true;
-    if( x_che_is_san_pawn_capture(san) ) return true;
-    if( x_che_is_san_non_disambiguated_piece_move(san) ) return true;
-    if( x_che_is_san_singly_disambiguated_piece_move(san) ) return true;
+
+    if( x_che_is_san_castling_move(san) ||
+        x_che_is_san_pawn_advance(san) ||
+        x_che_is_san_pawn_capture(san) ||
+        x_che_is_san_non_disambiguated_piece_move(san) ||
+        x_che_is_san_singly_disambiguated_piece_move(san) ||
+        x_che_is_san_doubly_disambiguated_piece_move(san)
+    ) return true;
 
     return false;
 }
@@ -591,6 +585,39 @@ x_che_is_san_singly_disambiguated_piece_move( const char *san )
     if( str_m_pat(san, "^N([a-h]|[1-8])x?[a-h][1-8][+#]?$") && (
             abs(san[1] - dest_sq[isalpha(san[1]) ? 0 : 1]) == 1 ||
             abs(san[1] - dest_sq[isalpha(san[1]) ? 0 : 1]) == 2 ) )
+        SET_STATUS_AND_RETURN_TRUE
+
+    return false;
+}
+
+#undef SET_STATUS_AND_RETURN_TRUE
+
+#define SET_STATUS_AND_RETURN_TRUE \
+{ sc_che_is_san = CIS_DOUBLY_DISAMBIGUATED_PIECE_MOVE; return true; }
+
+// Examples of "doubly disambiguated" piece moves include "Ra1a5+",
+// "Ne2xd4" and "Qh1g2"
+static bool
+x_che_is_san_doubly_disambiguated_piece_move( const char *san )
+{
+    if( !str_m_pat(san, "^[QRBN][a-h][1-8]x?[a-h][1-8][+#]?$") )
+        return false;
+
+    char orig[2 + 1] = {0}, dest[2 + 1] = {0};
+    orig[0] = san[1], orig[1] = san[2];
+    dest[0] = ( san[3] == 'x' ? san[4] : san[3] );
+    dest[1] = ( san[3] == 'x' ? san[5] : san[4] );
+
+    Bitboard orig_bb = sq_name_to_sq_bit(orig),
+        dest_bb = sq_name_to_sq_bit(dest);
+
+    if(
+        ( san[0] == 'Q' && ( dest_bb & ( ROOK_SQS[sq_bit_index(orig_bb)] |
+            BISHOP_SQS[sq_bit_index(orig_bb)] ) ) ) ||
+        ( san[0] == 'R' && ( dest_bb & ROOK_SQS[sq_bit_index(orig_bb)] ) ) ||
+        ( san[0] == 'B' && ( dest_bb & BISHOP_SQS[sq_bit_index(orig_bb)] ) ) ||
+        ( san[0] == 'N' && ( dest_bb & KNIGHT_SQS[sq_bit_index(orig_bb)] ) )
+    )
         SET_STATUS_AND_RETURN_TRUE
 
     return false;

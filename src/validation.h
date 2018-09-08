@@ -14,7 +14,8 @@ enum status_code_che_is_san {
     CIS_PAWN_ADVANCE,
     CIS_PAWN_CAPTURE,
     CIS_NON_DISAMBIGUATED_PIECE_MOVE,
-    CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE
+    CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE,
+    CIS_DOUBLY_DISAMBIGUATED_PIECE_MOVE
 };
 
 extern enum status_code_che_is_san sc_che_is_san;

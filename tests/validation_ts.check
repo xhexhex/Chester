@@ -845,4 +845,15 @@
     ASSERT_FOR_EACH_SAN( singly_disambiguated_piece_move_san, true,
         CIS_SINGLY_DISAMBIGUATED_PIECE_MOVE );
 
+#test che_is_san_returns_true_and_sets_status_to_CIS_DOUBLY_DISAMBIGUATED_PIECE_MOVE
+    const char *doubly_disambiguated_piece_move_san[] = {
+        "Qh1g2", "Ra1a5+", "Bh1a8", "Ne2xd4",
+        "Qb4g4", "Rh1xh8#", "Bf8h6+", "Nb3a1",
+        "Qb4xg4+", "Rb1c1#", "Ba7xg1", "Nb7d8#",
+        "Qa1xh8", "Rd4xd2", "Bd4xe5+", "Ne4xf6+",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( doubly_disambiguated_piece_move_san, true,
+        CIS_DOUBLY_DISAMBIGUATED_PIECE_MOVE );
+
 #undef ASSERT_FOR_EACH_SAN
