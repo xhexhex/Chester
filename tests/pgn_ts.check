@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "../src/base.h"
+#include "../src/utils.h"
+#include "../src/pgn.h"
+
+#suite pgn_ts
+
+#tcase san_to_rawcode_tests
+
+#define TEST_WITH_ARGS( fen, san, expected ) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    ck_assert( san_to_rawcode(p, san) == rawcode(expected) ); \
+    free(p);
+
+#test some_silly_test
+    Pos *p;
+
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 123", "O-O", "e1h1" )
+    TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 123", "O-O-O", "e1a1" )
+
+#undef TEST_WITH_ARGS
