@@ -98,7 +98,11 @@ che_fen_validator( const char *fen )
     return FEN_NO_ERRORS;
 }
 
-// TODO: doc
+// Returns true if and only if 'san' is syntactically a valid move
+// expressed in standard algebraic notation. Examples of valid SANs
+// include "e4", "c8=Q", "dxc5", "O-O+", "Raxe8" and "Ng7#". The
+// function sets the global variable 'sc_che_is_san' to faciliate
+// unit testing.
 bool
 che_is_san( const char *san )
 {

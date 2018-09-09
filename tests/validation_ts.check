@@ -856,4 +856,12 @@
     ASSERT_FOR_EACH_SAN( doubly_disambiguated_piece_move_san, true,
         CIS_DOUBLY_DISAMBIGUATED_PIECE_MOVE );
 
+#test che_is_san_returns_false_and_sets_status_to_CIS_DEFAULT
+    const char *invalid_san[] = {
+        "OO", "Ne+4", "axc4", "e2e4", "Kae3", "Qg1xf3", "Nad3", "O-O=Q",
+        "Baa2", "B4e4", "e8=K", "Ra1xd4", "Bd4e4+", "Ne2e4", "N2d5",
+        NULL };
+
+    ASSERT_FOR_EACH_SAN( invalid_san, false, CIS_DEFAULT );
+
 #undef ASSERT_FOR_EACH_SAN
