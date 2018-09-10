@@ -13,14 +13,38 @@
 
 #define TEST_WITH_ARGS( fen, san, expected ) \
     ck_assert( !che_fen_validator(fen) ); \
+    ck_assert( che_is_san(san) ); \
     p = fen_to_pos(fen); \
     ck_assert( san_to_rawcode(p, san) == rawcode(expected) ); \
     free(p);
 
-#test some_silly_test
+#test san_to_rawcode_tested_with_castling_moves
     Pos *p;
 
     TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 123", "O-O", "e1h1" )
     TEST_WITH_ARGS( "4k3/8/8/8/8/8/8/R3K2R w KQ - 0 123", "O-O-O", "e1a1" )
+    TEST_WITH_ARGS( "1rk1r3/8/8/8/8/8/8/1RK1R3 b BEbe - 1 75", "O-O", "c8e8" )
+    TEST_WITH_ARGS( "1rk1r3/8/8/8/8/8/8/1RK1R3 b BEbe - 1 75", "O-O-O", "c8b8" )
+
+#test san_to_rawcode_tested_with_pawn_advances
+    Pos *p;
+
+    TEST_WITH_ARGS( "4k3/P7/8/6P1/8/8/4P3/4K3 w - - 1 75", "a8=Q+", "a7a8" )
+    TEST_WITH_ARGS( "4k3/P7/8/6P1/8/8/4P3/4K3 w - - 1 75", "e3", "e2e3" )
+    TEST_WITH_ARGS( "4k3/P7/8/6P1/8/8/4P3/4K3 w - - 1 75", "e4", "e2e4" )
+    TEST_WITH_ARGS( "4k3/P7/8/6P1/8/8/4P3/4K3 w - - 1 75", "g6", "g5g6" )
+    TEST_WITH_ARGS( "4k3/7p/8/8/8/4p3/2p5/4K3 b - - 0 123", "c1=R+", "c2c1" )
+    TEST_WITH_ARGS( "4k3/7p/8/8/8/4p3/2p5/4K3 b - - 0 123", "e2", "e3e2" )
+    TEST_WITH_ARGS( "4k3/7p/8/8/8/4p3/2p5/4K3 b - - 0 123", "h6", "h7h6" )
+    TEST_WITH_ARGS( "4k3/7p/8/8/8/4p3/2p5/4K3 b - - 0 123", "h5", "h7h5" )
+
+#test san_to_rawcode_tested_with_pawn_captures
+    Pos *p;
+
+    TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "bxc8=Q+", "b7c8" )
+    TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "fxe6", "f5e6" )
+    TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "fxg6", "f5g6" )
+    // Continue from here
+    ck_assert(false);
 
 #undef TEST_WITH_ARGS
