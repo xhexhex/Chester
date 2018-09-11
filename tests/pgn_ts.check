@@ -44,7 +44,27 @@
     TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "bxc8=Q+", "b7c8" )
     TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "fxe6", "f5e6" )
     TEST_WITH_ARGS( "2r1k3/1P6/6b1/4pP2/8/8/8/4K3 w - e6 0 57", "fxg6", "f5g6" )
-    // Continue from here
-    ck_assert(false);
+    TEST_WITH_ARGS( "4k3/4p3/3Q4/8/6pP/5NK1/p7/1R6 b - h3 0 68", "axb1=N", "a2b1" )
+    TEST_WITH_ARGS( "4k3/4p3/3Q4/8/6pP/5NK1/p7/1R6 b - h3 0 68", "exd6", "e7d6" )
+    TEST_WITH_ARGS( "4k3/4p3/3Q4/8/6pP/5NK1/p7/1R6 b - h3 0 68", "gxf3", "g4f3" )
+    TEST_WITH_ARGS( "4k3/4p3/3Q4/8/6pP/5NK1/p7/1R6 b - h3 0 68", "gxh3", "g4h3" )
+
+#test san_to_rawcode_tested_with_non_disambiguated_piece_moves
+    Pos *p;
+
+    TEST_WITH_ARGS( "4k2B/3p4/5p2/8/4N3/8/8/3QK2R w K - 10 68", "Ke2", "e1e2" )
+    TEST_WITH_ARGS( "4k2B/3p4/5p2/8/4N3/8/8/3QK2R w K - 10 68", "Qxd7+", "d1d7" )
+    TEST_WITH_ARGS( "4k2B/3p4/5p2/8/4N3/8/8/3QK2R w K - 10 68", "Rh4", "h1h4" )
+    TEST_WITH_ARGS( "4k2B/3p4/5p2/8/4N3/8/8/3QK2R w K - 10 68", "Bg7", "h8g7" )
+    TEST_WITH_ARGS( "4k2B/3p4/5p2/8/4N3/8/8/3QK2R w K - 10 68", "Nxf6+", "e4f6" )
+    //
+    TEST_WITH_ARGS( "r3k2r/8/8/8/8/8/8/4K3 b kq - 0 75", "Rd8", "a8d8" )
+
+#test san_to_rawcode_tested_with_singly_disambiguated_piece_moves
+    /*
+    Pos *p;
+
+    TEST_WITH_ARGS( "", "", "" )
+    */
 
 #undef TEST_WITH_ARGS

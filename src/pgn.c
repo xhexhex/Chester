@@ -6,9 +6,13 @@
 #include "base.h"
 #include "pgn.h"
 #include "utils.h"
+#include "move_gen.h"
+#include "validation.h"
 
 static void x_san_to_rawcode_find_dest_sq( const Pos *p,
     const char *san, char *dest );
+static void x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p,
+    char piece, char disambiguator, const char *dest_sq, char *orig_sq );
 
 // TODO: doc
 Rawcode
@@ -28,6 +32,8 @@ san_to_rawcode( const Pos *p, const char *san )
         strcpy( orig, sq_bit_to_sq_name(pawn) );
     } else if( str_m_pat(san, "^[a-h]x") ) {
         orig[0] = san[0], orig[1] = dest[1] + ( whites_turn(p) ? -1 : 1 );
+    } else if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
+        x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], '-', dest, orig);
     }
 
     move[0] = orig[0], move[1] = orig[1],
@@ -59,4 +65,42 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
         *(c - 1) >= 'a' && *(c - 1) <= 'h' ) ) --c;
 
     dest[0] = *(c - 1), dest[1] = *c, dest[2] = '\0';
+}
+
+static void
+x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
+    char disambiguator, const char *dest_sq, char *orig_sq )
+{
+    assert(disambiguator);
+
+    bool w = whites_turn(p);
+    int dest_bi = sq_bit_index( sq_name_to_sq_bit(dest_sq) );
+    Bitboard orig_sq_bb;
+
+    switch( piece ) {
+        case 'K':
+            orig_sq_bb = p->ppa[w ? WHITE_KING : BLACK_KING];
+            break;
+        case 'Q':
+            orig_sq_bb = ( p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] &
+                ( ROOK_SQS[dest_bi] | BISHOP_SQS[dest_bi] ) );
+            break;
+        case 'R':
+            orig_sq_bb = ( p->ppa[w ? WHITE_ROOK : BLACK_ROOK] &
+                ROOK_SQS[dest_bi] );
+            break;
+        case 'B':
+            orig_sq_bb = ( p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP] &
+                BISHOP_SQS[dest_bi] );
+            break;
+        case 'N':
+            orig_sq_bb = ( p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT] &
+                KNIGHT_SQS[dest_bi] );
+            break;
+        default:
+            assert(false);
+    }
+
+    assert( is_sq_bit(orig_sq_bb) );
+    strcpy( orig_sq, sq_bit_to_sq_name(orig_sq_bb) );
 }
