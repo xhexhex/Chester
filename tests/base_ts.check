@@ -48,7 +48,7 @@ create_APM_DATA_duplicate()
     return dup;
 }
 
-#suite types_ts
+#suite base_ts
 
 //
 // Test case

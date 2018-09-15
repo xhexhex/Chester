@@ -39,7 +39,7 @@ san_to_rawcode( const Pos *p, const char *san )
     move[0] = orig[0], move[1] = orig[1],
         move[2] = dest[0], move[3] = dest[1];
     assert( str_m_pat(move, "^[a-h][1-8][a-h][1-8]$") );
-    printf("\"%s\"\n", move);
+    // printf("\"%s\"\n", move);
 
     return rawcode(move);
 }
@@ -66,6 +66,28 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
 
     dest[0] = *(c - 1), dest[1] = *c, dest[2] = '\0';
 }
+
+#define REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS \
+    for( int bi = 0; bi < 64; bi++ ) { \
+        Bitboard bit = SBA[bi]; \
+        if( !(bit & orig_sq_bb) ) continue; \
+        Bitboard sqs_in_between = in_between(bit, SBA[dest_bi]); \
+        if( !sqs_in_between ) continue; \
+        if( (sqs_in_between & p->ppa[EMPTY_SQUARE]) != sqs_in_between ) \
+            orig_sq_bb ^= bit; }
+
+#define REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN \
+    for( int bi = 0; bi < 64; bi++ ) { \
+        Bitboard bit = SBA[bi]; \
+        if( !(bit & orig_sq_bb) ) continue; \
+        char move[4 + 1] = {0}; \
+        move[0] = file_of_sq(bit), move[1] = rank_of_sq(bit), \
+            move[2] = dest_sq[0], move[3] = dest_sq[1]; \
+        Pos pos; \
+        copy_pos(p, &pos); \
+        make_move( &pos, rawcode(move), '-' ); \
+        if( king_can_be_captured( &pos ) ) \
+            orig_sq_bb ^= bit; }
 
 static void
 x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
@@ -101,6 +123,15 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
             assert(false);
     }
 
+    if( !is_sq_bit(orig_sq_bb) )
+        REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
+    if( !is_sq_bit(orig_sq_bb) )
+        REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
+
     assert( is_sq_bit(orig_sq_bb) );
+
     strcpy( orig_sq, sq_bit_to_sq_name(orig_sq_bb) );
 }
+
+#undef REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
+#undef REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
