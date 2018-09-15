@@ -34,12 +34,14 @@ san_to_rawcode( const Pos *p, const char *san )
         orig[0] = san[0], orig[1] = dest[1] + ( whites_turn(p) ? -1 : 1 );
     } else if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
         x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], '-', dest, orig);
+    } else if( str_m_pat(san, "^[KQRBN][a-h1-8]x?[a-h][1-8][+#]?$") ) {
+        x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], san[1], dest, orig);
     }
+    // One more "else if" for doubly disambiguated piece moves
 
     move[0] = orig[0], move[1] = orig[1],
         move[2] = dest[0], move[3] = dest[1];
     assert( str_m_pat(move, "^[a-h][1-8][a-h][1-8]$") );
-    // printf("\"%s\"\n", move);
 
     return rawcode(move);
 }
@@ -89,12 +91,17 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
         if( king_can_be_captured( &pos ) ) \
             orig_sq_bb ^= bit; }
 
+#define APPLY_DISAMBIGUATOR { \
+    if( disambiguator >= 'a' && disambiguator <= 'h' ) { \
+        orig_sq_bb &= file(disambiguator); \
+    } else if( disambiguator >= '1' && disambiguator <= '8' ) { \
+        orig_sq_bb &= rank(disambiguator); \
+    } else assert(false); }
+
 static void
 x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
     char disambiguator, const char *dest_sq, char *orig_sq )
 {
-    assert(disambiguator);
-
     bool w = whites_turn(p);
     int dest_bi = sq_bit_index( sq_name_to_sq_bit(dest_sq) );
     Bitboard orig_sq_bb;
@@ -123,6 +130,8 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
             assert(false);
     }
 
+    if( disambiguator != '-' )
+        APPLY_DISAMBIGUATOR
     if( !is_sq_bit(orig_sq_bb) )
         REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
     if( !is_sq_bit(orig_sq_bb) )
@@ -135,3 +144,4 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
 
 #undef REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
 #undef REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
+#undef APPLY_DISAMBIGUATOR
