@@ -76,9 +76,14 @@
     TEST_WITH_ARGS( "4k3/8/4b3/3r4/3R3K/3r3b/8/8 b - - 0 123", "R3xd4+", "d3d4" )
     TEST_WITH_ARGS( "4k3/8/4b3/3r4/3R3K/3r3b/8/8 b - - 0 123", "Bef5", "e6f5" )
     TEST_WITH_ARGS( "4k3/8/4b3/3r4/3R3K/3r3b/8/8 b - - 0 123", "Bhf5", "h3f5" )
-
     TEST_WITH_ARGS( "k7/8/K4N2/8/8/8/3N4/8 w - - 12 34", "Nfe4", "f6e4" )
     TEST_WITH_ARGS( "k7/8/K2N1N2/8/8/8/8/8 w - - 12 34", "Nde4", "d6e4" )
     TEST_WITH_ARGS( "k7/8/K4N2/8/8/8/5N2/8 w - - 12 34", "N2e4", "f2e4" )
+
+#test san_to_rawcode_tested_with_doubly_disambiguated_piece_moves
+    Pos *p;
+
+    TEST_WITH_ARGS( "k7/8/8/4R3/3R1R2/4R3/8/K7 w - - 13 37", "Re3e4", "e3e4" )
+    TEST_WITH_ARGS( "7k/8/8/3K3b/8/5B2/8/3b3b b - - 0 100", "Bh1xf3+", "h1f3" )
 
 #undef TEST_WITH_ARGS

@@ -34,10 +34,11 @@ san_to_rawcode( const Pos *p, const char *san )
         orig[0] = san[0], orig[1] = dest[1] + ( whites_turn(p) ? -1 : 1 );
     } else if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
         x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], '-', dest, orig);
-    } else if( str_m_pat(san, "^[KQRBN][a-h1-8]x?[a-h][1-8][+#]?$") ) {
+    } else if( str_m_pat(san, "^[QRBN][a-h1-8]x?[a-h][1-8][+#]?$") ) {
         x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], san[1], dest, orig);
+    } else if( str_m_pat(san, "^[QRBN][a-h][1-8]x?[a-h][1-8][+#]?$") ) {
+        orig[0] = san[1], orig[1] = san[2];
     }
-    // One more "else if" for doubly disambiguated piece moves
 
     move[0] = orig[0], move[1] = orig[1],
         move[2] = dest[0], move[3] = dest[1];
