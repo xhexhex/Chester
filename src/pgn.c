@@ -14,7 +14,19 @@ static void x_san_to_rawcode_find_dest_sq( const Pos *p,
 static void x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p,
     char piece, char disambiguator, const char *dest_sq, char *orig_sq );
 
-// TODO: doc
+/******************************
+ ****                      ****
+ ****  External functions  ****
+ ****                      ****
+ ******************************/
+
+// Converts the standard algebratic notation parameter 'san' into the
+// corresponding rawcode. The Pos variable pointer 'p' provides the
+// necessary context for the conversion to take place. For example,
+// if 'p' represents the standard starting position and the value of
+// 'san' = "Nf3", then the function returns rawcode("g1f3").
+//
+// Move 'san' is assumed to be a legal move in position 'p'.
 Rawcode
 san_to_rawcode( const Pos *p, const char *san )
 {
