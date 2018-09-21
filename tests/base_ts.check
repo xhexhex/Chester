@@ -279,7 +279,10 @@ create_APM_DATA_duplicate()
 #tcase pos_to_fen_tests
 
 #test C_fen_to_pos_to_fen_inverse_fn_test
-    ck_assert( true );
+    Pos *p = fen_to_pos( FEN_STD_START_POS );
+    char *result = pos_to_fen( (const Pos *) p );
+    free(p);
+    // free(result);
 
 //
 // Test case
@@ -1466,3 +1469,15 @@ ck_assert( counter == exp_count );
         "black", "both", (128 + 8 + 4) )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase ecaf_tests
+
+#test ecaf_test
+    Pos *p = fen_to_pos(FEN_STD_START_POS);
+    char *the_ecaf = ecaf(p);
+    free(p);
+    printf(">> %s\n", the_ecaf);
+    free(the_ecaf);

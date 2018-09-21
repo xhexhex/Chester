@@ -497,16 +497,19 @@ fen_to_pos( const char *fen )
 }
 
 // TODO: ...
-const char *
-pos_to_fen( /* const Pos *p */ )
+char *
+pos_to_fen( const Pos *p )
 {
-    // 1. Create expanded PPF from p->ppa[] --> x_create_expanded_ppf()
-    // void ppa_to_eppf( const Bitboard *pp, char *eppf );
-    // void eppf_to_ppa( const char *eppf, Bitboard *pp );
-    // char eppf[ PPF_MAX_LENGTH + 1 ];
-    // x_create_expanded_ppf( p->pp, eppf );
-    // 2. Use compress_eppf()
+    char eppf[PPF_MAX_LENGTH + 1];
+    ppa_to_eppf( p->ppa, eppf );
+    char *ppf = compress_eppf(eppf), *acf = whites_turn(p) ? "w" : "b";
+    char caf[4 + 1] = {'\0'};
 
+    // if( has_castling_right(p, "white", "kingside") ) caf[0] =
+
+    printf( "%s %s\n", ppf, acf );
+
+    free(ppf);
     return NULL;
 }
 
@@ -722,6 +725,26 @@ remove_castling_rights( Pos *p, const char *color, const char *side )
             p->turn_and_ca_flags ^= (white ? 4 : 1);
         }
     }
+}
+
+// TODO: doc
+char *
+ecaf( const Pos *p )
+{
+    char *the_ecaf = (char *) malloc(4 + 1);
+    assert(the_ecaf);
+    the_ecaf[4] = '\0';
+    for(int i = 0; i < 4; i++) the_ecaf[i] = '-';
+    uint8_t bit;
+    char file;
+
+    if( has_castling_right(p, "white", "kingside") ) {
+        bit = 1, file = 'A';
+        while( !(bit & p->irp[0]) ) bit <<= 1, file++;
+        the_ecaf[0] = file;
+    }
+
+    return the_ecaf;
 }
 
 /****************************

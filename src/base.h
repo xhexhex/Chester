@@ -89,7 +89,7 @@ extern const Bitboard
 
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
-const char *pos_to_fen( /* const Pos *p */ );
+char *pos_to_fen( const Pos *p );
 Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 Bitboard ss_white_army( const Pos *p );
@@ -101,6 +101,7 @@ Rawcode rawcode( const char *rawmove );
 void rawmove( Rawcode rawcode, char *writable );
 void make_move( Pos *p, Rawcode code, char promotion );
 void remove_castling_rights( Pos *p, const char *color, const char *side );
+char *ecaf( const Pos *p );
 
 #endif
 // End BASE_H
