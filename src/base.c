@@ -727,22 +727,27 @@ remove_castling_rights( Pos *p, const char *color, const char *side )
     }
 }
 
-// TODO: doc
+// Examines the four castling availability indicators in 'p' and returns
+// the corresponding expanded Shredder-FEN CAF. For example, if 'p' equals
+// fen_to_pos("7k/8/8/8/8/2n5/1B6/R3K3 w Q - 10 100"), then the call
+// ecaf(p) returns "-A--". For the standard starting position the
+// returned expanded CAF would be "HAha".
 char *
 ecaf( const Pos *p )
 {
-    char *the_ecaf = (char *) malloc(4 + 1);
+    char *the_ecaf = (char *) malloc(4 + 1), *color[] = {"white", "black"},
+        *side[] = {"kingside", "queenside"};
     assert(the_ecaf);
     the_ecaf[4] = '\0';
     for(int i = 0; i < 4; i++) the_ecaf[i] = '-';
-    uint8_t bit;
-    char file;
 
-    if( has_castling_right(p, "white", "kingside") ) {
-        bit = 1, file = 'A';
-        while( !(bit & p->irp[0]) ) bit <<= 1, file++;
-        the_ecaf[0] = file;
-    }
+    for(int i = 0, index = 0; i < 2; i++) // Color
+        for(int j = 0; j < 2; j++, index++) { // Side
+            if( !has_castling_right(p, color[i], side[j]) ) continue;
+
+            uint8_t bit = 1; char file = (!i ? 'A' : 'a');
+            while( !(bit & p->irp[1 - j]) ) bit <<= 1, file++;
+            the_ecaf[index] = file; }
 
     return the_ecaf;
 }
