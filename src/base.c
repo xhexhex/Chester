@@ -496,22 +496,56 @@ fen_to_pos( const char *fen )
     return p;
 }
 
+#define INIT_FEN_FIELD_STR_ARRAY \
+    char eppf[PPF_MAX_LENGTH + 1]; \
+    ppa_to_eppf( p->ppa, eppf ), fen_field[0] = compress_eppf(eppf); \
+    \
+    fen_field[1] = whites_turn(p) ? "w" : "b"; \
+    \
+    char caf[4 + 1] = {'\0'}, *expanded_caf = ecaf(p); \
+    caf[0] = '-', caf[1] = '\0'; \
+    for(int i = 0, j = 0; i < 4; i++) \
+        if(expanded_caf[i] != '-') \
+            caf[j++] = expanded_caf[i]; \
+    free(expanded_caf), fen_field[2] = caf; \
+    \
+    fen_field[3] = epts(p) ? (char *) sq_bit_to_sq_name(epts(p)) : "-"; \
+    \
+    char hmcf[5 + 1] = {'\0'}, fmnf[5 + 1]; \
+    sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn ); \
+    fen_field[4] = hmcf, fen_field[5] = fmnf;
+
 // TODO: ...
 char *
 pos_to_fen( const Pos *p )
 {
-    char eppf[PPF_MAX_LENGTH + 1];
-    ppa_to_eppf( p->ppa, eppf );
-    char *ppf = compress_eppf(eppf), *acf = whites_turn(p) ? "w" : "b";
-    char caf[4 + 1] = {'\0'};
+    char *fen, *fen_field[6];
+    INIT_FEN_FIELD_STR_ARRAY
 
-    // if( has_castling_right(p, "white", "kingside") ) caf[0] =
+    // for(int i = 0; i < 6; i++) printf("[%d] \"%s\"\n", i + 1, fen_field[i]);
 
-    printf( "%s %s\n", ppf, acf );
+    int fen_length = 5;
+    for(int i = 0; i < 6; i++) fen_length += (int) strlen(fen_field[i]);
+    // printf(">> fen_length = %d\n", fen_length);
+    fen = (char *) malloc(fen_length + 1);
+    fen[fen_length] = '\0';
 
-    free(ppf);
-    return NULL;
+    int fen_index = 0;
+    for(int i = 0; ; i++) {
+        for(int j = 0; j < (int) strlen(fen_field[i]); j++)
+            fen[fen_index++] = fen_field[i][j];
+
+        if( i == 5 ) break;
+        fen[fen_index++] = ' '; }
+    assert(fen_index == fen_length);
+
+    // printf("\"%s\"\n", fen);
+
+    free(fen_field[0]);
+    return fen;
 }
+
+#undef INIT_FEN_FIELD_STR_ARRAY
 
 // Can be used to collectively access the SS_DIAG_* constants as if they
 // were elements of the same array. The index of diagonal h1h1 is 0 and

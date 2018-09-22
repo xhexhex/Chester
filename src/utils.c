@@ -827,6 +827,14 @@ set_mover_target_orig_and_dest( const Pos *p, Rawcode move, Chessman *mover,
     *target = occupant_of_sq( p, SBA[*dest] );
 }
 
+// TODO: doc
+bool
+gentle_shredder_to_std_fen_conversion(char *fen)
+{
+    assert(fen);
+    return false;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****

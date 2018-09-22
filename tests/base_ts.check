@@ -278,11 +278,24 @@ create_APM_DATA_duplicate()
 //
 #tcase pos_to_fen_tests
 
+#define TEST_WITH_ARGS(fen) \
+    ck_assert( !che_fen_validator(fen) ); \
+    p = fen_to_pos(fen); \
+    result = pos_to_fen( (const Pos *) p ); \
+    ck_assert( !gentle_shredder_to_std_fen_conversion(result) ); \
+    printf("\"%s\"\n", result); \
+    printf("\"%s\"\n\n", fen); \
+    ck_assert(!strcmp(result, fen)); \
+    free(p), free(result);
+
 #test C_fen_to_pos_to_fen_inverse_fn_test
-    Pos *p = fen_to_pos( FEN_STD_START_POS );
-    char *result = pos_to_fen( (const Pos *) p );
-    free(p);
-    // free(result);
+    Pos *p; char *result;
+
+    TEST_WITH_ARGS("b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9")
+    TEST_WITH_ARGS("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1")
+    TEST_WITH_ARGS(FEN_STD_START_POS)
+
+#undef TEST_WITH_ARGS
 
 //
 // Test case
