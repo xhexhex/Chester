@@ -542,6 +542,8 @@ pos_to_fen( const Pos *p )
     // printf("\"%s\"\n", fen);
 
     free(fen_field[0]);
+
+    gentle_shredder_to_std_fen_conversion(fen);
     return fen;
 }
 

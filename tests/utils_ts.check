@@ -1567,3 +1567,26 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "g7d4", BLACK_BISHOP, WHITE_PAWN, 54, 27 )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase gentle_shredder_to_std_fen_conversion_tests
+
+#define TEST_WITH_ARGS(fen_str, expected) \
+    char fen[] = fen_str; \
+    ck_assert( !che_fen_validator(fen) ); \
+    gentle_shredder_to_std_fen_conversion(fen); \
+    ck_assert( !strcmp(fen, expected) );
+
+#test gentle_shredder_to_std_fen_conversion_test_with_length_4_std_cafs
+    TEST_WITH_ARGS(
+        FEN_STD_START_POS,
+        FEN_STD_START_POS )
+
+#test gentle_shredder_to_std_fen_conversion_test_with_length_4_shredder_cafs
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b HAha - 1 2",
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2" )
+
+#undef TEST_WITH_ARGS
