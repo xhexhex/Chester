@@ -37,6 +37,10 @@ static bool x_gentle_shredder_to_std_fen_conv_4_caf_check( const char *fen,
     const char *ecaf );
 static bool x_gentle_shredder_to_std_fen_conv_3_caf_check( const char *fen,
     const char *ecaf );
+static void gentle_shredder_to_std_fen_conv_handle_4_char_caf_case( char *fen,
+    const char *ecaf, int index );
+static void gentle_shredder_to_std_fen_conv_handle_3_char_caf_case( char *fen,
+    char *ecaf, int index );
 
 /***********************
  **** External data ****
@@ -857,27 +861,10 @@ gentle_shredder_to_std_fen_conversion(char *fen)
         // The x_gentle_shredder_to_std_fen_conv_?_caf_check() functions
         // return true if and only if 'fen' needs to be modified.
         case 4:
-            if( !x_gentle_shredder_to_std_fen_conv_4_caf_check(fen, ecaf) )
-                return;
-            fen[index] = 'K', fen[index + 1] = 'Q',
-                fen[index + 2] = 'k', fen[index + 3] = 'q';
+            gentle_shredder_to_std_fen_conv_handle_4_char_caf_case(fen, ecaf, index);
             break;
         case 3:
-            if( !x_gentle_shredder_to_std_fen_conv_3_caf_check(fen, ecaf) )
-                return;
-            bool alphabet_order = (
-                (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
-                (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
-            if(alphabet_order) {
-                swap(ecaf[0], ecaf[1], char);
-                swap(ecaf[2], ecaf[3], char); }
-            const char full_std_caf[] = "KQkq";
-            for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
-            int j = -1;
-            for(int i = 0; i < 4; i++ ) {
-                if(ecaf[i] == '-') continue;
-                ++j; fen[index + j] = ecaf[i]; }
-            assert(j == 2);
+            gentle_shredder_to_std_fen_conv_handle_3_char_caf_case(fen, ecaf, index);
             break;
         case 2:
             break;
@@ -1190,3 +1177,34 @@ x_gentle_shredder_to_std_fen_conv_3_caf_check( const char *fen,
 }
 
 #undef SET_EPPF
+
+static void
+gentle_shredder_to_std_fen_conv_handle_4_char_caf_case( char *fen,
+    const char *ecaf, int index )
+{
+    if( !x_gentle_shredder_to_std_fen_conv_4_caf_check(fen, ecaf) )
+        return;
+    fen[index] = 'K', fen[index + 1] = 'Q',
+        fen[index + 2] = 'k', fen[index + 3] = 'q';
+}
+
+static void
+gentle_shredder_to_std_fen_conv_handle_3_char_caf_case( char *fen,
+    char *ecaf, int index )
+{
+    if( !x_gentle_shredder_to_std_fen_conv_3_caf_check(fen, ecaf) )
+        return;
+    bool alphabet_order = (
+        (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
+        (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
+    if(alphabet_order) {
+        swap(ecaf[0], ecaf[1], char);
+        swap(ecaf[2], ecaf[3], char); }
+    const char full_std_caf[] = "KQkq";
+    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
+    int j = -1;
+    for(int i = 0; i < 4; i++ ) {
+        if(ecaf[i] == '-') continue;
+        ++j; fen[index + j] = ecaf[i]; }
+    assert(j == 2);
+}
