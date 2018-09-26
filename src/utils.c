@@ -33,18 +33,22 @@ static void x_expand_caf_handle_2_char_caf_cases(
 static void x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr );
 static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
+/*
 static bool x_gentle_shredder_to_std_fen_conv_4_caf_check( const char *fen,
     const char *ecaf );
 static bool x_gentle_shredder_to_std_fen_conv_3_caf_check( const char *fen,
     const char *ecaf );
 static bool x_gentle_shredder_to_std_fen_conv_2_caf_check( const char *fen,
     const char *ecaf );
-static void gentle_shredder_to_std_fen_conv_handle_4_char_caf_case( char *fen,
+*/
+static void x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen,
     const char *ecaf, int index );
-static void gentle_shredder_to_std_fen_conv_handle_3_char_caf_case( char *fen,
+static void x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen,
     char *ecaf, int index );
-static void gentle_shredder_to_std_fen_conv_handle_2_char_caf_case( char *fen,
+static void x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen,
     char *ecaf, int index );
+static void x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen,
+    const char *ecaf, int index );
 
 /***********************
  **** External data ****
@@ -841,7 +845,7 @@ set_mover_target_orig_and_dest( const Pos *p, Rawcode move, Chessman *mover,
 
 // TODO: doc
 void
-gentle_shredder_to_std_fen_conversion(char *fen)
+shredder_to_std_fen_conv( char *fen )
 {
     char caf[4 + 1] = {'\0'}, ecaf[9 + 1];
     int index = 0, encountered_spaces = 0, caf_length = 0,
@@ -862,20 +866,15 @@ gentle_shredder_to_std_fen_conversion(char *fen)
     for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ++castling_rights_count;
 
     switch(castling_rights_count) {
-        case 4:
-            gentle_shredder_to_std_fen_conv_handle_4_char_caf_case(fen, ecaf, index);
+        case 4: x_shredder_to_std_fen_conv_handle_len_4_caf(fen, ecaf, index);
             break;
-        case 3:
-            gentle_shredder_to_std_fen_conv_handle_3_char_caf_case(fen, ecaf, index);
+        case 3: x_shredder_to_std_fen_conv_handle_len_3_caf(fen, ecaf, index);
             break;
-        case 2:
-            gentle_shredder_to_std_fen_conv_handle_2_char_caf_case(fen, ecaf, index);
+        case 2: x_shredder_to_std_fen_conv_handle_len_2_caf(fen, ecaf, index);
             break;
-        case 1:
+        case 1: x_shredder_to_std_fen_conv_handle_len_1_caf(fen, ecaf, index);
             break;
-        default:
-            assert(false);
-    }
+        default: assert(false); }
 }
 
 /****************************
@@ -1214,44 +1213,28 @@ x_gentle_shredder_to_std_fen_conv_2_caf_check( const char *fen,
     return (white_has_castling_rights && eppf[67] == 'K') || eppf[4] == 'k';
 }
 
+static void
+x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen, const char *ecaf, int index )
+{
+    char cr; // cr, castling right
+    for(int i = 0; ; i++) if(ecaf[i] != '-') { cr = ecaf[i]; break; }
+    if( tolower(cr) != 'a' && tolower(cr) != 'h' ) return;
+
+    SET_EPPF
+    if( (isupper(cr) && eppf[67] != 'K') || (islower(cr) && eppf[4] != 'k') ) return;
+
+    switch(cr) {
+        case 'H': fen[index] = 'K'; break;
+        case 'A': fen[index] = 'Q'; break;
+        case 'h': fen[index] = 'k'; break;
+        case 'a': fen[index] = 'q'; break;
+        default: assert(false); }
+}
+
 #undef SET_EPPF
 
 static void
-gentle_shredder_to_std_fen_conv_handle_4_char_caf_case( char *fen,
-    const char *ecaf, int index )
-{
-    if( !x_gentle_shredder_to_std_fen_conv_4_caf_check(fen, ecaf) )
-        return;
-
-    fen[index] = 'K', fen[index + 1] = 'Q',
-        fen[index + 2] = 'k', fen[index + 3] = 'q';
-}
-
-static void
-gentle_shredder_to_std_fen_conv_handle_3_char_caf_case( char *fen,
-    char *ecaf, int index )
-{
-    if( !x_gentle_shredder_to_std_fen_conv_3_caf_check(fen, ecaf) )
-        return;
-
-    bool alphabet_order = (
-        (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
-        (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
-    if(alphabet_order) {
-        swap(ecaf[0], ecaf[1], char);
-        swap(ecaf[2], ecaf[3], char); }
-    const char full_std_caf[] = "KQkq";
-    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
-    int j = -1;
-    for(int i = 0; i < 4; i++ ) {
-        if(ecaf[i] == '-') continue;
-        ++j; fen[index + j] = ecaf[i]; }
-    assert(j == 2);
-}
-
-static void
-gentle_shredder_to_std_fen_conv_handle_2_char_caf_case( char *fen,
-    char *ecaf, int index )
+x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
 {
     if( !x_gentle_shredder_to_std_fen_conv_2_caf_check(fen, ecaf) )
         return;
@@ -1274,4 +1257,35 @@ gentle_shredder_to_std_fen_conv_handle_2_char_caf_case( char *fen,
             default: assert(false); }
 
     fen[index] = caf[0], fen[index + 1] = caf[1];
+}
+
+static void
+x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
+{
+    if( !x_gentle_shredder_to_std_fen_conv_3_caf_check(fen, ecaf) )
+        return;
+
+    bool alphabet_order = (
+        (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
+        (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
+    if(alphabet_order) {
+        swap(ecaf[0], ecaf[1], char);
+        swap(ecaf[2], ecaf[3], char); }
+    const char full_std_caf[] = "KQkq";
+    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
+    int j = -1;
+    for(int i = 0; i < 4; i++ ) {
+        if(ecaf[i] == '-') continue;
+        ++j; fen[index + j] = ecaf[i]; }
+    assert(j == 2);
+}
+
+static void
+x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int index )
+{
+    if( !x_gentle_shredder_to_std_fen_conv_4_caf_check(fen, ecaf) )
+        return;
+
+    fen[index] = 'K', fen[index + 1] = 'Q',
+        fen[index + 2] = 'k', fen[index + 3] = 'q';
 }

@@ -543,7 +543,7 @@ pos_to_fen( const Pos *p )
 
     free(fen_field[0]);
 
-    gentle_shredder_to_std_fen_conversion(fen);
+    shredder_to_std_fen_conv(fen);
     return fen;
 }
 

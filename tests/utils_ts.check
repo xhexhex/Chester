@@ -1571,16 +1571,16 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 // Test case
 //
-#tcase gentle_shredder_to_std_fen_conversion_tests
+#tcase shredder_to_std_fen_conv_tests
 
 #define TEST_WITH_ARGS(fen_str, expected) \
     strcpy(fen, fen_str); \
     ck_assert( !che_fen_validator(fen) ); \
     ck_assert( !che_fen_validator(expected) ); \
-    gentle_shredder_to_std_fen_conversion(fen); \
+    shredder_to_std_fen_conv(fen); \
     ck_assert( !strcmp(fen, expected) );
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_4_std_cafs
+#test shredder_to_std_fen_conv_test_with_length_4_std_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1590,7 +1590,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "rnbqk2r/ppp2p1p/3b4/3PN2n/2BP1ppP/8/PPP3P1/RNBQK2R w KQkq - 1 9",
         "rnbqk2r/ppp2p1p/3b4/3PN2n/2BP1ppP/8/PPP3P1/RNBQK2R w KQkq - 1 9" )
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_4_shredder_cafs
+#test shredder_to_std_fen_conv_test_with_length_4_shredder_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1609,7 +1609,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "r3k2r/8/8/4p3/8/8/8/R3K2R w AHah e6 0 123",
         "r3k2r/8/8/4p3/8/8/8/R3K2R w KQkq e6 0 123" )
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_3_std_cafs
+#test shredder_to_std_fen_conv_test_with_length_3_std_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1619,7 +1619,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "4k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1",
         "4k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1" )
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_3_shredder_cafs
+#test shredder_to_std_fen_conv_test_with_length_3_shredder_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1644,7 +1644,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "r3k2r/8/8/8/8/8/8/R3K3 b Aha - 19 75",
         "r3k2r/8/8/8/8/8/8/R3K3 b Qkq - 19 75" )
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_2_std_cafs
+#test shredder_to_std_fen_conv_test_with_length_2_std_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1654,7 +1654,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "r3k3/8/8/8/8/8/8/R3K3 w Qq - 0 4095",
         "r3k3/8/8/8/8/8/8/R3K3 w Qq - 0 4095" )
 
-#test gentle_shredder_to_std_fen_conversion_test_with_length_2_shredder_cafs
+#test shredder_to_std_fen_conv_test_with_length_2_shredder_cafs
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
@@ -1687,5 +1687,50 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     TEST_WITH_ARGS(
         "r3k3/8/8/8/8/8/8/R3K3 w Aa - 0 123",
         "r3k3/8/8/8/8/8/8/R3K3 w Qq - 0 123" )
+
+#test shredder_to_std_fen_conv_test_with_length_1_std_cafs
+    char fen[FEN_MAX_LENGTH + 1];
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50",
+        "4k3/8/8/8/8/8/8/RR2K3 w Q - 0 50" )
+    TEST_WITH_ARGS(
+        "4k2r/8/8/8/8/8/8/4K3 b k - 19 83",
+        "4k2r/8/8/8/8/8/8/4K3 b k - 19 83" )
+
+#test shredder_to_std_fen_conv_test_with_length_1_shredder_cafs
+    char fen[FEN_MAX_LENGTH + 1];
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/4K2R w H - 19 83",
+        "4k3/8/8/8/8/8/8/4K2R w K - 19 83" )
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/R3K3 b A - 19 83",
+        "4k3/8/8/8/8/8/8/R3K3 b Q - 19 83" )
+    TEST_WITH_ARGS(
+        "4k2r/8/8/8/8/8/8/4K3 w h - 19 83",
+        "4k2r/8/8/8/8/8/8/4K3 w k - 19 83" )
+    TEST_WITH_ARGS(
+        "r3k3/8/8/8/8/8/8/K7 w a - 0 50",
+        "r3k3/8/8/8/8/8/8/K7 w q - 0 50" )
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/3K3R w H - 19 83",
+        "4k3/8/8/8/8/8/8/3K3R w H - 19 83" )
+    TEST_WITH_ARGS(
+        "rk6/8/8/8/8/8/8/4K3 b a - 19 83",
+        "rk6/8/8/8/8/8/8/4K3 b a - 19 83" )
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/4K1R1 w G - 19 83",
+        "4k3/8/8/8/8/8/8/4K1R1 w G - 19 83" )
+    TEST_WITH_ARGS(
+        "3rk3/8/8/8/8/8/8/4K3 b d - 19 83",
+        "3rk3/8/8/8/8/8/8/4K3 b d - 19 83" )
+
+#test shredder_to_std_fen_conv_test_with_zero_length_cafs
+    char fen[FEN_MAX_LENGTH + 1];
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/8/8/8/8/4K3 w - - 19 83",
+        "4k3/8/8/8/8/8/8/4K3 w - - 19 83" )
 
 #undef TEST_WITH_ARGS
