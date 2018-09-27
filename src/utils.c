@@ -843,7 +843,27 @@ set_mover_target_orig_and_dest( const Pos *p, Rawcode move, Chessman *mover,
     *target = occupant_of_sq( p, SBA[*dest] );
 }
 
-// TODO: doc
+// Converts a Shredder-FEN to a standard FEN in a "soft" or conditional
+// manner. This means that a conversion only takes place when a king
+// with castling rights is on square e1 (e8) and the rooks involved
+// are on the squares a1 (a8) or h1 (h8). For example, consider the
+// Shredder-FEN "r3kr2/8/8/8/8/8/8/1R2K2R w Ha - 0 123". Both sides have
+// castling rights and the kings are on the squares e1 and e8 implying
+// the kings are on their original squares. The rooks involved with
+// White's kingside and Black's queenside castling are on the squares
+// h1 and a8, respectively. The placement of the kings and rooks relevant
+// to castling implies that the Shredder-FEN is really a standard FEN
+// "in disguise".
+//
+// The main use of shredder_to_std_fen_conv() is in pos_to_fen(). It seems
+// intuitively correct that some_fen == pos_to_fen( fen_to_pos(some_fen) ).
+// Among other things this implies that if the input to fen_to_pos() is
+// a standard FEN, the output of pos_to_fen() should also be a standard
+// FEN.
+//
+// When considering Chester and standard FENs vs Shredder-FENs, it's good
+// to keep in mind that Chester considers the CAF "KQkq" to be a synonym
+// for either "HAha" or "AHah".
 void
 shredder_to_std_fen_conv( char *fen )
 {
@@ -1144,43 +1164,7 @@ x_king_in_dir( const char *fen, enum sq_dir dir, bool color_is_white,
     free_fen_fields(ff);
 
 static bool
-x_gentle_shredder_to_std_fen_conv_4_caf_check( const char *fen,
-    const char *ecaf )
-{
-    bool in_alphabetical_order = (ecaf[0] < ecaf[1]);
-    char queenside_rook = ecaf[in_alphabetical_order ? 0 : 1],
-        kingside_rook = ecaf[in_alphabetical_order ? 1 : 0];
-
-    if( kingside_rook != 'H' || queenside_rook != 'A' ) return false;
-
-    SET_EPPF
-    return eppf[67] == 'K';
-}
-
-static bool
-x_gentle_shredder_to_std_fen_conv_3_caf_check( const char *fen,
-    const char *ecaf )
-{
-    char castling_rights[2 + 1] = {'\0'};
-    bool use_uppercase_half = (ecaf[0] != '-' && ecaf[1] != '-');
-
-    castling_rights[0] = ecaf[use_uppercase_half ? 0 : 2];
-    castling_rights[1] = ecaf[use_uppercase_half ? 1 : 3];
-
-    if(castling_rights[0] < castling_rights[1])
-        swap(castling_rights[0], castling_rights[1], char);
-
-    if( tolower(castling_rights[0]) != 'h' ||
-            tolower(castling_rights[1]) != 'a' )
-        return false;
-
-    SET_EPPF
-    return eppf[67] == 'K';
-}
-
-static bool
-x_gentle_shredder_to_std_fen_conv_2_caf_check( const char *fen,
-    const char *ecaf )
+x_len_2_caf_needs_to_be_modified( const char *fen, const char *ecaf )
 {
     char cr[2 + 1] = {'\0'}; // cr, castling rights
     int crc = 1; // crc, castling rights count
@@ -1213,6 +1197,39 @@ x_gentle_shredder_to_std_fen_conv_2_caf_check( const char *fen,
     return (white_has_castling_rights && eppf[67] == 'K') || eppf[4] == 'k';
 }
 
+static bool
+x_len_3_caf_needs_to_be_modified( const char *fen, const char *ecaf )
+{
+    char castling_rights[2 + 1] = {'\0'};
+    bool use_uppercase_half = (ecaf[0] != '-' && ecaf[1] != '-');
+
+    castling_rights[0] = ecaf[use_uppercase_half ? 0 : 2];
+    castling_rights[1] = ecaf[use_uppercase_half ? 1 : 3];
+
+    if(castling_rights[0] < castling_rights[1])
+        swap(castling_rights[0], castling_rights[1], char);
+
+    if( tolower(castling_rights[0]) != 'h' ||
+            tolower(castling_rights[1]) != 'a' )
+        return false;
+
+    SET_EPPF
+    return eppf[67] == 'K';
+}
+
+static bool
+x_len_4_caf_needs_to_be_modified( const char *fen, const char *ecaf )
+{
+    bool in_alphabetical_order = (ecaf[0] < ecaf[1]);
+    char queenside_rook = ecaf[in_alphabetical_order ? 0 : 1],
+        kingside_rook = ecaf[in_alphabetical_order ? 1 : 0];
+
+    if( kingside_rook != 'H' || queenside_rook != 'A' ) return false;
+
+    SET_EPPF
+    return eppf[67] == 'K';
+}
+
 static void
 x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen, const char *ecaf, int index )
 {
@@ -1236,8 +1253,7 @@ x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen, const char *ecaf, int in
 static void
 x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
 {
-    if( !x_gentle_shredder_to_std_fen_conv_2_caf_check(fen, ecaf) )
-        return;
+    if( !x_len_2_caf_needs_to_be_modified(fen, ecaf) ) return;
 
     char caf[2 +1] = {'\0'};
     int j = -1;
@@ -1262,8 +1278,7 @@ x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
 static void
 x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
 {
-    if( !x_gentle_shredder_to_std_fen_conv_3_caf_check(fen, ecaf) )
-        return;
+    if( !x_len_3_caf_needs_to_be_modified(fen, ecaf) ) return;
 
     bool alphabet_order = (
         (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
@@ -1271,8 +1286,10 @@ x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
     if(alphabet_order) {
         swap(ecaf[0], ecaf[1], char);
         swap(ecaf[2], ecaf[3], char); }
+
     const char full_std_caf[] = "KQkq";
     for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
+
     int j = -1;
     for(int i = 0; i < 4; i++ ) {
         if(ecaf[i] == '-') continue;
@@ -1283,8 +1300,7 @@ x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
 static void
 x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int index )
 {
-    if( !x_gentle_shredder_to_std_fen_conv_4_caf_check(fen, ecaf) )
-        return;
+    if( !x_len_4_caf_needs_to_be_modified(fen, ecaf) ) return;
 
     fen[index] = 'K', fen[index + 1] = 'Q',
         fen[index + 2] = 'k', fen[index + 3] = 'q';
