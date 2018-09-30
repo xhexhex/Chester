@@ -435,7 +435,9 @@ const char APM_DATA[] =
     "h8d8h8e5h8e8h8f6h8f7h8f8h8g6h8g7h8g8h8h1h8h2h8h3h8h4h8h5h8h6h8h7";
 
 /************************************
+ ****                            ****
  **** Static function prototypes ****
+ ****                            ****
  ************************************/
 
 static Bitboard x_sq_set_of_diag( const int index );
@@ -454,9 +456,11 @@ static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
-/*************************************
- **** Chester interface functions ****
- *************************************/
+/****************************
+ ****                    ****
+ **** External functions ****
+ ****                    ****
+ ****************************/
 
 // TODO: doc
 char *
@@ -465,10 +469,6 @@ che_make_move( const char *fen, const char *san )
     // Rawcode move = san_to_rawcode(p, san);
     return (fen && san) ? "" : NULL;
 }
-
-/****************************
- **** External functions ****
- ****************************/
 
 // Converts the FEN string argument 'fen' to a Pos variable. The Pos
 // variable is allocated dynamically so free() should be called when
@@ -503,7 +503,7 @@ fen_to_pos( const char *fen )
     fen_field[1] = whites_turn(p) ? "w" : "b"; \
     \
     char caf[4 + 1] = {'\0'}, *expanded_caf = ecaf(p); \
-    caf[0] = '-', caf[1] = '\0'; \
+    caf[0] = '-'; \
     for(int i = 0, j = 0; i < 4; i++) \
         if(expanded_caf[i] != '-') \
             caf[j++] = expanded_caf[i]; \
@@ -511,22 +511,21 @@ fen_to_pos( const char *fen )
     \
     fen_field[3] = epts(p) ? (char *) sq_bit_to_sq_name(epts(p)) : "-"; \
     \
-    char hmcf[5 + 1] = {'\0'}, fmnf[5 + 1]; \
+    char hmcf[5 + 1], fmnf[5 + 1]; \
     sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn ); \
     fen_field[4] = hmcf, fen_field[5] = fmnf;
 
-// TODO: ...
+// Converts the Pos variable pointed to by 'p' to the corresponding FEN
+// string. The FEN string is allocated dynamically so free() should be
+// called when the string is no longer needed.
 char *
 pos_to_fen( const Pos *p )
 {
     char *fen, *fen_field[6];
     INIT_FEN_FIELD_STR_ARRAY
 
-    // for(int i = 0; i < 6; i++) printf("[%d] \"%s\"\n", i + 1, fen_field[i]);
-
-    int fen_length = 5;
+    int fen_length = 5; // The five field-separating spaces
     for(int i = 0; i < 6; i++) fen_length += (int) strlen(fen_field[i]);
-    // printf(">> fen_length = %d\n", fen_length);
     fen = (char *) malloc(fen_length + 1);
     fen[fen_length] = '\0';
 
@@ -538,8 +537,6 @@ pos_to_fen( const Pos *p )
         if( i == 5 ) break;
         fen[fen_index++] = ' '; }
     assert(fen_index == fen_length);
-
-    // printf("\"%s\"\n", fen);
 
     free(fen_field[0]);
 

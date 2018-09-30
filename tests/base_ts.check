@@ -285,16 +285,39 @@ create_APM_DATA_duplicate()
     ck_assert(!strcmp(result, fen)); \
     free(p), free(result);
 
-// printf("\"%s\"\n", fen);
-// printf("\"%s\"\n\n", result);
-
-#test C_fen_to_pos_to_fen_inverse_fn_test
+#test C_fen_to_pos_to_fen_inverse_fn_test_1
     Pos *p; char *result;
 
     TEST_WITH_ARGS("b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9")
     TEST_WITH_ARGS("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1")
     TEST_WITH_ARGS(FEN_STD_START_POS)
     TEST_WITH_ARGS("r2k3r/8/8/8/8/8/8/R2K3R b HAha - 19 75")
+    TEST_WITH_ARGS("4k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1")
+    TEST_WITH_ARGS("4k2r/8/8/8/8/8/8/R3K3 w Qk - 0 4000")
+    TEST_WITH_ARGS("3rkr2/8/8/8/8/8/8/3RKR2 w FDfd - 0 50")
+    TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 w DBdb - 0 50")
+    TEST_WITH_ARGS("8/1k6/8/8/8/8/8/R3K2R w KQ - 0 51")
+
+#undef TEST_WITH_ARGS
+
+#define TEST_WITH_ARGS(orig, expected) \
+    ck_assert( !che_fen_validator(orig) ), ck_assert( !che_fen_validator(expected) ); \
+    p = fen_to_pos(orig); \
+    actual = pos_to_fen( (const Pos *) p ); \
+    ck_assert(!strcmp(actual, expected)); \
+    free(p), free(actual);
+
+#test C_fen_to_pos_to_fen_inverse_fn_test_2
+    Pos *p; char *actual;
+
+    TEST_WITH_ARGS("3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 50",
+        "3rkr2/8/8/8/8/8/8/3RKR2 w FDfd - 0 50")
+    TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
+        "1rkr4/8/8/8/8/8/8/1RKR4 b DBdb - 0 50")
+    TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 b DBdb - 0 50",
+        "1rkr4/8/8/8/8/8/8/1RKR4 b DBdb - 0 50")
+    TEST_WITH_ARGS("nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1",
+        "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w HBhb - 0 1")
 
 #undef TEST_WITH_ARGS
 
