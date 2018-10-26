@@ -285,7 +285,7 @@ create_APM_DATA_duplicate()
     ck_assert(!strcmp(result, fen)); \
     free(p), free(result);
 
-#test C_fen_to_pos_to_fen_inverse_fn_test_1
+#test pos_to_fen_inverse_fn_test_1
     Pos *p; char *result;
 
     TEST_WITH_ARGS("b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9")
@@ -297,6 +297,7 @@ create_APM_DATA_duplicate()
     TEST_WITH_ARGS("3rkr2/8/8/8/8/8/8/3RKR2 w FDfd - 0 50")
     TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 w DBdb - 0 50")
     TEST_WITH_ARGS("8/1k6/8/8/8/8/8/R3K2R w KQ - 0 51")
+    TEST_WITH_ARGS("r2k3r/8/3K4/8/8/8/8/8 b ha - 1 2")
 
 #undef TEST_WITH_ARGS
 
@@ -307,9 +308,11 @@ create_APM_DATA_duplicate()
     ck_assert(!strcmp(actual, expected)); \
     free(p), free(actual);
 
-#test C_fen_to_pos_to_fen_inverse_fn_test_2
+#test pos_to_fen_inverse_fn_test_2
     Pos *p; char *actual;
 
+    TEST_WITH_ARGS(FEN_STD_START_POS,
+        FEN_STD_START_POS)
     TEST_WITH_ARGS("3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 50",
         "3rkr2/8/8/8/8/8/8/3RKR2 w FDfd - 0 50")
     TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
@@ -318,6 +321,12 @@ create_APM_DATA_duplicate()
         "1rkr4/8/8/8/8/8/8/1RKR4 b DBdb - 0 50")
     TEST_WITH_ARGS("nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1",
         "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w HBhb - 0 1")
+    TEST_WITH_ARGS("8/8/8/8/8/6k1/8/5RKR b FH - 19 83",
+        "8/8/8/8/8/6k1/8/5RKR b HF - 19 83")
+    TEST_WITH_ARGS("8/8/8/8/8/6k1/8/5RKR b HF - 19 83",
+        "8/8/8/8/8/6k1/8/5RKR b HF - 19 83")
+    TEST_WITH_ARGS("r3k2r/8/8/4p3/8/8/8/4K3 w ha e6 0 100",
+        "r3k2r/8/8/4p3/8/8/8/4K3 w kq e6 0 100")
 
 #undef TEST_WITH_ARGS
 
@@ -1544,3 +1553,18 @@ ck_assert( counter == exp_count );
         free(p);
         ck_assert( !strcmp(the_ecaf, expected[i]) );
         free(the_ecaf); }
+
+//
+// Test case
+//
+#tcase che_make_move_tests
+
+#define TEST_WITH_ARGS(orig_fen, san, expected_fen)
+
+#test che_make_move_test
+    TEST_WITH_ARGS(orig_fen, san, expected_fen)
+
+    char *actual_fen = che_make_move(FEN_STD_START_POS, "e4");
+    free(actual_fen);
+
+#undef TEST_WITH_ARGS

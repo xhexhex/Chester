@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "validation.h"
 #include "move_gen.h"
+#include "pgn.h"
 
 /*************************
  ****                 ****
@@ -466,8 +467,14 @@ static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 char *
 che_make_move( const char *fen, const char *san )
 {
-    // Rawcode move = san_to_rawcode(p, san);
-    return (fen && san) ? "" : NULL;
+    Pos *p = fen_to_pos(fen);
+    Rawcode move = san_to_rawcode(p, san);
+
+    make_move(p, move, '-');
+    char *new_fen = pos_to_fen(p);
+    free(p);
+
+    return new_fen;
 }
 
 // Converts the FEN string argument 'fen' to a Pos variable. The Pos
