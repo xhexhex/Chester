@@ -1564,7 +1564,6 @@ ck_assert( counter == exp_count );
         ck_assert(!che_fen_validator(expected_fen)), \
         ck_assert(che_is_san(san)); \
     actual_fen = che_make_move(orig_fen, san); \
-    printf("\"%s\"\n", actual_fen); \
     ck_assert(!strcmp(actual_fen, expected_fen)); \
     free(actual_fen);
 
@@ -1607,5 +1606,61 @@ ck_assert( counter == exp_count );
         "k7/8/8/8/7P/8/p7/1RKR4 b BD h3 0 123",
         "axb1=R+",
         "k7/8/8/8/7P/8/8/1rKR4 w D - 0 124")
+
+#test che_make_move_test_3
+    char *actual_fen;
+
+    TEST_WITH_ARGS(
+        "5k2/8/8/4p3/8/8/8/R3K2R w KQ e6 0 99",
+        "O-O+",
+        "5k2/8/8/4p3/8/8/8/R4RK1 b - - 1 99")
+    TEST_WITH_ARGS(
+        "5k2/8/8/4p3/8/8/8/R3K2R w KQ e6 0 99",
+        "O-O-O",
+        "5k2/8/8/4p3/8/8/8/2KR3R b - - 1 99")
+    TEST_WITH_ARGS(
+        "rk2qrnb/ppp1pppp/2n5/8/3P2b1/5B2/PPP1PP1P/RKBNQRN1 b AFaf - 2 4",
+        "O-O-O",
+        "2krqrnb/ppp1pppp/2n5/8/3P2b1/5B2/PPP1PP1P/RKBNQRN1 w FA - 3 5")
+    TEST_WITH_ARGS(
+        "qb1rk1r1/pp1n1ppp/2p3n1/3ppb2/8/PP1P4/BBPNPPPP/Q2RK1RN w GDgd - 4 7",
+        "O-O",
+        "qb1rk1r1/pp1n1ppp/2p3n1/3ppb2/8/PP1P4/BBPNPPPP/Q2R1RKN b gd - 5 7")
+    TEST_WITH_ARGS(
+        "qb1rk1r1/pp1n1ppp/2p3n1/3ppb2/8/PP1P4/BBPNPPPP/Q2RK1RN w DGdg - 4 7",
+        "O-O-O",
+        "qb1rk1r1/pp1n1ppp/2p3n1/3ppb2/8/PP1P4/BBPNPPPP/Q1KR2RN b gd - 5 7")
+
+#test che_make_move_test_4
+    char *actual_fen;
+
+    TEST_WITH_ARGS(
+        "4k3/8/8/3Pp3/8/8/8/4K3 w - e6 0 79",
+        "dxe6",
+        "4k3/8/4P3/8/8/8/8/4K3 b - - 0 79")
+    TEST_WITH_ARGS(
+        "8/8/8/4k3/4pP2/8/4K3/8 b - f3 0 89",
+        "exf3+",
+        "8/8/8/4k3/8/5p2/4K3/8 w - - 0 90")
+    TEST_WITH_ARGS(
+        "r3k2r/8/8/8/Pp6/8/8/R3K2R b KQkq a3 0 99",
+        "bxa3",
+        "r3k2r/8/8/8/8/p7/8/R3K2R w KQkq - 0 100")
+
+#test che_make_move_test_5
+    char *actual_fen;
+
+    TEST_WITH_ARGS(
+        FEN_GAME_OF_THE_CENTURY,
+        "Na4",
+        "r2q1rk1/pp2ppbp/2p2np1/2Q3B1/n2PP1b1/2N2N2/PP3PPP/3RKB1R w K - 7 12")
+    TEST_WITH_ARGS(
+        FEN_GAME_OF_THE_CENTURY,
+        "Bxf3",
+        "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP3/2N2b2/PP3PPP/3RKB1R w K - 0 12")
+    TEST_WITH_ARGS(
+        FEN_GAME_OF_THE_CENTURY,
+        "e5",
+        "r2q1rk1/pp3pbp/1np2np1/2Q1p1B1/3PP1b1/2N2N2/PP3PPP/3RKB1R w K e6 0 12")
 
 #undef TEST_WITH_ARGS
