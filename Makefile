@@ -25,9 +25,21 @@ $(GEN_CHECKFILES_BIN): %: %.c $(HEADERS) $(SOURCES)
 $(GEN_CHECKFILES_C): %.c: %.check
 	@checkmk $< > $@
 
+CHESTER_TESTER := tests/ct/chester_tester
+CT_SOURCES := $(wildcard tests/ct/*.c)
+CT_HEADERS := $(wildcard tests/ct/*.h)
+CT_LDFLAGS := -Wl,-rpath=$$HOME/lib -L$$HOME/lib -lchester
+
+.PHONY: ct
+ct: $(CHESTER_TESTER)
+	@./$(CHESTER_TESTER)
+
+$(CHESTER_TESTER): $(CT_SOURCES) $(CT_HEADERS)
+	@gcc $(CFLAGS) -I$$HOME/include -o $(CHESTER_TESTER) $(CT_SOURCES) $(CT_LDFLAGS)
+
 .PHONY: clean
 clean:
-	@rm --force $(TARGET) $(GEN_CHECKFILES_BIN) $(GEN_CHECKFILES_C)
+	@rm --force $(TARGET) $(GEN_CHECKFILES_BIN) $(GEN_CHECKFILES_C) $(CHESTER_TESTER)
 
 .PHONY: showvars
 showvars:
