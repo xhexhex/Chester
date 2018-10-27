@@ -1559,12 +1559,37 @@ ck_assert( counter == exp_count );
 //
 #tcase che_make_move_tests
 
-#define TEST_WITH_ARGS(orig_fen, san, expected_fen)
-
-#test che_make_move_test
-    TEST_WITH_ARGS(orig_fen, san, expected_fen)
-
-    char *actual_fen = che_make_move(FEN_STD_START_POS, "e4");
+#define TEST_WITH_ARGS(orig_fen, san, expected_fen) \
+    ck_assert(!che_fen_validator(orig_fen)), \
+        ck_assert(!che_fen_validator(expected_fen)), \
+        ck_assert(che_is_san(san)); \
+    actual_fen = che_make_move(orig_fen, san); \
+    printf("\"%s\"\n", actual_fen); \
+    ck_assert(!strcmp(actual_fen, expected_fen)); \
     free(actual_fen);
+
+#test che_make_move_test_1
+    char *actual_fen;
+
+    TEST_WITH_ARGS(
+        FEN_STD_START_POS,
+        "e4",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+    TEST_WITH_ARGS(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+        "Nf6",
+        "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2")
+    TEST_WITH_ARGS(
+        "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2",
+        "e5",
+        "rnbqkb1r/pppppppp/5n2/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
+    TEST_WITH_ARGS(
+        "rnbqkb1r/pppppppp/5n2/4P3/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2",
+        "Nd5",
+        "rnbqkb1r/pppppppp/8/3nP3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3")
+
+#test che_make_move_test_2
+
+    printf("More tests, please!\n");
 
 #undef TEST_WITH_ARGS
