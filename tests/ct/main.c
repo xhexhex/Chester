@@ -7,5 +7,5 @@
 int
 main()
 {
-    xyz();
+    test_CHE_MAKE_MOVE_with_pawn_promotions();
 }
