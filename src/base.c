@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include "base.h"
 #include "utils.h"
@@ -470,7 +471,11 @@ che_make_move( const char *fen, const char *san )
     Pos *p = fen_to_pos(fen);
     Rawcode move = san_to_rawcode(p, san);
 
-    make_move(p, move, '-');
+    char promotion = '-'; int index;
+    if( str_m_pat(san, "^.*=[QRBN][+#]?$") && (index = strlen(san) - 1) )
+        do { promotion = san[index--]; } while(!isupper(promotion));
+
+    make_move( p, move, tolower(promotion) );
     char *new_fen = pos_to_fen(p);
     free(p);
 

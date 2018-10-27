@@ -1589,7 +1589,23 @@ ck_assert( counter == exp_count );
         "rnbqkb1r/pppppppp/8/3nP3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3")
 
 #test che_make_move_test_2
+    char *actual_fen;
 
-    printf("More tests, please!\n");
+    TEST_WITH_ARGS(
+        "k7/4P3/8/8/8/8/8/4K3 w - - 19 83",
+        "e8=Q+",
+        "k3Q3/8/8/8/8/8/8/4K3 b - - 0 83")
+    TEST_WITH_ARGS(
+        "k7/4P3/8/8/8/8/8/4K3 w - - 19 83",
+        "e8=N",
+        "k3N3/8/8/8/8/8/8/4K3 b - - 0 83")
+    TEST_WITH_ARGS(
+        "k7/8/8/8/7P/8/p7/1RKR4 b BD h3 0 123",
+        "a1=Q",
+        "k7/8/8/8/7P/8/8/qRKR4 w DB - 0 124")
+    TEST_WITH_ARGS(
+        "k7/8/8/8/7P/8/p7/1RKR4 b BD h3 0 123",
+        "axb1=R+",
+        "k7/8/8/8/7P/8/8/1rKR4 w D - 0 124")
 
 #undef TEST_WITH_ARGS
