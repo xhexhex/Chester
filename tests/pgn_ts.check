@@ -9,6 +9,9 @@
 
 #suite pgn_ts
 
+//
+// Test case
+//
 #tcase san_to_rawcode_tests
 
 #define TEST_WITH_ARGS( fen, san, expected ) \
@@ -87,3 +90,13 @@
     TEST_WITH_ARGS( "7k/8/8/3K3b/8/5B2/8/3b3b b - - 0 100", "Bh1xf3+", "h1f3" )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase rawcode_to_san_tests
+
+#test rawcode_to_san_xyz
+    Pos *p = fen_to_pos(FEN_STD_START_POS);
+
+    rawcode_to_san(p, rawcode("g1f3"));

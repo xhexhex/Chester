@@ -59,6 +59,29 @@ san_to_rawcode( const Pos *p, const char *san )
     return rawcode(move);
 }
 
+// TODO: doc
+char *
+rawcode_to_san( const Pos *p, Rawcode rc )
+{
+    Chessman mover, target;
+    int orig, dest;
+
+    set_mover_target_orig_and_dest(p, rc, &mover, &target, &orig, &dest);
+    assert(mover != EMPTY_SQUARE);
+    // assert on target
+
+    char cm_symbol[2] = {'\0'};
+    if(mover != WHITE_PAWN && mover != BLACK_PAWN)
+        cm_symbol[0] = PPF_CHESSMAN_LETTERS[mover];
+    else if(target != EMPTY_SQUARE) {}
+
+    printf("cm_symbol = \"%s\"\n", cm_symbol);
+
+    // printf(">> %d %d %s %s\n", mover, target, SNA[orig], SNA[dest]);
+
+    return NULL;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
