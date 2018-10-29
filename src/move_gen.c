@@ -564,9 +564,8 @@ is_en_passant_capture( const Pos *p, Rawcode move )
 
 #undef INIT_VARS
 
-// Returns true if and only if 'move' is a castling move
-// (either O-O or O-O-O) in position 'p'.
-// TODO: Add Check test case
+// Returns true iff 'move' is a castling move (either O-O or O-O-O)
+// in position 'p'.
 bool
 is_castle( const Pos *p, Rawcode move )
 {
@@ -574,9 +573,35 @@ is_castle( const Pos *p, Rawcode move )
     return is_short_castle(p, move) || is_long_castle(p, move);
 }
 
-/**************************
- **** Static functions ****
- **************************/
+// Returns true iff the king of the active color is in check in position 'p'.
+bool
+king_in_check( const Pos *p )
+{
+    Pos pos;
+    copy_pos(p, &pos);
+    toggle_turn(&pos);
+
+    return king_can_be_captured(&pos);
+}
+
+// Returns true iff the position 'p' is a checkmate.
+bool
+checkmate( const Pos *p )
+{
+    if(!king_in_check(p)) return false;
+
+    Rawcode *codes = rawcodes(p);
+    bool moves_available = codes[0];
+    free(codes);
+
+    return !moves_available;
+}
+
+/****************************
+ ****                    ****
+ ****  Static functions  ****
+ ****                    ****
+ ****************************/
 
 static void
 x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,

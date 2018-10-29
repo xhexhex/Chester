@@ -102,6 +102,7 @@ void rawmove( Rawcode rawcode, char *writable );
 void make_move( Pos *p, Rawcode code, char promotion );
 void remove_castling_rights( Pos *p, const char *color, const char *side );
 char *ecaf( const Pos *p );
+void toggle_turn( Pos *p );
 
 #endif
 // End BASE_H

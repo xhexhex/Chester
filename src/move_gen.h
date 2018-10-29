@@ -37,6 +37,8 @@ bool is_double_step_pawn_advance( const Pos *p, Rawcode move );
 bool is_promotion( const Pos *p, Rawcode move );
 bool is_en_passant_capture( const Pos *p, Rawcode move );
 bool is_castle( const Pos *p, Rawcode move );
+bool king_in_check( const Pos *p );
+bool checkmate( const Pos *p );
 
 #endif
 // end MOVE_GEN_H

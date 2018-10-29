@@ -450,7 +450,6 @@ static void x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
-static void x_make_move_toggle_turn( Pos *p );
 static void x_make_move_castle( Pos *p, Rawcode code );
 static void x_make_move_non_castling( Pos *p, Rawcode move );
 static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
@@ -723,7 +722,7 @@ make_move( Pos *p, Rawcode move, char promotion )
     if( is_promotion(&unmodified_p, move) )
         x_make_move_promote_pawn(p, move, promotion);
 
-    x_make_move_toggle_turn(p);
+    toggle_turn(p);
 
     if( is_capture(&unmodified_p, move) ||
             is_pawn_advance(&unmodified_p, move) )
@@ -795,6 +794,16 @@ ecaf( const Pos *p )
             the_ecaf[index] = file; }
 
     return the_ecaf;
+}
+
+// Toggles the binary value of the turn indicator in position 'p'.
+void
+toggle_turn( Pos *p )
+{
+    if( whites_turn(p) )
+        p->turn_and_ca_flags ^= (1 << 7);
+    else
+        p->turn_and_ca_flags |= (1 << 7);
 }
 
 /****************************
@@ -939,15 +948,6 @@ x_rawcode_preliminary_checks( const char *rawmove )
         return false;
 
     return true;
-}
-
-static void
-x_make_move_toggle_turn( Pos *p )
-{
-    if( whites_turn(p) )
-        p->turn_and_ca_flags ^= (1 << 7);
-    else
-        p->turn_and_ca_flags |= (1 << 7);
 }
 
 static void

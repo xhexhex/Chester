@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 #include "chester.h"
 #include "base.h"
@@ -63,23 +65,47 @@ san_to_rawcode( const Pos *p, const char *san )
 char *
 rawcode_to_san( const Pos *p, Rawcode rc )
 {
-    Chessman mover, target;
-    int orig, dest;
-
+    Chessman mover, target; int orig, dest;
     set_mover_target_orig_and_dest(p, rc, &mover, &target, &orig, &dest);
     assert(mover != EMPTY_SQUARE);
-    // assert on target
+    assert( target == EMPTY_SQUARE ||
+        (mover >= WHITE_KING && mover <= WHITE_PAWN &&
+            target >= BLACK_QUEEN && target <= BLACK_PAWN) ||
+        (mover >= BLACK_KING && mover <= BLACK_PAWN &&
+            target >= WHITE_QUEEN && target <= WHITE_PAWN));
 
-    char cm_symbol[2] = {'\0'};
+    int san_length = 2; // Min length of a SAN, e.g., "e4"
+
+    char piece_letter[2] = {'\0'};
     if(mover != WHITE_PAWN && mover != BLACK_PAWN)
-        cm_symbol[0] = PPF_CHESSMAN_LETTERS[mover];
-    else if(target != EMPTY_SQUARE) {}
+        piece_letter[0] = toupper(PPF_CHESSMAN_LETTERS[mover]);
+    else if(target != EMPTY_SQUARE || is_en_passant_capture(p, rc))
+        piece_letter[0] = SNA[orig][0];
 
-    printf("cm_symbol = \"%s\"\n", cm_symbol);
+    san_length += strlen(piece_letter);
 
-    // printf(">> %d %d %s %s\n", mover, target, SNA[orig], SNA[dest]);
+    char capture[2] = {'\0'};
+    if(target != EMPTY_SQUARE || islower(piece_letter[0]))
+        capture[0] = 'x';
+    san_length += strlen(capture);
 
-    return NULL;
+    char check_or_mate[2] = {'\0'};
+    Pos after_move;
+    copy_pos(p, &after_move);
+    assert(!is_promotion(p, rc));
+    make_move(&after_move, rc,  '-');
+    if(king_in_check(&after_move)) {
+        check_or_mate[0] = '+';
+        if(checkmate(&after_move)) check_or_mate[0] = '#'; }
+    san_length += strlen(check_or_mate);
+
+    char *san = (char *) malloc(san_length + 1);
+    strcpy(san, piece_letter), strcat(san, capture), strcat(san, SNA[dest]),
+        strcat(san, check_or_mate);
+
+    printf("san = \"%s\", san_length = %d\n", san, san_length);
+    assert(che_is_san(san));
+    return san;
 }
 
 /****************************

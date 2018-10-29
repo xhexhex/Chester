@@ -91,12 +91,51 @@
 
 #undef TEST_WITH_ARGS
 
+#define TEST_WITH_ARGS(fen, rawmove, expected_san) \
+    ck_assert(!che_fen_validator(fen)); \
+    p = fen_to_pos(fen); \
+    actual_san = rawcode_to_san(p, rawcode(rawmove)); \
+    ck_assert(!strcmp(actual_san, expected_san)); \
+    free(actual_san);
+
+// printf("Actual SAN: \"%s\"\n", actual_san);
+
 //
 // Test case
 //
 #tcase rawcode_to_san_tests
 
-#test rawcode_to_san_xyz
-    Pos *p = fen_to_pos(FEN_STD_START_POS);
+#test rawcode_to_san_test_1
+    Pos *p; char *actual_san;
 
-    rawcode_to_san(p, rawcode("g1f3"));
+    TEST_WITH_ARGS(FEN_STD_START_POS, "g1f3", "Nf3")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "b1a3", "Na3")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e2e4", "e4")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "d2d3", "d3")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "h2h4", "h4")
+
+#test rawcode_to_san_test_2
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("4k3/8/6n1/4pP2/8/1r6/P7/4K3 w - e6 0 123", "a2a4", "a4")
+    TEST_WITH_ARGS("4k3/8/6n1/4pP2/8/1r6/P7/4K3 w - e6 0 123", "a2b3", "axb3")
+    TEST_WITH_ARGS("4k3/8/6n1/4pP2/8/1r6/P7/4K3 w - e6 0 123", "f5e6", "fxe6")
+    TEST_WITH_ARGS("4k3/8/6n1/4pP2/8/1r6/P7/4K3 w - e6 0 123", "f5g6", "fxg6")
+    TEST_WITH_ARGS("4k3/8/8/8/1p3pPp/1pP1N3/R7/4K3 b - g3 0 39", "b3a2", "bxa2")
+    TEST_WITH_ARGS("4k3/8/8/8/1p3pPp/1pP1N3/R7/4K3 b - g3 0 39", "b4c3", "bxc3")
+    TEST_WITH_ARGS("4k3/8/8/8/1p3pPp/1pP1N3/R7/4K3 b - g3 0 39", "f4e3", "fxe3")
+    TEST_WITH_ARGS("4k3/8/8/8/1p3pPp/1pP1N3/R7/4K3 b - g3 0 39", "f4g3", "fxg3")
+    TEST_WITH_ARGS("4k3/8/8/8/1p3pPp/1pP1N3/R7/4K3 b - g3 0 39", "h4g3", "hxg3")
+
+#test rawcode_to_san_test_3
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("8/8/2r5/4k3/3N4/8/8/4K3 w - - 19 83", "d4c6", "Nxc6+")
+    TEST_WITH_ARGS("8/8/2r5/4k3/3N4/8/8/4K3 w - - 19 83", "d4f3", "Nf3+")
+    TEST_WITH_ARGS("r3k3/8/8/8/8/8/5PPP/R5K1 b q - 12 34", "a8a1", "Rxa1#")
+    TEST_WITH_ARGS("R5rk/6pp/8/3KN3/8/8/8/8 w - - 0 100", "e5f7", "Nf7#")
+    TEST_WITH_ARGS("R5rk/6pp/8/3KN3/8/8/8/8 w - - 0 100", "a8g8", "Rxg8+")
+    TEST_WITH_ARGS("K5nk/6pp/5P1P/8/8/8/8/8 w - - 19 39", "f6g7", "fxg7#")
+    TEST_WITH_ARGS("K5nk/6pp/5P1P/8/8/8/8/8 w - - 19 39", "h6g7", "hxg7#")
+
+#undef TEST_WITH_ARGS
