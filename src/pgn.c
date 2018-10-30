@@ -246,23 +246,55 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
             mover == WHITE_PAWN || mover == BLACK_PAWN)
         return;
 
-    bool w = whites_turn(p);
-    Bitboard rooks_on_file = 0, rooks_on_rank = 0;
-    int num_rooks_on_file = 0, num_rooks_on_rank = 0;
+    bool w = whites_turn(p), // od, orig and dest
+        // od_on_same_file = (file_of_sq(SBA[orig]) == file_of_sq(SBA[dest])),
+        od_on_same_rank = (rank_of_sq(SBA[orig]) == rank_of_sq(SBA[dest]));
+        // od_on_same_diag = 0,
+        // od_on_same_antidiag = 0;
+    Bitboard queens_on_file = 0, queens_on_rank = 0, queens_on_diag = 0,
+        queens_on_antidiag = 0, rooks_on_file = 0, rooks_on_rank = 0;
+    int num_queens_on_file = 0, num_queens_on_rank = 0, num_queens_on_diag = 0,
+        num_queens_on_antidiag = 0, num_rooks_on_file = 0, num_rooks_on_rank = 0;
 
-    if(mover == WHITE_ROOK || mover == BLACK_ROOK ||
-            mover == WHITE_QUEEN || mover == BLACK_QUEEN) {
+    if(mover == WHITE_QUEEN || mover == BLACK_QUEEN) {
+        LINE_MOVING_PIECE_FINDER(NORTH, QUEEN, queens, file)
+        LINE_MOVING_PIECE_FINDER(EAST, QUEEN, queens, rank)
+        LINE_MOVING_PIECE_FINDER(NORTHEAST, QUEEN, queens, diag)
+        LINE_MOVING_PIECE_FINDER(SOUTHEAST, QUEEN, queens, antidiag)
+
+        assert(SBA[orig] & (queens_on_file | queens_on_rank |
+            queens_on_diag | queens_on_antidiag));
+        assert(num_queens_on_file || num_queens_on_rank || num_queens_on_diag ||
+            num_queens_on_antidiag);
+
+        int queens_with_access = num_queens_on_file + num_queens_on_rank +
+            num_queens_on_diag + num_queens_on_antidiag;
+
+        if(queens_with_access == 1) return;
+        else if(queens_with_access == 2) {
+            printf("Yo yo, sir!\n");
+        }
+        else assert(false);
+    } else if(mover == WHITE_ROOK || mover == BLACK_ROOK) {
         LINE_MOVING_PIECE_FINDER(NORTH, ROOK, rooks, file)
         LINE_MOVING_PIECE_FINDER(EAST, ROOK, rooks, rank)
-        assert(SBA[orig] & (rooks_on_file | rooks_on_rank)); }
 
-    if(mover == WHITE_ROOK || mover == BLACK_ROOK) {
-        assert(rooks_on_file || rooks_on_rank);
+        assert(SBA[orig] & (rooks_on_file | rooks_on_rank));
+        assert(num_rooks_on_file || num_rooks_on_rank);
 
-        if(rank_of_sq(SBA[orig]) == rank_of_sq(SBA[dest]) && num_rooks_on_rank == 2)
-            disambiguator[0] = file_of_sq(SBA[orig]), *san_length += 1;
-        else if(file_of_sq(SBA[orig]) == file_of_sq(SBA[dest]) && num_rooks_on_file == 2)
-            disambiguator[0] = rank_of_sq(SBA[orig]), *san_length += 1; }
+        int rooks_with_access = num_rooks_on_file + num_rooks_on_rank;
+        assert(rooks_with_access <= 4);
+
+        if(rooks_with_access == 1) return;
+
+        disambiguator[0] = (od_on_same_rank || num_rooks_on_rank == 1) ?
+            file_of_sq(SBA[orig]) : rank_of_sq(SBA[orig]);
+        *san_length += 1;
+    } else if(mover == WHITE_BISHOP || mover == BLACK_BISHOP) {
+
+    } else if(mover == WHITE_KNIGHT || mover == BLACK_KNIGHT) {
+
+    } else assert(false);
 }
 
 #undef LINE_MOVING_PIECE_FINDER

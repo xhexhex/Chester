@@ -159,4 +159,9 @@
     TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "e2e4", '-', "R2e4")
     TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "d4e4", '-', "Rde4")
 
+    // TEST_WITH_ARGS("7k/8/2Q3Q1/8/4q3/8/2Q3Q1/7K w - - 13 37", "c6e6", '-', "Qce6")
+
+    TEST_WITH_ARGS("k2b4/1Q2r3/8/1r6/7K/8/8/8 b - - 19 83", "e7b7", '-', "Rexb7+")
+    TEST_WITH_ARGS("k2b4/1Q2r3/8/1r6/7K/8/8/8 b - - 19 83", "b5b7", '-', "Rbxb7")
+
 #undef TEST_WITH_ARGS
