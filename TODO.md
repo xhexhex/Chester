@@ -11,3 +11,5 @@
 * `FEN_HMCF_CONTRADICTS_FMNF_ERROR` is undocumented
 * If it's White's turn and EPTS is set, the full move number should be greater than one
 * If EPTS is set, then the two squares behind should be empty along with the EPTS itself
+* Create the "PGN player". It is a function that takes as input a PGN file, plays the game move by move and outputs the FEN at each step.
+* Once the PGN player is functional create a file that contains a million unique FENs from GM games.

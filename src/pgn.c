@@ -63,7 +63,10 @@ san_to_rawcode( const Pos *p, const char *san )
     return rawcode(move);
 }
 
-// TODO: doc
+// Does the opposite of san_to_rawcode(). For example, the call
+// rawcode_to_san(fen_to_pos(FEN_STD_START_POS), rawcode("g1f3"), '-')
+// returns a char * that points to the SAN string "Nf3". The SAN is in
+// dynamically allocated memory so a call to free() should be involved.
 char *
 rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
 {
@@ -74,6 +77,24 @@ rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
     Chessman mover, target; int orig, dest;
     set_mover_target_orig_and_dest(p, rc, &mover, &target, &orig, &dest);
     assert(mover != EMPTY_SQUARE);
+
+    if(is_castle(p, rc)) {
+        char *castle_san = (char *) malloc(6 + 1); // "O-O-O+"
+        strcpy(castle_san, "O-O");
+        if(is_long_castle(p, rc)) strcat(castle_san, "-O");
+
+        Pos after_move;
+        copy_pos(p, &after_move);
+        assert(promotion == '-');
+        make_move(&after_move, rc, '-');
+        if(king_in_check(&after_move))
+            castle_san[is_short_castle(p, rc) ? 3 : 5] =
+                (checkmate(&after_move) ? '#' : '+');
+
+        // printf("castle_san = \"%s\"\n", castle_san);
+        return castle_san;
+    }
+
     assert( target == EMPTY_SQUARE ||
         (mover >= WHITE_KING && mover <= WHITE_PAWN &&
             target >= BLACK_QUEEN && target <= BLACK_PAWN) ||
@@ -120,7 +141,8 @@ rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
         strcat(san, SNA[dest]), strcat(san, promotion_indicator),
         strcat(san, check_or_mate);
 
-    printf("san = \"%s\", san_length = %d\n", san, san_length);
+    // printf("san = \"%s\", san_length = %d\n", san, san_length);
+    assert((int) strlen(san) == san_length);
     assert(che_is_san(san));
     return san;
 }
@@ -186,28 +208,21 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
     Bitboard orig_sq_bb;
 
     switch( piece ) {
-        case 'K':
-            orig_sq_bb = p->ppa[w ? WHITE_KING : BLACK_KING];
+        case 'K': orig_sq_bb = p->ppa[w ? WHITE_KING : BLACK_KING];
             break;
-        case 'Q':
-            orig_sq_bb = ( p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] &
+        case 'Q': orig_sq_bb = ( p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] &
                 ( ROOK_SQS[dest_bi] | BISHOP_SQS[dest_bi] ) );
             break;
-        case 'R':
-            orig_sq_bb = ( p->ppa[w ? WHITE_ROOK : BLACK_ROOK] &
+        case 'R': orig_sq_bb = ( p->ppa[w ? WHITE_ROOK : BLACK_ROOK] &
                 ROOK_SQS[dest_bi] );
             break;
-        case 'B':
-            orig_sq_bb = ( p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP] &
+        case 'B': orig_sq_bb = ( p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP] &
                 BISHOP_SQS[dest_bi] );
             break;
-        case 'N':
-            orig_sq_bb = ( p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT] &
+        case 'N': orig_sq_bb = ( p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT] &
                 KNIGHT_SQS[dest_bi] );
             break;
-        default:
-            assert(false);
-    }
+        default: assert(false); }
 
     if( disambiguator != '-' )
         APPLY_DISAMBIGUATOR
@@ -225,19 +240,6 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
 #undef REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
 #undef APPLY_DISAMBIGUATOR
 
-#define LINE_MOVING_PIECE_FINDER(starting_dir, piece_type, piece_type_plural, \
-        line_type) \
-    for(enum sq_dir dir = starting_dir; dir <= starting_dir + 4; dir += 4) { \
-        Bitboard sq = SBA[dest]; \
-        while((sq = sq_nav(sq, dir)) && ( \
-            (w && !(sq & p->ppa[WHITE_ ## piece_type])) || \
-            (!w && !(sq & p->ppa[BLACK_ ## piece_type])))); \
-    piece_type_plural ## _on_ ## line_type |= sq; } \
-    num_ ## piece_type_plural ## _on_ ## line_type = num_of_sqs_in_sq_set( \
-        piece_type_plural ## _on_ ## line_type); \
-    assert(num_ ## piece_type_plural ## _on_ ## line_type >= 0 && \
-        num_ ## piece_type_plural ## _on_ ## line_type <= 2);
-
 static void
 x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     int dest, char *disambiguator, int *san_length )
@@ -246,55 +248,64 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
             mover == WHITE_PAWN || mover == BLACK_PAWN)
         return;
 
-    bool w = whites_turn(p), // od, orig and dest
-        // od_on_same_file = (file_of_sq(SBA[orig]) == file_of_sq(SBA[dest])),
-        od_on_same_rank = (rank_of_sq(SBA[orig]) == rank_of_sq(SBA[dest]));
-        // od_on_same_diag = 0,
-        // od_on_same_antidiag = 0;
-    Bitboard queens_on_file = 0, queens_on_rank = 0, queens_on_diag = 0,
-        queens_on_antidiag = 0, rooks_on_file = 0, rooks_on_rank = 0;
-    int num_queens_on_file = 0, num_queens_on_rank = 0, num_queens_on_diag = 0,
-        num_queens_on_antidiag = 0, num_rooks_on_file = 0, num_rooks_on_rank = 0;
+    char type;
+    switch(mover) {
+        case WHITE_QUEEN:
+        case BLACK_QUEEN:
+            type = 'Q'; break;
+        case WHITE_ROOK:
+        case BLACK_ROOK:
+            type = 'R'; break;
+        case WHITE_BISHOP:
+        case BLACK_BISHOP:
+            type = 'B'; break;
+        case WHITE_KNIGHT:
+        case BLACK_KNIGHT:
+            type = 'N'; break;
+        default: assert(false); }
 
-    if(mover == WHITE_QUEEN || mover == BLACK_QUEEN) {
-        LINE_MOVING_PIECE_FINDER(NORTH, QUEEN, queens, file)
-        LINE_MOVING_PIECE_FINDER(EAST, QUEEN, queens, rank)
-        LINE_MOVING_PIECE_FINDER(NORTHEAST, QUEEN, queens, diag)
-        LINE_MOVING_PIECE_FINDER(SOUTHEAST, QUEEN, queens, antidiag)
+    bool w = whites_turn(p);
+    Bitboard osb = SBA[orig], dsb = SBA[dest], // orig/dest square bit
+        pwa = 0; // pieces with access
 
-        assert(SBA[orig] & (queens_on_file | queens_on_rank |
-            queens_on_diag | queens_on_antidiag));
-        assert(num_queens_on_file || num_queens_on_rank || num_queens_on_diag ||
-            num_queens_on_antidiag);
-
-        int queens_with_access = num_queens_on_file + num_queens_on_rank +
-            num_queens_on_diag + num_queens_on_antidiag;
-
-        if(queens_with_access == 1) return;
-        else if(queens_with_access == 2) {
-            printf("Yo yo, sir!\n");
+    if(type == 'N') {
+        pwa = (KNIGHT_SQS[dest] & p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT]);
+    } else {
+        for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
+            if(type == 'R' && dir % 2) continue;
+            if(type == 'B' && !(dir % 2)) continue;
+            Bitboard sb = dsb;
+            Chessman index = (type == 'Q') ? WHITE_QUEEN : ((type == 'R') ?
+                WHITE_ROOK : WHITE_BISHOP);
+            if(!w) index += 6;
+            while((sb = sq_nav(sb, dir)) && (sb & p->ppa[EMPTY_SQUARE]));
+            if(sb & p->ppa[index]) pwa |= sb;
         }
-        else assert(false);
-    } else if(mover == WHITE_ROOK || mover == BLACK_ROOK) {
-        LINE_MOVING_PIECE_FINDER(NORTH, ROOK, rooks, file)
-        LINE_MOVING_PIECE_FINDER(EAST, ROOK, rooks, rank)
+    }
 
-        assert(SBA[orig] & (rooks_on_file | rooks_on_rank));
-        assert(num_rooks_on_file || num_rooks_on_rank);
+    assert(osb & pwa);
+    int num_pwa = num_of_sqs_in_sq_set(pwa);
+    assert(num_pwa);
+    assert(((type == 'Q' || type == 'N') && num_pwa <= 8) ||
+        ((type == 'R' || type == 'B') && num_pwa <= 4));
 
-        int rooks_with_access = num_rooks_on_file + num_rooks_on_rank;
-        assert(rooks_with_access <= 4);
+    if(num_pwa == 1) return;
 
-        if(rooks_with_access == 1) return;
+    ++*san_length;
+    Bitboard file_of_osb = file(file_of_sq(osb)), the_pwa_on_file_of_orig =
+        (file_of_osb & pwa);
+    assert(the_pwa_on_file_of_orig);
+    if(num_of_sqs_in_sq_set(the_pwa_on_file_of_orig) == 1) {
+        disambiguator[0] = file_of_sq(osb);
+        return; }
 
-        disambiguator[0] = (od_on_same_rank || num_rooks_on_rank == 1) ?
-            file_of_sq(SBA[orig]) : rank_of_sq(SBA[orig]);
-        *san_length += 1;
-    } else if(mover == WHITE_BISHOP || mover == BLACK_BISHOP) {
+    Bitboard rank_of_osb = rank(rank_of_sq(osb)), the_pwa_on_rank_of_orig =
+        (rank_of_osb & pwa);
+    assert(the_pwa_on_rank_of_orig);
+    if(num_of_sqs_in_sq_set(the_pwa_on_rank_of_orig) == 1) {
+        disambiguator[0] = rank_of_sq(osb);
+        return; }
 
-    } else if(mover == WHITE_KNIGHT || mover == BLACK_KNIGHT) {
-
-    } else assert(false);
+    ++*san_length;
+    strcpy(disambiguator, SNA[orig]);
 }
-
-#undef LINE_MOVING_PIECE_FINDER

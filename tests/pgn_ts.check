@@ -98,8 +98,6 @@
     ck_assert(!strcmp(actual_san, expected_san)); \
     free(actual_san);
 
-// printf("Actual SAN: \"%s\"\n", actual_san);
-
 //
 // Test case
 //
@@ -156,12 +154,60 @@
     Pos *p; char *actual_san;
 
     TEST_WITH_ARGS("4k2b/1r4r1/8/8/8/8/8/K7 b - - 12 34", "b7e7", '-', "Rbe7")
+    TEST_WITH_ARGS("4k2b/1r4r1/8/8/8/8/8/K7 b - - 12 34", "g7e7", '-', "Rge7+")
+    TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "e5e4", '-', "R5e4")
+    TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "f4e4", '-', "Rfe4")
     TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "e2e4", '-', "R2e4")
     TEST_WITH_ARGS("7k/8/8/4R3/R2R1R2/8/4R3/K3R3 w - - 19 39", "d4e4", '-', "Rde4")
-
-    // TEST_WITH_ARGS("7k/8/2Q3Q1/8/4q3/8/2Q3Q1/7K w - - 13 37", "c6e6", '-', "Qce6")
-
     TEST_WITH_ARGS("k2b4/1Q2r3/8/1r6/7K/8/8/8 b - - 19 83", "e7b7", '-', "Rexb7+")
     TEST_WITH_ARGS("k2b4/1Q2r3/8/1r6/7K/8/8/8 b - - 19 83", "b5b7", '-', "Rbxb7")
+    TEST_WITH_ARGS("7k/1R6/8/8/1n4R1/8/KR6/B7 w - - 13 37", "b2b4", '-', "R2xb4#")
+    TEST_WITH_ARGS("7k/1R6/8/8/1n4R1/8/KR6/B7 w - - 13 37", "g4b4", '-', "Rgxb4")
+    TEST_WITH_ARGS("7k/1R6/8/8/1n4R1/8/KR6/B7 w - - 13 37", "b7b4", '-', "R7xb4")
+
+#test rawcode_to_san_test_6
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("7k/8/2Q3Q1/8/4q3/8/2Q3Q1/7K w - - 13 37", "c6e6", '-', "Qce6")
+    TEST_WITH_ARGS("7k/8/2Q3Q1/8/4q3/8/2Q3Q1/7K w - - 13 37", "g2g4", '-', "Q2g4")
+    TEST_WITH_ARGS("7k/8/2Q3Q1/8/4q3/8/2Q3Q1/7K w - - 13 37", "g2e4", '-', "Qg2xe4")
+    TEST_WITH_ARGS("q6k/7q/8/8/4QK2/8/8/1q5q b - - 18 99", "a8e4", '-', "Qaxe4+")
+    TEST_WITH_ARGS("q6k/7q/8/8/4QK2/8/8/1q5q b - - 18 99", "h7e4", '-', "Q7xe4+")
+    TEST_WITH_ARGS("q6k/7q/8/8/4QK2/8/8/1q5q b - - 18 99", "h1e4", '-', "Qh1xe4+")
+
+#test rawcode_to_san_test_7
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("4k3/8/2b3b1/8/4Q3/8/2b5/4K2b b - - 12 34", "c6e4", '-', "Bc6xe4")
+    TEST_WITH_ARGS("4k3/8/2b3b1/8/4Q3/8/2b5/4K2b b - - 12 34", "h1g2", '-', "Bg2")
+    TEST_WITH_ARGS("4k3/8/2b3b1/8/4Q3/8/2b5/4K2b b - - 12 34", "c2e4", '-', "B2xe4")
+    TEST_WITH_ARGS("4k3/8/2b3b1/8/4Q3/8/2b5/4K2b b - - 12 34", "g6e4", '-', "Bgxe4")
+    TEST_WITH_ARGS("4k3/8/2b3b1/8/4Q3/8/2b5/4K2b b - - 12 34", "c6a8", '-', "Ba8")
+
+#test rawcode_to_san_test_8
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("3k4/8/8/2N3N1/4q3/2N3N1/3N4/3K4 w - - 19 83", "c5b7", '-', "Nb7+")
+    TEST_WITH_ARGS("3k4/8/8/2N3N1/4q3/2N3N1/3N4/3K4 w - - 19 83", "c5e4", '-', "Nc5xe4")
+    TEST_WITH_ARGS("3k4/8/8/2N3N1/4q3/2N3N1/3N4/3K4 w - - 19 83", "g5e6", '-', "Nge6+")
+    TEST_WITH_ARGS("3k4/8/8/2N3N1/4q3/2N3N1/3N4/3K4 w - - 19 83", "c3a4", '-', "N3a4")
+    TEST_WITH_ARGS("3k4/8/8/2N3N1/4q3/2N3N1/3N4/3K4 w - - 19 83", "d2e4", '-', "Ndxe4")
+
+#test rawcode_to_san_test_9
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("4k3/8/8/4p3/8/8/8/R3K2R w KQ e6 0 123", "e1h1", '-', "O-O")
+    TEST_WITH_ARGS("4k3/8/8/4p3/8/8/8/R3K2R w KQ e6 0 123", "e1a1", '-', "O-O-O")
+    TEST_WITH_ARGS("rk4r1/8/8/8/8/8/8/5K2 b ag - 19 75", "b8a8", '-', "O-O-O")
+    TEST_WITH_ARGS("rk4r1/8/8/8/8/8/8/5K2 b ag - 19 75", "b8g8", '-', "O-O+")
+    TEST_WITH_ARGS("4rkr1/4p1p1/8/8/8/8/8/R3K2R w KQ - 13 37", "e1a1", '-', "O-O-O")
+    TEST_WITH_ARGS("4rkr1/4p1p1/8/8/8/8/8/R3K2R w KQ - 13 37", "e1h1", '-', "O-O#")
+
+#test rawcode_to_san_test_10
+    Pos *p; char *actual_san;
+
+    TEST_WITH_ARGS("4rkr1/4p1p1/8/8/8/8/8/R3K2R w KQ - 13 37", "e1e2", '-', "Ke2")
+    TEST_WITH_ARGS("4r3/4k3/8/8/P7/8/3P1P2/3RKR2 b FD a3 0 123", "e7d7", '-', "Kd7#")
+    printf("Refactor rawcode_to_san()!\n");
 
 #undef TEST_WITH_ARGS
