@@ -15,8 +15,18 @@ static void x_san_to_rawcode_find_dest_sq( const Pos *p,
     const char *san, char *dest );
 static void x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p,
     char piece, char disambiguator, const char *dest_sq, char *orig_sq );
-static void x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover,
-    int orig, int dest, char *disambiguator, int *san_length );
+static char *x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover,
+    int orig, int dest, int *san_length );
+static char *x_rawcode_to_san_castling_move( const Pos *p, Rawcode rc,
+    char promotion );
+static char *x_rawcode_to_san_set_piece_letter( const Pos *p, Rawcode rc,
+    Chessman mover, Chessman target, int orig, int *san_length );
+static char *x_rawcode_to_san_set_capture(Chessman target, char *piece_letter,
+    int *san_length);
+static char *x_rawcode_to_san_set_promotion_indicator( const Pos *p,
+    Rawcode rc, char promotion, int *san_length );
+static char *x_rawcode_to_san_set_check_or_mate( const Pos *p, Rawcode rc,
+    char promotion, int *san_length );
 
 /******************************
  ****                      ****
@@ -63,6 +73,19 @@ san_to_rawcode( const Pos *p, const char *san )
     return rawcode(move);
 }
 
+#define ASSERT_FOR_PROMOTION \
+    assert((!is_promotion(p, rc) && promotion == '-') || (is_promotion(p, rc) && ( \
+        toupper(promotion) == 'Q' || toupper(promotion) == 'R' || \
+        toupper(promotion) == 'B' || toupper(promotion) == 'N' )));
+#define ASSERT_FOR_MOVER_AND_TARGET \
+    assert( target == EMPTY_SQUARE || \
+        (mover >= WHITE_KING && mover <= WHITE_PAWN && \
+            target >= BLACK_QUEEN && target <= BLACK_PAWN) || \
+        (mover >= BLACK_KING && mover <= BLACK_PAWN && \
+            target >= WHITE_QUEEN && target <= WHITE_PAWN)); \
+    assert((whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN) || \
+        (!whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN));
+
 // Does the opposite of san_to_rawcode(). For example, the call
 // rawcode_to_san(fen_to_pos(FEN_STD_START_POS), rawcode("g1f3"), '-')
 // returns a char * that points to the SAN string "Nf3". The SAN is in
@@ -70,82 +93,43 @@ san_to_rawcode( const Pos *p, const char *san )
 char *
 rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
 {
-    assert((!is_promotion(p, rc) && promotion == '-') || (is_promotion(p, rc) && (
-        toupper(promotion) == 'Q' || toupper(promotion) == 'R' ||
-        toupper(promotion) == 'B' || toupper(promotion) == 'N' )));
+    ASSERT_FOR_PROMOTION
 
     Chessman mover, target; int orig, dest;
     set_mover_target_orig_and_dest(p, rc, &mover, &target, &orig, &dest);
     assert(mover != EMPTY_SQUARE);
 
-    if(is_castle(p, rc)) {
-        char *castle_san = (char *) malloc(6 + 1); // "O-O-O+"
-        strcpy(castle_san, "O-O");
-        if(is_long_castle(p, rc)) strcat(castle_san, "-O");
+    if(is_castle(p, rc))
+        return x_rawcode_to_san_castling_move(p, rc, promotion);
 
-        Pos after_move;
-        copy_pos(p, &after_move);
-        assert(promotion == '-');
-        make_move(&after_move, rc, '-');
-        if(king_in_check(&after_move))
-            castle_san[is_short_castle(p, rc) ? 3 : 5] =
-                (checkmate(&after_move) ? '#' : '+');
-
-        // printf("castle_san = \"%s\"\n", castle_san);
-        return castle_san;
-    }
-
-    assert( target == EMPTY_SQUARE ||
-        (mover >= WHITE_KING && mover <= WHITE_PAWN &&
-            target >= BLACK_QUEEN && target <= BLACK_PAWN) ||
-        (mover >= BLACK_KING && mover <= BLACK_PAWN &&
-            target >= WHITE_QUEEN && target <= WHITE_PAWN));
-    assert((whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN) ||
-        (!whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN));
+    ASSERT_FOR_MOVER_AND_TARGET
 
     int san_length = 2; // Min length of a SAN, e.g., "e4"
-
-    char piece_letter[2] = {'\0'};
-    if(mover != WHITE_PAWN && mover != BLACK_PAWN)
-        piece_letter[0] = toupper(PPF_CHESSMAN_LETTERS[mover]);
-    else if(target != EMPTY_SQUARE || is_en_passant_capture(p, rc))
-        piece_letter[0] = SNA[orig][0];
-    san_length += strlen(piece_letter);
-
-    char disambiguator[3] = {'\0'};
-    x_rawcode_to_san_set_disambiguator(p, mover, orig, dest, disambiguator,
-        &san_length);
-
-    char capture[2] = {'\0'};
-    if(target != EMPTY_SQUARE || islower(piece_letter[0]))
-        capture[0] = 'x';
-    san_length += strlen(capture);
-
-    char promotion_indicator[3] = {'\0'};
-    if(is_promotion(p, rc))
-        promotion_indicator[0] = '=',
-            promotion_indicator[1] = toupper(promotion);
-    san_length += strlen(promotion_indicator);
-
-    char check_or_mate[2] = {'\0'};
-    Pos after_move;
-    copy_pos(p, &after_move);
-    make_move(&after_move, rc, tolower(promotion));
-    if(king_in_check(&after_move)) {
-        check_or_mate[0] = '+';
-        if(checkmate(&after_move)) check_or_mate[0] = '#'; }
-    san_length += strlen(check_or_mate);
+    char *piece_letter = x_rawcode_to_san_set_piece_letter(p, rc, mover,
+            target, orig, &san_length),
+        *disambiguator = x_rawcode_to_san_set_disambiguator(p, mover, orig,
+            dest, &san_length),
+        *capture = x_rawcode_to_san_set_capture(target, piece_letter,
+            &san_length),
+        *promotion_indicator = x_rawcode_to_san_set_promotion_indicator(
+            p, rc, promotion, &san_length),
+        *check_or_mate = x_rawcode_to_san_set_check_or_mate(p, rc,
+            promotion, &san_length);
 
     char *san = (char *) malloc(san_length + 1);
     strcpy(san, piece_letter), strcat(san, disambiguator), strcat(san, capture),
         strcat(san, SNA[dest]), strcat(san, promotion_indicator),
         strcat(san, check_or_mate);
+    free(piece_letter), free(disambiguator), free(capture),
+        free(promotion_indicator), free(check_or_mate);
 
-    // printf("san = \"%s\", san_length = %d\n", san, san_length);
     assert((int) strlen(san) == san_length);
     assert(che_is_san(san));
     return san;
 }
+
+#undef ASSERT_FOR_PROMOTION
+#undef ASSERT_FOR_MOVER_AND_TARGET
 
 /****************************
  ****                    ****
@@ -232,7 +216,6 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
         REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
 
     assert( is_sq_bit(orig_sq_bb) );
-
     strcpy( orig_sq, sq_bit_to_sq_name(orig_sq_bb) );
 }
 
@@ -240,13 +223,19 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
 #undef REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
 #undef APPLY_DISAMBIGUATOR
 
-static void
+#define INIT_STRING(str_id, str_len) \
+    char *str_id = (char *) malloc(str_len + 1); \
+    for(int i = 0; i < str_len + 1; i++) str_id[i] = '\0';
+
+static char *
 x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
-    int dest, char *disambiguator, int *san_length )
+    int dest, int *san_length )
 {
+    INIT_STRING(disambiguator, 2)
+
     if(mover == WHITE_KING || mover == BLACK_KING ||
             mover == WHITE_PAWN || mover == BLACK_PAWN)
-        return;
+        return disambiguator;
 
     char type;
     switch(mover) {
@@ -289,7 +278,7 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     assert(((type == 'Q' || type == 'N') && num_pwa <= 8) ||
         ((type == 'R' || type == 'B') && num_pwa <= 4));
 
-    if(num_pwa == 1) return;
+    if(num_pwa == 1) return disambiguator;
 
     ++*san_length;
     Bitboard file_of_osb = file(file_of_sq(osb)), the_pwa_on_file_of_orig =
@@ -297,15 +286,95 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     assert(the_pwa_on_file_of_orig);
     if(num_of_sqs_in_sq_set(the_pwa_on_file_of_orig) == 1) {
         disambiguator[0] = file_of_sq(osb);
-        return; }
+        return disambiguator; }
 
     Bitboard rank_of_osb = rank(rank_of_sq(osb)), the_pwa_on_rank_of_orig =
         (rank_of_osb & pwa);
     assert(the_pwa_on_rank_of_orig);
     if(num_of_sqs_in_sq_set(the_pwa_on_rank_of_orig) == 1) {
         disambiguator[0] = rank_of_sq(osb);
-        return; }
+        return disambiguator; }
 
     ++*san_length;
     strcpy(disambiguator, SNA[orig]);
+    return disambiguator;
 }
+
+static char *
+x_rawcode_to_san_castling_move( const Pos *p, Rawcode rc, char promotion )
+{
+    char *castle_san = (char *) malloc(6 + 1); // "O-O-O+"
+    strcpy(castle_san, "O-O");
+    if(is_long_castle(p, rc)) strcat(castle_san, "-O");
+
+    Pos after_move;
+    copy_pos(p, &after_move);
+    assert(promotion == '-');
+    make_move(&after_move, rc, promotion);
+    if(king_in_check(&after_move))
+        castle_san[is_short_castle(p, rc) ? 3 : 5] =
+            (checkmate(&after_move) ? '#' : '+');
+
+    return castle_san;
+}
+
+static char *
+x_rawcode_to_san_set_piece_letter( const Pos *p, Rawcode rc, Chessman mover,
+    Chessman target, int orig, int *san_length )
+{
+    INIT_STRING(piece_letter, 1)
+
+    if(mover != WHITE_PAWN && mover != BLACK_PAWN)
+        piece_letter[0] = toupper(PPF_CHESSMAN_LETTERS[mover]);
+    else if(target != EMPTY_SQUARE || is_en_passant_capture(p, rc))
+        piece_letter[0] = SNA[orig][0];
+
+    *san_length += strlen(piece_letter);
+    return piece_letter;
+}
+
+static char *
+x_rawcode_to_san_set_capture(Chessman target, char *piece_letter,
+    int *san_length)
+{
+    INIT_STRING(capture, 1)
+
+    if(target != EMPTY_SQUARE || islower(piece_letter[0]))
+        capture[0] = 'x';
+    *san_length += strlen(capture);
+
+    return capture;
+}
+
+static char *
+x_rawcode_to_san_set_promotion_indicator( const Pos *p, Rawcode rc,
+    char promotion, int *san_length )
+{
+    INIT_STRING(promotion_indicator, 2)
+
+    if(is_promotion(p, rc))
+        promotion_indicator[0] = '=',
+            promotion_indicator[1] = toupper(promotion);
+    *san_length += strlen(promotion_indicator);
+
+    return promotion_indicator;
+}
+
+static char *
+x_rawcode_to_san_set_check_or_mate( const Pos *p, Rawcode rc, char promotion,
+    int *san_length )
+{
+    INIT_STRING(check_or_mate, 1)
+
+    Pos after_move;
+    copy_pos(p, &after_move);
+    make_move(&after_move, rc, tolower(promotion));
+    if(king_in_check(&after_move)) {
+        check_or_mate[0] = '+';
+        if(checkmate(&after_move)) check_or_mate[0] = '#'; }
+    *san_length += strlen(check_or_mate);
+
+    return check_or_mate;
+}
+
+#undef INIT_STRING

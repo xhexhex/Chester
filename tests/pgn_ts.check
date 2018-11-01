@@ -208,6 +208,5 @@
 
     TEST_WITH_ARGS("4rkr1/4p1p1/8/8/8/8/8/R3K2R w KQ - 13 37", "e1e2", '-', "Ke2")
     TEST_WITH_ARGS("4r3/4k3/8/8/P7/8/3P1P2/3RKR2 b FD a3 0 123", "e7d7", '-', "Kd7#")
-    printf("Refactor rawcode_to_san()!\n");
 
 #undef TEST_WITH_ARGS
