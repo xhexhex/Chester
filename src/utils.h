@@ -65,6 +65,7 @@ Bitboard rank( char number );
 void set_mover_target_orig_and_dest( const Pos *p, Rawcode move,
     Chessman *mover, Chessman *target, int *orig, int *dest );
 void shredder_to_std_fen_conv( char *fen );
+char *next_line( char **lines );
 
 #endif
 // end UTILS_H

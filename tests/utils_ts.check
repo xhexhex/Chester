@@ -1734,3 +1734,69 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
         "4k3/8/8/8/8/8/8/4K3 w - - 19 83" )
 
 #undef TEST_WITH_ARGS
+
+#define COMMA ,
+#define TEST_WITH_ARGS(text, ordinal, expected_strings) \
+    char *expected_ ## ordinal[] = expected_strings; \
+    unmodified_ptr = (char *) malloc(strlen(text) + 1), \
+        lines = unmodified_ptr; \
+    strcpy(lines, text); \
+    \
+    index = -1; \
+    while( (line = next_line(&lines)) ) { \
+        ck_assert(!strcmp(line, expected_ ## ordinal[++index])); \
+        ck_assert(lines > unmodified_ptr); } \
+    \
+    free(unmodified_ptr);
+
+//
+// Test case
+//
+#tcase next_line_tests
+
+#test next_line_test_1
+    char *unmodified_ptr, *lines, *line;
+    int index;
+
+    TEST_WITH_ARGS("hey\nyou", 1, {"hey" COMMA "you"})
+    TEST_WITH_ARGS("this is a test", 2, {"this is a test"})
+    TEST_WITH_ARGS("this is a test\n", 3, {"this is a test"})
+    TEST_WITH_ARGS("this is\na test", 4, {"this is" COMMA "a test"})
+    TEST_WITH_ARGS("this is\na test\n", 5, {"this is" COMMA "a test"})
+    TEST_WITH_ARGS("a", 6, {"a"})
+    TEST_WITH_ARGS("a\nb", 7, {"a" COMMA "b"})
+    TEST_WITH_ARGS("a\nb\nc\n", 8, {"a" COMMA "b" COMMA "c"})
+
+#undef COMMA
+#undef TEST_WITH_ARGS
+
+#test next_line_test_2
+    char *unmodified_ptr = (char *) malloc(1), *lines = unmodified_ptr;
+    strcpy(lines, "");
+
+    for(int cntr = 1; cntr <= 3; cntr++) {
+        ck_assert(next_line(&lines) == NULL);
+        ck_assert(unmodified_ptr == lines); }
+
+    free(unmodified_ptr);
+
+#test next_line_test_3
+    char str[] = "this\nis a\ntest\n";
+    char *unmod_ptr = (char *) malloc(strlen(str) + 1), *lines = unmod_ptr,
+        *line;
+    strcpy(lines, str);
+
+    // First call
+    line = next_line(&lines);
+    ck_assert(!strcmp(line, "this") && !strcmp(lines, "is a\ntest\n"));
+    // Second call
+    line = next_line(&lines);
+    ck_assert(!strcmp(line, "is a") && !strcmp(lines, "test\n"));
+    // Third call
+    line = next_line(&lines);
+    ck_assert(!strcmp(line, "test") && !strcmp(lines, ""));
+    // Fourth call
+    line = next_line(&lines);
+    ck_assert(line == NULL && !strcmp(lines, ""));
+
+    free(unmod_ptr);

@@ -151,24 +151,21 @@ const Bitboard BISHOP_SQS[] = {
 // Check unit testing of castle().
 enum castle_error_codes castle_error;
 
-/*************************************
- **** Chester interface functions ****
- *************************************/
+/******************************
+ ****                      ****
+ ****  External functions  ****
+ ****                      ****
+ ******************************/
 
 // TODO: doc
-Rawcode *
-che_rawcodes( const char *fen )
+char *
+che_move_gen( const char *fens )
 {
-    Pos *p = fen_to_pos(fen);
-    Rawcode *codes = rawcodes(p);
-    free(p);
-
-    return codes;
+    assert(fens);
+    // char *fen = next_line(fens);
+    // get_next_fen(fen);
+    return NULL;
 }
-
-/****************************
- **** External functions ****
- ****************************/
 
 // TODO: doc
 Rawcode *

@@ -6,6 +6,7 @@
 #include "../src/utils.h"
 #include "../src/validation.h"
 #include "../src/extra.h"
+#include "../src/chester.h"
 
 #suite move_gen_ts
 
@@ -1333,3 +1334,9 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     TEST_WITH_ARGS( "4k3/8/8/8/5PpP/5N2/8/4K3 b - h3 0 20", "g4g3", false )
 
 #undef TEST_WITH_ARGS
+
+#tcase che_move_gen_tests
+
+#test xyz_haha
+
+    che_move_gen("");

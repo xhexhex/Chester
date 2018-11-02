@@ -897,6 +897,56 @@ shredder_to_std_fen_conv( char *fen )
         default: assert(false); }
 }
 
+// Understanding the purpose of the function and the way it works is best
+// illustrated with an example.
+//
+// After the following three lines of code the char pointer 'lines' points
+// to the first character of the string "this\nis a\ntest\n" in writable
+// memory.
+// >> char str[] = "this\nis a\ntest\n";
+// >> char *unmod_ptr = (char *) malloc(strlen(str) + 1), *lines = unmod_ptr;
+// >> strcpy(lines, str);
+//
+// The following assignments and assertions should give an idea of what's
+// going on.
+// >> line = next_line(&lines); // FIRST call
+// >> ck_assert(!strcmp(line, "this") && !strcmp(lines, "is a\ntest\n"));
+// >> line = next_line(&lines); // SECOND call
+// >> ck_assert(!strcmp(line, "is a") && !strcmp(lines, "test\n"));
+// >> line = next_line(&lines); // THIRD call
+// >> ck_assert(!strcmp(line, "test") && !strcmp(lines, ""));
+// >> line = next_line(&lines); // FOURTH call
+// >> ck_assert(line == NULL && !strcmp(lines, ""));
+// >> free(unmod_ptr);
+//
+// So the purpose of the function is to extract one line at a time from
+// a sequence of lines. It makes no difference whether or not the last
+// line ends in a newline. It's important to remember that calls to the
+// function are "destructive" in two ways, what comes to the 'lines'
+// argument: (1) The caller's char pointer argument gets modified
+// (note the pass-by-reference) and (2) on each call to the function a
+// newline is replaced with a null character in the text pointed to by
+// the pointer obtained by dereferencing 'lines'.
+//
+// It is assumed that the sequence of lines contain no empty lines. In
+// other words the assumption is that there are no consecutive newlines
+// in the text.
+char *
+next_line( char **lines )
+{
+    assert(lines), assert(*lines);
+    if(!strcmp(*lines, "")) return NULL;
+
+    char *line = *lines, *c_ptr = *lines;
+    assert(*c_ptr != '\n');
+
+    while(*++c_ptr != '\0' && *c_ptr != '\n');
+    *lines = c_ptr;
+    if(*c_ptr == '\n') {*c_ptr = '\0'; ++*lines;}
+
+    return line;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
