@@ -39,6 +39,7 @@ bool is_en_passant_capture( const Pos *p, Rawcode move );
 bool is_castle( const Pos *p, Rawcode move );
 bool king_in_check( const Pos *p );
 bool checkmate( const Pos *p );
+char *single_fen_move_gen( const char *fen );
 
 #endif
 // end MOVE_GEN_H

@@ -33,14 +33,6 @@ static void x_expand_caf_handle_2_char_caf_cases(
 static void x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr );
 static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
-/*
-static bool x_gentle_shredder_to_std_fen_conv_4_caf_check( const char *fen,
-    const char *ecaf );
-static bool x_gentle_shredder_to_std_fen_conv_3_caf_check( const char *fen,
-    const char *ecaf );
-static bool x_gentle_shredder_to_std_fen_conv_2_caf_check( const char *fen,
-    const char *ecaf );
-*/
 static void x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen,
     const char *ecaf, int index );
 static void x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen,
@@ -49,20 +41,15 @@ static void x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen,
     char *ecaf, int index );
 static void x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen,
     const char *ecaf, int index );
-
-/***********************
- **** External data ****
- ***********************/
+static int x_qsort_string_compare( const void *a, const void *b );
 
 bool srand_has_been_called = false;
 
-/*************************************
- **** Chester interface functions ****
- *************************************/
-
-/****************************
- **** External functions ****
- ****************************/
+/******************************
+ ****                      ****
+ ****  External functions  ****
+ ****                      ****
+ ******************************/
 
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
 // extended regular expression 'pat'.
@@ -947,6 +934,13 @@ next_line( char **lines )
     return line;
 }
 
+// Sorts the string array 's' in alphabetical order. The parameter
+// 'count' indicates the number of elements in 's'.
+void string_sort( char *s[], int count )
+{
+    qsort(s, (size_t) count, sizeof(char *), x_qsort_string_compare);
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
@@ -1354,4 +1348,10 @@ x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int in
 
     fen[index] = 'K', fen[index + 1] = 'Q',
         fen[index + 2] = 'k', fen[index + 3] = 'q';
+}
+
+static int
+x_qsort_string_compare( const void *a, const void *b )
+{
+    return strcmp(*(const char **) a, *(const char **) b);
 }

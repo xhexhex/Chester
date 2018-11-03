@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "extra.h"
 #include "validation.h"
+#include "pgn.h"
 
 static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
     int *num_of_sqs_north, int *num_of_sqs_east,
@@ -162,8 +163,32 @@ char *
 che_move_gen( const char *fens )
 {
     assert(fens);
-    // char *fen = next_line(fens);
-    // get_next_fen(fen);
+    /*
+    char *unmod_ptr = malloc(strlen(fens) + 1), *fen_data = unmod_ptr, *fen;
+    strcpy(fen_data, fens);
+
+    const Pos *p; Rawcode *rc; int num_legal_moves;
+    while((fen = next_line(&fen_data))) {
+    }
+    // https://www.lemoda.net/c/array-sort/
+
+    free(unmod_ptr);
+    */
+    return NULL;
+}
+
+// TODO: doc
+char *single_fen_move_gen( const char *fen )
+{
+    assert(che_fen_validator(fen) == FEN_NO_ERRORS); // Remove!
+    /*
+    p = fen_to_pos(fen), rc = rawcodes(p), num_legal_moves = rc[0];
+    for(int i = 1; i <= num_legal_moves; i++) {
+        printf("%s ", rawcode_to_san(p, rc[i], '-')); }
+    printf("\n"); // Memory leak!
+
+    free((void *) p), free(rc);
+    */
     return NULL;
 }
 

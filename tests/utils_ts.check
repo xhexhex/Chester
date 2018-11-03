@@ -1800,3 +1800,33 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     ck_assert(line == NULL && !strcmp(lines, ""));
 
     free(unmod_ptr);
+
+//
+// Test case
+//
+#tcase string_sort_tests
+
+#define COMMA ,
+#define TEST_WITH_ARGS(unsorted, expected_arg, suffix) \
+    char *to_be_sorted_ ## suffix[] = unsorted, \
+        *expected_ ## suffix[] = expected_arg; \
+    int count_ ## suffix = sizeof(to_be_sorted_ ## suffix) / sizeof(char *); \
+    string_sort(to_be_sorted_ ## suffix, count_ ## suffix); \
+    for(int i = 0; i < count_ ## suffix; i++) { \
+        /*printf("%s %s\n", to_be_sorted_ ## suffix[i], expected_ ## suffix[i] );*/ \
+        ck_assert(to_be_sorted_ ## suffix[i] == expected_ ## suffix[i]); }
+
+#test string_sort_test_1
+    TEST_WITH_ARGS({"a" COMMA "b"}, {"a" COMMA "b"}, 1)
+    TEST_WITH_ARGS({"b" COMMA "a"}, {"a" COMMA "b"}, 2)
+    TEST_WITH_ARGS({"x" COMMA "x"}, {"x" COMMA "x"}, 3)
+    TEST_WITH_ARGS({"h" COMMA "H"}, {"H" COMMA "h"}, 4);
+
+#test string_sort_test_2
+    TEST_WITH_ARGS({"THIS" COMMA "IS" COMMA "A" COMMA "TEST"},
+        {"A" COMMA "IS" COMMA "TEST" COMMA "THIS"}, 1)
+    TEST_WITH_ARGS({"These" COMMA "are" COMMA "many" COMMA "WORDS" COMMA "!"},
+        {"!" COMMA "These" COMMA "WORDS" COMMA "are" COMMA "many"}, 2)
+
+#undef COMMA
+#undef TEST_WITH_ARGS

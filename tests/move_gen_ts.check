@@ -1339,4 +1339,4 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
 #test xyz_haha
 
-    che_move_gen("");
+    che_move_gen(FEN_STD_START_POS "\n" FEN_PERSONALLY_SIGNIFICANT );
