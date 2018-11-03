@@ -1335,8 +1335,18 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 
 #undef TEST_WITH_ARGS
 
+//
+// Test case
+//
 #tcase che_move_gen_tests
 
 #test xyz_haha
-
     che_move_gen(FEN_STD_START_POS "\n" FEN_PERSONALLY_SIGNIFICANT );
+
+//
+// Test case
+//
+#tcase single_fen_move_gen_tests
+
+#test single_fen_move_gen_test_1
+    printf("\"%s\"\n", single_fen_move_gen(FEN_STD_START_POS) );

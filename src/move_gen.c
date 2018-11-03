@@ -178,18 +178,51 @@ che_move_gen( const char *fens )
 }
 
 // TODO: doc
-char *single_fen_move_gen( const char *fen )
+char *
+single_fen_move_gen( const char *fen )
 {
     assert(che_fen_validator(fen) == FEN_NO_ERRORS); // Remove!
-    /*
-    p = fen_to_pos(fen), rc = rawcodes(p), num_legal_moves = rc[0];
-    for(int i = 1; i <= num_legal_moves; i++) {
-        printf("%s ", rawcode_to_san(p, rc[i], '-')); }
-    printf("\n"); // Memory leak!
 
-    free((void *) p), free(rc);
-    */
-    return NULL;
+    const Pos *p = fen_to_pos(fen);
+    Rawcode *rc = rawcodes(p);
+    int num_legal_moves = rc[0];
+    char *str_data = malloc(
+            num_legal_moves * (SAN_MAX_LENGTH + 1) * sizeof(char)),
+        **san = malloc(num_legal_moves * sizeof(char *));
+
+    for(int i = 1; i <= num_legal_moves; i++) {
+        assert(!is_promotion(p, rc[i]));
+        char *tmp_san = rawcode_to_san(p, rc[i], '-'),
+            *target = str_data + (i - 1) * (SAN_MAX_LENGTH + 1) *
+                sizeof(char);
+        printf("%s ", tmp_san);
+        strcpy(target, tmp_san), san[i - 1] = target;
+        free(tmp_san);
+    }
+    printf("\n");
+
+    string_sort(san, num_legal_moves);
+
+    for(int i = 0; i < num_legal_moves; i++)
+        printf("%s ", san[i]);
+    printf("\n");
+
+    int length = 0;
+    for(int i = 0; i < num_legal_moves; i++)
+        length += strlen(san[i]) + 1;
+    char *legal_moves = malloc(length + 1);
+    // legal_moves[0] = '\0';
+    strcpy(legal_moves, "");
+
+    for(int i = 0; i < num_legal_moves; i++)
+        strcat(legal_moves, san[i]), strcat(legal_moves, " ");
+
+    // legal_moves[length - 1] = '.', legal_moves[length] = '\0';
+    legal_moves[length - 1] = '\0';
+
+    free((void *) p), free(rc), free(str_data), free(san);
+
+    return legal_moves;
 }
 
 // TODO: doc
