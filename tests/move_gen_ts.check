@@ -1340,14 +1340,109 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 //
 #tcase che_move_gen_tests
 
-#test xyz_haha
-    che_move_gen(FEN_STD_START_POS "\n" FEN_PERSONALLY_SIGNIFICANT );
+#define TEST_WITH_ARGS(fens, expected) \
+    results = che_move_gen(fens); \
+    ck_assert(!strcmp(results, expected)); \
+    free(results);
+
+#test che_move_gen_test_1
+    char *results;
+
+    TEST_WITH_ARGS(FEN_STD_START_POS,
+        "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n")
+    TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
+        "-\n")
+    TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34\nk5r1/8/8/8/8/8/r7/7K w - - 12 34",
+        "-\n-\n")
+    TEST_WITH_ARGS(FEN_STD_START_POS "\n" "4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
+        "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n-\n")
+    TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34" "\n" FEN_PERSONALLY_SIGNIFICANT,
+        "-\nKf8 Kh8\n")
+    TEST_WITH_ARGS(FEN_STD_START_POS "\n" FEN_PERSONALLY_SIGNIFICANT "\n",
+        "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\nKf8 Kh8\n")
+    TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT "\n" FEN_STD_START_POS,
+        "Kf8 Kh8\n" "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n")
+    TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34\n7k/8/8/8/8/8/r7/K7 w - - 0 123",
+        "-\nKb1 Kxa2\n")
+
+#define MOVE_LIST_FEN_SUPERPOSITION_1 \
+    "Bc2 Bc5 Bd3 Bd4 Be3 Be4 Bf2 Bf5 Bh2 Bxa2 Ke1 Ke2 Kf2 Kg2 Nb3# Nc3 " \
+    "Nd3 Ne2 Ne3 Nf2 Nxa2 Nxb2 Q2d3 Q2d4 Q2d5 Q2d6 Q7d3 Q7d4 Q7d5 Q7d6 " \
+    "Qaa4 Qaa5 Qaa6 Qaa7 Qab3 Qab4 Qac3 Qac5 Qad3 Qad6 Qae3 Qae7 Qaf8 " \
+    "Qaxa2# Qaxb2# Qba5 Qba6 Qba7 Qbb3 Qbb4 Qbb5 Qbb7 Qbb8 Qbc5 Qbc6 " \
+    "Qbc7 Qbd4 Qbd6 Qbd8 Qbe3 Qbe6 Qbf2 Qbf6 Qbxb2# Qca4 Qca6 Qcb3 Qcb4 " \
+    "Qcb5 Qcc2 Qcc3 Qcc5 Qcc6 Qcc7 Qcc8 Qcd3 Qcd4 Qcd5 Qce2 Qce4 Qce6 " \
+    "Qcf4 Qcf7 Qcg4 Qcg8 Qcxa2# Qda4 Qda5 Qda7 Qdb4 Qdb5 Qdb7 Qdc2 Qdc3 " \
+    "Qdc6 Qdc7 Qdc8 Qdd8 Qde1 Qde2 Qde3 Qde6 Qde7 Qde8 Qdf2 Qdf4 Qdf5 " \
+    "Qdf7 Qdg2 Qdg4 Qdg5 Qdg7 Qdh2 Qdh3 Qdh6 Qdh7 Qdxb2# Qea5 Qeb5 Qeb8 " \
+    "Qec3 Qec5 Qec7 Qed4 Qed5 Qed6 Qee1 Qee2 Qee3 Qee4 Qee6 Qee7 Qee8 " \
+    "Qef4 Qef5 Qef6 Qeg3 Qeg5 Qeg7 Qeh2 Qeh5 Qexb2# Qfb3 Qfb7 Qfc3 Qfc6 " \
+    "Qfd3 Qfd5 Qfe2 Qfe3 Qfe4 Qff2 Qff4 Qff5 Qff6 Qff7 Qff8 Qfg2 Qfg3 " \
+    "Qfg4 Qfh1 Qfh3 Qfh5 Qgc2 Qgc6 Qgd3 Qgd6 Qge4 Qge6 Qge8 Qgf5 Qgf6 " \
+    "Qgf7 Qgg2 Qgg3 Qgg4 Qgg5 Qgg7 Qgg8 Qgh5 Qgh6 Qgh7 Qhd4 Qhd8 Qhe1 " \
+    "Qhe4 Qhe7 Qhf2 Qhf4 Qhf6 Qhg3 Qhg4 Qhg5 Qhh1 Qhh2 Qhh3 Qhh5 Qhh6 " \
+    "Qhh7 Ra4 Ra5 Ra6 Ra7 Rab8 Rac8 Rad8 Rae8 Raf8 Rag8 Rh5 Rh6 Rh7 Rhb8 " \
+    "Rhc8 Rhd8 Rhe8 Rhf8 Rhg8"
+#define MOVE_LIST_FEN_SUPERPOSITION_2 \
+    "Ba5 Bb3 Bb4 Bc2 Bc3 Bd2 Be2 Bf2 Bf3 Bg3 Bg4 Bh4 Ka1 Ka2 Kc1 Kc2 Nd2 Ne2 " \
+    "Ne3 Nf3 Ng3# Nh3 Nxh2 Q2b3 Q2b4 Q2b5 Q2b6 Q3d4 Q3d5 Q3d6 Q3d7 Q7b3 Q7b4 " \
+    "Q7b5 Q7b6 Q8d4 Q8d5 Q8d6 Q8d7 Qaa1 Qaa2 Qaa3 Qaa5 Qaa6 Qaa7 Qaa8 Qab3 " \
+    "Qab4 Qab5 Qac2 Qac4 Qac6 Qad4 Qad7 Qae4 Qae8 Qba1 Qba2 Qba3 Qba6 Qba7 " \
+    "Qba8 Qbb8 Qbc1 Qbc2 Qbc3 Qbc6 Qbc7 Qbc8 Qbd2 Qbd4 Qbd5 Qbd7 Qbe2 Qbe4 " \
+    "Qbe5 Qbe7 Qbf2 Qbf3 Qbf6 Qbf7 Qca3 Qca5 Qca7 Qcb4 Qcb5 Qcb6 Qcc1 Qcc2 " \
+    "Qcc3 Qcc4 Qcc6 Qcc7 Qcc8 Qcd4 Qcd5 Qcd6 Qce3 Qce5 Qce7 Qcf2 Qcf5 Qcf8 " \
+    "Qcg5 Qda3 Qda5 Qda6 Qda8 Qdb3 Qdb5 Qdb6 Qdb8 Qdc2 Qdc3 Qdc4 Qdc7 Qdc8 " \
+    "Qdd2 Qde2 Qde3 Qde4 Qde7 Qde8 Qdf3 Qdf5 Qdf6 Qdf8 Qdg3 Qdg5 Qdg6 Qdg8 " \
+    "Qdh3 Qdh4 Qdh7 Qdh8 Qea2 Qea6 Qeb3 Qeb6 Qec4 Qec6 Qec8 Qed5 Qed6 Qed7 " \
+    "Qee2 Qee3 Qee4 Qee5 Qee7 Qee8 Qef5 Qef6 Qef7 Qeg4 Qeg6 Qeg8 Qeh3 Qeh6 " \
+    "Qfb4 Qfb8 Qfc1 Qfc4 Qfc7 Qfd2 Qfd4 Qfd6 Qfe3 Qfe4 Qfe5 Qff2 Qff3 Qff5 " \
+    "Qff6 Qff7 Qff8 Qfg3 Qfg4 Qfg5 Qfh4 Qfh6 Qgc3 Qgc7 Qgd4 Qgd7 Qge5 Qge7 " \
+    "Qgf6 Qgf7 Qgf8 Qgg3 Qgg4 Qgg5 Qgg6 Qgg8 Qgh6 Qgh7 Qgh8 Qxh2# Rc2# Rd2# " \
+    "Rd5 Re2# Re5 Rf2# Rf5 Rg3# Rg4# Rg6# Rgg5# Rgxh2# Rh3 Rh4 Rh6 Rh7 Rh8 " \
+    "Rhg5 Rhxh2#"
+
+#test che_move_gen_test_2
+    char *results;
+
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_1, MOVE_LIST_FEN_SUPERPOSITION_1 "\n")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_2, MOVE_LIST_FEN_SUPERPOSITION_2 "\n")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_1 "\n" FEN_SUPERPOSITION_2,
+        MOVE_LIST_FEN_SUPERPOSITION_1 "\n" MOVE_LIST_FEN_SUPERPOSITION_2 "\n")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_2 "\n" FEN_SUPERPOSITION_1 "\n",
+        MOVE_LIST_FEN_SUPERPOSITION_2 "\n" MOVE_LIST_FEN_SUPERPOSITION_1 "\n")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_1 "\n" FEN_PERSONALLY_SIGNIFICANT "\n"
+            FEN_SUPERPOSITION_2,
+        MOVE_LIST_FEN_SUPERPOSITION_1 "\nKf8 Kh8\n" MOVE_LIST_FEN_SUPERPOSITION_2 "\n")
+
+#test che_move_gen_test_3
+    char *results;
+
+    TEST_WITH_ARGS(
+        "r2q1rk1/2p2p2/p1Qp2pp/1p2Pn2/3PN3/1B2R2P/PPP3P1/1K2R3 w - - 7 21\n"
+        "r1bqkb1r/pp3pp1/2p1pn1p/3p4/1n1PP3/2N2N2/PPP1BPPP/R1BQK2R w KQkq - 2 8\n"
+        "k5r1/8/8/8/8/8/r7/7K w - - 12 34\n"
+        "1q1r1rkb/pb1pn1pp/1p1npp2/2p1N3/8/QP3NP1/P1PPPPBP/B2RKR2 w DF - 0 9\n"
+        ,
+        "Ba4 Bc4 Bd5 Be6 Bxf7+ Ka1 Kc1 Nc3 Nc5 Nd2 Nf2 Nf6+ Ng3 Ng5 Nxd6 Qb6 "
+        "Qb7 Qc3 Qc4 Qc5 Qd5 Qd7 Qe8 Qxa6 Qxa8 Qxb5 Qxc7 Qxd6 R1e2 R3e2 Rc1 "
+        "Rc3 Rd1 Rd3 Rf1 Rf3 Rg1 Rg3 Rh1 a3 a4 c3 c4 d5 e6 exd6 g3 g4 h4\n"
+
+        "Ba6 Bb5 Bc4 Bd2 Bd3 Be3 Bf1 Bf4 Bg5 Bxh6 Kd2 Kf1 Na4 Nb1 Nb5 Nd2 "
+        "Ne5 Ng1 Ng5 Nh4 Nxd5 O-O Qd2 Qd3 Rb1 Rf1 Rg1 a3 a4 b3 e5 exd5 g3 "
+        "g4 h3 h4\n"
+
+        "-\n"
+
+        "Bb2 Bc3 Bd4 Bh1 Bh3 Nc4 Nc6 Nd3 Nd4 Nf7 Ng1 Ng4 Ng5 Ng6 Nh4 Nxd7 "
+        "O-O O-O-O Qa4 Qa5 Qa6 Qb2 Qb4 Qc1 Qxa7 Qxc5 Rb1 Rc1 Rg1 Rh1 b4 c3 "
+        "c4 d3 d4 e3 e4 g4 h3 h4\n")
+
+#undef TEST_WITH_ARGS
 
 //
 // Test case
 //
 #tcase single_fen_move_gen_tests
-
 
 #define TEST_WITH_ARGS(fen, expected) \
     ck_assert(!che_fen_validator(fen)); \
@@ -1373,10 +1468,11 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #test single_fen_move_gen_test_2
     char *actual;
 
-    TEST_WITH_ARGS(FEN_SUPERPOSITION_1,
-        "Bc2 Bc5 Bd3 Bd4 Be3 Be4 Bf2 Bf5 Bh2 Bxa2 Ke1 Ke2 Kf2 Kg2 Nb3# Nc3 Nd3 Ne2 Ne3 Nf2 Nxa2 Nxb2 Q2d3 Q2d4 Q2d5 Q2d6 Q7d3 Q7d4 Q7d5 Q7d6 Qaa4 Qaa5 Qaa6 Qaa7 Qab3 Qab4 Qac3 Qac5 Qad3 Qad6 Qae3 Qae7 Qaf8 Qaxa2# Qaxb2# Qba5 Qba6 Qba7 Qbb3 Qbb4 Qbb5 Qbb7 Qbb8 Qbc5 Qbc6 Qbc7 Qbd4 Qbd6 Qbd8 Qbe3 Qbe6 Qbf2 Qbf6 Qbxb2# Qca4 Qca6 Qcb3 Qcb4 Qcb5 Qcc2 Qcc3 Qcc5 Qcc6 Qcc7 Qcc8 Qcd3 Qcd4 Qcd5 Qce2 Qce4 Qce6 Qcf4 Qcf7 Qcg4 Qcg8 Qcxa2# Qda4 Qda5 Qda7 Qdb4 Qdb5 Qdb7 Qdc2 Qdc3 Qdc6 Qdc7 Qdc8 Qdd8 Qde1 Qde2 Qde3 Qde6 Qde7 Qde8 Qdf2 Qdf4 Qdf5 Qdf7 Qdg2 Qdg4 Qdg5 Qdg7 Qdh2 Qdh3 Qdh6 Qdh7 Qdxb2# Qea5 Qeb5 Qeb8 Qec3 Qec5 Qec7 Qed4 Qed5 Qed6 Qee1 Qee2 Qee3 Qee4 Qee6 Qee7 Qee8 Qef4 Qef5 Qef6 Qeg3 Qeg5 Qeg7 Qeh2 Qeh5 Qexb2# Qfb3 Qfb7 Qfc3 Qfc6 Qfd3 Qfd5 Qfe2 Qfe3 Qfe4 Qff2 Qff4 Qff5 Qff6 Qff7 Qff8 Qfg2 Qfg3 Qfg4 Qfh1 Qfh3 Qfh5 Qgc2 Qgc6 Qgd3 Qgd6 Qge4 Qge6 Qge8 Qgf5 Qgf6 Qgf7 Qgg2 Qgg3 Qgg4 Qgg5 Qgg7 Qgg8 Qgh5 Qgh6 Qgh7 Qhd4 Qhd8 Qhe1 Qhe4 Qhe7 Qhf2 Qhf4 Qhf6 Qhg3 Qhg4 Qhg5 Qhh1 Qhh2 Qhh3 Qhh5 Qhh6 Qhh7 Ra4 Ra5 Ra6 Ra7 Rab8 Rac8 Rad8 Rae8 Raf8 Rag8 Rh5 Rh6 Rh7 Rhb8 Rhc8 Rhd8 Rhe8 Rhf8 Rhg8")
-    TEST_WITH_ARGS(FEN_SUPERPOSITION_2,
-        "Ba5 Bb3 Bb4 Bc2 Bc3 Bd2 Be2 Bf2 Bf3 Bg3 Bg4 Bh4 Ka1 Ka2 Kc1 Kc2 Nd2 Ne2 Ne3 Nf3 Ng3# Nh3 Nxh2 Q2b3 Q2b4 Q2b5 Q2b6 Q3d4 Q3d5 Q3d6 Q3d7 Q7b3 Q7b4 Q7b5 Q7b6 Q8d4 Q8d5 Q8d6 Q8d7 Qaa1 Qaa2 Qaa3 Qaa5 Qaa6 Qaa7 Qaa8 Qab3 Qab4 Qab5 Qac2 Qac4 Qac6 Qad4 Qad7 Qae4 Qae8 Qba1 Qba2 Qba3 Qba6 Qba7 Qba8 Qbb8 Qbc1 Qbc2 Qbc3 Qbc6 Qbc7 Qbc8 Qbd2 Qbd4 Qbd5 Qbd7 Qbe2 Qbe4 Qbe5 Qbe7 Qbf2 Qbf3 Qbf6 Qbf7 Qca3 Qca5 Qca7 Qcb4 Qcb5 Qcb6 Qcc1 Qcc2 Qcc3 Qcc4 Qcc6 Qcc7 Qcc8 Qcd4 Qcd5 Qcd6 Qce3 Qce5 Qce7 Qcf2 Qcf5 Qcf8 Qcg5 Qda3 Qda5 Qda6 Qda8 Qdb3 Qdb5 Qdb6 Qdb8 Qdc2 Qdc3 Qdc4 Qdc7 Qdc8 Qdd2 Qde2 Qde3 Qde4 Qde7 Qde8 Qdf3 Qdf5 Qdf6 Qdf8 Qdg3 Qdg5 Qdg6 Qdg8 Qdh3 Qdh4 Qdh7 Qdh8 Qea2 Qea6 Qeb3 Qeb6 Qec4 Qec6 Qec8 Qed5 Qed6 Qed7 Qee2 Qee3 Qee4 Qee5 Qee7 Qee8 Qef5 Qef6 Qef7 Qeg4 Qeg6 Qeg8 Qeh3 Qeh6 Qfb4 Qfb8 Qfc1 Qfc4 Qfc7 Qfd2 Qfd4 Qfd6 Qfe3 Qfe4 Qfe5 Qff2 Qff3 Qff5 Qff6 Qff7 Qff8 Qfg3 Qfg4 Qfg5 Qfh4 Qfh6 Qgc3 Qgc7 Qgd4 Qgd7 Qge5 Qge7 Qgf6 Qgf7 Qgf8 Qgg3 Qgg4 Qgg5 Qgg6 Qgg8 Qgh6 Qgh7 Qgh8 Qxh2# Rc2# Rd2# Rd5 Re2# Re5 Rf2# Rf5 Rg3# Rg4# Rg6# Rgg5# Rgxh2# Rh3 Rh4 Rh6 Rh7 Rh8 Rhg5 Rhxh2#")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_1, MOVE_LIST_FEN_SUPERPOSITION_1)
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_2, MOVE_LIST_FEN_SUPERPOSITION_2)
+
+#undef MOVE_LIST_FEN_SUPERPOSITION_1
+#undef MOVE_LIST_FEN_SUPERPOSITION_2
 
 // Positions with no moves available (stalemate or checkmate positions)
 #test single_fen_move_gen_test_3

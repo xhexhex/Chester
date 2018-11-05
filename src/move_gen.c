@@ -159,23 +159,53 @@ enum castle_error_codes castle_error;
  ****                      ****
  ******************************/
 
-// TODO: doc
+// To understand che_move_gen() it's best to first study single_fen_move_gen().
+// The former is basically a multiple-items-allowed-in-single-call version
+// of the latter.
+//
+// The parameter 'fens' should receive a list of newline-separated FENs
+// (it makes no difference whether or not the last character of the list
+// is a newline). The function returns a newline-separated list with each
+// list item (line) containing the legal moves in the FEN found on the
+// corresponding line in 'fens'. For example, the call
+// che_move_gen("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34\n7k/8/8/8/8/8/r7/K7 w - - 0 123")
+// returns a pointer to the string "-\nKb1 Kxa2\n".
+//
+// There's a linewise one-to-one correspondence between the input and output
+// of the function. That is, the legal moves for the FEN on line X of 'fens'
+// can be found on line X of the output (the returned string). If there are
+// no legal moves in a particular FEN (a checkmate or stalemate position),
+// then the corresponding line in the output is "-\n".
+//
+// The pointer returned by the function points to a dynamically allocated
+// string so a call to free() should occur after any call to che_move_gen().
 char *
 che_move_gen( const char *fens )
 {
-    assert(fens);
-    /*
-    char *unmod_ptr = malloc(strlen(fens) + 1), *fen_data = unmod_ptr, *fen;
-    strcpy(fen_data, fens);
+    int num_alloc_bytes = 8 * 1024, iter_count = 0, len_results = 0;
+    char *unmod_ptr = malloc(strlen(fens) + 1), *fen_data = unmod_ptr,
+        *fen, *results = malloc(num_alloc_bytes);
+    strcpy(fen_data, fens), strcpy(results, "");
 
-    const Pos *p; Rawcode *rc; int num_legal_moves;
     while((fen = next_line(&fen_data))) {
-    }
-    // https://www.lemoda.net/c/array-sort/
+        ++iter_count;
+        assert(!che_fen_validator(fen)); // Remove!
+        char *moves = single_fen_move_gen(fen);
+        if(!strlen(moves)) free(moves), moves = malloc(1 + 1), strcpy(moves, "-");
+        len_results += strlen(moves) + 1;
+        while(len_results >= num_alloc_bytes) {
+            num_alloc_bytes *= 2;
+            assert((results = realloc(results, num_alloc_bytes))); }
+        strcat(results, moves), strcat(results, "\n");
+        free(moves); }
+
+    assert(iter_count);
+    assert(len_results == (int) strlen(results));
+    assert(!len_results || results[0] != '\n');
+    assert(!len_results || results[len_results - 1] == '\n');
 
     free(unmod_ptr);
-    */
-    return NULL;
+    return results;
 }
 
 // Returns the legal moves in the position specified by the 'fen' argument
