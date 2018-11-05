@@ -1,0 +1,5 @@
+https://alvinalexander.com/technology/gnuplot-charts-graphs-examples
+http://gnuplot.sourceforge.net/docs_4.2/node76.html
+http://gnuplot.sourceforge.net/docs_4.2/node274.html
+http://gnuplot.sourceforge.net/docs_4.2/node133.html
+http://people.duke.edu/~hpgavin/gnuplot.html
