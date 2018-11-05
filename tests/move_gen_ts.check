@@ -1348,5 +1348,79 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 //
 #tcase single_fen_move_gen_tests
 
+
+#define TEST_WITH_ARGS(fen, expected) \
+    ck_assert(!che_fen_validator(fen)); \
+    actual = single_fen_move_gen(fen); \
+    ck_assert(!strcmp(actual, expected)); \
+    free(actual);
+
 #test single_fen_move_gen_test_1
-    printf("\"%s\"\n", single_fen_move_gen(FEN_STD_START_POS) );
+    char *actual;
+
+    TEST_WITH_ARGS(FEN_STD_START_POS,
+        "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4")
+    TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT,
+        "Kf8 Kh8")
+    TEST_WITH_ARGS(FEN_GAME_OF_THE_CENTURY,
+        "Bc8 Bd7 Be6 Bf5 Bh3 Bh5 Bh6 Bh8 Bxf3 Kh8 Na4 Nbd5 Nbd7 Nc4 Nc8 Ne8 "
+        "Nfd5 Nfd7 Nh5 Nxe4 Qb8 Qc7 Qc8 Qd5 Qd6 Qd7 Qe8 Qxd4 Rb8 Rc8 Re8 a5 "
+        "a6 e5 e6 h5 h6")
+    TEST_WITH_ARGS("7k/P1p3pp/8/3Pp3/8/7p/2q4P/4K2R w K e6 0 123",
+        "Kf1 O-O Rf1 Rg1 a8=B a8=N a8=Q# a8=R# d6 dxe6")
+
+// Testing with the two "superpositions" (both have 218 legal moves available)
+#test single_fen_move_gen_test_2
+    char *actual;
+
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_1,
+        "Bc2 Bc5 Bd3 Bd4 Be3 Be4 Bf2 Bf5 Bh2 Bxa2 Ke1 Ke2 Kf2 Kg2 Nb3# Nc3 Nd3 Ne2 Ne3 Nf2 Nxa2 Nxb2 Q2d3 Q2d4 Q2d5 Q2d6 Q7d3 Q7d4 Q7d5 Q7d6 Qaa4 Qaa5 Qaa6 Qaa7 Qab3 Qab4 Qac3 Qac5 Qad3 Qad6 Qae3 Qae7 Qaf8 Qaxa2# Qaxb2# Qba5 Qba6 Qba7 Qbb3 Qbb4 Qbb5 Qbb7 Qbb8 Qbc5 Qbc6 Qbc7 Qbd4 Qbd6 Qbd8 Qbe3 Qbe6 Qbf2 Qbf6 Qbxb2# Qca4 Qca6 Qcb3 Qcb4 Qcb5 Qcc2 Qcc3 Qcc5 Qcc6 Qcc7 Qcc8 Qcd3 Qcd4 Qcd5 Qce2 Qce4 Qce6 Qcf4 Qcf7 Qcg4 Qcg8 Qcxa2# Qda4 Qda5 Qda7 Qdb4 Qdb5 Qdb7 Qdc2 Qdc3 Qdc6 Qdc7 Qdc8 Qdd8 Qde1 Qde2 Qde3 Qde6 Qde7 Qde8 Qdf2 Qdf4 Qdf5 Qdf7 Qdg2 Qdg4 Qdg5 Qdg7 Qdh2 Qdh3 Qdh6 Qdh7 Qdxb2# Qea5 Qeb5 Qeb8 Qec3 Qec5 Qec7 Qed4 Qed5 Qed6 Qee1 Qee2 Qee3 Qee4 Qee6 Qee7 Qee8 Qef4 Qef5 Qef6 Qeg3 Qeg5 Qeg7 Qeh2 Qeh5 Qexb2# Qfb3 Qfb7 Qfc3 Qfc6 Qfd3 Qfd5 Qfe2 Qfe3 Qfe4 Qff2 Qff4 Qff5 Qff6 Qff7 Qff8 Qfg2 Qfg3 Qfg4 Qfh1 Qfh3 Qfh5 Qgc2 Qgc6 Qgd3 Qgd6 Qge4 Qge6 Qge8 Qgf5 Qgf6 Qgf7 Qgg2 Qgg3 Qgg4 Qgg5 Qgg7 Qgg8 Qgh5 Qgh6 Qgh7 Qhd4 Qhd8 Qhe1 Qhe4 Qhe7 Qhf2 Qhf4 Qhf6 Qhg3 Qhg4 Qhg5 Qhh1 Qhh2 Qhh3 Qhh5 Qhh6 Qhh7 Ra4 Ra5 Ra6 Ra7 Rab8 Rac8 Rad8 Rae8 Raf8 Rag8 Rh5 Rh6 Rh7 Rhb8 Rhc8 Rhd8 Rhe8 Rhf8 Rhg8")
+    TEST_WITH_ARGS(FEN_SUPERPOSITION_2,
+        "Ba5 Bb3 Bb4 Bc2 Bc3 Bd2 Be2 Bf2 Bf3 Bg3 Bg4 Bh4 Ka1 Ka2 Kc1 Kc2 Nd2 Ne2 Ne3 Nf3 Ng3# Nh3 Nxh2 Q2b3 Q2b4 Q2b5 Q2b6 Q3d4 Q3d5 Q3d6 Q3d7 Q7b3 Q7b4 Q7b5 Q7b6 Q8d4 Q8d5 Q8d6 Q8d7 Qaa1 Qaa2 Qaa3 Qaa5 Qaa6 Qaa7 Qaa8 Qab3 Qab4 Qab5 Qac2 Qac4 Qac6 Qad4 Qad7 Qae4 Qae8 Qba1 Qba2 Qba3 Qba6 Qba7 Qba8 Qbb8 Qbc1 Qbc2 Qbc3 Qbc6 Qbc7 Qbc8 Qbd2 Qbd4 Qbd5 Qbd7 Qbe2 Qbe4 Qbe5 Qbe7 Qbf2 Qbf3 Qbf6 Qbf7 Qca3 Qca5 Qca7 Qcb4 Qcb5 Qcb6 Qcc1 Qcc2 Qcc3 Qcc4 Qcc6 Qcc7 Qcc8 Qcd4 Qcd5 Qcd6 Qce3 Qce5 Qce7 Qcf2 Qcf5 Qcf8 Qcg5 Qda3 Qda5 Qda6 Qda8 Qdb3 Qdb5 Qdb6 Qdb8 Qdc2 Qdc3 Qdc4 Qdc7 Qdc8 Qdd2 Qde2 Qde3 Qde4 Qde7 Qde8 Qdf3 Qdf5 Qdf6 Qdf8 Qdg3 Qdg5 Qdg6 Qdg8 Qdh3 Qdh4 Qdh7 Qdh8 Qea2 Qea6 Qeb3 Qeb6 Qec4 Qec6 Qec8 Qed5 Qed6 Qed7 Qee2 Qee3 Qee4 Qee5 Qee7 Qee8 Qef5 Qef6 Qef7 Qeg4 Qeg6 Qeg8 Qeh3 Qeh6 Qfb4 Qfb8 Qfc1 Qfc4 Qfc7 Qfd2 Qfd4 Qfd6 Qfe3 Qfe4 Qfe5 Qff2 Qff3 Qff5 Qff6 Qff7 Qff8 Qfg3 Qfg4 Qfg5 Qfh4 Qfh6 Qgc3 Qgc7 Qgd4 Qgd7 Qge5 Qge7 Qgf6 Qgf7 Qgf8 Qgg3 Qgg4 Qgg5 Qgg6 Qgg8 Qgh6 Qgh7 Qgh8 Qxh2# Rc2# Rd2# Rd5 Re2# Re5 Rf2# Rf5 Rg3# Rg4# Rg6# Rgg5# Rgxh2# Rh3 Rh4 Rh6 Rh7 Rh8 Rhg5 Rhxh2#")
+
+// Positions with no moves available (stalemate or checkmate positions)
+#test single_fen_move_gen_test_3
+    char *actual;
+
+    TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
+        "")
+    TEST_WITH_ARGS("4k3/4Q3/4K3/8/8/8/8/8 b - - 12 34",
+        "")
+    TEST_WITH_ARGS("8/8/8/8/8/8/r7/5k1K w - - 13 37",
+        "")
+    TEST_WITH_ARGS("8/8/8/8/8/4k3/4q3/R3K2R w KQ - 19 83",
+        "")
+
+// Positions with pawn promotion moves
+#test single_fen_move_gen_test_4
+    char *actual;
+
+    TEST_WITH_ARGS("6r1/5P2/8/8/8/7k/8/7K w - - 19 75",
+        "f8=B f8=N f8=Q f8=R fxg8=B fxg8=N fxg8=Q fxg8=R")
+    TEST_WITH_ARGS("8/5P2/8/8/8/7k/8/7K w - - 19 75",
+        "Kg1 f8=B f8=N f8=Q f8=R")
+    TEST_WITH_ARGS("r1k2r2/5p2/8/8/pP6/8/7p/4K1N1 b af b3 0 50",
+        "Kb7 Kb8 Kc7 Kd7 Kd8 O-O O-O-O Ra5 Ra6 Ra7 Rb8 Rd8 Re8+ Rg8 Rh8 a3 axb3 "
+        "f5 f6 h1=B h1=N h1=Q h1=R hxg1=B hxg1=N hxg1=Q+ hxg1=R+")
+
+// Positions with castling moves
+#test single_fen_move_gen_test_5
+    char *actual;
+
+    TEST_WITH_ARGS("5k2/8/8/8/8/8/8/R3K2R w KQ - 12 34",
+        "Kd1 Kd2 Ke2 Kf1 Kf2 O-O+ O-O-O Ra2 Ra3 Ra4 Ra5 Ra6 Ra7 Ra8+ Rb1 Rc1 "
+        "Rd1 Rf1+ Rg1 Rh2 Rh3 Rh4 Rh5 Rh6 Rh7 Rh8+")
+    TEST_WITH_ARGS("5rkr/5p1p/5P1P/8/8/8/2P1P3/2RKR3 b hf - 0 123",
+        "O-O-O# Ra8 Rb8 Rc8 Rd8# Re8")
+
+// Positions with en passant captures
+#test single_fen_move_gen_test_6
+    char *actual;
+
+    TEST_WITH_ARGS("8/3k4/8/3PpP2/8/7p/7P/7K w - e6 0 123",
+        "Kg1 d6 dxe6+ f6 fxe6+")
+    TEST_WITH_ARGS("rk6/7b/8/8/pPp5/8/8/K2n4 b - b3 0 123",
+        "Bb1 Bc2 Bd3 Be4 Bf5 Bg6 Bg8 Ka7 Kb7 Kc7 Kc8 Nb2 Nc3 Ne3 Nf2 Ra5 "
+        "Ra6 Ra7 a3 axb3# c3 cxb3")
+
+#undef TEST_WITH_ARGS

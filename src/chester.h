@@ -9,6 +9,7 @@ typedef uint16_t Rawcode;
 
 // The possible return values of che_fen_validator()
 // *** "FERR_" instead of "FEN_"? ***
+// FEN_NO_ERRORS => FERR_NONE
 enum che_fen_error {
     FEN_NO_ERRORS,
     FEN_LENGTH_ERROR,

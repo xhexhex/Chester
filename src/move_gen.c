@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 #include "move_gen.h"
 #include "utils.h"
@@ -177,48 +178,60 @@ che_move_gen( const char *fens )
     return NULL;
 }
 
-// TODO: doc
+// Returns the legal moves in the position specified by the 'fen' argument
+// as a space-separated list of SANs. For example:
+//
+// char *moves, fen[] = "7k/P1p3pp/8/3Pp3/8/7p/2q4P/4K2R w K e6 0 123";
+// moves = single_fen_move_gen(fen), printf("\"%s\"\n", moves);
+// free(moves);
+//
+// After the call the 'moves' pointer should point to the string constant
+// "Kf1 O-O Rf1 Rg1 a8=B a8=N a8=Q# a8=R# d6 dxe6".
+//
+// The SANs in the returned string are arranged in alphabetical order.
+// The returned string is dynamically allocated so a call to free() should
+// be involved. The 'fen' parameter is assumed to be valid, i.e., it is
+// assumed that 'fen' has been previously validated with che_fen_validator().
 char *
 single_fen_move_gen( const char *fen )
 {
-    assert(che_fen_validator(fen) == FEN_NO_ERRORS); // Remove!
-
     const Pos *p = fen_to_pos(fen);
     Rawcode *rc = rawcodes(p);
-    int num_legal_moves = rc[0];
-    char *str_data = malloc(
-            num_legal_moves * (SAN_MAX_LENGTH + 1) * sizeof(char)),
-        **san = malloc(num_legal_moves * sizeof(char *));
+    int rc_count = rc[0], num_legal_moves = 0, len_str_data =
+        4 * rc_count * (SAN_MAX_LENGTH + 1) * sizeof(char),
+        sindex = -1;
+    char *str_data = malloc(len_str_data), *target = str_data,
+        **san = malloc(4 * rc_count * sizeof(char *));
+    const char promotion[] = "-BNQR";
+    strcpy(str_data, "");
 
-    for(int i = 1; i <= num_legal_moves; i++) {
-        assert(!is_promotion(p, rc[i]));
-        char *tmp_san = rawcode_to_san(p, rc[i], '-'),
-            *target = str_data + (i - 1) * (SAN_MAX_LENGTH + 1) *
-                sizeof(char);
-        printf("%s ", tmp_san);
-        strcpy(target, tmp_san), san[i - 1] = target;
-        free(tmp_san);
+    for(int i = 1; i <= rc_count; i++) {
+        int pindex = is_promotion(p, rc[i]) ? 1 : 0;
+        do {
+            char *tmp_san = rawcode_to_san(p, rc[i], promotion[pindex++]);
+            assert(strlen(tmp_san) < 8);
+            strcat(str_data, tmp_san), strcat(str_data, " "),
+                san[++sindex] = target, target += strlen(tmp_san) + 1,
+                ++num_legal_moves;
+            free(tmp_san);
+        } while(pindex > 1 && pindex < 5);
     }
-    printf("\n");
+    assert(num_legal_moves >= 0), assert(num_legal_moves <= 218);
+    for(int i = 0; i < len_str_data; i++)
+        if(str_data[i] == ' ') str_data[i] = '\0';
 
     string_sort(san, num_legal_moves);
 
+    int len_lm = 0; // length of 'legal_moves'
     for(int i = 0; i < num_legal_moves; i++)
-        printf("%s ", san[i]);
-    printf("\n");
-
-    int length = 0;
-    for(int i = 0; i < num_legal_moves; i++)
-        length += strlen(san[i]) + 1;
-    char *legal_moves = malloc(length + 1);
-    // legal_moves[0] = '\0';
+        len_lm += strlen(san[i]) + 1;
+    char *legal_moves = malloc(len_lm + 1);
     strcpy(legal_moves, "");
 
     for(int i = 0; i < num_legal_moves; i++)
         strcat(legal_moves, san[i]), strcat(legal_moves, " ");
-
-    // legal_moves[length - 1] = '.', legal_moves[length] = '\0';
-    legal_moves[length - 1] = '\0';
+    assert(!num_legal_moves || legal_moves[len_lm - 1] == ' ');
+    legal_moves[len_lm - 1] = '\0';
 
     free((void *) p), free(rc), free(str_data), free(san);
 

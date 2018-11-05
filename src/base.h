@@ -47,6 +47,10 @@ extern const char APM_DATA[];
     "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
 #define FEN_GAME_OF_THE_CENTURY \
     "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP1b1/2N2N2/PP3PPP/3RKB1R b K - 6 11"
+#define FEN_SUPERPOSITION_1 \
+    "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
+#define FEN_SUPERPOSITION_2 \
+    "3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1"
 
 // The 'ppa' member of the Pos type should be indexed with these,
 // e.g., p->ppa[WHITE_KING]
