@@ -1664,3 +1664,33 @@ ck_assert( counter == exp_count );
         "r2q1rk1/pp3pbp/1np2np1/2Q1p1B1/3PP1b1/2N2N2/PP3PPP/3RKB1R w K e6 0 12")
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase che_make_moves_tests
+
+#define TEST_WITH_ARGS(fen, sans, exp_fens, exp_result) \
+    ck_assert(!che_fen_validator(fen)); \
+    actual_fens = che_make_moves(fen, sans, actual_result); \
+    ck_assert(!strcmp(actual_fens, exp_fens)); \
+    ck_assert(!strcmp(actual_result, exp_result)); \
+    free(actual_fens);
+
+#test che_make_moves_test_1
+    char actual_result[FEN_MAX_LENGTH + 1], *actual_fens;
+
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+            "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n",
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5\nf4\n",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+            "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
+            "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n",
+        "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2")
+
+#undef TEST_WITH_ARGS

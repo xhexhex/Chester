@@ -465,6 +465,41 @@ static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
 // TODO: doc
 char *
+che_make_moves( const char *fen, const char *sans, char *result )
+{
+    int num_alloc_bytes = 1, iter_count = 0, len_fens = 0;
+    char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,
+        *san, *fens = malloc(num_alloc_bytes), *next_fen = malloc(strlen(fen) + 1);
+    strcpy(san_data, sans), strcpy(fens, ""), strcpy(next_fen, fen);
+
+    while((san = next_line(&san_data))) {
+        ++iter_count;
+        assert(che_is_san(san)); // Remove!
+
+        char *tmp = next_fen;
+        next_fen = che_make_move(next_fen, san), free(tmp);
+        assert(!che_fen_validator(next_fen));
+
+        len_fens += strlen(next_fen) + 1;
+        while(len_fens >= num_alloc_bytes) {
+            num_alloc_bytes *= 2;
+            assert((fens = realloc(fens, num_alloc_bytes))); }
+        strcat(fens, next_fen), strcat(fens, "\n");
+    }
+
+    assert(iter_count);
+    assert(len_fens == (int) strlen(fens));
+    assert(len_fens >= FEN_MIN_LENGTH + 1);
+    assert(fens[len_fens - 1] == '\n');
+
+    // printf("next_fen: \"%s\"\n", next_fen);
+    if(result) strcpy(result, next_fen);
+    free(unmod_ptr), free(next_fen);
+    return fens;
+}
+
+// TODO: doc
+char *
 che_make_move( const char *fen, const char *san )
 {
     Pos *p = fen_to_pos(fen);
