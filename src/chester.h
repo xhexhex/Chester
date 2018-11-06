@@ -31,8 +31,7 @@ enum che_fen_error {
     FEN_PAWN_ON_INVALID_RANK_ERROR,
     FEN_INVALID_NUMBER_OF_KINGS_ERROR,
     FEN_KING_CAN_BE_CAPTURED_ERROR,
-    FEN_HMCF_CONTRADICTS_FMNF_ERROR
-};
+    FEN_HMCF_CONTRADICTS_FMNF_ERROR };
 
 //
 // The Chester interface
@@ -40,8 +39,10 @@ enum che_fen_error {
 enum che_fen_error che_fen_validator( const char *fen );
 bool che_is_san( const char *san );
 char *che_make_move( const char *fen, const char *san ); // Rename to single_san_make_move()
-char *che_make_moves( const char *fen, const char *sans, char *result );
+char *che_make_moves( const char *fen, const char *sans );
 char *che_move_gen( const char *fens );
+// enum che_movetext_error che_movetext_validator(fen, movetext);
+// che_move_checker(), che_legal_moves()
 
 #endif
 // end CHESTER_H

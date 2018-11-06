@@ -465,8 +465,10 @@ static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
 // TODO: doc
 char *
-che_make_moves( const char *fen, const char *sans, char *result )
+che_make_moves( const char *fen, const char *sans )
 {
+    if(!fen) fen = FEN_STD_START_POS;
+
     int num_alloc_bytes = 1, iter_count = 0, len_fens = 0;
     char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,
         *san, *fens = malloc(num_alloc_bytes), *next_fen = malloc(strlen(fen) + 1);
@@ -478,7 +480,7 @@ che_make_moves( const char *fen, const char *sans, char *result )
 
         char *tmp = next_fen;
         next_fen = che_make_move(next_fen, san), free(tmp);
-        assert(!che_fen_validator(next_fen));
+        assert(!che_fen_validator(next_fen)); // Remove!
 
         len_fens += strlen(next_fen) + 1;
         while(len_fens >= num_alloc_bytes) {
@@ -493,7 +495,6 @@ che_make_moves( const char *fen, const char *sans, char *result )
     assert(fens[len_fens - 1] == '\n');
 
     // printf("next_fen: \"%s\"\n", next_fen);
-    if(result) strcpy(result, next_fen);
     free(unmod_ptr), free(next_fen);
     return fens;
 }

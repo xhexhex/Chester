@@ -1670,27 +1670,65 @@ ck_assert( counter == exp_count );
 //
 #tcase che_make_moves_tests
 
-#define TEST_WITH_ARGS(fen, sans, exp_fens, exp_result) \
-    ck_assert(!che_fen_validator(fen)); \
-    actual_fens = che_make_moves(fen, sans, actual_result); \
+#define TEST_WITH_ARGS(fen, sans, exp_fens) \
+    ck_assert(!fen || !che_fen_validator(fen)); \
+    actual_fens = che_make_moves(fen, sans); \
     ck_assert(!strcmp(actual_fens, exp_fens)); \
-    ck_assert(!strcmp(actual_result, exp_result)); \
     free(actual_fens);
 
 #test che_make_moves_test_1
-    char actual_result[FEN_MAX_LENGTH + 1], *actual_fens;
+    char *actual_fens;
 
+    TEST_WITH_ARGS(NULL, "e4",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n")
     TEST_WITH_ARGS(FEN_STD_START_POS, "e4",
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n",
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n")
     TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
-            "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n",
-        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2")
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n")
     TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5\nf4\n",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
-            "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
-            "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n",
-        "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2")
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")
+    TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT, "Kf8",
+        "5k2/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R w - - 2 36\n")
+    TEST_WITH_ARGS(FEN_GAME_OF_THE_CENTURY, "Na4",
+        "r2q1rk1/pp2ppbp/2p2np1/2Q3B1/n2PP1b1/2N2N2/PP3PPP/3RKB1R w K - 7 12\n")
+
+#test che_make_moves_test_2
+    char *actual_fens;
+
+    TEST_WITH_ARGS(FEN_STD_START_POS,
+        "e4\ne5\nNf3\nNc6\nBc4\nNd4\nNxe5\nQg5\nNxf7\nQxg2\nRf1\nQxe4+\nBe2\nNf3#\n",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2\n"
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3\n"
+        "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3\n"
+        "r1bqkbnr/pppp1ppp/8/4p3/2BnP3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4\n"
+        "r1bqkbnr/pppp1ppp/8/4N3/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 4\n"
+        "r1b1kbnr/pppp1ppp/8/4N1q1/2BnP3/8/PPPP1PPP/RNBQK2R w KQkq - 1 5\n"
+        "r1b1kbnr/pppp1Npp/8/6q1/2BnP3/8/PPPP1PPP/RNBQK2R b KQkq - 0 5\n"
+        "r1b1kbnr/pppp1Npp/8/8/2BnP3/8/PPPP1PqP/RNBQK2R w KQkq - 0 6\n"
+        "r1b1kbnr/pppp1Npp/8/8/2BnP3/8/PPPP1PqP/RNBQKR2 b Qkq - 1 6\n"
+        "r1b1kbnr/pppp1Npp/8/8/2Bnq3/8/PPPP1P1P/RNBQKR2 w Qkq - 0 7\n"
+        "r1b1kbnr/pppp1Npp/8/8/3nq3/8/PPPPBP1P/RNBQKR2 b Qkq - 1 7\n"
+        "r1b1kbnr/pppp1Npp/8/8/4q3/5n2/PPPPBP1P/RNBQKR2 w Qkq - 2 8\n")
 
 #undef TEST_WITH_ARGS
+
+#test che_make_moves_test_3
+    char opera_game[] =
+            "e4\ne5\nNf3\nd6\nd4\nBg4\ndxe5\nBxf3\nQxf3\ndxe5\nBc4\nNf6\nQb3\n"
+            "Qe7\nNc3\nc6\nBg5\nb5\nNxb5\ncxb5\nBxb5+\nNbd7\nO-O-O\nRd8\nRxd7\n"
+            "Rxd7\nRd1\nQe6\nBxd7+\nNxd7\nQb8+\nNxb8\nRd8#",
+        *fens = che_make_moves(NULL, opera_game);
+
+    int index = strlen(fens) - 1;
+    ck_assert(fens[index] == '\n');
+    fens[index] = '\0';
+    while(fens[--index] != '\n');
+    char *result = &fens[index + 1];
+    ck_assert(!strcmp(result,
+        "1n1Rkb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2K5 b k - 1 17"));
+    free(fens);
