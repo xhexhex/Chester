@@ -457,11 +457,11 @@ static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
 
-/****************************
- ****                    ****
- **** External functions ****
- ****                    ****
- ****************************/
+/******************************
+ ****                      ****
+ ****  External functions  ****
+ ****                      ****
+ ******************************/
 
 // TODO: doc
 char *
@@ -469,18 +469,27 @@ che_make_moves( const char *fen, const char *sans )
 {
     if(!fen) fen = FEN_STD_START_POS;
 
+    bool fc = !sans; // fc, find children
+    if(fc) {
+        char *tmp = che_move_gen(fen);
+        for(int i = 0; tmp[i]; i++) if(tmp[i] == ' ') tmp[i] = '\n';
+        sans = tmp; }
+
+    // Change!
     int num_alloc_bytes = 1, iter_count = 0, len_fens = 0;
     char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,
-        *san, *fens = malloc(num_alloc_bytes), *next_fen = malloc(strlen(fen) + 1);
+        *san, *fens = malloc(num_alloc_bytes),
+        *next_fen = malloc(strlen(fen) + 1);
     strcpy(san_data, sans), strcpy(fens, ""), strcpy(next_fen, fen);
 
+    // x_che_make_moves_process_sans()
     while((san = next_line(&san_data))) {
         ++iter_count;
-        assert(che_is_san(san)); // Remove!
+        assert(che_is_san(san)); // REMOVE!
 
         char *tmp = next_fen;
-        next_fen = che_make_move(next_fen, san), free(tmp);
-        assert(!che_fen_validator(next_fen)); // Remove!
+        next_fen = che_make_move(fc ? fen : next_fen, san), free(tmp);
+        assert(!che_fen_validator(next_fen)); // REMOVE!
 
         len_fens += strlen(next_fen) + 1;
         while(len_fens >= num_alloc_bytes) {
@@ -494,8 +503,8 @@ che_make_moves( const char *fen, const char *sans )
     assert(len_fens >= FEN_MIN_LENGTH + 1);
     assert(fens[len_fens - 1] == '\n');
 
-    // printf("next_fen: \"%s\"\n", next_fen);
     free(unmod_ptr), free(next_fen);
+    if(fc) free((void *) sans);
     return fens;
 }
 

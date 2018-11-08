@@ -1715,9 +1715,38 @@ ck_assert( counter == exp_count );
         "r1b1kbnr/pppp1Npp/8/8/3nq3/8/PPPPBP1P/RNBQKR2 b Qkq - 1 7\n"
         "r1b1kbnr/pppp1Npp/8/8/4q3/5n2/PPPPBP1P/RNBQKR2 w Qkq - 2 8\n")
 
+#test che_make_moves_test_3
+    char *actual_fens;
+
+    TEST_WITH_ARGS("8/8/8/8/8/7k/8/N6K w - - 12 34", NULL,
+        "8/8/8/8/8/7k/8/N5K1 b - - 13 34\n"
+        "8/8/8/8/8/1N5k/8/7K b - - 13 34\n"
+        "8/8/8/8/8/7k/2N5/7K b - - 13 34\n")
+    TEST_WITH_ARGS(NULL, NULL,
+        "rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/R1BQKBNR b KQkq - 1 1\n" // Na3
+        "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1\n" // Nc3
+        "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1\n" // Nf3
+        "rnbqkbnr/pppppppp/8/8/8/7N/PPPPPPPP/RNBQKB1R b KQkq - 1 1\n" // Nh3
+        "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1\n" // a3
+        "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1\n" // a4
+        "rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1\n" // b3
+        "rnbqkbnr/pppppppp/8/8/1P6/8/P1PPPPPP/RNBQKBNR b KQkq b3 0 1\n" // b4
+        "rnbqkbnr/pppppppp/8/8/8/2P5/PP1PPPPP/RNBQKBNR b KQkq - 0 1\n" // c3
+        "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1\n" // c4
+        "rnbqkbnr/pppppppp/8/8/8/3P4/PPP1PPPP/RNBQKBNR b KQkq - 0 1\n" // d3
+        "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1\n" // d4
+        "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1\n" // e3
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n" // e4
+        "rnbqkbnr/pppppppp/8/8/8/5P2/PPPPP1PP/RNBQKBNR b KQkq - 0 1\n" // f3
+        "rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 0 1\n" // f4
+        "rnbqkbnr/pppppppp/8/8/8/6P1/PPPPPP1P/RNBQKBNR b KQkq - 0 1\n" // g3
+        "rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b KQkq g3 0 1\n" // g4
+        "rnbqkbnr/pppppppp/8/8/8/7P/PPPPPPP1/RNBQKBNR b KQkq - 0 1\n" // h3
+        "rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1\n") // h4
+
 #undef TEST_WITH_ARGS
 
-#test che_make_moves_test_3
+#test che_make_moves_test_4
     char opera_game[] =
             "e4\ne5\nNf3\nd6\nd4\nBg4\ndxe5\nBxf3\nQxf3\ndxe5\nBc4\nNf6\nQb3\n"
             "Qe7\nNc3\nc6\nBg5\nb5\nNxb5\ncxb5\nBxb5+\nNbd7\nO-O-O\nRd8\nRxd7\n"

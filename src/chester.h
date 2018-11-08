@@ -39,7 +39,7 @@ enum che_fen_error {
 enum che_fen_error che_fen_validator( const char *fen );
 bool che_is_san( const char *san );
 char *che_make_move( const char *fen, const char *san ); // Rename to single_san_make_move()
-char *che_make_moves( const char *fen, const char *sans );
+char *che_make_moves( const char *fen, const char *sans ); // Add "serial/parallel"
 char *che_move_gen( const char *fens );
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 // che_move_checker(), che_legal_moves()
