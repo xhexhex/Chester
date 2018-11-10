@@ -488,7 +488,7 @@ che_make_moves( const char *fen, const char *sans )
         assert(che_is_san(san)); // REMOVE!
 
         char *tmp = next_fen;
-        next_fen = che_make_move(fc ? fen : next_fen, san), free(tmp);
+        next_fen = single_san_make_move(fc ? fen : next_fen, san), free(tmp);
         assert(!che_fen_validator(next_fen)); // REMOVE!
 
         len_fens += strlen(next_fen) + 1;
@@ -508,9 +508,13 @@ che_make_moves( const char *fen, const char *sans )
     return fens;
 }
 
-// TODO: doc
+// Returns the result of making the move 'san' in position 'fen'. For
+// example, the call
+// single_san_make_move("5k2/8/8/4p3/8/8/8/R3K2R w KQ e6 0 99", "O-O-O")
+// returns a pointer to the dynamically allocated string
+// "5k2/8/8/4p3/8/8/8/2KR3R b - - 1 99".
 char *
-che_make_move( const char *fen, const char *san )
+single_san_make_move( const char *fen, const char *san )
 {
     Pos *p = fen_to_pos(fen);
     Rawcode move = san_to_rawcode(p, san);

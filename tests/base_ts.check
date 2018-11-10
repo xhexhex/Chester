@@ -1557,17 +1557,17 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase che_make_move_tests
+#tcase single_san_make_move_tests
 
 #define TEST_WITH_ARGS(orig_fen, san, expected_fen) \
     ck_assert(!che_fen_validator(orig_fen)), \
         ck_assert(!che_fen_validator(expected_fen)), \
         ck_assert(che_is_san(san)); \
-    actual_fen = che_make_move(orig_fen, san); \
+    actual_fen = single_san_make_move(orig_fen, san); \
     ck_assert(!strcmp(actual_fen, expected_fen)); \
     free(actual_fen);
 
-#test che_make_move_test_1
+#test single_san_make_move_test_1
     char *actual_fen;
 
     TEST_WITH_ARGS(
@@ -1587,7 +1587,7 @@ ck_assert( counter == exp_count );
         "Nd5",
         "rnbqkb1r/pppppppp/8/3nP3/8/8/PPPP1PPP/RNBQKBNR w KQkq - 1 3")
 
-#test che_make_move_test_2
+#test single_san_make_move_test_2
     char *actual_fen;
 
     TEST_WITH_ARGS(
@@ -1607,7 +1607,7 @@ ck_assert( counter == exp_count );
         "axb1=R+",
         "k7/8/8/8/7P/8/8/1rKR4 w D - 0 124")
 
-#test che_make_move_test_3
+#test single_san_make_move_test_3
     char *actual_fen;
 
     TEST_WITH_ARGS(
@@ -1631,7 +1631,7 @@ ck_assert( counter == exp_count );
         "O-O-O",
         "qb1rk1r1/pp1n1ppp/2p3n1/3ppb2/8/PP1P4/BBPNPPPP/Q1KR2RN b gd - 5 7")
 
-#test che_make_move_test_4
+#test single_san_make_move_test_4
     char *actual_fen;
 
     TEST_WITH_ARGS(
@@ -1647,7 +1647,7 @@ ck_assert( counter == exp_count );
         "bxa3",
         "r3k2r/8/8/8/8/p7/8/R3K2R w KQkq - 0 100")
 
-#test che_make_move_test_5
+#test single_san_make_move_test_5
     char *actual_fen;
 
     TEST_WITH_ARGS(
@@ -1664,6 +1664,12 @@ ck_assert( counter == exp_count );
         "r2q1rk1/pp3pbp/1np2np1/2Q1p1B1/3PP1b1/2N2N2/PP3PPP/3RKB1R w K e6 0 12")
 
 #undef TEST_WITH_ARGS
+
+#test single_san_make_move_test_6
+    char *fen = single_san_make_move(
+        "5k2/8/8/4p3/8/8/8/R3K2R w KQ e6 0 99", "O-O-O");
+    ck_assert(!strcmp(fen, "5k2/8/8/4p3/8/8/8/2KR3R b - - 1 99"));
+    free(fen);
 
 //
 // Test case
@@ -1743,6 +1749,23 @@ ck_assert( counter == exp_count );
         "rnbqkbnr/pppppppp/8/8/6P1/8/PPPPPP1P/RNBQKBNR b KQkq g3 0 1\n" // g4
         "rnbqkbnr/pppppppp/8/8/8/7P/PPPPPPP1/RNBQKBNR b KQkq - 0 1\n" // h3
         "rnbqkbnr/pppppppp/8/8/7P/8/PPPPPPP1/RNBQKBNR b KQkq h3 0 1\n") // h4
+    TEST_WITH_ARGS("1rk3r1/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 b bg c3 0 123", NULL,
+        "1r4r1/1p1k2p1/NP4P1/8/2Pp4/8/4p3/2K5 w - - 1 124\n" // Kd7
+        "1r1k2r1/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w - - 1 124\n" // Kd8
+        "1r3rk1/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w - - 1 124\n" // O-O
+        "2kr2r1/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w - - 1 124\n" // O-O-O
+        "r1k3r1/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w g - 1 124\n" // Ra8
+        "1rkr4/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w b - 1 124\n" // Rd8
+        "1rk1r3/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w b - 1 124\n" // Re8
+        "1rk2r2/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w b - 1 124\n" // Rf8
+        "1rk4r/1p4p1/NP4P1/8/2Pp4/8/4p3/2K5 w b - 1 124\n" // Rh8
+        "1rk3r1/6p1/pP4P1/8/2Pp4/8/4p3/2K5 w gb - 0 124\n" // bxa6
+        "1rk3r1/1p4p1/NP4P1/8/2P5/3p4/4p3/2K5 w gb - 0 124\n" // d3
+        "1rk3r1/1p4p1/NP4P1/8/8/2p5/4p3/2K5 w gb - 0 124\n" // dxc3
+        "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1b3 w gb - 0 124\n" // e1=B
+        "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1n3 w gb - 0 124\n" // e1=N
+        "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1q3 w gb - 0 124\n" // e1=Q+
+        "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1r3 w gb - 0 124\n") // e1=R+
 
 #undef TEST_WITH_ARGS
 
