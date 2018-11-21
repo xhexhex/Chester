@@ -463,7 +463,32 @@ static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
  ****                      ****
  ******************************/
 
-// TODO: doc
+// To understand che_make_moves() it's best to first study
+// single_san_make_move() as the former is basically a multiple-items-
+// allowed-in-single-call version of the latter.
+//
+// Parameter 'fen' receives a single FEN string such as
+// "8/8/8/8/8/7k/8/N6K w - - 12 34". If 'fen' is a null pointer,
+// it is taken to mean the standard starting position. The 'sans'
+// parameter is a null-terminated string that is interpreted as a
+// sequence of SANs separated either by spaces or newlines. Assuming
+// that 'sans' is not a null pointer, 'fen' is considered the starting
+// position for the sequence of moves specified in 'sans'. Each of the
+// resulting FENs are appended to the string data returned by the function.
+// For example, the call che_make_moves("k7/8/8/8/8/8/8/K7 w - - 0 99",
+// "Kb2 Ka7") would return a pointer to the string
+// "k7/8/8/8/8/8/1K6/8 b - - 1 99\n8/k7/8/8/8/8/1K6/8 w - - 2 100\n".
+// In general each of the FENs in the string data returned by the
+// function is terminated with a newline.
+//
+// The behavior of the function changes somewhat if 'sans' is passed
+// a null pointer. In this case the list of FENs returned correspond
+// to the positions that can be reached from 'fen' with a single move.
+// That is, if 'fen' is interpreted as a node in the game tree of
+// chess, a call with 'sans' receiving null returns all of the child
+// nodes of 'fen'.
+//
+// Any call to the function should involve a subsequent call to free().
 char *
 che_make_moves( const char *fen, const char *sans )
 {
@@ -475,28 +500,24 @@ che_make_moves( const char *fen, const char *sans )
         for(int i = 0; tmp[i]; i++) if(tmp[i] == ' ') tmp[i] = '\n';
         sans = tmp; }
 
-    // Change!
-    int num_alloc_bytes = 1, iter_count = 0, len_fens = 0;
+    int num_alloc_bytes = 8 * 1024, iter_count = 0, len_fens = 0;
     char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,
         *san, *fens = malloc(num_alloc_bytes),
         *next_fen = malloc(strlen(fen) + 1);
     strcpy(san_data, sans), strcpy(fens, ""), strcpy(next_fen, fen);
+    for(int i = 0; san_data[i]; i++)
+        if(san_data[i] == ' ') san_data[i] = '\n';
 
-    // x_che_make_moves_process_sans()
     while((san = next_line(&san_data))) {
         ++iter_count;
-        assert(che_is_san(san)); // REMOVE!
-
         char *tmp = next_fen;
-        next_fen = single_san_make_move(fc ? fen : next_fen, san), free(tmp);
-        assert(!che_fen_validator(next_fen)); // REMOVE!
-
+        next_fen = single_san_make_move(fc ? fen : next_fen, san),
+            free(tmp);
         len_fens += strlen(next_fen) + 1;
         while(len_fens >= num_alloc_bytes) {
             num_alloc_bytes *= 2;
             assert((fens = realloc(fens, num_alloc_bytes))); }
-        strcat(fens, next_fen), strcat(fens, "\n");
-    }
+        strcat(fens, next_fen), strcat(fens, "\n"); }
 
     assert(iter_count);
     assert(len_fens == (int) strlen(fens));

@@ -1767,9 +1767,26 @@ ck_assert( counter == exp_count );
         "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1q3 w gb - 0 124\n" // e1=Q+
         "1rk3r1/1p4p1/NP4P1/8/2Pp4/8/8/2K1r3 w gb - 0 124\n") // e1=R+
 
+#test che_make_moves_test_4
+    char *actual_fens;
+
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4 e5",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5 f4 ",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")
+    TEST_WITH_ARGS(FEN_STD_START_POS, "e4 e5 f4\n",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
+        "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")
+    TEST_WITH_ARGS("k7/8/8/8/8/8/8/K7 w - - 0 99", "Kb2 Ka7",
+        "k7/8/8/8/8/8/1K6/8 b - - 1 99\n8/k7/8/8/8/8/1K6/8 w - - 2 100\n")
+
 #undef TEST_WITH_ARGS
 
-#test che_make_moves_test_4
+#test che_make_moves_test_5
     char opera_game[] =
             "e4\ne5\nNf3\nd6\nd4\nBg4\ndxe5\nBxf3\nQxf3\ndxe5\nBc4\nNf6\nQb3\n"
             "Qe7\nNc3\nc6\nBg5\nb5\nNxb5\ncxb5\nBxb5+\nNbd7\nO-O-O\nRd8\nRxd7\n"
