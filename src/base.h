@@ -33,9 +33,6 @@ extern const char * const SHREDDER_FEN_CAFS[];
 extern const char APM_DATA[];
 #define APM_COUNT 1792
 
-// The FEN string minimum and maximum lengths
-#define FEN_MIN_LENGTH 27
-#define FEN_MAX_LENGTH 92
 // The minimum and maximum lengths for the PPF of a FEN string
 #define PPF_MIN_LENGTH 17
 #define PPF_MAX_LENGTH 71

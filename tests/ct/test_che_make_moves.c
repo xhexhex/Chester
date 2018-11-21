@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "chester.h"
-#include "test_che_make_move.h"
+#include "test_che_make_moves.h"
 
 extern int test_count, error_count;
 
@@ -14,13 +14,13 @@ static void x_check_expected_output( const char *expected_output[],
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
 void
-test_CHE_MAKE_MOVE_with_pawn_promotions()
+test_CHE_MAKE_MOVES_with_pawn_promotions()
 {
     const char *input[][2] = {
         {"k7/4P2R/8/8/8/8/8/4K3 w - - 19 75", "e8=Q#"},
         {NULL, NULL} };
     const char *expected[] = {
-        "k3Q3/7R/8/8/8/8/8/4K3 b - - 0 75",
+        "k3Q3/7R/8/8/8/8/8/4K3 b - - 0 75\n",
         NULL };
 
     x_check_input(input, __func__);
@@ -28,7 +28,7 @@ test_CHE_MAKE_MOVE_with_pawn_promotions()
 
     for(int i = 0; input[i][0]; i++) {
         ++test_count;
-        char *actual_output = che_make_move(input[i][0], input[i][1]);
+        char *actual_output = che_make_moves(input[i][0], input[i][1]);
         if( strcmp(expected[i], actual_output) ) {
             printf(FAIL_MSG);
             ++error_count; }
@@ -36,7 +36,7 @@ test_CHE_MAKE_MOVE_with_pawn_promotions()
 }
 
 void
-test_CHE_MAKE_MOVE_with_short_game()
+test_CHE_MAKE_MOVES_with_short_game()
 {
     const char *fen_and_san[][2] = {
         {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "e4"},
@@ -60,7 +60,7 @@ test_CHE_MAKE_MOVE_with_short_game()
 
     for(int i = 0; fen_and_san[i + 1][0]; i++) {
         ++test_count;
-        char *actual = che_make_move(fen_and_san[i][0], fen_and_san[i][1]);
+        char *actual = che_make_moves(fen_and_san[i][0], fen_and_san[i][1]);
         if(strcmp(actual, fen_and_san[i + 1][0])) {
             printf(FAIL_MSG);
             ++error_count; }

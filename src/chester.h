@@ -7,6 +7,10 @@
 
 typedef uint16_t Rawcode;
 
+// The FEN string minimum and maximum lengths
+#define FEN_MIN_LENGTH 27
+#define FEN_MAX_LENGTH 92
+
 // The possible return values of che_fen_validator()
 // *** "FERR_" instead of "FEN_"? ***
 // FEN_NO_ERRORS => FERR_NONE
