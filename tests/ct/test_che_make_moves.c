@@ -73,32 +73,49 @@ test_CHE_MAKE_MOVES_with_short_game()
         free(actual); }
 }
 
-void
-test_CHE_MAKE_MOVES_with_long_game_1()
-{
-    ++test_count;
+#define FUNCTION_MACRO(ordinal, start_pos, move_seq, expected_fen) \
+    void test_CHE_MAKE_MOVES_with_long_game_ ## ordinal() { \
+        ++test_count; \
+        assert(!start_pos || che_fen_validator(start_pos) == FEN_NO_ERRORS); \
+        char *fens = che_make_moves( start_pos, move_seq); \
+        char *last_fen = x_first_char_of_last_line(fens); \
+        if(strcmp(last_fen, expected_fen)) { \
+            int i = -1; \
+            printf(FAIL_MSG); \
+            ++error_count; } \
+        free(fens); }
 
-    const char start_pos[] =
-        "qnbrkbnr/pppppppp/8/8/8/8/PPPPPPPP/QNBRKBNR w DHdh - 0 1";
-    assert(che_fen_validator(start_pos) == FEN_NO_ERRORS);
-    char *fens = che_make_moves(
-        start_pos,
-        "e4 d6 Nf3 e5 Bb5+ c6 Ba4 b5 Bb3 Ne7 Ng5 f5 Nf7 d5 Nxh8 dxe4 Nf7 a5 "
-        "Nxd8 Bd7 Ne6 Nd5 Bxd5 Na6 Nxf8 Kxf8 Bxe4 Nc7 Bf3 a4 d4 Qa5+ Bd2 Qb6 "
-        "Be3 Nd5 Rd3 f4 dxe5 Qb7 Bc5+ Ke8 Bxd5 g5 Bf3 b4 b3 g4 Be4 axb3 axb3 "
-        "h6 Nd2 Be6 Rd6 Kf7 Nc4 Bd5 Bxd5+ cxd5 e6+ Kg6 e7+ Kf7 Rd8 d4 e8=Q+ "
-        "Kf6 Qxd4+ Kg5 Qee5+ Kh4 Qf6+ Kh5 Qde5#" );
+FUNCTION_MACRO(1, "qnbrkbnr/pppppppp/8/8/8/8/PPPPPPPP/QNBRKBNR w DHdh - 0 1"
+    ,
+    "e4 d6 Nf3 e5 Bb5+ c6 Ba4 b5 Bb3 Ne7 Ng5 f5 Nf7 d5 Nxh8 dxe4 Nf7 a5 "
+    "Nxd8 Bd7 Ne6 Nd5 Bxd5 Na6 Nxf8 Kxf8 Bxe4 Nc7 Bf3 a4 d4 Qa5+ Bd2 Qb6 "
+    "Be3 Nd5 Rd3 f4 dxe5 Qb7 Bc5+ Ke8 Bxd5 g5 Bf3 b4 b3 g4 Be4 axb3 axb3 "
+    "h6 Nd2 Be6 Rd6 Kf7 Nc4 Bd5 Bxd5+ cxd5 e6+ Kg6 e7+ Kf7 Rd8 d4 e8=Q+ "
+    "Kf6 Qxd4+ Kg5 Qee5+ Kh4 Qf6+ Kh5 Qde5#"
+    ,
+    "3R4/1q6/5Q1p/2B1Q2k/1pN2pp1/1P6/2P2PPP/4K2R b K - 6 38\n" )
 
-    char *last_fen = x_first_char_of_last_line(fens);
+FUNCTION_MACRO(2, "rbnqbnkr/pppppppp/8/8/8/8/PPPPPPPP/RBNQBNKR w HAha - 0 1"
+    ,
+    "c4 d5 Ne3 dxc4 Nxc4 Nd6 Qc2 Bb5 Ne5 Bxe2 Nxe2 Nd7 Nxd7 Qxd7 h4 Qg4 Nc3 "
+    "c6 a4 Bc7 Rh2 Nf5 Kh1 Bxh2 f3 Qf4 Ne2 Qe5 Qe4 Qxb2 Qxf5 Qxa1 Qe4 Be5 h5 "
+    "Bf6 Kg1 Rd8 Qb4 b6 Kf1 Rd5 Nf4 Rd4 Qb3 Rxf4 Bg3 Rd4 Kf2 Rxd2+ Kg1 Rb2 "
+    "Qd3 Rxb1+ Kf2 Bd4+ Ke2 Qb2+ Qd2 Qxd2+ Kxd2 Rb2+ Kd1 Rxg2 Bh4 Bf6 Be1 Rg1 "
+    "Kd2 Bc3+ Kc2 Bxe1 Kb3 Bh4 Kb2 Rg3 Ka3 Rxf3+ Kb2 Bg5 a5 e5 Kb1 Rf2 axb6 "
+    "axb6 Ka1 e4 Kb1 e3 Ka1 e2 Ka2 e1=Q+ Ka3 Qb1 Ka4 Ra2#"
+    ,
+    "6kr/5ppp/1pp5/6bP/K7/8/r7/1q6 w h - 4 50\n")
 
-    if(strcmp(last_fen,
-            "3R4/1q6/5Q1p/2B1Q2k/1pN2pp1/1P6/2P2PPP/4K2R b K - 6 38\n")) {
-        int i = 0; // For the macro
-        printf(FAIL_MSG);
-        ++error_count; }
+FUNCTION_MACRO(3, NULL
+    ,
+    "e4 d6 d4 h5 Nf3 Bg4 Be2 c6 O-O Nf6 Nc3 Nbd7 Bg5 b5 h3 b4 Bxf6 exf6 Na4 "
+    "Be6 d5 cxd5 exd5 Bg4 hxg4 hxg4 Nh2 Ne5 Nxg4 a6 Nxe5 Be7 Nc6 Qc7 Nxe7 "
+    "Qxe7 Nb6 Rd8 Bxa6 Kf8 Re1 Qa7 Qe2 Qc7 Bb5 Qxb6 Qe7+ Kg8 Bd3 Rc8 Qe8+ "
+    "Rxe8 Rxe8#"
+    ,
+    "4R1kr/5pp1/1q1p1p2/3P4/1p6/3B4/PPP2PP1/R5K1 b - - 0 27\n")
 
-    free(fens);
-}
+#undef FUNCTION_MACRO
 
 #undef FAIL_MSG
 
