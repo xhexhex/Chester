@@ -1229,13 +1229,10 @@ x_len_2_caf_needs_to_be_modified( const char *fen, const char *ecaf )
     if(crc == 2 && cr[0] < cr[1]) swap(cr[0], cr[1], char);
 
     if( ( crc == 1 && (cr[0] != 'a' && cr[0] != 'h') ) ||
-            ( crc == 2 && (cr[0] != 'h' && cr[1] != 'a') ) )
+            ( crc == 2 && (cr[0] != 'h' || cr[1] != 'a') ) )
         return false;
 
-    bool white_has_castling_rights = false;
-    for(int i = 0; i < 4; i++) if( isupper(ecaf[i]) ) {
-        white_has_castling_rights = true;
-        break; }
+    bool white_has_castling_rights = (isupper(ecaf[0]) || isupper(ecaf[1]));
 
     SET_EPPF
     return (white_has_castling_rights && eppf[67] == 'K') || eppf[4] == 'k';
@@ -1299,7 +1296,7 @@ x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
 {
     if( !x_len_2_caf_needs_to_be_modified(fen, ecaf) ) return;
 
-    char caf[2 +1] = {'\0'};
+    char caf[2 + 1] = {'\0'};
     int j = -1;
     for(int i = 0; i < 4; i++) if(ecaf[i] != '-') caf[++j] = ecaf[i];
     assert(j == 1), assert(strlen(caf) == 2);
