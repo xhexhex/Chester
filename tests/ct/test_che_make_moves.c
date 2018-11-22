@@ -12,6 +12,7 @@ static void x_check_input_fen_and_san( const char *input[][2],
     const char *caller_name );
 static void x_check_expected_output_fen( const char *expected_output[],
     const char *caller_name );
+static char *x_first_char_of_last_line(const char *fens);
 
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
@@ -88,16 +89,10 @@ test_CHE_MAKE_MOVES_with_long_game_1()
         "h6 Nd2 Be6 Rd6 Kf7 Nc4 Bd5 Bxd5+ cxd5 e6+ Kg6 e7+ Kf7 Rd8 d4 e8=Q+ "
         "Kf6 Qxd4+ Kg5 Qee5+ Kh4 Qf6+ Kh5 Qde5#" );
 
-    // Get last line
-    char *last_fen = &fens[strlen(fens) - 1];
-    assert(*last_fen == '\n');
-    *last_fen = '\0';
-    while(*(--last_fen) != '\n');
-    assert(*last_fen == '\n');
-    ++last_fen;
+    char *last_fen = x_first_char_of_last_line(fens);
 
     if(strcmp(last_fen,
-            "3R4/1q6/5Q1p/2B1Q2k/1pN2pp1/1P6/2P2PPP/4K2R b K - 6 38")) {
+            "3R4/1q6/5Q1p/2B1Q2k/1pN2pp1/1P6/2P2PPP/4K2R b K - 6 38\n")) {
         int i = 0; // For the macro
         printf(FAIL_MSG);
         ++error_count; }
@@ -141,4 +136,15 @@ x_check_expected_output_fen( const char *expected_output[], const char *caller_n
             exit(1);
         }
     }
+}
+
+static char *
+x_first_char_of_last_line(const char *fens)
+{
+    const char *first = (const char *) &fens[strlen(fens) - 1];
+    assert(*first == '\n');
+    while(*(--first) != '\n');
+    assert(*first == '\n');
+    ++first;
+    return (char *) first;
 }
