@@ -38,8 +38,6 @@ extern const char APM_DATA[];
 #define PPF_MAX_LENGTH 71
 
 // FEN strings of special significance
-#define FEN_STD_START_POS \
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define FEN_PERSONALLY_SIGNIFICANT \
     "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
 #define FEN_GAME_OF_THE_CENTURY \

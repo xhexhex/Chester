@@ -89,11 +89,14 @@ che_fen_validator( const char *fen )
 
     // At this point it should be safe to do the conversion
     Pos *p = fen_to_pos( fen );
+    Pos pos;
+    copy_pos(p, &pos);
+    free(p);
 
-    if( !x_validate_fen_test_17( p ) ) return FEN_PAWN_ON_INVALID_RANK_ERROR;
-    if( !x_validate_fen_test_18( p ) ) return FEN_INVALID_NUMBER_OF_KINGS_ERROR;
-    if( !x_validate_fen_test_19( p ) ) return FEN_KING_CAN_BE_CAPTURED_ERROR;
-    if( !x_validate_fen_test_20( p ) ) return FEN_HMCF_CONTRADICTS_FMNF_ERROR;
+    if( !x_validate_fen_test_17( &pos ) ) return FEN_PAWN_ON_INVALID_RANK_ERROR;
+    if( !x_validate_fen_test_18( &pos ) ) return FEN_INVALID_NUMBER_OF_KINGS_ERROR;
+    if( !x_validate_fen_test_19( &pos ) ) return FEN_KING_CAN_BE_CAPTURED_ERROR;
+    if( !x_validate_fen_test_20( &pos ) ) return FEN_HMCF_CONTRADICTS_FMNF_ERROR;
 
     return FEN_NO_ERRORS;
 }

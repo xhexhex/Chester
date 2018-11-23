@@ -4,21 +4,29 @@
 #include <assert.h>
 
 #include "chester.h"
-#include "test_che_make_moves.h"
+#include "ct_che_make_moves.h"
 
 extern int test_count, error_count;
+
+char state[FEN_MAX_LENGTH + 1];
+static int leaf_count;
+static bool show_progress;
 
 static void x_check_input_fen_and_san( const char *input[][2],
     const char *caller_name );
 static void x_check_expected_output_fen( const char *expected_output[],
     const char *caller_name );
 static char *x_first_char_of_last_line(const char *fens);
+static int x_recursive_ex_perft( int depth );
+static void x_set_state( const char *fen );
 
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
 void
-test_CHE_MAKE_MOVES_with_pawn_promotions()
+che_make_moves_tested_with_pawn_promotions()
 {
+    ++test_count;
+
     const char *input[][2] = {
         {"k7/4P2R/8/8/8/8/8/4K3 w - - 19 75", "e8=Q#"},
         {"4k3/8/8/8/8/8/2p5/3RK3 b D - 12 34", "cxd1=R+"},
@@ -32,7 +40,6 @@ test_CHE_MAKE_MOVES_with_pawn_promotions()
     x_check_expected_output_fen(expected, __func__);
 
     for(int i = 0; input[i][0]; i++) {
-        ++test_count;
         char *actual_output = che_make_moves(input[i][0], input[i][1]);
         if( strcmp(expected[i], actual_output) ) {
             printf(FAIL_MSG);
@@ -41,8 +48,10 @@ test_CHE_MAKE_MOVES_with_pawn_promotions()
 }
 
 void
-test_CHE_MAKE_MOVES_with_short_game()
+che_make_moves_tested_with_short_game()
 {
+    ++test_count;
+
     const char *fen_and_san[][2] = {
         {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "e4"},
         {"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", "e5"},
@@ -64,7 +73,6 @@ test_CHE_MAKE_MOVES_with_short_game()
     x_check_input_fen_and_san(fen_and_san, __func__);
 
     for(int i = 0; fen_and_san[i + 1][0]; i++) {
-        ++test_count;
         char *actual = che_make_moves(fen_and_san[i][0], fen_and_san[i][1]);
         actual[strlen(actual) - 1] = '\0';
         if(strcmp(actual, fen_and_san[i + 1][0])) {
@@ -73,8 +81,8 @@ test_CHE_MAKE_MOVES_with_short_game()
         free(actual); }
 }
 
-#define FUNCTION_MACRO(ordinal, start_pos, move_seq, expected_fen) \
-    void test_CHE_MAKE_MOVES_with_long_game_ ## ordinal() { \
+#define FUNCTION_MAKER(ordinal, start_pos, move_seq, expected_fen) \
+    void che_make_moves_tested_with_long_game_ ## ordinal() { \
         ++test_count; \
         assert(!start_pos || che_fen_validator(start_pos) == FEN_NO_ERRORS); \
         char *fens = che_make_moves( start_pos, move_seq); \
@@ -85,7 +93,7 @@ test_CHE_MAKE_MOVES_with_short_game()
             ++error_count; } \
         free(fens); }
 
-FUNCTION_MACRO(1, "qnbrkbnr/pppppppp/8/8/8/8/PPPPPPPP/QNBRKBNR w DHdh - 0 1"
+FUNCTION_MAKER(1, "qnbrkbnr/pppppppp/8/8/8/8/PPPPPPPP/QNBRKBNR w DHdh - 0 1"
     ,
     "e4 d6 Nf3 e5 Bb5+ c6 Ba4 b5 Bb3 Ne7 Ng5 f5 Nf7 d5 Nxh8 dxe4 Nf7 a5 "
     "Nxd8 Bd7 Ne6 Nd5 Bxd5 Na6 Nxf8 Kxf8 Bxe4 Nc7 Bf3 a4 d4 Qa5+ Bd2 Qb6 "
@@ -95,7 +103,7 @@ FUNCTION_MACRO(1, "qnbrkbnr/pppppppp/8/8/8/8/PPPPPPPP/QNBRKBNR w DHdh - 0 1"
     ,
     "3R4/1q6/5Q1p/2B1Q2k/1pN2pp1/1P6/2P2PPP/4K2R b K - 6 38\n" )
 
-FUNCTION_MACRO(2, "rbnqbnkr/pppppppp/8/8/8/8/PPPPPPPP/RBNQBNKR w HAha - 0 1"
+FUNCTION_MAKER(2, "rbnqbnkr/pppppppp/8/8/8/8/PPPPPPPP/RBNQBNKR w HAha - 0 1"
     ,
     "c4 d5 Ne3 dxc4 Nxc4 Nd6 Qc2 Bb5 Ne5 Bxe2 Nxe2 Nd7 Nxd7 Qxd7 h4 Qg4 Nc3 "
     "c6 a4 Bc7 Rh2 Nf5 Kh1 Bxh2 f3 Qf4 Ne2 Qe5 Qe4 Qxb2 Qxf5 Qxa1 Qe4 Be5 h5 "
@@ -106,7 +114,7 @@ FUNCTION_MACRO(2, "rbnqbnkr/pppppppp/8/8/8/8/PPPPPPPP/RBNQBNKR w HAha - 0 1"
     ,
     "6kr/5ppp/1pp5/6bP/K7/8/r7/1q6 w h - 4 50\n")
 
-FUNCTION_MACRO(3, NULL
+FUNCTION_MAKER(3, NULL
     ,
     "e4 d6 d4 h5 Nf3 Bg4 Be2 c6 O-O Nf6 Nc3 Nbd7 Bg5 b5 h3 b4 Bxf6 exf6 Na4 "
     "Be6 d5 cxd5 exd5 Bg4 hxg4 hxg4 Nh2 Ne5 Nxg4 a6 Nxe5 Be7 Nc6 Qc7 Nxe7 "
@@ -115,9 +123,25 @@ FUNCTION_MACRO(3, NULL
     ,
     "4R1kr/5pp1/1q1p1p2/3P4/1p6/3B4/PPP2PP1/R5K1 b - - 0 27\n")
 
-#undef FUNCTION_MACRO
-
+#undef FUNCTION_MAKER
 #undef FAIL_MSG
+
+void
+ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
+{
+    ++test_count, x_set_state(root), leaf_count = 0,
+        show_progress = progress;
+
+    if(show_progress)
+        printf("Progress: %s: perft(%d): ", __func__, depth), fflush(stdout);
+    int node_count = x_recursive_ex_perft(depth);
+    if(show_progress) printf("\n");
+
+    if( node_count != expected_nc ) {
+        printf("FAIL: %s(\"%s\", %d, ...): Invalid node count: %d\n",
+            __func__, root, depth, node_count);
+        ++error_count; }
+}
 
 //
 // Static functions
@@ -164,4 +188,39 @@ x_first_char_of_last_line(const char *fens)
     assert(*first == '\n');
     ++first;
     return (char *) first;
+}
+
+static void
+x_set_state( const char *fen )
+{
+    strcpy(state, fen);
+    assert(che_fen_validator(state) == FEN_NO_ERRORS);
+}
+
+static int
+x_recursive_ex_perft( int depth )
+{
+    if(!depth) {
+        if(show_progress && ++leaf_count % 1000 == 0)
+            printf("M"), fflush(stdout);
+        return 1; }
+
+    int nodes = 0;
+    char *unmod_ptr = che_make_moves(state, NULL), *children = unmod_ptr,
+        *the_end = children + strlen(children), *child = children,
+        orig_state[FEN_MAX_LENGTH + 1];
+    strcpy(orig_state, state);
+    for(char *ptr = children; ptr < the_end; ++ptr)
+        if(*ptr == '\n') *ptr = '\0';
+
+    while(child < the_end) {
+        x_set_state(child);
+        nodes += x_recursive_ex_perft(depth - 1);
+        x_set_state(orig_state);
+
+        while(*++child);
+        ++child; }
+
+    free(unmod_ptr);
+    return nodes;
 }

@@ -68,6 +68,7 @@ str_m_pat( const char *str, const char *pat )
     // regular expression."
     // https://www.gnu.org/software/libc/manual/html_node/Matching-POSIX-Regexps.html
     result = regexec( &regex, str, 0, NULL, 0 );
+    regfree(&regex);
 
     // Making sure regexec() didn't run into problems
     assert( !result || result == REG_NOMATCH );
@@ -566,20 +567,17 @@ fen_fields( const char *fen )
     ff[0] = ppf, ff[1] = acf, ff[2] = caf,
         ff[3] = eptsf, ff[4] = hmcf, ff[5] = fmnf;
 
-    int cs_i = 0, fen_i = 0; // cs_i, current string index
-    for( int ff_i = 0; ff_i < 6; ff_i++ ) { // ff_i, fen fields index
+    for(int i = 0, j = 0, fen_index = 0; i < 6; i++) {
         char c;
         while( true ) {
-            c = fen[ fen_i++ ];
-            if( c && c != ' ' ) ff[ ff_i ][ cs_i++ ] = c;
+            c = fen[ fen_index++ ];
+            if( c && c != ' ' ) ff[ i ][ j++ ] = c;
             else break;
         }
 
-        ff[ff_i][cs_i] = '\0', cs_i = 0;
-
-        char *ff_e = ff[ ff_i ]; // ff_e, ff element
-        ff_e = realloc( ff_e, strlen( ff_e ) + 1 );
-        assert( ff_e );
+        ff[i][j] = '\0', j = 0;
+        ff[i] = realloc( ff[i], strlen( ff[i] ) + 1 );
+        assert( ff[i] );
     }
 
     size_t l1 = strlen( ff[0] ), l2 = strlen( ff[1] ), l3 = strlen( ff[2] ),

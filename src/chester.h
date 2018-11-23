@@ -11,6 +11,10 @@ typedef uint16_t Rawcode;
 #define FEN_MIN_LENGTH 27
 #define FEN_MAX_LENGTH 92
 
+// The standard starting position
+#define FEN_STD_START_POS \
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
 // The possible return values of che_fen_validator()
 // *** "FERR_" instead of "FEN_"? ***
 // FEN_NO_ERRORS => FERR_NONE
