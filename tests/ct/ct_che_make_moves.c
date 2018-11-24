@@ -18,7 +18,6 @@ static void x_check_expected_output_fen( const char *expected_output[],
     const char *caller_name );
 static char *x_first_char_of_last_line(const char *fens);
 static int x_recursive_ex_perft( int depth );
-static void x_set_state( const char *fen );
 
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
@@ -126,10 +125,29 @@ FUNCTION_MAKER(3, NULL
 #undef FUNCTION_MAKER
 #undef FAIL_MSG
 
+/*
+    [2018-11-23]
+    henrik@nterror:~/junk$ time ./chester_tester
+    Progress: ct_perft_v1: perft(4): MMM...M
+    All of the 1 chester_tester tests succeeded
+
+    real    9m59.843s
+    user    9m59.297s
+    sys     0m0.552s
+
+    [2018-11-24]
+    henrik@nterror:~/Downloads$ time ./chester_tester
+    Progress: ct_perft_v1: perft(4): MMM...M
+    All of the 1 chester_tester tests succeeded
+
+    real    8m45.880s
+    user    8m45.888s
+    sys     0m0.000s
+*/
 void
 ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
 {
-    ++test_count, x_set_state(root), leaf_count = 0,
+    ++test_count, strcpy(state, root), leaf_count = 0,
         show_progress = progress;
 
     if(show_progress)
@@ -190,13 +208,6 @@ x_first_char_of_last_line(const char *fens)
     return (char *) first;
 }
 
-static void
-x_set_state( const char *fen )
-{
-    strcpy(state, fen);
-    assert(che_fen_validator(state) == FEN_NO_ERRORS);
-}
-
 static int
 x_recursive_ex_perft( int depth )
 {
@@ -214,9 +225,9 @@ x_recursive_ex_perft( int depth )
         if(*ptr == '\n') *ptr = '\0';
 
     while(child < the_end) {
-        x_set_state(child);
+        strcpy(state, child);
         nodes += x_recursive_ex_perft(depth - 1);
-        x_set_state(orig_state);
+        strcpy(state, orig_state);
 
         while(*++child);
         ++child; }

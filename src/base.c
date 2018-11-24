@@ -495,10 +495,7 @@ che_make_moves( const char *fen, const char *sans )
     if(!fen) fen = FEN_STD_START_POS;
 
     bool fc = !sans; // fc, find children
-    if(fc) {
-        char *tmp = che_move_gen(fen);
-        for(int i = 0; tmp[i]; i++) if(tmp[i] == ' ') tmp[i] = '\n';
-        sans = tmp; }
+    if(fc) sans = che_move_gen(fen);
 
     int num_alloc_bytes = 8 * 1024, iter_count = 0, len_fens = 0;
     char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,

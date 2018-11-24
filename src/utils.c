@@ -1167,11 +1167,13 @@ x_expand_caf_find_missing_char_index( const char *caf )
 static void
 x_expand_caf_convert_std_caf_to_shredder_caf( char *caf )
 {
-    for( int i = 0; i < 4; i++ )
+    for( int i = 0; caf[i]; i++ )
         if( caf[ i ] == 'K' ) caf[ i ] = 'H';
         else if( caf[ i ] == 'Q' ) caf[ i ] = 'A';
         else if( caf[ i ] == 'k' ) caf[ i ] = 'h';
         else if( caf[ i ] == 'q' ) caf[ i ] = 'a';
+
+    assert(strlen(caf) <= 4);
 }
 
 static bool

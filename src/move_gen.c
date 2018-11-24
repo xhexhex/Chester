@@ -189,7 +189,6 @@ che_move_gen( const char *fens )
 
     while((fen = next_line(&fen_data))) {
         ++iter_count;
-        assert(!che_fen_validator(fen)); // Remove!
         char *moves = single_fen_move_gen(fen);
         if(!strlen(moves)) free(moves), moves = malloc(1 + 1), strcpy(moves, "-");
         len_results += strlen(moves) + 1;
@@ -233,7 +232,7 @@ single_fen_move_gen( const char *fen )
     char *str_data = malloc(len_str_data), *target = str_data,
         **san = malloc(4 * rc_count * sizeof(char *));
     const char promotion[] = "-BNQR";
-    strcpy(str_data, "");
+    *str_data = '\0';
 
     for(int i = 1; i <= rc_count; i++) {
         int pindex = is_promotion(p, rc[i]) ? 1 : 0;
@@ -247,7 +246,7 @@ single_fen_move_gen( const char *fen )
         } while(pindex > 1 && pindex < 5);
     }
     assert(num_legal_moves >= 0), assert(num_legal_moves <= 218);
-    for(int i = 0; i < len_str_data; i++)
+    for(int i = 0; str_data[i]; i++)
         if(str_data[i] == ' ') str_data[i] = '\0';
 
     string_sort(san, num_legal_moves);
