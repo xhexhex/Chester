@@ -563,10 +563,6 @@ fen_to_pos( const char *fen )
     x_fen_to_pos_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
     x_fen_to_pos_init_irp( p, ff[2], fen );
     x_fen_to_pos_init_epts_file( p, ff[3] );
-    // Should the values of the HMCF and the FMNF be checked before the
-    // following assignments? Using che_fen_validator() to check the 'fen'
-    // argument before the fen_to_pos() call is problematic because
-    // fen_to_pos() is called also during the FEN string validation process.
     p->hmc = atoi( ff[4] ), p->fmn = atoi( ff[5] );
 
     free_fen_fields(ff);
