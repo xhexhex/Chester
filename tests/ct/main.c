@@ -43,16 +43,7 @@ main()
     free(p);
     */
 
-    const uint16_t nine_1s = 511; // 256 + 0xffU
-    const uint16_t ppa1[] = {nine_1s, 0, 0}, ppa2[] = {174, 257, 80};
-    char *ppf;
-    long long t1 = time_in_milliseconds(), t2;
-    for(int count = 1; count <= 500 * 1000 * 1000; count++) {
-        if(count % (10 * 1000 * 1000) == 0) printf("%d\n", count);
-        ppf = dyn_ttt_ppa_to_ppf_conv(ppa1), free(ppf);
-        ppf = dyn_ttt_ppa_to_ppf_conv(ppa2), free(ppf); }
-    t2 = time_in_milliseconds();
-    printf("The operation took %lld ms\n", t2 - t1);
+    comparative_ttt_ppa_to_ppf_conv_test(50 * 1000 * 1000);
 
     /*
     if(!error_count)

@@ -11,29 +11,29 @@
 
 #tcase dyn_ttt_ppa_to_ppf_conv_tests
 
-static const uint16_t nine_1s = 511; // 256 + 0xffU
+#define nine_1s 511
+
+static const uint16_t ppas[][3] = {
+    {nine_1s, 0, 0},
+    {174, 257, 80},
+    {255, 256, 0},
+    {0, 393, 118},
+    {136, 263, 112},
+    {296, 82, 133},
+    {0, nine_1s, 0} }; // stop
+static const char *expected_ppfs[] = {
+    "3/3/3",
+    "o1x/1o1/x2",
+    "2x/3/3",
+    "oxx/xoo/xoo",
+    "o1x/1oo/xxx",
+    "xo1/1x1/oxo" };
 
 #test dyn_ttt_ppa_to_ppf_conv_correctness_test
-    const uint16_t ppas[][3] = {
-        {nine_1s, 0, 0},
-        {174, 257, 80},
-        {255, 256, 0},
-        {0, 393, 118},
-        {136, 263, 112},
-        {296, 82, 133},
-        {0, nine_1s, 0} }; // stop
-    const char *expected[] = {
-        "3/3/3",
-        "o1x/1o1/x2",
-        "2x/3/3",
-        "oxx/xoo/xoo",
-        "o1x/1oo/xxx",
-        "xo1/1x1/oxo" };
-
     for(int i = 0; ppas[i][1] != nine_1s; i++) {
         char *ppf = dyn_ttt_ppa_to_ppf_conv(ppas[i]);
         ck_assert(ppas[i][0] + ppas[i][1] + ppas[i][2] == nine_1s);
-        ck_assert(!strcmp(ppf, expected[i]));
+        ck_assert(!strcmp(ppf, expected_ppfs[i]));
         free(ppf); }
 
 #test dyn_ttt_ppa_to_ppf_conv_performance_test
@@ -51,3 +51,14 @@ static const uint16_t nine_1s = 511; // 256 + 0xffU
     // One million calls to dyn_ttt_ppa_to_ppf_conv() should take
     // less than half a second to complete.
     ck_assert(t2 - t1 < 500);
+
+#tcase sta_ttt_ppa_to_ppf_conv_tests
+
+#test sta_ttt_ppa_to_ppf_conv_correctness_test
+    char ppf[11 + 1];
+    for(int i = 0; ppas[i][1] != nine_1s; i++) {
+        sta_ttt_ppa_to_ppf_conv(ppas[i], ppf);
+        ck_assert(ppas[i][0] + ppas[i][1] + ppas[i][2] == nine_1s);
+        ck_assert(!strcmp(ppf, expected_ppfs[i])); }
+
+#undef nine_1s
