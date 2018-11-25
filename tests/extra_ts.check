@@ -9,7 +9,45 @@
 
 #suite extra_ts
 
-#tcase lucky_number_tests
+#tcase dyn_ttt_ppa_to_ppf_conv_tests
 
-#test C_lucky_number_is_1234
-    ck_assert( lucky_number() == 1234 );
+static const uint16_t nine_1s = 511; // 256 + 0xffU
+
+#test dyn_ttt_ppa_to_ppf_conv_correctness_test
+    const uint16_t ppas[][3] = {
+        {nine_1s, 0, 0},
+        {174, 257, 80},
+        {255, 256, 0},
+        {0, 393, 118},
+        {136, 263, 112},
+        {296, 82, 133},
+        {0, nine_1s, 0} }; // stop
+    const char *expected[] = {
+        "3/3/3",
+        "o1x/1o1/x2",
+        "2x/3/3",
+        "oxx/xoo/xoo",
+        "o1x/1oo/xxx",
+        "xo1/1x1/oxo" };
+
+    for(int i = 0; ppas[i][1] != nine_1s; i++) {
+        char *ppf = dyn_ttt_ppa_to_ppf_conv(ppas[i]);
+        ck_assert(ppas[i][0] + ppas[i][1] + ppas[i][2] == nine_1s);
+        ck_assert(!strcmp(ppf, expected[i]));
+        free(ppf); }
+
+#test dyn_ttt_ppa_to_ppf_conv_performance_test
+    const uint16_t ppa1[] = {nine_1s, 0, 0}, ppa2[] = {174, 257, 80};
+    char *ppf;
+
+    long long t1 = time_in_milliseconds(), t2;
+    for(int count = 1; count <= 500 * 1000; count++) {
+        ppf = dyn_ttt_ppa_to_ppf_conv(ppa1), free(ppf);
+        ppf = dyn_ttt_ppa_to_ppf_conv(ppa2), free(ppf); }
+    t2 = time_in_milliseconds();
+    // printf("The operation took %lld ms\n", t2 - t1);
+
+    ck_assert(t2 - t1 >= 0);
+    // One million calls to dyn_ttt_ppa_to_ppf_conv() should take
+    // less than half a second to complete.
+    ck_assert(t2 - t1 < 500);

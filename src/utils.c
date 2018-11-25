@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "utils.h"
 #include "chester.h"
@@ -937,6 +938,16 @@ next_line( char **lines )
 void string_sort( char *s[], int count )
 {
     qsort(s, (size_t) count, sizeof(char *), x_qsort_string_compare);
+}
+
+// Returns the current time in milliseconds.
+long long
+time_in_milliseconds()
+{
+    struct timeval te;
+    gettimeofday(&te, NULL);
+    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
+    return milliseconds;
 }
 
 /****************************

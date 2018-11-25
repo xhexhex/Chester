@@ -1,3 +1,6 @@
 http://www.lutanho.net/pgn/pgn2fen.html
 https://royvanrijn.com/blog/2011/02/unit-testing-a-chess-engine/
 http://valgrind.org/docs/manual/quick-start.html
+https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
+https://gist.github.com/peterellisjones/8c46c28141c162d1d8a0f0badbc9cff9
+https://stackoverflow.com/questions/30199744/cost-of-static-memory-allocation-vs-dynamic-memory-allocation-in-c
