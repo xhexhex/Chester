@@ -944,10 +944,18 @@ void string_sort( char *s[], int count )
 long long
 time_in_milliseconds()
 {
-    struct timeval te;
-    gettimeofday(&te, NULL);
-    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
-    return milliseconds;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return 1000*tv.tv_sec + tv.tv_usec/1000;
+}
+
+// Returns the current time in microseconds.
+long long
+time_in_microseconds()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return 1000000*tv.tv_sec + tv.tv_usec;
 }
 
 /****************************

@@ -68,6 +68,7 @@ void shredder_to_std_fen_conv( char *fen );
 char *next_line( char **lines );
 void string_sort( char *s[], int count );
 long long time_in_milliseconds();
+long long time_in_microseconds();
 
 #endif
 // end UTILS_H

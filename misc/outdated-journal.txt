@@ -1,0 +1,71 @@
+-----------------------------------------------
+---- Journal on the development of Chester ----
+-----------------------------------------------
+
+|
+| 2017-09-16: The beginning of Chester
+|
+
+At this point I understand Chester as a library of simple chess tools. "Simple" implies something like "no AI involved". I would like to have a virtual chess analysis board of my own making. Most of the application logic involved should come from Chester.
+
+I investigated how to create a shared library with gcc. The outcome of my work can be found in hello_world_lib/.
+
+LINKS:
+https://stackoverflow.com/questions/14884126/build-so-file-from-c-file-using-gcc-command-line
+https://www.gnu.org/software/libtool/manual/html_node/Library-tips.html
+https://www.gnu.org/prep/standards/standards.html
+
+|
+| 2017-09-17: The art of writing makefiles
+|
+
+I created a simple makefile for Chester. The next thing to do is to set up unit testing with Check, get started in writing documentation and read about GNU coding conventions.
+
+LINKS:
+https://www.gnu.org/software/make/manual/make.html
+https://stackoverflow.com/questions/8096015/creating-a-simple-makefile-to-build-a-shared-library
+
+|
+| 2017-09-19: Setting up Check unit testing
+|
+
+checkmk is an Awk script that makes creating Check unit tests a bit easier. The files tests/*.check are input files for checkmk. Have a look at Makefile for the details on how unit testing is done in the Chester project.
+
+LINKS:
+https://libcheck.github.io/check/
+https://stackoverflow.com/questions/14176180/is-there-a-more-basic-tutorial-for-the-c-unit-testing-framework-check
+
+|
+| 2017-09-22: Using POSIX regexes
+|
+
+I needed regular expressions in validating FEN strings. It seems that regular expressions are not part of the standard C library. They are included in POSIX, though.
+
+LINKS:
+https://www.gnu.org/software/libc/manual/html_node/Regular-Expressions.html
+https://stackoverflow.com/questions/1085083/regular-expressions-in-c-examples
+
+|
+| 2017-09-30: The FEN specification and SAN testsuites
+|
+
+I had a look at the FEN spec. This sounded interesting: "Many interesting chess problem sets represented using FEN can be found at the chess.uoknor.edu ftp site in the directory pub/chess/SAN_testsuites."
+
+LINKS:
+https://www.chessclub.com/user/help/PGN-spec (Search for "16.1: FEN")
+
+|
+| 2017-10-20: Cornerstone, milestone
+|
+
+The most fundamental data type in Chester is probably Bitboard which is used to express a "square set" such as { e4, d4, e5, d5 }. A Bitboard is simply a 64-bit unsigned integer with the bits of interest set. Each bit corresponds to one of the 64 squares of the chessboard. I've decided the mapping between the bits (or bit indexes) and the squares. It is described in the documentation.
+
+With 12 Bitboards it is possible to express the piece placement (PP) of a particular position. One additional 64-integer suffices to express the remaining five fields of the FEN record that corresponds to the position in question. So this is what I have now established in the Chester project: a binary data FEN record equivalent data type. I call this data type Pos. It is defined in base.h.
+
+The Pos struct contains one Bitboard worth of derived or redundant information, namely the first element of the member array pieces[] which expresses the empty squares of a position. It seemed natural to include an empty squares Bitboard element in pieces[] because the idea is to index the array with the values of the Chessman enum (also defined in base.h). So the size of a Pos variable is 14 64-bit unsigned integers, that is, 112 bytes.
+
+|
+| 2017-12-02: First commit on GitHub
+|
+
+I published Chester on GitHub today. The licence I chose is GPL-3.0. By now Chester supports FEN record validation quite well (or perhaps very well).
