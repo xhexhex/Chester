@@ -11,6 +11,7 @@
 #include "../../src/base.h"
 #include "../../src/utils.h"
 #include "../../src/extra.h"
+#include "../../src/move_gen.h"
 
 int test_count, error_count;
 
@@ -18,32 +19,42 @@ int
 main()
 {
     /*
-    const int reps = 200 * 1000;
-
-    long long t1, t2, result_1, result_2;
+    char *sans = che_move_gen(FEN_STD_START_POS);
+    printf("\"%s\"\n", sans);
+    free(sans);
     Pos *p = fen_to_pos(FEN_STD_START_POS);
-
-    t1 = time_in_milliseconds();
-    printf("Calling slow_pos_to_fen() %d times...\n", reps);
-    for(int count = 1; count <= reps; count++) {
-        if(count % (1000) == 0) fprintf(stderr, "-");
-        char *fen = slow_pos_to_fen(p);
-        free(fen); }
-    t2 = time_in_milliseconds(), result_1 = t2 - t1;
-    printf("\nThe operation took %lld ms\n", result_1);
-
-    t1 = time_in_milliseconds();
-    printf("Calling pos_to_fen() %d times...\n", reps);
-    for(int count = 1; count <= reps; count++) {
-        if(count % (1000) == 0) fprintf(stderr, "+");
-        char *fen = pos_to_fen(p);
-        free(fen); }
-    t2 = time_in_milliseconds(), result_2 = t2 - t1;
-    printf("\nThe operation took %lld ms\n", result_2);
-
-    free(p);
-    printf("Performance ratio: %.2f\n", (double) result_1 / result_2);
+    Rawcode *rc = rawcodes(p);
+    free(p), free(rc);
     */
+
+    long long t0, /*d1,*/ d2;
+    const int REPS = 1000;
+
+    /*
+    t0 = time_in_milliseconds();
+    printf("Calling che_move_gen() %d times...\n", REPS);
+    for(int count = 1; count <= REPS; count++) {
+        if(count % (10) == 0) fprintf(stderr, "-");
+        char *sans = che_move_gen(FEN_STD_START_POS);
+        free(sans);
+    }
+    d1 = time_in_milliseconds() - t0;
+    printf("\nThe operation took %lld ms\n", d1);
+    */
+
+    const Pos *p = fen_to_pos(FEN_STD_START_POS);
+    t0 = time_in_milliseconds();
+    printf("Calling rawcodes() %d times...\n", REPS);
+    for(int count = 1; count <= REPS; count++) {
+        if(count % (10) == 0) fprintf(stderr, "+");
+        Rawcode *rc = rawcodes(p);
+        free(rc);
+    }
+    d2 = time_in_milliseconds() - t0;
+    printf("\nThe operation took %lld ms\n", d2);
+    free((void *) p);
+
+    // printf("Performance ratio: %.2f\n", (double) d1 / d2);
 
     /*
     const uint16_t one = 1;
@@ -105,11 +116,13 @@ main()
     // ct_perft_v1(FEN_STD_START_POS, 0, 1, false);
     // ct_perft_v1(FEN_STD_START_POS, 1, 20, false);
     // ct_perft_v1(FEN_STD_START_POS, 2, 400, false);
-    ct_perft_v1(FEN_STD_START_POS, 3, 8902, true);
+    // ct_perft_v1(FEN_STD_START_POS, 3, 8902, true);
     // ct_perft_v1(FEN_STD_START_POS, 4, 197281, true);
     // ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
 
+    /*
     if(!error_count)
         printf("All of the %i chester_tester tests succeeded\n",
             test_count);
+    */
 }
