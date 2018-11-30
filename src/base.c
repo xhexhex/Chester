@@ -11,12 +11,6 @@
 #include "move_gen.h"
 #include "pgn.h"
 
-/*************************
- ****                 ****
- ****  External data  ****
- ****                 ****
- *************************/
-
 #define ALL_SQ_BIT_VALUES \
     0x1u, 0x2u, 0x4u, 0x8u, 0x10u, 0x20u, 0x40u, 0x80u, 0x100u, 0x200u, 0x400u, \
     0x800u, 0x1000u, 0x2000u, 0x4000u, 0x8000u, 0x10000u, 0x20000u, 0x40000u, \
@@ -436,12 +430,9 @@ const char APM_DATA[] =
     "h7g7h7g8h7h1h7h2h7h3h7h4h7h5h7h6h7h8h8a1h8a8h8b2h8b8h8c3h8c8h8d4"
     "h8d8h8e5h8e8h8f6h8f7h8f8h8g6h8g7h8g8h8h1h8h2h8h3h8h4h8h5h8h6h8h7";
 
-/************************************
- ****                            ****
- **** Static function prototypes ****
- ****                            ****
- ************************************/
-
+//
+// Static function prototypes
+//
 static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
 static void x_fen_to_pos_init_ppa( Pos *p, const char ppf[] );
@@ -456,6 +447,9 @@ static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
     char promotion );
 static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 static void x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion );
+static int x_ppa_to_ppf( const Bitboard *ppa, char *ppf );
+static void x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf,
+    const Pos *p );
 
 /******************************
  ****                      ****
@@ -576,119 +570,6 @@ fen_to_pos( const char *fen )
 char *
 pos_to_fen( const Pos *p )
 {
-    // long long t0 = time_in_microseconds();
-
-    char *fen, *fen_field[6]; // First problem: array of pointers
-
-    char eppf[PPF_MAX_LENGTH + 1];
-    ppa_to_eppf( p->ppa, eppf ), fen_field[0] = compress_eppf(eppf);
-    // printf("1st checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    fen_field[1] = whites_turn(p) ? "w" : "b";
-    // printf("2nd checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    char caf[4 + 1] = {'\0'}, *expanded_caf = ecaf(p);
-    caf[0] = '-';
-    for(int i = 0, j = 0; i < 4; i++)
-        if(expanded_caf[i] != '-')
-            caf[j++] = expanded_caf[i];
-    free(expanded_caf), fen_field[2] = caf;
-    // printf("3rd checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    fen_field[3] = epts(p) ? (char *) sq_bit_to_sq_name(epts(p)) : "-";
-    // printf("4th checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    char hmcf[5 + 1], fmnf[5 + 1];
-    sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn );
-    fen_field[4] = hmcf, fen_field[5] = fmnf;
-    // printf("5th checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    int fen_length = 5; // The five field-separating spaces
-    for(int i = 0; i < 6; i++) fen_length += (int) strlen(fen_field[i]);
-    fen = (char *) malloc(fen_length + 1);
-    fen[fen_length] = '\0';
-    // printf("6th checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    int fen_index = 0;
-    for(int i = 0; ; i++) {
-        for(int j = 0; j < (int) strlen(fen_field[i]); j++)
-            fen[fen_index++] = fen_field[i][j];
-
-        if( i == 5 ) break;
-        fen[fen_index++] = ' '; }
-    assert(fen_index == fen_length);
-    // printf("7th checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    free(fen_field[0]);
-    // printf("8th checkpoint: %lld\n", time_in_microseconds() - t0);
-
-    shredder_to_std_fen_conv(fen);
-    // printf("Final checkpoint: %lld\n", time_in_microseconds() - t0);
-    return fen;
-}
-
-static int
-x_ppa_to_ppf( const Bitboard *ppa, char *ppf )
-{
-    const int bi[] = {
-        56, 57, 58, 59, 60, 61, 62, 63,
-        48, 49, 50, 51, 52, 53, 54, 55,
-        40, 41, 42, 43, 44, 45, 46, 47,
-        32, 33, 34, 35, 36, 37, 38, 39,
-        24, 25, 26, 27, 28, 29, 30, 31,
-        16, 17, 18, 19, 20, 21, 22, 23,
-         8,  9, 10, 11, 12, 13, 14, 15,
-         0,  1,  2,  3,  4,  5,  6,  7 };
-    int index = 0;
-    const uint64_t one = 1;
-
-    for(int i = 0; i < 64; i++) {
-        if(bi[i] % 8 == 0 && bi[i] < 56) ppf[index++] = '/';
-        uint64_t bit = (one << bi[i]);
-        for(int j = 0; ; j++) {
-            if(bit & ppa[j]) {
-                if(j) ppf[index++] = PPF_CHESSMAN_LETTERS[j];
-                else if(bi[i] % 8 &&
-                        (ppf[index - 1] >= '1' || ppf[index - 1] <= '7'))
-                    ++ppf[index - 1];
-                else ppf[index++] = '1';
-
-                break;
-            }
-            assert(j < 13);
-        } // End inner for
-    }
-
-    ppf[index] = '\0';
-    return index;
-}
-
-static void
-x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf, const Pos *p )
-{
-    assert(strcmp(the_ecaf, "----"));
-
-    const char shredder_caf[] = "HAha";
-    for(int i = 0; i < 4; i++) {
-        if(the_ecaf[i] == '-') continue;
-        if(the_ecaf[i] != shredder_caf[i]) return; }
-
-    if((the_ecaf[0] != '-' || the_ecaf[1] != '-') &&
-            !(SB.e1 & p->ppa[WHITE_KING]))
-        return;
-    if((the_ecaf[2] != '-' || the_ecaf[3] != '-') &&
-            !(SB.e8 & p->ppa[BLACK_KING]))
-        return;
-
-    const char std_caf[] = "KQkq";
-    for(int i = 0; i < 4; i++)
-        if(the_ecaf[i] != '-') the_ecaf[i] = std_caf[i];
-}
-
-// TODO: doc
-char *
-new_pos_to_fen( const Pos *p )
-{
     char *fen = malloc(FEN_MAX_LENGTH + 1);
     int index = x_ppa_to_ppf(p->ppa, fen);
 
@@ -709,7 +590,8 @@ new_pos_to_fen( const Pos *p )
 
     Bitboard the_epts = epts(p);
     if(!the_epts) fen[index++] = '-';
-    else fen[index++] = file_of_sq(the_epts);
+    else fen[index++] = file_of_sq(the_epts),
+        fen[index++] = rank_of_sq(the_epts);
     fen[index++] = ' ';
 
     char hmcf[5 + 2], fmnf[5 + 1];
@@ -1293,4 +1175,62 @@ x_make_move_promote_pawn( Pos *p, Rawcode move, char promotion )
 
     assert( !(p->ppa[promote_to] & pawn) );
     p->ppa[promote_to] |= pawn;
+}
+
+static int
+x_ppa_to_ppf( const Bitboard *ppa, char *ppf )
+{
+    const int bi[] = {
+        56, 57, 58, 59, 60, 61, 62, 63,
+        48, 49, 50, 51, 52, 53, 54, 55,
+        40, 41, 42, 43, 44, 45, 46, 47,
+        32, 33, 34, 35, 36, 37, 38, 39,
+        24, 25, 26, 27, 28, 29, 30, 31,
+        16, 17, 18, 19, 20, 21, 22, 23,
+         8,  9, 10, 11, 12, 13, 14, 15,
+         0,  1,  2,  3,  4,  5,  6,  7 };
+    int index = 0;
+    const uint64_t one = 1;
+
+    for(int i = 0; i < 64; i++) {
+        if(bi[i] % 8 == 0 && bi[i] < 56) ppf[index++] = '/';
+        uint64_t bit = (one << bi[i]);
+        for(int j = 0; ; j++) {
+            if(bit & ppa[j]) {
+                if(j) ppf[index++] = PPF_CHESSMAN_LETTERS[j];
+                else if(bi[i] % 8 &&
+                        (ppf[index - 1] >= '1' && ppf[index - 1] <= '7'))
+                    ++ppf[index - 1];
+                else ppf[index++] = '1';
+
+                break;
+            }
+            assert(j < 13);
+        } // End inner for
+    }
+
+    ppf[index] = '\0';
+    return index;
+}
+
+static void
+x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf, const Pos *p )
+{
+    assert(strcmp(the_ecaf, "----"));
+
+    const char shredder_caf[] = "HAha";
+    for(int i = 0; i < 4; i++) {
+        if(the_ecaf[i] == '-') continue;
+        if(the_ecaf[i] != shredder_caf[i]) return; }
+
+    if((the_ecaf[0] != '-' || the_ecaf[1] != '-') &&
+            !(SB.e1 & p->ppa[WHITE_KING]))
+        return;
+    if((the_ecaf[2] != '-' || the_ecaf[3] != '-') &&
+            !(SB.e8 & p->ppa[BLACK_KING]))
+        return;
+
+    const char std_caf[] = "KQkq";
+    for(int i = 0; i < 4; i++)
+        if(the_ecaf[i] != '-') the_ecaf[i] = std_caf[i];
 }

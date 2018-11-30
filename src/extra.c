@@ -3,8 +3,22 @@
 #include <stdint.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
+#include "extra.h"
 #include "utils.h"
+
+//
+// Static function prototypes
+//
+static void x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen,
+    const char *ecaf, int index );
+static void x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen,
+    char *ecaf, int index );
+static void x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen,
+    char *ecaf, int index );
+static void x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen,
+    const char *ecaf, int index );
 
 // The following function is purely for performance research purposes.
 // It converts the tic-tac-toe (ttt) version of a piece placement array
@@ -124,4 +138,258 @@ comparative_ttt_ppa_to_ppf_conv_test( const int reps )
     printf("\nThe second operation took %lld ms\n", result_2);
 
     printf("Performance ratio: %.2f\n", (double) result_1 / result_2);
+}
+
+// Converts the Pos variable pointed to by 'p' to the corresponding FEN
+// string. The FEN string is allocated dynamically so free() should be
+// called when the string is no longer needed.
+//
+// This is the old version of pos_to_fen(). The current pos_to_fen()
+// is much more efficient.
+char *
+slow_pos_to_fen( const Pos *p )
+{
+    char *fen, *fen_field[6];
+
+    char eppf[PPF_MAX_LENGTH + 1];
+    ppa_to_eppf( p->ppa, eppf ), fen_field[0] = compress_eppf(eppf);
+
+    fen_field[1] = whites_turn(p) ? "w" : "b";
+
+    char caf[4 + 1] = {'\0'}, *expanded_caf = ecaf(p);
+    caf[0] = '-';
+    for(int i = 0, j = 0; i < 4; i++)
+        if(expanded_caf[i] != '-')
+            caf[j++] = expanded_caf[i];
+    free(expanded_caf), fen_field[2] = caf;
+
+    fen_field[3] = epts(p) ? (char *) sq_bit_to_sq_name(epts(p)) : "-";
+
+    char hmcf[5 + 1], fmnf[5 + 1];
+    sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn );
+    fen_field[4] = hmcf, fen_field[5] = fmnf;
+
+    int fen_length = 5; // The five field-separating spaces
+    for(int i = 0; i < 6; i++) fen_length += (int) strlen(fen_field[i]);
+    fen = (char *) malloc(fen_length + 1);
+    fen[fen_length] = '\0';
+
+    int fen_index = 0;
+    for(int i = 0; ; i++) {
+        for(int j = 0; j < (int) strlen(fen_field[i]); j++)
+            fen[fen_index++] = fen_field[i][j];
+
+        if( i == 5 ) break;
+        fen[fen_index++] = ' '; }
+    assert(fen_index == fen_length);
+
+    free(fen_field[0]);
+
+    shredder_to_std_fen_conv(fen);
+    return fen;
+}
+
+// Converts a Shredder-FEN to a standard FEN in a "soft" or conditional
+// manner. This means that a conversion only takes place when a king
+// with castling rights is on square e1 (e8) and the rooks involved
+// are on the squares a1 (a8) or h1 (h8). For example, consider the
+// Shredder-FEN "r3kr2/8/8/8/8/8/8/1R2K2R w Ha - 0 123". Both sides have
+// castling rights and the kings are on the squares e1 and e8 implying
+// the kings are on their original squares. The rooks involved with
+// White's kingside and Black's queenside castling are on the squares
+// h1 and a8, respectively. The placement of the kings and rooks relevant
+// to castling implies that the Shredder-FEN is really a standard FEN
+// "in disguise".
+//
+// The main use of shredder_to_std_fen_conv() is in slow_pos_to_fen(). It
+// seems intuitively correct that some_fen == pos_to_fen( fen_to_pos(some_fen) ).
+// Among other things this implies that if the input to fen_to_pos() is
+// a standard FEN, the output of pos_to_fen() should also be a standard
+// FEN.
+//
+// When considering Chester and standard FENs vs Shredder-FENs, it's good
+// to keep in mind that Chester considers the CAF "KQkq" to be a synonym
+// for either "HAha" or "AHah".
+void
+shredder_to_std_fen_conv( char *fen )
+{
+    char caf[4 + 1] = {'\0'}, ecaf[9 + 1];
+    int index = 0, encountered_spaces = 0, caf_length = 0,
+        castling_rights_count = 0;
+
+    while( encountered_spaces < 2 )
+        if(fen[index++] == ' ') ++encountered_spaces;
+    for(int i = 0; fen[index + i] != ' '; i++) ++caf_length;
+
+    for(int i = index; i < index + caf_length; i++)
+        caf[i - index] = fen[i];
+    assert( strlen(caf) > 0 );
+    if( !strcmp(caf, "-") || str_m_pat(caf, "^K?Q?k?q?$") ) return;
+    assert( str_m_pat(caf, "^[A-H]?[A-H]?[a-h]?[a-h]?$") );
+
+    EXPAND_CAF(caf, ecaf, fen)
+    assert( str_m_pat(ecaf, "^[-A-H][-A-H][-a-h][-a-h]$") );
+    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ++castling_rights_count;
+
+    switch(castling_rights_count) {
+        case 4: x_shredder_to_std_fen_conv_handle_len_4_caf(fen, ecaf, index);
+            break;
+        case 3: x_shredder_to_std_fen_conv_handle_len_3_caf(fen, ecaf, index);
+            break;
+        case 2: x_shredder_to_std_fen_conv_handle_len_2_caf(fen, ecaf, index);
+            break;
+        case 1: x_shredder_to_std_fen_conv_handle_len_1_caf(fen, ecaf, index);
+            break;
+        default: assert(false); }
+}
+
+/****************************
+ ****                    ****
+ ****  Static functions  ****
+ ****                    ****
+ ****************************/
+
+#define SET_EPPF \
+    char **ff = fen_fields(fen), eppf[PPF_MAX_LENGTH + 1]; \
+    expand_ppf(ff[0], eppf); \
+    free_fen_fields(ff);
+
+static bool
+x_len_2_caf_needs_to_be_modified( const char *fen, const char *ecaf )
+{
+    char cr[2 + 1] = {'\0'}; // cr, castling rights
+    int crc = 1; // crc, castling rights count
+    if( !(ecaf[0] != '-' && ecaf[2] != '-') &&
+            !(ecaf[1] != '-' && ecaf[3] != '-') )
+        ++crc;
+
+    if(crc == 1) {
+        for(int i = 0; ; i++)
+            if(ecaf[i] != '-') { cr[0] = tolower(ecaf[i]); break; }
+    } else if(crc == 2) {
+        for(int i = 0, j = -1; ; i++)
+            if(ecaf[i] != '-') {
+                cr[++j] = tolower(ecaf[i]);
+                if(j == 1) break; }
+    } else assert(false);
+
+    if(crc == 2 && cr[0] < cr[1]) swap(cr[0], cr[1], char);
+
+    if( ( crc == 1 && (cr[0] != 'a' && cr[0] != 'h') ) ||
+            ( crc == 2 && (cr[0] != 'h' || cr[1] != 'a') ) )
+        return false;
+
+    bool white_has_castling_rights = (isupper(ecaf[0]) || isupper(ecaf[1]));
+
+    SET_EPPF
+    return (white_has_castling_rights && eppf[67] == 'K') || eppf[4] == 'k';
+}
+
+static bool
+x_len_3_caf_needs_to_be_modified( const char *fen, const char *ecaf )
+{
+    char castling_rights[2 + 1] = {'\0'};
+    bool use_uppercase_half = (ecaf[0] != '-' && ecaf[1] != '-');
+
+    castling_rights[0] = ecaf[use_uppercase_half ? 0 : 2];
+    castling_rights[1] = ecaf[use_uppercase_half ? 1 : 3];
+
+    if(castling_rights[0] < castling_rights[1])
+        swap(castling_rights[0], castling_rights[1], char);
+
+    if( tolower(castling_rights[0]) != 'h' ||
+            tolower(castling_rights[1]) != 'a' )
+        return false;
+
+    SET_EPPF
+    return eppf[67] == 'K';
+}
+
+static bool
+x_len_4_caf_needs_to_be_modified( const char *fen, const char *ecaf )
+{
+    bool in_alphabetical_order = (ecaf[0] < ecaf[1]);
+    char queenside_rook = ecaf[in_alphabetical_order ? 0 : 1],
+        kingside_rook = ecaf[in_alphabetical_order ? 1 : 0];
+
+    if( kingside_rook != 'H' || queenside_rook != 'A' ) return false;
+
+    SET_EPPF
+    return eppf[67] == 'K';
+}
+
+static void
+x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen, const char *ecaf, int index )
+{
+    char cr; // cr, castling right
+    for(int i = 0; ; i++) if(ecaf[i] != '-') { cr = ecaf[i]; break; }
+    if( tolower(cr) != 'a' && tolower(cr) != 'h' ) return;
+
+    SET_EPPF
+    if( (isupper(cr) && eppf[67] != 'K') || (islower(cr) && eppf[4] != 'k') ) return;
+
+    switch(cr) {
+        case 'H': fen[index] = 'K'; break;
+        case 'A': fen[index] = 'Q'; break;
+        case 'h': fen[index] = 'k'; break;
+        case 'a': fen[index] = 'q'; break;
+        default: assert(false); }
+}
+
+#undef SET_EPPF
+
+static void
+x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
+{
+    if( !x_len_2_caf_needs_to_be_modified(fen, ecaf) ) return;
+
+    char caf[2 + 1] = {'\0'};
+    int j = -1;
+    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') caf[++j] = ecaf[i];
+    assert(j == 1), assert(strlen(caf) == 2);
+
+    if( ( str_m_pat(caf, "^[A-H]{2}$") || str_m_pat(caf, "^[a-h]{2}$") ) &&
+            caf[0] < caf[1] )
+        swap( caf[0], caf[1], char );
+
+    for(int i = 0; i < 2; i++)
+        switch(caf[i]) {
+            case 'H': caf[i] = 'K'; break;
+            case 'A': caf[i] = 'Q'; break;
+            case 'h': caf[i] = 'k'; break;
+            case 'a': caf[i] = 'q'; break;
+            default: assert(false); }
+
+    fen[index] = caf[0], fen[index + 1] = caf[1];
+}
+
+static void
+x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
+{
+    if( !x_len_3_caf_needs_to_be_modified(fen, ecaf) ) return;
+
+    bool alphabet_order = (
+        (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
+        (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
+    if(alphabet_order) {
+        swap(ecaf[0], ecaf[1], char);
+        swap(ecaf[2], ecaf[3], char); }
+
+    const char full_std_caf[] = "KQkq";
+    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
+
+    int j = -1;
+    for(int i = 0; i < 4; i++ ) {
+        if(ecaf[i] == '-') continue;
+        ++j; fen[index + j] = ecaf[i]; }
+    assert(j == 2);
+}
+
+static void
+x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int index )
+{
+    if( !x_len_4_caf_needs_to_be_modified(fen, ecaf) ) return;
+
+    fen[index] = 'K', fen[index + 1] = 'Q',
+        fen[index + 2] = 'k', fen[index + 3] = 'q';
 }

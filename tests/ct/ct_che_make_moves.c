@@ -143,6 +143,15 @@ FUNCTION_MAKER(3, NULL
     real    8m45.880s
     user    8m45.888s
     sys     0m0.000s
+
+    [2018-11-30]
+    henrik@nterror:~/Dropbox/Chester$ time make ct
+    Progress: ct_perft_v1: perft(4): MMM...M
+    All of the 1 chester_tester tests succeeded
+
+    real    8m8.033s
+    user    8m8.032s
+    sys     0m0.003s
 */
 void
 ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
