@@ -8,6 +8,7 @@
 #include "extra.h"
 #include "utils.h"
 #include "chester.h"
+#include "validation.h"
 
 //
 // Static function prototypes
@@ -293,6 +294,28 @@ make_move_performance_test()
         __func__, 5 * REPS, time_in_milliseconds() - t0);
 
     for(int i = 0; i < 5; i++) free((void *) p[i]);
+}
+
+// Finds the origin and destination square bit indexes of the rawcode
+// argument 'rc' and saves the result in 'orig' and 'dest'. For example,
+// if 'rc' equals 1, then the bit index values 0 and 8 will be saved
+// in 'orig' and 'dest', respectively.
+//
+// What comes to performance (problems), this function is the devil.
+void
+rawcode_bit_indexes( Rawcode rc, int *orig, int *dest )
+{
+    char move[4 + 1], orig_sq_name[2 + 1] = {0},
+        dest_sq_name[2 + 1] = {0};
+
+    rawmove( rc, move ); // 'rc' gets validated in rawmove()
+    orig_sq_name[0] = move[0], orig_sq_name[1] = move[1];
+    dest_sq_name[0] = move[2], dest_sq_name[1] = move[3];
+    assert( is_sq_name( orig_sq_name ) );
+    assert( is_sq_name( dest_sq_name ) );
+
+    *orig = sq_name_index( orig_sq_name );
+    *dest = sq_name_index( dest_sq_name );
 }
 
 /****************************

@@ -229,3 +229,23 @@ static const char *expected_ppfs[] = {
         "4k3/8/8/8/8/8/8/4K3 w - - 19 83" )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase rawcode_bit_indexes_tests
+
+#define TEST_WITH_ARGS( rawcode_arg, expected_orig, expected_dest ) \
+    rawcode_bit_indexes( rawcode_arg, &orig, &dest ); \
+    ck_assert( orig == expected_orig ); \
+    ck_assert( dest == expected_dest );
+
+#test rawcode_bit_indexes_tested_with_manually_selected_rawcodes
+    int orig, dest;
+    TEST_WITH_ARGS( 1, 0, 8 )
+    TEST_WITH_ARGS( 666, 3, 51 )
+    TEST_WITH_ARGS( 1337, 53, 36 )
+    TEST_WITH_ARGS( 1791, 63, 47 )
+    TEST_WITH_ARGS( 1792, 63, 55 )
+
+#undef TEST_WITH_ARGS

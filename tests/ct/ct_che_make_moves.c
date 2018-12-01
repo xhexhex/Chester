@@ -152,6 +152,15 @@ FUNCTION_MAKER(3, NULL
     real    8m8.033s
     user    8m8.032s
     sys     0m0.003s
+
+    [2018-12-01]
+    henrik@nterror:~/Dropbox/Chester$ time make ct
+    Progress: ct_perft_v1: perft(4): MMM...M
+    All of the 1 chester_tester tests succeeded
+
+    real    0m27.833s
+    user    0m27.814s
+    sys     0m0.020s
 */
 void
 ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
@@ -221,8 +230,8 @@ static int
 x_recursive_ex_perft( int depth )
 {
     if(!depth) {
-        if(show_progress && ++leaf_count % 1000 == 0)
-            printf("M"), fflush(stdout);
+        if(show_progress && ++leaf_count % 100000 == 0)
+            printf("C"), fflush(stdout);
         return 1; }
 
     int nodes = 0;

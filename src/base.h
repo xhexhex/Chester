@@ -31,6 +31,8 @@ extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
 extern const char APM_DATA[];
+extern const int8_t rc_orig_sq_bindex[], rc_dest_sq_bindex[];
+
 #define APM_COUNT 1792
 
 // The minimum and maximum lengths for the PPF of a FEN string

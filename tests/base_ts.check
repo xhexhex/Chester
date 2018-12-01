@@ -1864,3 +1864,16 @@ ck_assert( counter == exp_count );
     ck_assert(!strcmp(result,
         "1n1Rkb1r/p4ppp/4q3/4p1B1/4P3/8/PPP2PPP/2K5 b k - 1 17"));
     free(fens);
+
+//
+// Test case
+//
+#tcase rc_XXX_sq_bindex_tests
+
+#test rc_orig_sq_bindex_and_rc_dest_sq_bindex_comprehensive_test
+    int orig, dest;
+
+    for(Rawcode rc = 1; rc <= 1792; rc++) {
+        rawcode_bit_indexes(rc, &orig, &dest);
+        ck_assert(orig == rc_orig_sq_bindex[rc]);
+        ck_assert(dest == rc_dest_sq_bindex[rc]); }

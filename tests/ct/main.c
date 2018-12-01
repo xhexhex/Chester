@@ -21,31 +21,33 @@ main()
     make_move_performance_test();
 
     /*
+    Pos *p = fen_to_pos(FEN_STD_START_POS);
+    make_move(p, 936, '-');
+    free(p);
+    */
+
+    /*
     const Pos *p = fen_to_pos(
         FEN_STD_START_POS
+        // "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7"
         // "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123"
+        // "b3k3/8/8/8/3P4/8/8/4K2R b K d3 0 9"
+        // "4k2r/8/8/8/6Pp/8/8/7K b k g3 0 75"
     );
 
     Pos copy;
 
-    long long t0 = time_in_milliseconds(), d1;
-    // printf(">> %u\n", rawcode("e7d8"));
-    for(int count = 1; count <= 1 * 1000; count++) {
+    long long t0 = time_in_milliseconds();
+    for(int count = 1; count <= 5 * 1000; count++) {
         copy_pos( p, &copy );
-        // make_move( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
-        make_move( &copy, 936, '-');
-        // make_move( &copy, 1098, 'q');
+        make_move(&copy, 936, '-');
+        // make_move(&copy, 1140, '-');
+        // make_move(&copy, 1098, 'q');
+        // make_move(&copy, 193, '-');
+        // make_move(&copy, 1685, '-');
     }
-    d1 = time_in_milliseconds() - t0;
-    printf("The operation took %lld ms\n", d1);
+    printf("The operation took %lld ms\n", time_in_milliseconds() - t0);
     free((void *) p);
-    // printf("\"%s\"\n", pos_to_fen(&copy));
-    */
-
-    /*
-    Pos *p = fen_to_pos(FEN_STD_START_POS);
-    Rawcode *rc = rawcodes(p);
-    free(p), free(rc);
     */
 
     // >>
