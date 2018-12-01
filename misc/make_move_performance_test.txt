@@ -1,0 +1,1 @@
+[ 1]  make_move_performance_test: 50000 calls to make_move() took 25858 ms

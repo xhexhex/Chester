@@ -18,17 +18,39 @@ int test_count, error_count;
 int
 main()
 {
+    make_move_performance_test();
+
     /*
-    char *sans = che_move_gen(FEN_STD_START_POS);
-    printf("\"%s\"\n", sans);
-    free(sans);
+    const Pos *p = fen_to_pos(
+        FEN_STD_START_POS
+        // "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123"
+    );
+
+    Pos copy;
+
+    long long t0 = time_in_milliseconds(), d1;
+    // printf(">> %u\n", rawcode("e7d8"));
+    for(int count = 1; count <= 1 * 1000; count++) {
+        copy_pos( p, &copy );
+        // make_move( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
+        make_move( &copy, 936, '-');
+        // make_move( &copy, 1098, 'q');
+    }
+    d1 = time_in_milliseconds() - t0;
+    printf("The operation took %lld ms\n", d1);
+    free((void *) p);
+    // printf("\"%s\"\n", pos_to_fen(&copy));
+    */
+
+    /*
     Pos *p = fen_to_pos(FEN_STD_START_POS);
     Rawcode *rc = rawcodes(p);
     free(p), free(rc);
     */
 
-    long long t0, /*d1,*/ d2;
-    const int REPS = 1000;
+    // >>
+    // long long t0, /*d1,*/ d2;
+    // const int REPS = 1000;
 
     /*
     t0 = time_in_milliseconds();
@@ -42,6 +64,7 @@ main()
     printf("\nThe operation took %lld ms\n", d1);
     */
 
+    /*
     const Pos *p = fen_to_pos(FEN_STD_START_POS);
     t0 = time_in_milliseconds();
     printf("Calling rawcodes() %d times...\n", REPS);
@@ -53,8 +76,10 @@ main()
     d2 = time_in_milliseconds() - t0;
     printf("\nThe operation took %lld ms\n", d2);
     free((void *) p);
+    */
 
     // printf("Performance ratio: %.2f\n", (double) d1 / d2);
+    // <<
 
     /*
     const uint16_t one = 1;

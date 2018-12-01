@@ -271,6 +271,8 @@ single_fen_move_gen( const char *fen )
 Rawcode *
 rawcodes( const Pos *p )
 {
+    // long long t0 = time_in_microseconds();
+
     // It is assumed that no chess position can have more than 500
     // pseudo-legal moves (according to some sources the maximum
     // known number of *legal* moves in a chess position is 218 as
@@ -284,6 +286,8 @@ rawcodes( const Pos *p )
         pseudo[vacant++] = O_O;
     if( (O_O_O = castle(p, "queenside")) )
         pseudo[vacant++] = O_O_O;
+
+    // printf("1st checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     for( int i = 0; i < 64; i++ ) {
         Bitboard bit = SBA[i];
@@ -311,14 +315,19 @@ rawcodes( const Pos *p )
         }
     }
 
+    // printf("2nd checkpoint: %lld µs\n", time_in_microseconds() - t0);
+
     int updated_vacant = vacant;
     for( int i = 0; i < vacant; i++ ) { // For each non-vacant slot in 'pseudo'
+        // fprintf(stderr, ".");
         Pos copy;
         copy_pos( p, &copy );
 
         make_move( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
         if( king_can_be_captured( &copy ) ) pseudo[i] = 0, --updated_vacant;
     }
+
+    // printf("\n3rd checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     Rawcode *codes =
         (Rawcode *) malloc( (updated_vacant + 1) * sizeof(Rawcode) );
@@ -340,6 +349,7 @@ rawcodes( const Pos *p )
     // rawcodes the array contains (three in this case).
     qsort( codes + 1, *codes, sizeof(Rawcode), x_qsort_rawcode_compare );
 
+    // printf("Last checkpoint: %lld µs\n", time_in_microseconds() - t0);
     return codes;
 }
 
