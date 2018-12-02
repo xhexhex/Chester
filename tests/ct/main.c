@@ -21,12 +21,6 @@ main()
     make_move_performance_test();
 
     /*
-    Pos *p = fen_to_pos(FEN_STD_START_POS);
-    make_move(p, 936, '-');
-    free(p);
-    */
-
-    /*
     const Pos *p = fen_to_pos(
         FEN_STD_START_POS
         // "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7"
@@ -105,34 +99,6 @@ main()
     */
 
     /*
-    const int reps = 10000;
-
-    long long t1 = time_in_milliseconds(), t2, result_1, result_2;
-    Pos *p = fen_to_pos(FEN_STD_START_POS);
-    printf("Calling pos_to_fen() %d times...\n", reps);
-    for(int count = 1; count <= reps; count++) {
-        if(count % (1000) == 0) fprintf(stderr, "-");
-        char *fen = pos_to_fen(p);
-        free(fen); }
-    free(p);
-    t2 = time_in_milliseconds(), result_1 = t2 - t1;
-    printf("\nThe operation took %lld ms\n", result_1);
-
-    t1 = time_in_milliseconds();
-    printf("Calling fen_to_pos() %d times...\n", reps);
-    for(int count = 1; count <= reps; count++) {
-        if(count % (1000) == 0) fprintf(stderr, "+");
-        Pos *p = fen_to_pos(FEN_STD_START_POS);
-        // assert(p->ppa[WHITE_KING] == SB.e1);
-        // assert(p->ppa[BLACK_ROOK] == (SB.a8 | SB.h8));
-        free(p); }
-    t2 = time_in_milliseconds(), result_2 = t2 - t1;
-    printf("\nThe operation took %lld ms\n", result_2);
-
-    printf("Performance ratio: %.2f\n", (double) result_1 / result_2);
-    */
-
-    /*
     che_make_moves_tested_with_pawn_promotions();
     che_make_moves_tested_with_short_game();
     che_make_moves_tested_with_long_game_1();
@@ -143,9 +109,10 @@ main()
     // ct_perft_v1(FEN_STD_START_POS, 0, 1, false);
     // ct_perft_v1(FEN_STD_START_POS, 1, 20, false);
     // ct_perft_v1(FEN_STD_START_POS, 2, 400, false);
-    // ct_perft_v1(FEN_STD_START_POS, 3, 8902, true);
+    // ct_perft_v1(FEN_STD_START_POS, 3, 8902, false);
     // ct_perft_v1(FEN_STD_START_POS, 4, 197281, true);
     // ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
+    // ct_perft_v1(FEN_STD_START_POS, 6, 119060324, true);
 
     /*
     if(!error_count)

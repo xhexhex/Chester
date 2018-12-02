@@ -1,2 +1,4 @@
 [ 1]  make_move_performance_test: 50000 calls to make_move() took 25858 ms
 [ 2]  make_move_performance_test: 50000 calls to make_move() took 289 ms
+[ 3]  make_move_performance_test: 50000 calls to make_move() took 143 ms
+[ 4]  make_move_performance_test: 50000 calls to make_move() took 49 ms

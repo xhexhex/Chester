@@ -45,7 +45,6 @@ Rawcode
 san_to_rawcode( const Pos *p, const char *san )
 {
     char orig[2 + 1] = {0}, dest[2 + 1], move[4 + 1] = {0};
-
     x_san_to_rawcode_find_dest_sq(p, san, dest);
 
     if( san[0] == 'O' ) {
@@ -64,7 +63,7 @@ san_to_rawcode( const Pos *p, const char *san )
         x_san_to_rawcode_find_piece_move_orig_sq(p, san[0], san[1], dest, orig);
     } else if( str_m_pat(san, "^[QRBN][a-h][1-8]x?[a-h][1-8][+#]?$") ) {
         orig[0] = san[1], orig[1] = san[2];
-    }
+    } else assert(false);
 
     move[0] = orig[0], move[1] = orig[1],
         move[2] = dest[0], move[3] = dest[1];

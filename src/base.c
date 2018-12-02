@@ -709,7 +709,14 @@ che_make_moves( const char *fen, const char *sans )
     if(!fen) fen = FEN_STD_START_POS;
 
     bool fc = !sans; // fc, find children
-    if(fc) sans = che_move_gen(fen);
+    if(fc) {
+        sans = che_move_gen(fen);
+        assert(sans && strlen(sans) >= 1);
+        if(sans[0] == '-') {
+            char *empty_str = malloc(1 * sizeof(char));
+            assert(empty_str), *empty_str = '\0';
+            free((void *) sans);
+            return empty_str; } }
 
     int num_alloc_bytes = 8 * 1024, iter_count = 0, len_fens = 0;
     char *unmod_ptr = malloc(strlen(sans) + 1), *san_data = unmod_ptr,
@@ -962,7 +969,7 @@ rawmove( Rawcode rawcode, char *writable )
         writable[i] = ptr[i];
 }
 
-// Makes the move 'move' in position 'p'. This invariably involves
+// Makes the move 'rc' in position 'p'. This invariably involves
 // modifying or updating 'p'. If the move made is a pawn promotion,
 // parameter 'promotion' indicates the piece the pawn gets promoted
 // to ('q' for queen, 'r' for rook, 'b' for bishop and 'n' for knight).
@@ -976,49 +983,46 @@ rawmove( Rawcode rawcode, char *writable )
 // being captured in the position that results from the move being
 // executed). The reason for this is that the function is used as part
 // of the process of legal moves generation.
+static int sg_orig, sg_dest; // sg, static global
+static Chessman sg_mover, sg_target;
 void
-make_move( Pos *p, Rawcode move, char promotion )
+make_move( Pos *p, Rawcode rc, char promotion )
 {
-    assert( sizeof(rc_orig_sq_bindex) / sizeof(int8_t) == 1792 + 1 );
-    assert( sizeof(rc_dest_sq_bindex) / sizeof(int8_t) == 1792 + 1 );
+    sg_orig = rc_orig_sq_bindex[rc], sg_dest = rc_dest_sq_bindex[rc];
 
-    long long t0 = time_in_microseconds();
-    bool debug = false;
+    const Bitboard ONE = 1;
+    Bitboard sq_bit = (ONE << sg_orig);
+    for(Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++)
+        if(sq_bit & p->ppa[cm]) { sg_mover = cm; break; }
+    sq_bit = (ONE << sg_dest);
+    for(Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++)
+        if(sq_bit & p->ppa[cm]) { sg_target = cm; break; }
 
-    x_make_move_sanity_checks( p, move, promotion );
-    if(debug) printf("1st checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(false) x_make_move_sanity_checks( p, rc, promotion );
 
     Pos unmodified_p;
     copy_pos(p, &unmodified_p);
-    if(debug) printf("2nd checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
-    if( is_castle(&unmodified_p, move) ) x_make_move_castle(p, move);
-    else x_make_move_non_castling(p, move); // The slower case
-    if(debug) printf("3rd checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if( is_castle(&unmodified_p, rc) ) x_make_move_castle(p, rc);
+    else x_make_move_non_castling(p, rc); // The slower case
 
-    if( is_promotion(&unmodified_p, move) )
-        x_make_move_promote_pawn(p, move, promotion);
-    if(debug) printf("4th checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if( is_promotion(&unmodified_p, rc) )
+        x_make_move_promote_pawn(p, rc, promotion);
 
     toggle_turn(p);
-    if(debug) printf("5th checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
-    if( is_capture(&unmodified_p, move) ||
-            is_pawn_advance(&unmodified_p, move) )
+    if( is_capture(&unmodified_p, rc) ||
+            is_pawn_advance(&unmodified_p, rc) )
         p->hmc = 0;
     else p->hmc++;
-    if(debug) printf("6th checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
-    if( is_double_step_pawn_advance(&unmodified_p, move) )
-        x_make_move_set_epts_file(&p->epts_file, move);
+    if( is_double_step_pawn_advance(&unmodified_p, rc) )
+        x_make_move_set_epts_file(&p->epts_file, rc);
     else p->epts_file = 0;
-    if(debug) printf("7th checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     if( whites_turn(p) ) p->fmn++;
-    if(debug) printf("8th checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
-    assert( !ppa_integrity_check( p->ppa ) );
-    if(debug) printf("Final checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(false) assert(!ppa_integrity_check(p->ppa)); // Expensive!
 }
 
 // Removes the castling right(s) specified by the 'color' and 'side'
@@ -1274,23 +1278,11 @@ x_make_move_castle( Pos *p, Rawcode rc )
 static void
 x_make_move_non_castling( Pos *p, Rawcode move )
 {
-    long long t0 = time_in_microseconds();
-    bool debug = false;
-
     bool w = whites_turn(p);
-    Chessman mover, target;
-    int orig, dest;
-    set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
-    if(debug) printf("_1st checkpoint: %lld µs\n", time_in_microseconds() - t0);
-    // 1st checkpoint: 52 µs
-    // 2nd checkpoint: 80 µs
-    // 1st checkpoint: 0 µs
-    // 2nd checkpoint: 21 µs
 
-    assert( mover != EMPTY_SQUARE );
-    assert( (w && mover >= WHITE_KING && mover <= WHITE_PAWN) ||
-        (!w && mover >= BLACK_KING && mover <= BLACK_PAWN) );
-    if(debug) printf("2nd checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    assert( sg_mover != EMPTY_SQUARE );
+    assert( (w && sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN) ||
+        (!w && sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN) );
 
     if( is_en_passant_capture(p, move) ) {
         Bitboard double_advanced_pawn =
@@ -1299,7 +1291,7 @@ x_make_move_non_castling( Pos *p, Rawcode move )
         // The EPTS is set
         assert( epts(p) );
         // The EPTS is empty
-        assert( ( epts(p) & p->ppa[EMPTY_SQUARE] ) && target == EMPTY_SQUARE );
+        assert( ( epts(p) & p->ppa[EMPTY_SQUARE] ) && sg_target == EMPTY_SQUARE );
         // The square "after" the EPTS is occupied by a pawn of the
         // non-active color
         assert( double_advanced_pawn &
@@ -1312,46 +1304,39 @@ x_make_move_non_castling( Pos *p, Rawcode move )
         p->ppa[EMPTY_SQUARE] |= double_advanced_pawn;
         p->ppa[w ? BLACK_PAWN : WHITE_PAWN] ^= double_advanced_pawn;
 
-        target = w ? BLACK_PAWN : WHITE_PAWN;
+        sg_target = w ? BLACK_PAWN : WHITE_PAWN;
     }
-    if(debug) printf("3rd checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     // Make the origin square vacant
-    p->ppa[mover] ^= SBA[orig], p->ppa[EMPTY_SQUARE] |= SBA[orig];
+    p->ppa[sg_mover] ^= SBA[sg_orig], p->ppa[EMPTY_SQUARE] |= SBA[sg_orig];
     // Make the moving chessman "reappear" in the destination square
-    p->ppa[mover] |= SBA[dest], p->ppa[target] ^= SBA[dest];
-    if(debug) printf("4th checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    p->ppa[sg_mover] |= SBA[sg_dest], p->ppa[sg_target] ^= SBA[sg_dest];
 
-    if( mover == WHITE_KING || mover == BLACK_KING )
+    if( sg_mover == WHITE_KING || sg_mover == BLACK_KING )
         remove_castling_rights( p, w ? "white" : "black", "both");
 
-    if( (mover == WHITE_ROOK && SBA[orig] == p->irp[1]) ||
-            (target == WHITE_ROOK && SBA[dest] == p->irp[1]) )
+    if( (sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[1]) ||
+            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[1]) )
         remove_castling_rights(p, "white", "kingside");
-    else if( (mover == WHITE_ROOK && SBA[orig] == p->irp[0]) ||
-            (target == WHITE_ROOK && SBA[dest] == p->irp[0]) )
+    else if( (sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[0]) ||
+            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[0]) )
         remove_castling_rights(p, "white", "queenside");
 
-    if( (mover == BLACK_ROOK && SBA[orig] ==
+    if( (sg_mover == BLACK_ROOK && SBA[sg_orig] ==
             ((Bitboard) p->irp[1] << 56)) ||
-            (target == BLACK_ROOK && SBA[dest] ==
+            (sg_target == BLACK_ROOK && SBA[sg_dest] ==
             ((Bitboard) p->irp[1] << 56)) )
         remove_castling_rights(p, "black", "kingside");
-    else if( (mover == BLACK_ROOK && SBA[orig] ==
+    else if( (sg_mover == BLACK_ROOK && SBA[sg_orig] ==
             ((Bitboard) p->irp[0] << 56)) ||
-            (target == BLACK_ROOK && SBA[dest] ==
+            (sg_target == BLACK_ROOK && SBA[sg_dest] ==
             ((Bitboard) p->irp[0] << 56)) )
         remove_castling_rights(p, "black", "queenside");
-
-    if(debug) printf("Final checkpoint: %lld µs\n", time_in_microseconds() - t0);
 }
 
 static void
 x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
 {
-    Chessman mover, target; int orig, dest;
-    set_mover_target_orig_and_dest(p, move, &mover, &target, &orig, &dest);
-
     // 'promotion' should be one of the five valid character values.
     // If 'promotion' is not the char '-', then the move involved
     // should be a promotion.
@@ -1364,18 +1349,18 @@ x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
 
     // On White's turn only white chessmen can move; the same for Black
     assert(
-        ( whites_turn(p) && mover >= WHITE_KING && mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) && mover >= BLACK_KING && mover <= BLACK_PAWN ) );
+        ( whites_turn(p) && sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN ) ||
+        ( !whites_turn(p) && sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN ) );
     // A castling move is either O-O or O-O-O but not both
     assert( !(is_short_castle(p, move) && is_long_castle(p, move)) );
     // A pawn advance such as e2–e4 cannot involve a capture
-    assert( !is_pawn_advance(p, move) || target == EMPTY_SQUARE );
+    assert( !is_pawn_advance(p, move) || sg_target == EMPTY_SQUARE );
     // If a pawn moves a single square diagonally "upwards", it should
     // involve a capture
-    assert( !( mover == (whites_turn(p) ? WHITE_PAWN : BLACK_PAWN) &&
-        ( SBA[dest] == sq_nav(SBA[orig], whites_turn(p) ? NORTHWEST :
+    assert( !( sg_mover == (whites_turn(p) ? WHITE_PAWN : BLACK_PAWN) &&
+        ( SBA[sg_dest] == sq_nav(SBA[sg_orig], whites_turn(p) ? NORTHWEST :
                 SOUTHWEST) ||
-            SBA[dest] == sq_nav(SBA[orig], whites_turn(p) ? NORTHEAST :
+            SBA[sg_dest] == sq_nav(SBA[sg_orig], whites_turn(p) ? NORTHEAST :
                 SOUTHEAST) ) ) ||
         is_capture(p, move) );
 
