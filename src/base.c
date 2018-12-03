@@ -434,10 +434,10 @@ const char APM_DATA[] =
 // is a representation of two squares, namely the origin square and the
 // destination square. In the case of rawcode 1 the origin square is "a1"
 // and the destination square is "a2". The following array is indexed with
-// rawcodes (1 <= rawcode <= 1792). rc_orig_sq_bindex[1] indicates the
-// origin square of rawcode 1 and rc_orig_sq_bindex[1792] indicates the
+// rawcodes (1 <= rawcode <= 1792). RC_ORIG_SQ_BINDEX[1] indicates the
+// origin square of rawcode 1 and RC_ORIG_SQ_BINDEX[1792] indicates the
 // origin square of rawcode 1792.
-const int8_t rc_orig_sq_bindex[] = {
+const int8_t RC_ORIG_SQ_BINDEX[] = {
     -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
     8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
@@ -542,8 +542,8 @@ const int8_t rc_orig_sq_bindex[] = {
     55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 63, 63, 63, 63, 63, 63,
     63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63 };
 
-// (See comment of rc_orig_sq_bindex[].)
-const int8_t rc_dest_sq_bindex[] = {
+// (See comment of RC_ORIG_SQ_BINDEX[].)
+const int8_t RC_DEST_SQ_BINDEX[] = {
     -1, 8, 16, 24, 32, 40, 48, 56, 1, 9, 17, 2, 10, 18, 3, 27, 4, 36, 5,
     45, 6, 54, 7, 63, 0, 16, 24, 32, 40, 48, 56, 1, 9, 17, 25, 2, 10,
     18, 26, 11, 35, 12, 44, 13, 53, 14, 62, 15, 0, 8, 24, 32, 40, 48,
@@ -662,10 +662,9 @@ static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
 static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static bool x_rawcode_preliminary_checks( const char *rawmove );
 static void x_make_move_castle( Pos *p, Rawcode rc );
-static void x_make_move_non_castling( Pos *p, Rawcode move );
-static void x_make_move_sanity_checks( const Pos *p, Rawcode code,
+static void x_make_move_non_castling( Pos *p );
+static void x_make_move_sanity_checks( const Pos *p, Rawcode rc,
     char promotion );
-static void x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move );
 static void x_make_move_promote_pawn( Pos *p, Rawcode rc, char promotion );
 static int x_ppa_to_ppf( const Bitboard *ppa, char *ppf );
 static void x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf,
@@ -910,12 +909,12 @@ has_castling_right( const Pos *p, const char *color, const char *side )
 Bitboard
 epts( const Pos *p )
 {
-    if( !p->epts_file ) return 0;
+    if(!p->epts_file) return 0;
 
     Bitboard bb = p->epts_file;
-    bb <<= ( whites_turn(p) ? 40 : 16 );
+    bb <<= (whites_turn(p) ? 40 : 16);
 
-    assert( is_sq_bit(bb) );
+    // assert(is_sq_bit(bb));
     return bb;
 }
 
@@ -988,7 +987,11 @@ static Chessman sg_mover, sg_target;
 void
 make_move( Pos *p, Rawcode rc, char promotion )
 {
-    sg_orig = rc_orig_sq_bindex[rc], sg_dest = rc_dest_sq_bindex[rc];
+    // Remember make_monster()?
+
+    bool w = whites_turn(p);
+
+    sg_orig = RC_ORIG_SQ_BINDEX[rc], sg_dest = RC_DEST_SQ_BINDEX[rc];
 
     const Bitboard ONE = 1;
     Bitboard sq_bit = (ONE << sg_orig);
@@ -998,29 +1001,55 @@ make_move( Pos *p, Rawcode rc, char promotion )
     for(Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++)
         if(sq_bit & p->ppa[cm]) { sg_target = cm; break; }
 
-    if(false) x_make_move_sanity_checks( p, rc, promotion );
+    if(false) x_make_move_sanity_checks(p, rc, promotion); // Expensive!
 
-    Pos unmodified_p;
-    copy_pos(p, &unmodified_p);
+    Pos unmod_p;
+    copy_pos(p, &unmod_p);
 
-    if( is_castle(&unmodified_p, rc) ) x_make_move_castle(p, rc);
-    else x_make_move_non_castling(p, rc); // The slower case
+    if((sg_mover == WHITE_KING && sg_target == WHITE_ROOK) ||
+            (sg_mover == BLACK_KING && sg_target == BLACK_ROOK))
+        x_make_move_castle(p, rc);
+    else x_make_move_non_castling(p);
 
-    if( is_promotion(&unmodified_p, rc) )
-        x_make_move_promote_pawn(p, rc, promotion);
+    bool pp = ( // pp, pawn promotion
+        (sg_mover == WHITE_PAWN && sg_orig >= 48 && sg_orig <= 55 ) ||
+        (sg_mover == BLACK_PAWN && sg_orig >=  8 && sg_orig <= 15));
+    /*
+    if(pp) {
+        const Bitboard ranks_1_and_8 = 0xff000000000000ff;
+        Bitboard exactly_one_pawn = (p->ppa[w ? WHITE_PAWN : BLACK_PAWN] &
+            ranks_1_and_8);
+        assert( num_of_sqs_in_sq_set(exactly_one_pawn) == 1 );
+        assert( SBA[RC_DEST_SQ_BINDEX[rc]] == exactly_one_pawn ); }
+    */
+    if(pp) x_make_move_promote_pawn(p, rc, promotion);
 
-    toggle_turn(p);
+    // Toggle turn
+    if(w) p->turn_and_ca_flags ^= (1 << 7);
+    else p->turn_and_ca_flags |= (1 << 7);
+    w = !w;
 
-    if( is_capture(&unmodified_p, rc) ||
-            is_pawn_advance(&unmodified_p, rc) )
-        p->hmc = 0;
+    bool ep = (epts(&unmod_p) == SBA[sg_dest] && (sg_mover == WHITE_PAWN ||
+        sg_mover == BLACK_PAWN));
+    bool capture = ( ep ||
+        (sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN &&
+            sg_target >= BLACK_QUEEN && sg_target <= BLACK_PAWN) ||
+        (sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN &&
+            sg_target >= WHITE_QUEEN && sg_target <= WHITE_PAWN) );
+    bool sspa = ( // sspa, single step pawn advance
+        (sg_mover == WHITE_PAWN && SBA[sg_dest] == (SBA[sg_orig] << 8)) ||
+        (sg_mover == BLACK_PAWN && SBA[sg_dest] == (SBA[sg_orig] >> 8)));
+    bool dspa = ( // dspa, double step pawn advance
+        (sg_mover == WHITE_PAWN && SBA[sg_dest] == (SBA[sg_orig] << 16)) ||
+        (sg_mover == BLACK_PAWN && SBA[sg_dest] == (SBA[sg_orig] >> 16)));
+
+    if(capture || sspa || dspa) p->hmc = 0;
     else p->hmc++;
 
-    if( is_double_step_pawn_advance(&unmodified_p, rc) )
-        x_make_move_set_epts_file(&p->epts_file, rc);
+    if(dspa) p->epts_file = (SBA[sg_orig] >> (w ? 48 : 8));
     else p->epts_file = 0;
 
-    if( whites_turn(p) ) p->fmn++;
+    if(w) p->fmn++;
 
     if(false) assert(!ppa_integrity_check(p->ppa)); // Expensive!
 }
@@ -1240,168 +1269,207 @@ x_rawcode_preliminary_checks( const char *rawmove )
 static void
 x_make_move_castle( Pos *p, Rawcode rc )
 {
-    Bitboard castling_rook = ( SBA[rc_dest_sq_bindex[rc]] &
+    Bitboard castling_rook = ( SBA[RC_DEST_SQ_BINDEX[rc]] &
         (p->ppa[WHITE_ROOK] | p->ppa[BLACK_ROOK]) ),
         tmp = castling_rook;
     if( tmp > SB.h1 ) tmp >>= 56;
 
+    bool w = whites_turn(p);
     uint8_t file_of_castling_rook = tmp;
     bool kingside = (file_of_castling_rook & p->irp[1]);
 
-    p->ppa[EMPTY_SQUARE] ^= p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING];
-    p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] = 0;
+    p->ppa[EMPTY_SQUARE] ^= p->ppa[w ? WHITE_KING : BLACK_KING];
+    p->ppa[w ? WHITE_KING : BLACK_KING] = 0;
     p->ppa[EMPTY_SQUARE] ^= castling_rook;
-    p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ^= castling_rook;
+    p->ppa[w ? WHITE_ROOK : BLACK_ROOK] ^= castling_rook;
 
-    if( kingside && whites_turn(p) ) {
+    if( kingside && w ) {
         p->ppa[WHITE_KING] = SB.g1, p->ppa[EMPTY_SQUARE] ^= SB.g1;
         p->ppa[WHITE_ROOK] |= SB.f1, p->ppa[EMPTY_SQUARE] ^= SB.f1;
-    }
-    else if( kingside && !whites_turn(p) ) {
+    } else if( kingside && !w ) {
         p->ppa[BLACK_KING] = SB.g8, p->ppa[EMPTY_SQUARE] ^= SB.g8;
         p->ppa[BLACK_ROOK] |= SB.f8, p->ppa[EMPTY_SQUARE] ^= SB.f8;
-    }
-    else if( whites_turn(p) ) { // queenside
+    } else if( w ) { // queenside
         p->ppa[WHITE_KING] = SB.c1, p->ppa[EMPTY_SQUARE] ^= SB.c1;
         p->ppa[WHITE_ROOK] |= SB.d1, p->ppa[EMPTY_SQUARE] ^= SB.d1;
-    }
-    else if( !whites_turn(p) ) { // queenside
+    } else if( !w ) { // queenside
         p->ppa[BLACK_KING] = SB.c8, p->ppa[EMPTY_SQUARE] ^= SB.c8;
         p->ppa[BLACK_ROOK] |= SB.d8, p->ppa[EMPTY_SQUARE] ^= SB.d8;
-    }
-    else assert(false); // Should be impossible
+    } else assert(false); // Should be impossible
 
-    remove_castling_rights(
-        p, whites_turn(p) ? "white" : "black", "both" );
+    if(w) {
+        if(p->turn_and_ca_flags & 8) p->turn_and_ca_flags ^= 8;
+        if(p->turn_and_ca_flags & 4) p->turn_and_ca_flags ^= 4;
+    } else {
+        if(p->turn_and_ca_flags & 2) p->turn_and_ca_flags ^= 2;
+        if(p->turn_and_ca_flags & 1) p->turn_and_ca_flags ^= 1; }
 }
 
 static void
-x_make_move_non_castling( Pos *p, Rawcode move )
+x_make_move_non_castling( Pos *p )
 {
     bool w = whites_turn(p);
 
-    assert( sg_mover != EMPTY_SQUARE );
-    assert( (w && sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN) ||
-        (!w && sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN) );
+    Bitboard the_epts = epts(p); // En passant target square
+    bool ep = (the_epts == SBA[sg_dest] &&
+        (sg_mover == WHITE_PAWN || sg_mover == BLACK_PAWN));
 
-    if( is_en_passant_capture(p, move) ) {
-        Bitboard double_advanced_pawn =
-            sq_nav( epts(p), w ? SOUTH : NORTH );
-
-        // The EPTS is set
-        assert( epts(p) );
-        // The EPTS is empty
-        assert( ( epts(p) & p->ppa[EMPTY_SQUARE] ) && sg_target == EMPTY_SQUARE );
-        // The square "after" the EPTS is occupied by a pawn of the
-        // non-active color
-        assert( double_advanced_pawn &
-            p->ppa[w ? BLACK_PAWN : WHITE_PAWN] );
+    if(ep) {
+        Bitboard double_advanced_pawn = the_epts;
+        if(w) double_advanced_pawn >>= 8;
+        else double_advanced_pawn <<= 8;
 
         // Make the pawn that has made a double-step advance go
         // backwards a single step
-        p->ppa[EMPTY_SQUARE] ^= epts(p);
-        p->ppa[w ? BLACK_PAWN : WHITE_PAWN] |= epts(p);
+        p->ppa[EMPTY_SQUARE] ^= the_epts;
+        p->ppa[w ? BLACK_PAWN : WHITE_PAWN] |= the_epts;
         p->ppa[EMPTY_SQUARE] |= double_advanced_pawn;
         p->ppa[w ? BLACK_PAWN : WHITE_PAWN] ^= double_advanced_pawn;
 
-        sg_target = w ? BLACK_PAWN : WHITE_PAWN;
-    }
+        sg_target = w ? BLACK_PAWN : WHITE_PAWN; }
 
     // Make the origin square vacant
     p->ppa[sg_mover] ^= SBA[sg_orig], p->ppa[EMPTY_SQUARE] |= SBA[sg_orig];
     // Make the moving chessman "reappear" in the destination square
     p->ppa[sg_mover] |= SBA[sg_dest], p->ppa[sg_target] ^= SBA[sg_dest];
 
-    if( sg_mover == WHITE_KING || sg_mover == BLACK_KING )
-        remove_castling_rights( p, w ? "white" : "black", "both");
+    if(sg_mover == WHITE_KING) {
+        if(p->turn_and_ca_flags & 8) p->turn_and_ca_flags ^= 8;
+        if(p->turn_and_ca_flags & 4) p->turn_and_ca_flags ^= 4;
+    } else if(sg_mover == BLACK_KING) {
+        if(p->turn_and_ca_flags & 2) p->turn_and_ca_flags ^= 2;
+        if(p->turn_and_ca_flags & 1) p->turn_and_ca_flags ^= 1; }
 
-    if( (sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[1]) ||
-            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[1]) )
-        remove_castling_rights(p, "white", "kingside");
-    else if( (sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[0]) ||
-            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[0]) )
-        remove_castling_rights(p, "white", "queenside");
+    if((sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[1]) ||
+            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[1])) {
+        if(p->turn_and_ca_flags & 8) p->turn_and_ca_flags ^= 8;
+    } else if((sg_mover == WHITE_ROOK && SBA[sg_orig] == p->irp[0]) ||
+            (sg_target == WHITE_ROOK && SBA[sg_dest] == p->irp[0])) {
+        if(p->turn_and_ca_flags & 4) p->turn_and_ca_flags ^= 4; }
 
-    if( (sg_mover == BLACK_ROOK && SBA[sg_orig] ==
+    if((sg_mover == BLACK_ROOK && SBA[sg_orig] ==
             ((Bitboard) p->irp[1] << 56)) ||
             (sg_target == BLACK_ROOK && SBA[sg_dest] ==
-            ((Bitboard) p->irp[1] << 56)) )
-        remove_castling_rights(p, "black", "kingside");
-    else if( (sg_mover == BLACK_ROOK && SBA[sg_orig] ==
+            ((Bitboard) p->irp[1] << 56))) {
+        if(p->turn_and_ca_flags & 2) p->turn_and_ca_flags ^= 2;
+    } else if((sg_mover == BLACK_ROOK && SBA[sg_orig] ==
             ((Bitboard) p->irp[0] << 56)) ||
             (sg_target == BLACK_ROOK && SBA[sg_dest] ==
-            ((Bitboard) p->irp[0] << 56)) )
-        remove_castling_rights(p, "black", "queenside");
+            ((Bitboard) p->irp[0] << 56))) {
+        if(p->turn_and_ca_flags & 1) p->turn_and_ca_flags ^= 1; }
 }
 
 static void
-x_make_move_sanity_checks( const Pos *p, Rawcode move, char promotion )
+x_make_move_sanity_checks( const Pos *p, Rawcode rc, char promotion )
 {
+    bool w = whites_turn(p);
+
     // 'promotion' should be one of the five valid character values.
     // If 'promotion' is not the char '-', then the move involved
     // should be a promotion.
     assert( promotion == '-' || promotion == 'q' || promotion == 'r' ||
         promotion == 'b' || promotion == 'n' );
-    assert( ( promotion == '-' && !is_promotion(p, move) ) ||
+    assert( ( promotion == '-' && !is_promotion(p, rc) ) ||
         ( (promotion == 'q' || promotion == 'r' || promotion == 'b' ||
             promotion == 'n') &&
-        is_promotion(p, move) ) );
+        is_promotion(p, rc) ) );
 
     // On White's turn only white chessmen can move; the same for Black
     assert(
-        ( whites_turn(p) && sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN ) ||
-        ( !whites_turn(p) && sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN ) );
+        (w && sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN) ||
+        (!w && sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN));
     // A castling move is either O-O or O-O-O but not both
-    assert( !(is_short_castle(p, move) && is_long_castle(p, move)) );
+    assert( !(is_short_castle(p, rc) && is_long_castle(p, rc)) );
     // A pawn advance such as e2–e4 cannot involve a capture
-    assert( !is_pawn_advance(p, move) || sg_target == EMPTY_SQUARE );
+    assert( !is_pawn_advance(p, rc) || sg_target == EMPTY_SQUARE );
     // If a pawn moves a single square diagonally "upwards", it should
     // involve a capture
-    assert( !( sg_mover == (whites_turn(p) ? WHITE_PAWN : BLACK_PAWN) &&
-        ( SBA[sg_dest] == sq_nav(SBA[sg_orig], whites_turn(p) ? NORTHWEST :
+    assert( !( sg_mover == (w ? WHITE_PAWN : BLACK_PAWN) &&
+        ( SBA[sg_dest] == sq_nav(SBA[sg_orig], w ? NORTHWEST :
                 SOUTHWEST) ||
-            SBA[sg_dest] == sq_nav(SBA[sg_orig], whites_turn(p) ? NORTHEAST :
+            SBA[sg_dest] == sq_nav(SBA[sg_orig], w ? NORTHEAST :
                 SOUTHEAST) ) ) ||
-        is_capture(p, move) );
+        is_capture(p, rc) );
 
     // It's OK for make_move() to execute moves that result in a position
     // where a king can be captured. However, the position should be legal
     // before the execution of the move.
     assert( !king_can_be_captured(p) );
 
-    // No pawns on first/last rows
-}
+    // The white king captures a white rook if and only if the move in
+    // question is a castling move (according to is_castle()).
+    assert(!w || (
+        ((sg_mover == WHITE_KING && sg_target == WHITE_ROOK) && is_castle(p, rc)) ||
+        (!(sg_mover == WHITE_KING && sg_target == WHITE_ROOK) && !is_castle(p, rc))
+    ));
+    // The black king captures a black rook if and only if the move in
+    // question is a castling move (according to is_castle()).
+    assert(w || (
+        ((sg_mover == BLACK_KING && sg_target == BLACK_ROOK) && is_castle(p, rc)) ||
+        (!(sg_mover == BLACK_KING && sg_target == BLACK_ROOK) && !is_castle(p, rc))
+    ));
 
-static void
-x_make_move_set_epts_file( uint8_t *epts_file, Rawcode move )
-{
-    char the_rawmove[4 + 1];
-    rawmove(move, the_rawmove);
-    *epts_file = (1 << (the_rawmove[0] - 'a'));
+    Bitboard the_epts = epts(p); // En passant target square
+    bool ep = (the_epts == SBA[sg_dest] &&
+        (sg_mover == WHITE_PAWN || sg_mover == BLACK_PAWN));
+
+    // (ep == true) if and only if (is_en_passant_capture(p, rc) == true)
+    assert( (ep && is_en_passant_capture(p, rc)) ||
+        (!ep && !is_en_passant_capture(p, rc)) );
+
+    // The EPTS is empty
+    assert(!ep || ((the_epts & p->ppa[EMPTY_SQUARE]) && sg_target == EMPTY_SQUARE));
+
+    Bitboard double_advanced_pawn = the_epts;
+    if(w) double_advanced_pawn >>= 8;
+    else double_advanced_pawn <<= 8;
+    // The square "after" the EPTS is occupied by a pawn of the
+    // non-active color
+    assert(!ep || ((double_advanced_pawn & p->ppa[w ? BLACK_PAWN : WHITE_PAWN])));
+
+    bool pp = ( // pp, pawn promotion
+        (sg_mover == WHITE_PAWN && sg_orig >= 48 && sg_orig <= 55 ) ||
+        (sg_mover == BLACK_PAWN && sg_orig >=  8 && sg_orig <= 15));
+    assert((pp && is_promotion(p, rc)) || (!pp && !is_promotion(p, rc)));
+
+    bool capture = ( ep ||
+        (sg_mover >= WHITE_KING && sg_mover <= WHITE_PAWN &&
+            sg_target >= BLACK_QUEEN && sg_target <= BLACK_PAWN) ||
+        (sg_mover >= BLACK_KING && sg_mover <= BLACK_PAWN &&
+            sg_target >= WHITE_QUEEN && sg_target <= WHITE_PAWN) );
+
+    assert((capture &&  is_capture(p, rc)) || (!capture && !is_capture(p, rc)));
+
+    bool sspa = ( // sspa, single step pawn advance
+        (sg_mover == WHITE_PAWN && SBA[sg_dest] == (SBA[sg_orig] << 8)) ||
+        (sg_mover == BLACK_PAWN && SBA[sg_dest] == (SBA[sg_orig] >> 8)));
+    bool dspa = ( // dspa, double step pawn advance
+        (sg_mover == WHITE_PAWN && SBA[sg_dest] == (SBA[sg_orig] << 16)) ||
+        (sg_mover == BLACK_PAWN && SBA[sg_dest] == (SBA[sg_orig] >> 16)));
+    assert(
+        ( sspa &&  is_single_step_pawn_advance(p, rc)) ||
+        (!sspa && !is_single_step_pawn_advance(p, rc)));
+    assert(
+        ( dspa &&  is_double_step_pawn_advance(p, rc)) ||
+        (!dspa && !is_double_step_pawn_advance(p, rc)));
 }
 
 static void
 x_make_move_promote_pawn( Pos *p, Rawcode rc, char promotion )
 {
-    Bitboard exactly_one_pawn =
-        ( p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) &
-        (rank('1') | rank('8'));
-    assert( num_of_sqs_in_sq_set(exactly_one_pawn) == 1 );
+    bool w = whites_turn(p);
 
-    Bitboard pawn = SBA[rc_dest_sq_bindex[rc]];
-    assert( pawn == exactly_one_pawn );
-
-    p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ^= pawn;
+    Bitboard pawn = SBA[RC_DEST_SQ_BINDEX[rc]];
+    p->ppa[w ? WHITE_PAWN : BLACK_PAWN] ^= pawn;
 
     Chessman promote_to = WHITE_QUEEN;
 
-    if( promotion == 'r' ) promote_to = WHITE_ROOK;
-    else if( promotion == 'b' ) promote_to = WHITE_BISHOP;
-    else if( promotion == 'n' ) promote_to = WHITE_KNIGHT;
+    if(promotion == 'r') promote_to = WHITE_ROOK;
+    else if(promotion == 'b') promote_to = WHITE_BISHOP;
+    else if(promotion == 'n') promote_to = WHITE_KNIGHT;
 
-    if( !whites_turn(p) ) promote_to += 6;
+    if(!w) promote_to += 6;
 
-    assert( !(p->ppa[promote_to] & pawn) );
     p->ppa[promote_to] |= pawn;
 }
 

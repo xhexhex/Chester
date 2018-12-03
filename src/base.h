@@ -31,7 +31,7 @@ extern const char * const SNA[];
 extern const char * const SHREDDER_FEN_CAFS[];
 
 extern const char APM_DATA[];
-extern const int8_t rc_orig_sq_bindex[], rc_dest_sq_bindex[];
+extern const int8_t RC_ORIG_SQ_BINDEX[], RC_DEST_SQ_BINDEX[];
 
 #define APM_COUNT 1792
 

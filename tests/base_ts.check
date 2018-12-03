@@ -1875,5 +1875,5 @@ ck_assert( counter == exp_count );
 
     for(Rawcode rc = 1; rc <= 1792; rc++) {
         rawcode_bit_indexes(rc, &orig, &dest);
-        ck_assert(orig == rc_orig_sq_bindex[rc]);
-        ck_assert(dest == rc_dest_sq_bindex[rc]); }
+        ck_assert(orig == RC_ORIG_SQ_BINDEX[rc]);
+        ck_assert(dest == RC_DEST_SQ_BINDEX[rc]); }

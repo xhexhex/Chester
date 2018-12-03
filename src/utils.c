@@ -796,7 +796,7 @@ void
 set_mover_target_orig_and_dest( const Pos *p, Rawcode move, Chessman *mover,
     Chessman *target, int *orig, int *dest )
 {
-    *orig = rc_orig_sq_bindex[move], *dest = rc_dest_sq_bindex[move];
+    *orig = RC_ORIG_SQ_BINDEX[move], *dest = RC_DEST_SQ_BINDEX[move];
     *mover = occupant_of_sq( p, SBA[*orig] );
     *target = occupant_of_sq( p, SBA[*dest] );
 }
