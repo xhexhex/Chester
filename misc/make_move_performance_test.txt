@@ -4,3 +4,7 @@
 [ 4]  make_move_performance_test: 50000 calls to make_move() took 49 ms
 [ 5]  make_move_performance_test: 50000 calls to make_move() took 44 ms
 [ 6]  make_move_performance_test: 50000 calls to make_move() took 14 ms
+[ 7]  make_monster_performance_test: 50000 calls to make_monster() took 9 ms
+
+(25858 ms) / (9 ms) = 2873.
+A 2873-fold increase in performance isn't that bad!

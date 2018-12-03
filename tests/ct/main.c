@@ -18,7 +18,7 @@ int test_count, error_count;
 int
 main()
 {
-    make_move_performance_test();
+    make_monster_performance_test();
 
     /*
     const Pos *p = fen_to_pos(
@@ -34,11 +34,11 @@ main()
     long long t0 = time_in_milliseconds();
     for(int count = 1; count <= 5 * 1000; count++) {
         copy_pos( p, &copy );
-        make_move(&copy, 936, '-');
-        // make_move(&copy, 1140, '-');
-        // make_move(&copy, 1098, 'q');
-        // make_move(&copy, 193, '-');
-        // make_move(&copy, 1685, '-');
+        make_monster(&copy, 936, '-');
+        // make_monster(&copy, 1140, '-');
+        // make_monster(&copy, 1098, 'q');
+        // make_monster(&copy, 193, '-');
+        // make_monster(&copy, 1685, '-');
     }
     printf("The operation took %lld ms\n", time_in_milliseconds() - t0);
     free((void *) p);

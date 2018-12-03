@@ -323,7 +323,7 @@ rawcodes( const Pos *p )
         Pos copy;
         copy_pos( p, &copy );
 
-        make_move( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
+        make_monster( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
         if( king_can_be_captured( &copy ) ) pseudo[i] = 0, --updated_vacant;
     }
 

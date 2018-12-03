@@ -171,7 +171,7 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
             move[2] = dest_sq[0], move[3] = dest_sq[1]; \
         Pos pos; \
         copy_pos(p, &pos); \
-        make_move( &pos, rawcode(move), '-' ); \
+        make_monster( &pos, rawcode(move), '-' ); \
         if( king_can_be_captured( &pos ) ) \
             orig_sq_bb ^= bit; }
 
@@ -309,7 +309,7 @@ x_rawcode_to_san_castling_move( const Pos *p, Rawcode rc, char promotion )
     Pos after_move;
     copy_pos(p, &after_move);
     assert(promotion == '-');
-    make_move(&after_move, rc, promotion);
+    make_monster(&after_move, rc, promotion);
     if(king_in_check(&after_move))
         castle_san[is_short_castle(p, rc) ? 3 : 5] =
             (checkmate(&after_move) ? '#' : '+');
@@ -367,7 +367,7 @@ x_rawcode_to_san_set_check_or_mate( const Pos *p, Rawcode rc, char promotion,
 
     Pos after_move;
     copy_pos(p, &after_move);
-    make_move(&after_move, rc, tolower(promotion));
+    make_monster(&after_move, rc, tolower(promotion));
     if(king_in_check(&after_move)) {
         check_or_mate[0] = '+';
         if(checkmate(&after_move)) check_or_mate[0] = '#'; }

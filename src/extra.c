@@ -247,9 +247,9 @@ shredder_to_std_fen_conv( char *fen )
 
 // An ad hoc tester function to evaluate the efficiency of move_move().
 void
-make_move_performance_test()
+make_monster_performance_test()
 {
-    const int REPS = 10000;
+    const int REPS = 1 * 10000;
 
     const char *fen[] = {
         FEN_STD_START_POS,
@@ -269,11 +269,11 @@ make_move_performance_test()
     const Pos *p[5];
     Pos result[5];
     for(int i = 0; i < 5; i++) p[i] = fen_to_pos(fen[i]);
-    copy_pos(p[0], &result[0]), make_move(&result[0], 936, '-');  // "e4"
-    copy_pos(p[1], &result[1]), make_move(&result[1], 1140, '-'); // "O-O"
-    copy_pos(p[2], &result[2]), make_move(&result[2], 1098, 'q'); // "exd8=Q"
-    copy_pos(p[3], &result[3]), make_move(&result[3], 193, '-');  // "Bxh1"
-    copy_pos(p[4], &result[4]), make_move(&result[4], 1685, '-'); // "hxg3+"
+    copy_pos(p[0], &result[0]), make_monster(&result[0], 936, '-');  // "e4"
+    copy_pos(p[1], &result[1]), make_monster(&result[1], 1140, '-'); // "O-O"
+    copy_pos(p[2], &result[2]), make_monster(&result[2], 1098, 'q'); // "exd8=Q"
+    copy_pos(p[3], &result[3]), make_monster(&result[3], 193, '-');  // "Bxh1"
+    copy_pos(p[4], &result[4]), make_monster(&result[4], 1685, '-'); // "hxg3+"
 
     for(int i = 0; i < 5; i++) {
         char *tmp = pos_to_fen(&result[i]);
@@ -282,15 +282,15 @@ make_move_performance_test()
 
     Pos pos;
     long long t0 = time_in_milliseconds();
-    // 50 * 1000 calls to make_move() is the standard
+    // 50 * 1000 calls to make_monster() is the standard
     for(int count = 1; count <= REPS; count++) {
-        copy_pos(p[0], &pos), make_move(&pos,  936, '-');
-        copy_pos(p[1], &pos), make_move(&pos, 1140, '-');
-        copy_pos(p[2], &pos), make_move(&pos, 1098, 'q');
-        copy_pos(p[3], &pos), make_move(&pos,  193, '-');
-        copy_pos(p[4], &pos), make_move(&pos, 1685, '-'); }
+        copy_pos(p[0], &pos), make_monster(&pos,  936, '-');
+        copy_pos(p[1], &pos), make_monster(&pos, 1140, '-');
+        copy_pos(p[2], &pos), make_monster(&pos, 1098, 'q');
+        copy_pos(p[3], &pos), make_monster(&pos,  193, '-');
+        copy_pos(p[4], &pos), make_monster(&pos, 1685, '-'); }
 
-    printf("%s: %d calls to make_move() took %lld ms\n",
+    printf("%s: %d calls to make_monster() took %lld ms\n",
         __func__, 5 * REPS, time_in_milliseconds() - t0);
 
     for(int i = 0; i < 5; i++) free((void *) p[i]);

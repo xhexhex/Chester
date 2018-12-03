@@ -838,7 +838,7 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_castling_tests
+#tcase make_monster_castling_tests
 
 #define TEST_WITH_ARGS( fen_arg, code, promotion, empty, \
         wking, wqueen, wrook, wbishop, wknight, wpawn, \
@@ -847,7 +847,7 @@ ck_assert( counter == exp_count );
         epts_file_arg, hmc_arg, fmn_arg ) \
     ck_assert( !che_fen_validator( fen_arg ) ); \
     p = fen_to_pos( fen_arg ); \
-    make_move( p, code, promotion ); \
+    make_monster( p, code, promotion ); \
     ck_assert( p->ppa[EMPTY_SQUARE] == (empty) ); \
     ck_assert( p->ppa[WHITE_KING] == (wking) ); \
     ck_assert( p->ppa[WHITE_QUEEN] == (wqueen) ); \
@@ -869,7 +869,7 @@ ck_assert( counter == exp_count );
     ck_assert( p->fmn == (fmn_arg) ); \
     free(p);
 
-#test make_move_tested_with_kingside_castling_moves_for_white
+#test make_monster_tested_with_kingside_castling_moves_for_white
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -897,7 +897,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b7 | SB.c7 | SB.e5 | SB.f6 | SB.g7 | SB.h7),
         3, 1, 128, 0, 5, 11 )
 
-#test make_move_tested_with_queenside_castling_moves_for_white
+#test make_monster_tested_with_queenside_castling_moves_for_white
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -925,7 +925,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b7 | SB.c7 | SB.e5 | SB.f6 | SB.g7 | SB.h7),
         3, 1, 128, 0, 5, 11 )
 
-#test make_move_tested_with_kingside_castling_moves_for_black
+#test make_monster_tested_with_kingside_castling_moves_for_black
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -953,7 +953,7 @@ ck_assert( counter == exp_count );
             (SB.a7 | SB.b7 | SB.c7 | SB.d5 | SB.e7 | SB.f7 | SB.g6 | SB.h7),
         140, 4, 64, 0, 3, 6 )
 
-#test make_move_tested_with_queenside_castling_moves_for_black
+#test make_monster_tested_with_queenside_castling_moves_for_black
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -981,9 +981,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_non_castling_non_pawn_move_tests
+#tcase make_monster_non_castling_non_pawn_move_tests
 
-#test make_move_tested_with_white_king_moves
+#test make_monster_tested_with_white_king_moves
     Pos *p;
 
     // Non-captures
@@ -1014,7 +1014,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
         (2 + 1), 8, 32, 0, 0, 1 )
 
-#test make_move_tested_with_black_king_moves
+#test make_monster_tested_with_black_king_moves
     Pos *p;
 
     // Non-captures
@@ -1045,7 +1045,7 @@ ck_assert( counter == exp_count );
         SB.d8, 0, SB.h8, 0, 0, 0,
         (128 + 4), 1, 128, 0, 0, 101 )
 
-#test make_move_tested_with_white_queen_moves
+#test make_monster_tested_with_white_queen_moves
     Pos *p;
 
     // Non-captures
@@ -1070,7 +1070,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7 | SB.h5),
         0, 1, 128, 0, 0, 20 )
 
-#test make_move_tested_with_black_queen_moves
+#test make_monster_tested_with_black_queen_moves
     Pos *p;
 
     // Non-captures
@@ -1089,7 +1089,7 @@ ck_assert( counter == exp_count );
         SB.e8, SB.d1, 0, 0, 0, 0,
         128, 1, 128, 0, 0, 101 )
 
-#test make_move_tested_with_white_rook_moves
+#test make_monster_tested_with_white_rook_moves
     Pos *p;
 
     // Non-captures
@@ -1138,7 +1138,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.h8, 0, 0, 0,
         0, 1, 128, 0, 0, 1 )
 
-#test make_move_tested_with_black_rook_moves
+#test make_monster_tested_with_black_rook_moves
     Pos *p;
 
     // Non-captures
@@ -1199,7 +1199,7 @@ ck_assert( counter == exp_count );
         SB.c8, 0, (SB.b8 | SB.d1 | SB.b7), 0, 0, 0,
         (128 + 4 + 1), 2, 8, 0, 0, 2 )
 
-#test make_move_tested_with_white_bishop_moves
+#test make_monster_tested_with_white_bishop_moves
     Pos *p;
 
     // Non-captures
@@ -1224,7 +1224,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7),
         (8 + 4 + 2 + 1), 1, 128, 0, 0, 10 )
 
-#test make_move_tested_with_black_bishop_moves
+#test make_monster_tested_with_black_bishop_moves
     Pos *p;
 
     // Non-captures
@@ -1245,7 +1245,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, 0, SB.h1, 0, 0,
         128, 1, 128, 0, 0, 10 )
 
-#test make_move_tested_with_white_knight_moves
+#test make_monster_tested_with_white_knight_moves
     Pos *p;
 
     // Non-captures
@@ -1264,7 +1264,7 @@ ck_assert( counter == exp_count );
         SB.e6, 0, 0, SB.h5, 0, (SB.a7 | SB.b6 | SB.h6),
         0, 1, 128, 0, 0, 77 )
 
-#test make_move_tested_with_black_knight_moves
+#test make_monster_tested_with_black_knight_moves
     Pos *p;
 
     // Non-captures
@@ -1286,9 +1286,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_pawn_move_tests
+#tcase make_monster_pawn_move_tests
 
-#test make_move_tested_with_double_advancing_white_pawns
+#test make_monster_tested_with_double_advancing_white_pawns
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1310,7 +1310,7 @@ ck_assert( counter == exp_count );
         SB.g5, 0, 0, 0, 0, 0,
         0, 1, 128, 128, 0, 100 )
 
-#test make_move_tested_with_double_advancing_black_pawns
+#test make_monster_tested_with_double_advancing_black_pawns
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1336,7 +1336,7 @@ ck_assert( counter == exp_count );
         SB.d8, 0, (SB.b8 | SB.e8), 0, 0, SB.h5,
         128 + 8 + 4 + 2 + 1, 2, 16, 128, 0, 51 )
 
-#test make_move_tested_with_white_pawns_doing_non_en_passant_captures
+#test make_monster_tested_with_white_pawns_doing_non_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1352,7 +1352,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.d5, SB.e5, 0, 0,
         0, 1, 128, 0, 0, 100 )
 
-#test make_move_tested_with_black_pawns_doing_non_en_passant_captures
+#test make_monster_tested_with_black_pawns_doing_non_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1374,7 +1374,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.h8, 0, SB.h1, (SB.e5 | SB.b7),
         128, 1, 128, 0, 0, 21 )
 
-#test make_move_tested_with_white_pawns_getting_a_promotion
+#test make_monster_tested_with_white_pawns_getting_a_promotion
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1396,7 +1396,7 @@ ck_assert( counter == exp_count );
         SB.h1, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 123 )
 
-#test make_move_tested_with_black_pawns_getting_a_promotion
+#test make_monster_tested_with_black_pawns_getting_a_promotion
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1418,7 +1418,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, 0, SB.f1, 0, SB.b2,
         128 + 4, 1, 32, 0, 0, 101 )
 
-#test make_move_tested_with_white_pawns_doing_en_passant_captures
+#test make_monster_tested_with_white_pawns_doing_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1434,7 +1434,7 @@ ck_assert( counter == exp_count );
         SB.c7, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 100 )
 
-#test make_move_tested_with_black_pawns_doing_en_passant_captures
+#test make_monster_tested_with_black_pawns_doing_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1459,9 +1459,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_move_misc_tests
+#tcase make_monster_misc_tests
 
-#test make_move_tested_with_misc_positions_batch_01
+#test make_monster_tested_with_misc_positions_batch_01
     Pos *p;
 
     TEST_WITH_ARGS(
