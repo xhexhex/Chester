@@ -18,31 +18,30 @@ int test_count, error_count;
 int
 main()
 {
-    make_monster_performance_test();
+    // fen_to_pos(FEN_STD_START_POS);
+    // fen_to_pos("6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35");
 
-    /*
-    const Pos *p = fen_to_pos(
-        FEN_STD_START_POS
-        // "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7"
-        // "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123"
-        // "b3k3/8/8/8/3P4/8/8/4K2R b K d3 0 9"
-        // "4k2r/8/8/8/6Pp/8/8/7K b k g3 0 75"
-    );
+    const int REPS = 10 * 1000 * 1000;
+    long long t0, d1, d2;
 
-    Pos copy;
+    t0 = time_in_milliseconds();
+    for(int count = 1; count <= REPS; count++) {
+        Pos *p = fen_to_pos(FEN_STD_START_POS);
+        free(p); }
+    d1 = time_in_milliseconds() - t0;
+    printf("The operation took %lld ms\n", d1);
 
-    long long t0 = time_in_milliseconds();
-    for(int count = 1; count <= 5 * 1000; count++) {
-        copy_pos( p, &copy );
-        make_monster(&copy, 936, '-');
-        // make_monster(&copy, 1140, '-');
-        // make_monster(&copy, 1098, 'q');
-        // make_monster(&copy, 193, '-');
-        // make_monster(&copy, 1685, '-');
-    }
-    printf("The operation took %lld ms\n", time_in_milliseconds() - t0);
+    const Pos *p = fen_to_pos(FEN_STD_START_POS);
+    t0 = time_in_milliseconds();
+    for(int count = 1; count <= REPS; count++) {
+        char *fen = pos_to_fen((Pos *) p);
+        free(fen); }
+    d2 = time_in_milliseconds() - t0;
+    printf("The operation took %lld ms\n", d2);
     free((void *) p);
-    */
+
+    printf("Performance ratio: %.2f\n", (double) d1 / d2);
+    printf("If ratio < 1, then fen_to_pos() is faster than pos_to_fen()\n");
 
     // >>
     // long long t0, /*d1,*/ d2;
@@ -58,9 +57,7 @@ main()
     }
     d1 = time_in_milliseconds() - t0;
     printf("\nThe operation took %lld ms\n", d1);
-    */
 
-    /*
     const Pos *p = fen_to_pos(FEN_STD_START_POS);
     t0 = time_in_milliseconds();
     printf("Calling rawcodes() %d times...\n", REPS);
@@ -74,10 +71,7 @@ main()
     free((void *) p);
     */
 
-    // printf("Performance ratio: %.2f\n", (double) d1 / d2);
-    // <<
-
-    /*
+    /* Put in extra.*
     const uint16_t one = 1;
     char line[30 + 1], tmp[10 + 1];
     for(uint8_t byte = 0; ; byte++) {

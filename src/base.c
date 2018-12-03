@@ -655,7 +655,6 @@ const int8_t RC_DEST_SQ_BINDEX[] = {
 //
 static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
-static void x_fen_to_pos_init_ppa( Pos *p, const char ppf[] );
 static void x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen );
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
@@ -771,19 +770,57 @@ single_san_make_move( const char *fen, const char *san )
 Pos *
 fen_to_pos( const char *fen )
 {
-    Pos *p = (Pos *) malloc( sizeof(Pos) );
-    assert(p);
-    char **ff = fen_fields(fen);
-    assert(ff);
+    Pos *p;
+    assert( (p = malloc(sizeof(Pos))) );
 
-    x_fen_to_pos_init_ppa( p, ff[0] );
-    x_fen_to_pos_init_turn_and_ca_flags( p, ff[1], ff[2], fen );
-    x_fen_to_pos_init_irp( p, ff[2], fen );
-    x_fen_to_pos_init_epts_file( p, ff[3] );
-    p->hmc = atoi( ff[4] ), p->fmn = atoi( ff[5] );
+    char copy[FEN_MAX_LENGTH + 1], *ptr_1 = copy, *ptr_2;
+    copy[strlen(fen)] = '\0';
+    for(int i = 0; fen[i]; i++)
+        if(fen[i] == ' ') copy[i] = '\0';
+        else copy[i] = fen[i];
 
-    free_fen_fields(ff);
-    assert( !ppa_integrity_check( p->ppa ) );
+    const int first_in_rank[] = {56, 48, 40, 32, 24, 16, 8, 0};
+    int *bi_ptr = (int *) first_in_rank, bi = *bi_ptr;
+    for(Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++) p->ppa[cm] = 0;
+
+    for(char *c = ptr_1; *c; c++) {
+        if(*c == '/') {
+            ++bi_ptr, bi = *bi_ptr;
+            continue;
+        } else if(*c >= '1' && *c <= '8') {
+            for(char count = '1'; count <= *c; count++, bi++)
+                p->ppa[EMPTY_SQUARE] |= SBA[bi];
+        } else {
+            switch(*c) {
+                case 'K': p->ppa[WHITE_KING  ] |= SBA[bi]; break;
+                case 'Q': p->ppa[WHITE_QUEEN ] |= SBA[bi]; break;
+                case 'R': p->ppa[WHITE_ROOK  ] |= SBA[bi]; break;
+                case 'B': p->ppa[WHITE_BISHOP] |= SBA[bi]; break;
+                case 'N': p->ppa[WHITE_KNIGHT] |= SBA[bi]; break;
+                case 'P': p->ppa[WHITE_PAWN  ] |= SBA[bi]; break;
+                case 'k': p->ppa[BLACK_KING  ] |= SBA[bi]; break;
+                case 'q': p->ppa[BLACK_QUEEN ] |= SBA[bi]; break;
+                case 'r': p->ppa[BLACK_ROOK  ] |= SBA[bi]; break;
+                case 'b': p->ppa[BLACK_BISHOP] |= SBA[bi]; break;
+                case 'n': p->ppa[BLACK_KNIGHT] |= SBA[bi]; break;
+                case 'p': p->ppa[BLACK_PAWN  ] |= SBA[bi]; break;
+                default: assert(false); }
+            ++bi; }
+    } // End for
+
+    while(*ptr_1++); ptr_2 = ptr_1; while(*ptr_2++);
+    x_fen_to_pos_init_turn_and_ca_flags(p, ptr_1, ptr_2, fen);
+    x_fen_to_pos_init_irp(p, ptr_2, fen);
+
+    while(*ptr_2++);
+    x_fen_to_pos_init_epts_file(p, ptr_2);
+
+    while(*ptr_2++);
+    p->hmc = atoi(ptr_2);
+
+    while(*ptr_2++);
+    p->fmn = atoi(ptr_2);
+
     return p;
 }
 
@@ -1257,13 +1294,6 @@ x_sq_set_of_antidiag( const int index )
     }
 }
 
-static void
-x_fen_to_pos_init_ppa( Pos *p, const char ppf[] )
-{
-    char eppf[PPF_MAX_LENGTH + 1];
-    expand_ppf( ppf, eppf ), eppf_to_ppa( eppf, p->ppa );
-}
-
 // turn_and_ca_flags:
 //  7   6   5   4   3   2   1   0   <= Bit indexes
 // [x] [ ] [ ] [ ] [x] [ ] [ ] [x]  <= Bit values
@@ -1277,16 +1307,16 @@ x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen )
 {
     char ecaf[9 + 1];
-    EXPAND_CAF( caf, ecaf, fen )
-    assert( strlen( ecaf ) == 4 );
+    EXPAND_CAF(caf, ecaf, fen)
+    assert(!ecaf[4]);
 
     p->turn_and_ca_flags = 0;
-    if( !strcmp( acf, "w" ) ) p->turn_and_ca_flags |= ( 1 << 7 );
+    if(!strcmp(acf, "w")) p->turn_and_ca_flags |= (1 << 7);
 
-    if( ecaf[1] != '-' ) p->turn_and_ca_flags |= 8; // K
-    if( ecaf[0] != '-' ) p->turn_and_ca_flags |= 4; // Q
-    if( ecaf[3] != '-' ) p->turn_and_ca_flags |= 2; // k
-    if( ecaf[2] != '-' ) p->turn_and_ca_flags |= 1; // q
+    if(ecaf[1] != '-') p->turn_and_ca_flags |= 8; // K
+    if(ecaf[0] != '-') p->turn_and_ca_flags |= 4; // Q
+    if(ecaf[3] != '-') p->turn_and_ca_flags |= 2; // k
+    if(ecaf[2] != '-') p->turn_and_ca_flags |= 1; // q
 }
 
 // irp[0] and irp[1]:
@@ -1302,33 +1332,33 @@ static void
 x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen )
 {
     char ecaf[9 + 1];
-    EXPAND_CAF( caf, ecaf, fen )
-    assert( strlen( ecaf ) == 4 );
+    EXPAND_CAF(caf, ecaf, fen)
+    assert(!ecaf[4]);
 
     p->irp[0] = 0, p->irp[1] = 0;
 
-    if( ecaf[0] != '-' ) p->irp[0] |= ( 1 << ( ecaf[0] - 'A' ) );
-    else if( ecaf[2] != '-' ) p->irp[0] |= ( 1 << ( ecaf[2] - 'a' ) );
+    if(ecaf[0] != '-') p->irp[0] |= (1 << (ecaf[0] - 'A'));
+    else if(ecaf[2] != '-') p->irp[0] |= (1 << (ecaf[2] - 'a'));
     else p->irp[0] |= 1;
 
-    if( ecaf[1] != '-' ) p->irp[1] |= ( 1 << ( ecaf[1] - 'A' ) );
-    else if( ecaf[3] != '-' ) p->irp[1] |= ( 1 << ( ecaf[3] - 'a' ) );
+    if(ecaf[1] != '-') p->irp[1] |= (1 << (ecaf[1] - 'A'));
+    else if(ecaf[3] != '-') p->irp[1] |= (1 << (ecaf[3] - 'a'));
     else p->irp[1] |= 0x80;
 
-    assert( is_sq_bit( p->irp[0] ) );
-    assert( is_sq_bit( p->irp[1] ) );
-    assert( p->irp[0] < p->irp[1] );
+    assert(is_sq_bit(p->irp[0]));
+    assert(is_sq_bit(p->irp[1]));
+    assert(p->irp[0] < p->irp[1]);
 }
 
 static void
 x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] )
 {
     p->epts_file = 0;
-    if( !strcmp( eptsf, "-" ) ) return;
+    if(!strcmp(eptsf, "-")) return;
 
     char file = eptsf[0];
-    assert( file >= 'a' && file <= 'h' );
-    p->epts_file |= ( 1 << ( file - 'a' ) );
+    assert(file >= 'a' && file <= 'h');
+    p->epts_file |= (1 << (file - 'a'));
 }
 
 static bool
