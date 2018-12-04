@@ -786,7 +786,6 @@ fen_to_pos( const char *fen )
     for(char *c = ptr_1; *c; c++) {
         if(*c == '/') {
             ++bi_ptr, bi = *bi_ptr;
-            continue;
         } else if(*c >= '1' && *c <= '8') {
             for(char count = '1'; count <= *c; count++, bi++)
                 p->ppa[EMPTY_SQUARE] |= SBA[bi];
@@ -1306,12 +1305,48 @@ static void
 x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen )
 {
+    p->turn_and_ca_flags = 0;
+    if(!strcmp(acf, "w")) p->turn_and_ca_flags |= (1 << 7);
+    if(!strcmp(caf, "-")) return;
+
+    bool std_caf = true;
+    for(int i = 0; i < (int) strlen(caf); i++) {
+        char c = caf[i];
+        if(c != 'K' && c != 'Q' && c != 'k' && c != 'q') {
+            std_caf = false;
+            break; } }
+
+    if(std_caf) {
+        bool K = true, Q = true, k = true, q = true;
+
+        if(!strcmp(caf, "KQkq"));
+        else if(!strcmp(caf, "Qkq")) K = false;
+        else if(!strcmp(caf, "Kkq")) Q = false;
+        else if(!strcmp(caf, "KQq")) k = false;
+        else if(!strcmp(caf, "KQk")) q = false;
+        else if(!strcmp(caf, "KQ")) k = false, q = false; // [K][Q][ ][ ]
+        else if(!strcmp(caf, "Kk")) Q = false, q = false; // [K][ ][k][ ]
+        else if(!strcmp(caf, "Kq")) Q = false, k = false; // [K][ ][ ][q]
+        else if(!strcmp(caf, "Qk")) K = false, q = false; // [ ][Q][k][ ]
+        else if(!strcmp(caf, "Qq")) K = false, k = false; // [ ][Q][ ][q]
+        else if(!strcmp(caf, "kq")) K = false, Q = false; // [ ][ ][k][q]
+        else if(!strcmp(caf, "K")) Q = false, k = false, q = false;
+        else if(!strcmp(caf, "Q")) K = false, k = false, q = false;
+        else if(!strcmp(caf, "k")) K = false, Q = false, q = false;
+        else if(!strcmp(caf, "q")) K = false, Q = false, k = false;
+        else assert(false);
+
+        if(K) p->turn_and_ca_flags |= 8; // K
+        if(Q) p->turn_and_ca_flags |= 4; // Q
+        if(k) p->turn_and_ca_flags |= 2; // k
+        if(q) p->turn_and_ca_flags |= 1; // q
+
+        return; }
+
+    assert(!str_m_pat(caf, STD_FEN_CAF_REGEX));
     char ecaf[9 + 1];
     EXPAND_CAF(caf, ecaf, fen)
     assert(!ecaf[4]);
-
-    p->turn_and_ca_flags = 0;
-    if(!strcmp(acf, "w")) p->turn_and_ca_flags |= (1 << 7);
 
     if(ecaf[1] != '-') p->turn_and_ca_flags |= 8; // K
     if(ecaf[0] != '-') p->turn_and_ca_flags |= 4; // Q

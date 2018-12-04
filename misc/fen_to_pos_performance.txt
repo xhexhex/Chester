@@ -19,3 +19,4 @@ Remove x_fen_to_pos_init_ppa()
 4th result: The operation took 8189 ms
 
 5th result: The operation took 8113 ms
+6th result: The operation took 8057 ms

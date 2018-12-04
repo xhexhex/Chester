@@ -18,9 +18,6 @@ int test_count, error_count;
 int
 main()
 {
-    // fen_to_pos(FEN_STD_START_POS);
-    // fen_to_pos("6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35");
-
     const int REPS = 10 * 1000 * 1000;
     long long t0, d1, d2;
 
@@ -100,15 +97,17 @@ main()
     che_make_moves_tested_with_long_game_3();
     */
 
+    /*
     ct_perft_v1(FEN_STD_START_POS, 0, 1, false);
     ct_perft_v1(FEN_STD_START_POS, 1, 20, false);
     ct_perft_v1(FEN_STD_START_POS, 2, 400, false);
     ct_perft_v1(FEN_STD_START_POS, 3, 8902, false);
-    // ct_perft_v1(FEN_STD_START_POS, 4, 197281, false);
-    // ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
-    // ct_perft_v1(FEN_STD_START_POS, 6, 119060324, true);
+    ct_perft_v1(FEN_STD_START_POS, 4, 197281, false);
+    ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
+    ct_perft_v1(FEN_STD_START_POS, 6, 119060324, true);
 
     if(!error_count)
         printf("All of the %i chester_tester tests succeeded\n",
             test_count);
+    */
 }
