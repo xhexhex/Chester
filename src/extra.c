@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "chester.h"
 #include "validation.h"
+#include "move_gen.h"
 
 //
 // Static function prototypes
@@ -294,6 +295,45 @@ make_monster_performance_test()
         __func__, 5 * REPS, time_in_milliseconds() - t0);
 
     for(int i = 0; i < 5; i++) free((void *) p[i]);
+}
+
+// An ad hoc tester function to evaluate the efficiency of rawcodes().
+void
+rawcodes_performance_test()
+{
+    const int REPS = 10 * 1000;
+    long long t0, dur, sum = 0;
+
+    const char *fen[] = {
+        // FEN_SUPERPOSITION_1,
+        // FEN_SUPERPOSITION_2,
+
+        FEN_STD_START_POS,
+        "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123",
+        "k7/8/8/4K3/8/3N4/5r2/4r3 w - - 12 34",
+        "k7/8/4N3/4K3/8/3N4/5r2/4r3 w - - 12 34",
+        "4k2r/7p/7P/8/8/8/8/4K3 b k - 19 83",
+        FEN_GAME_OF_THE_CENTURY,
+        FEN_PERSONALLY_SIGNIFICANT,
+        "1r2krbq/p1pp2bp/4p1p1/3nPp2/3P1P2/1N1N2P1/PPP4P/1R2KRBQ w FBfb f6 0 11",
+        "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7",
+        "4k3/8/8/8/3q4/8/8/4K3 b - - 13 37",
+        NULL };
+
+    int i = 0;
+    for(; fen[i]; i++) {
+        assert(!che_fen_validator(fen[i]));
+        const Pos *p = fen_to_pos(fen[i]);
+        t0 = time_in_milliseconds();
+        for(int count = 1; count <= REPS; count++) {
+            Rawcode *rc = rawcodes(p);
+            free(rc); }
+        dur = time_in_milliseconds() - t0;
+        sum += dur;
+        printf("[%5lld ms]  \"%s\"\n", dur, fen[i]);
+        free((void *) p); }
+
+    printf("Average: %.2f ms\n", (double) sum / i);
 }
 
 // Finds the origin and destination square bit indexes of the rawcode

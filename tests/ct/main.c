@@ -18,53 +18,41 @@ int test_count, error_count;
 int
 main()
 {
-    const int REPS = 10 * 1000 * 1000;
-    long long t0, d1, d2;
+    /*
+    char rawmove[4 + 1] = {'\0'}, *ptr = rawmove;
+    for(int orig = 0; orig < 64; orig++) {
+        printf("{");
+        for(int dest = 0; dest < 64; dest++, ptr = rawmove) {
+            strcpy(ptr, SNA[orig]);
+            ptr += 2;
+            strcpy(ptr, SNA[dest]);
+            printf("%u", rawcode(rawmove));
+            if(dest == 63) printf("},\n");
+            else printf(", ");
+            assert(str_m_pat(rawmove, "^[a-h][1-8][a-h][1-8]$"));
+        }
+    }
+    */
 
-    t0 = time_in_milliseconds();
-    for(int count = 1; count <= REPS; count++) {
-        Pos *p = fen_to_pos(FEN_STD_START_POS);
-        free(p); }
-    d1 = time_in_milliseconds() - t0;
-    printf("The operation took %lld ms\n", d1);
-
-    const Pos *p = fen_to_pos(FEN_STD_START_POS);
-    t0 = time_in_milliseconds();
-    for(int count = 1; count <= REPS; count++) {
-        char *fen = pos_to_fen((Pos *) p);
-        free(fen); }
-    d2 = time_in_milliseconds() - t0;
-    printf("The operation took %lld ms\n", d2);
-    free((void *) p);
-
-    printf("Performance ratio: %.2f\n", (double) d1 / d2);
-    printf("If ratio < 1, then fen_to_pos() is faster than pos_to_fen()\n");
-
-    // >>
-    // long long t0, /*d1,*/ d2;
-    // const int REPS = 1000;
+    // rawcodes_performance_test();
 
     /*
-    t0 = time_in_milliseconds();
-    printf("Calling che_move_gen() %d times...\n", REPS);
-    for(int count = 1; count <= REPS; count++) {
-        if(count % (10) == 0) fprintf(stderr, "-");
-        char *sans = che_move_gen(FEN_STD_START_POS);
-        free(sans);
-    }
-    d1 = time_in_milliseconds() - t0;
-    printf("\nThe operation took %lld ms\n", d1);
+    // assert(!che_fen_validator("k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123"));
+    const Pos *p = fen_to_pos(
+        // FEN_STD_START_POS
+        "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123"
+    );
+    Rawcode *rc = rawcodes(p);
+    free(rc);
 
-    const Pos *p = fen_to_pos(FEN_STD_START_POS);
-    t0 = time_in_milliseconds();
-    printf("Calling rawcodes() %d times...\n", REPS);
+    const int REPS = 10 * 1000;
+    long long t0 = time_in_milliseconds();
+
     for(int count = 1; count <= REPS; count++) {
-        if(count % (10) == 0) fprintf(stderr, "+");
-        Rawcode *rc = rawcodes(p);
-        free(rc);
-    }
-    d2 = time_in_milliseconds() - t0;
-    printf("\nThe operation took %lld ms\n", d2);
+        rc = rawcodes(p);
+        free(rc); }
+    printf("The operation took %lld ms\n", time_in_milliseconds() - t0);
+
     free((void *) p);
     */
 
@@ -102,10 +90,12 @@ main()
     ct_perft_v1(FEN_STD_START_POS, 1, 20, false);
     ct_perft_v1(FEN_STD_START_POS, 2, 400, false);
     ct_perft_v1(FEN_STD_START_POS, 3, 8902, false);
-    ct_perft_v1(FEN_STD_START_POS, 4, 197281, false);
-    ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
-    ct_perft_v1(FEN_STD_START_POS, 6, 119060324, true);
+    */
+    // ct_perft_v1(FEN_STD_START_POS, 4, 197281, false);
+    // ct_perft_v1(FEN_STD_START_POS, 5, 4865609, true);
+    // ct_perft_v1(FEN_STD_START_POS, 6, 119060324, true);
 
+    /*
     if(!error_count)
         printf("All of the %i chester_tester tests succeeded\n",
             test_count);

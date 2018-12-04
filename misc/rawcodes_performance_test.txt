@@ -1,0 +1,45 @@
+const int REPS = 10 * 1000;
+
+=============
+== The Ten ==
+=============
+
+*** Initial result ***
+[ 4360 ms]  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+[ 1894 ms]  "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123"
+[ 4096 ms]  "k7/8/8/4K3/8/3N4/5r2/4r3 w - - 12 34"
+[ 5924 ms]  "k7/8/4N3/4K3/8/3N4/5r2/4r3 w - - 12 34"
+[ 2240 ms]  "4k2r/7p/7P/8/8/8/8/4K3 b k - 19 83"
+[ 8596 ms]  "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP1b1/2N2N2/PP3PPP/3RKB1R b K - 6 11"
+[ 7998 ms]  "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
+[ 7282 ms]  "1r2krbq/p1pp2bp/4p1p1/3nPp2/3P1P2/1N1N2P1/PPP4P/1R2KRBQ w FBfb f6 0 11"
+[ 7249 ms]  "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7"
+[ 8674 ms]  "4k3/8/8/8/3q4/8/8/4K3 b - - 13 37"
+Average: 5831.30 ms
+
+*** Result 2 ***
+[ 2544 ms]  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+[ 1258 ms]  "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123"
+[ 2676 ms]  "k7/8/8/4K3/8/3N4/5r2/4r3 w - - 12 34"
+[ 3832 ms]  "k7/8/4N3/4K3/8/3N4/5r2/4r3 w - - 12 34"
+[ 1614 ms]  "4k2r/7p/7P/8/8/8/8/4K3 b k - 19 83"
+[ 5709 ms]  "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP1b1/2N2N2/PP3PPP/3RKB1R b K - 6 11"
+[ 5022 ms]  "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
+[ 4409 ms]  "1r2krbq/p1pp2bp/4p1p1/3nPp2/3P1P2/1N1N2P1/PPP4P/1R2KRBQ w FBfb f6 0 11"
+[ 4847 ms]  "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7"
+[ 5818 ms]  "4k3/8/8/8/3q4/8/8/4K3 b - - 13 37"
+Average: 3772.90 ms
+
+=============
+== The Two ==
+=============
+
+*** Initial result ***
+[45057 ms]  "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
+[42952 ms]  "3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1"
+Average: 44004.50 ms
+
+*** Result 2 ***
+[28289 ms]  "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
+[23839 ms]  "3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1"
+Average: 26064.00 ms

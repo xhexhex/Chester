@@ -271,15 +271,13 @@ single_fen_move_gen( const char *fen )
 Rawcode *
 rawcodes( const Pos *p )
 {
-    // long long t0 = time_in_microseconds();
+    const bool debug = false;
+    long long t0;
+    if(debug) t0 = time_in_microseconds();
 
-    // It is assumed that no chess position can have more than 500
-    // pseudo-legal moves (according to some sources the maximum
-    // known number of *legal* moves in a chess position is 218 as
-    // is the case in
-    // "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1").
     Rawcode pseudo[500]; // Array for pseudo-legal moves
     int vacant = 0; // Index of first vacant slot in 'pseudo'
+    const bool w = whites_turn(p);
 
     Rawcode O_O, O_O_O;
     if( (O_O = castle(p, "kingside")) )
@@ -287,35 +285,35 @@ rawcodes( const Pos *p )
     if( (O_O_O = castle(p, "queenside")) )
         pseudo[vacant++] = O_O_O;
 
-    // printf("1st checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(debug) printf("1st checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     for( int i = 0; i < 64; i++ ) {
         Bitboard bit = SBA[i];
 
-        if( bit & p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING] ) {
-            x_rawcodes_king_and_knight( p, sq_bit_index(bit),
-                pseudo, &vacant, true );
-        } else if( bit & p->ppa[whites_turn(p) ? WHITE_QUEEN : BLACK_QUEEN] ) {
+        if(bit & p->ppa[w ? WHITE_KING : BLACK_KING]) {
+            x_rawcodes_king_and_knight(p, sq_bit_index(bit),
+                pseudo, &vacant, true);
+        } else if( bit & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] ) {
             for( int i = 0; i <= 1; i++ )
                 x_rawcodes_rook_and_bishop( p, sq_bit_index(bit),
                     pseudo, &vacant, i );
-        } else if( bit & p->ppa[whites_turn(p) ? WHITE_ROOK : BLACK_ROOK] ) {
+        } else if( bit & p->ppa[w ? WHITE_ROOK : BLACK_ROOK] ) {
             x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
                 &vacant, true );
-        } else if( bit & p->ppa[whites_turn(p) ? WHITE_BISHOP : BLACK_BISHOP] ) {
+        } else if( bit & p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP] ) {
             x_rawcodes_rook_and_bishop( p, sq_bit_index(bit), pseudo,
                 &vacant, false );
-        } else if( bit & p->ppa[whites_turn(p) ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
+        } else if( bit & p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
             x_rawcodes_king_and_knight( p, sq_bit_index(bit),
                 pseudo, &vacant, false );
-        } else if( bit & p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) {
+        } else if( bit & p->ppa[w ? WHITE_PAWN : BLACK_PAWN] ) {
             x_rawcodes_pawn_advance( p, sq_bit_index(bit), pseudo, &vacant );
             x_rawcodes_pawn_capture( p, sq_bit_index(bit), pseudo, &vacant );
             x_rawcodes_en_passant( p, sq_bit_index(bit), pseudo, &vacant );
         }
     }
 
-    // printf("2nd checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(debug) printf("2nd checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     int updated_vacant = vacant;
     for( int i = 0; i < vacant; i++ ) { // For each non-vacant slot in 'pseudo'
@@ -327,7 +325,7 @@ rawcodes( const Pos *p )
         if( king_can_be_captured( &copy ) ) pseudo[i] = 0, --updated_vacant;
     }
 
-    // printf("\n3rd checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(debug) printf("3rd checkpoint: %lld µs\n", time_in_microseconds() - t0);
 
     Rawcode *codes =
         (Rawcode *) malloc( (updated_vacant + 1) * sizeof(Rawcode) );
@@ -349,7 +347,7 @@ rawcodes( const Pos *p )
     // rawcodes the array contains (three in this case).
     qsort( codes + 1, *codes, sizeof(Rawcode), x_qsort_rawcode_compare );
 
-    // printf("Last checkpoint: %lld µs\n", time_in_microseconds() - t0);
+    if(debug) printf("Last checkpoint: %lld µs\n", time_in_microseconds() - t0);
     return codes;
 }
 
@@ -1059,8 +1057,8 @@ x_castle_rawcode( Bitboard castling_king, Bitboard castling_rook )
     return rawcode(rawmove);
 }
 
-#define ASSERT_THAT_MOVE_IS_VALID \
-    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
+// #define ASSERT_THAT_MOVE_IS_VALID \...
+//    assert( str_m_pat( move, "^[a-h][1-8][a-h][1-8]$" ) );
 
 static void
 x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
@@ -1079,7 +1077,7 @@ x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
         if( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
             move[2] = SNA[sq_bit_index(bit)][0];
             move[3] = SNA[sq_bit_index(bit)][1];
-            ASSERT_THAT_MOVE_IS_VALID
+            // ASSERT_THAT_MOVE_IS_VALID
 
             pseudo[(*vacant)++] = rawcode(move);
         }
@@ -1106,7 +1104,7 @@ x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
         while( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
             move[2] = SNA[sq_bit_index(bit)][0];
             move[3] = SNA[sq_bit_index(bit)][1];
-            ASSERT_THAT_MOVE_IS_VALID
+            // ASSERT_THAT_MOVE_IS_VALID
 
             pseudo[(*vacant)++] = rawcode(move);
             if( bit & enemy_cm ) break;
@@ -1127,7 +1125,7 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
     move[2] = SNA[sq_bit_index(sq_in_front)][0];
     move[3] = SNA[sq_bit_index(sq_in_front)][1];
-    ASSERT_THAT_MOVE_IS_VALID
+    // ASSERT_THAT_MOVE_IS_VALID
 
     pseudo[(*vacant)++] = rawcode(move);
 
@@ -1138,7 +1136,7 @@ x_rawcodes_pawn_advance( const Pos *p, int mover,
     move[0] = SNA[mover][0], move[1] = SNA[mover][1];
     move[2] = SNA[sq_bit_index(sq_in_front)][0];
     move[3] = SNA[sq_bit_index(sq_in_front)][1];
-    ASSERT_THAT_MOVE_IS_VALID
+    // ASSERT_THAT_MOVE_IS_VALID
 
     pseudo[(*vacant)++] = rawcode(move);
 }
@@ -1165,13 +1163,13 @@ x_rawcodes_pawn_capture( const Pos *p, int mover,
     if( w_capture_sq & enemy_cm ) {
         move[2] = SNA[sq_bit_index(w_capture_sq)][0];
         move[3] = SNA[sq_bit_index(w_capture_sq)][1];
-        ASSERT_THAT_MOVE_IS_VALID
+        // ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
     if( e_capture_sq & enemy_cm ) {
         move[2] = SNA[sq_bit_index(e_capture_sq)][0];
         move[3] = SNA[sq_bit_index(e_capture_sq)][1];
-        ASSERT_THAT_MOVE_IS_VALID
+        // ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
 }
@@ -1191,12 +1189,12 @@ x_rawcodes_en_passant( const Pos *p, int mover, Rawcode *pseudo, int *vacant )
         move[0] = SNA[mover][0], move[1] = SNA[mover][1],
             move[2] = SNA[sq_bit_index(epts(p))][0],
             move[3] = SNA[sq_bit_index(epts(p))][1];
-        ASSERT_THAT_MOVE_IS_VALID
+        // ASSERT_THAT_MOVE_IS_VALID
         pseudo[(*vacant)++] = rawcode(move);
     }
 }
 
-#undef ASSERT_THAT_MOVE_IS_VALID
+// #undef ASSERT_THAT_MOVE_IS_VALID
 
 static int
 x_qsort_rawcode_compare( const void *a, const void *b )

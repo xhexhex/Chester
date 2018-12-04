@@ -1868,12 +1868,40 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase rc_XXX_sq_bindex_tests
+#tcase RC_XXX_SQ_BINDEX_tests
 
-#test rc_orig_sq_bindex_and_rc_dest_sq_bindex_comprehensive_test
+#test RC_ORIG_SQ_BINDEX_and_RC_DEST_SQ_BINDEX_comprehensive_test
     int orig, dest;
 
     for(Rawcode rc = 1; rc <= 1792; rc++) {
         rawcode_bit_indexes(rc, &orig, &dest);
         ck_assert(orig == RC_ORIG_SQ_BINDEX[rc]);
         ck_assert(dest == RC_DEST_SQ_BINDEX[rc]); }
+
+//
+// Test case
+//
+#tcase ORIG_DEST_RC_tests
+
+#test ORIG_DEST_RC_test_1
+    ck_assert(sizeof(ORIG_DEST_RC) == 64 * 64 * sizeof(Rawcode));
+
+#test ORIG_DEST_RC_test_2
+    for(int orig = 0; orig < 64; orig++) {
+        for(int dest = 0; dest < 64; dest++) {
+            Rawcode value = ORIG_DEST_RC[orig][dest];
+            ck_assert(value <= 1792);
+        }
+    }
+
+#test ORIG_DEST_RC_test_3
+    for(int orig = 0; orig < 64; orig++) {
+        for(int dest = 0; dest < 64; dest++) {
+            Rawcode rc = ORIG_DEST_RC[orig][dest];
+            if(!rc) continue;
+            int orig_2 = RC_ORIG_SQ_BINDEX[rc],
+                dest_2 = RC_DEST_SQ_BINDEX[rc];
+            ck_assert(orig == orig_2);
+            ck_assert(dest == dest_2);
+        }
+    }
