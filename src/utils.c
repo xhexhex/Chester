@@ -12,6 +12,7 @@
 #include "chester.h"
 #include "move_gen.h"
 #include "validation.h"
+#include "extra.h"
 
 static const char *x_sq_navigator_kings_sqs(
     const char *sq_name, enum sq_dir dir );
@@ -212,20 +213,17 @@ rank_of_sq( Bitboard sq_bit )
     return 0;
 }
 
-// Returns the bit index of the square bit argument 'sq_bit'. The bit
-// index (of a Bitboard) is an integer in the range [0,63]. Note that the
-// bit index is also the exponent 'k' in sq_bit = 2^k.
+// Returns the bit index of the bit in the square bit argument 'bit'.
+// The bit index (of a Bitboard) is an integer in the range [0,63]. Note
+// that the bit index is also the exponent 'k' in "bit = 2^k". It is
+// assumed that exactly one bit is set in 'bit'.
 int
-sq_bit_index( Bitboard sq_bit )
+bindex(Bitboard bit)
 {
-    // Should this be replaced with some form of the binary search?
-    for( int i = 0; i < 64; i++ )
-        if( sq_bit == SBA[i] )
-            return i;
-
-    assert(false);
-    return -1;
-} // Review: 2018-06-03
+    int bit_index = -1;
+    while(bit) bit >>= 1, ++bit_index;
+    return bit_index;
+}
 
 // Converts the argument into a "binary string", that is, a string
 // consisting of 64 '0' and '1' chars

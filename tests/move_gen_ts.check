@@ -826,7 +826,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
     expected[ 2] = rawcode( "c5d6" );
     expected[ 3] = rawcode( "e5d6" );
     expected[ 4] = rawcode( "e5e6" );
-    expected[ 5] = rawcode( "h1g1" ),
+    expected[ 5] = rawcode( "h1g1" );
 
     // Two white pawns can do an en passant capture
     TEST_WITH_ARGS( "8/8/8/2PpP3/8/7k/8/7K w - d6 0 75", expected )

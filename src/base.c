@@ -10,6 +10,7 @@
 #include "validation.h"
 #include "move_gen.h"
 #include "pgn.h"
+#include "extra.h"
 
 #define ALL_SQ_BIT_VALUES \
     0x1u, 0x2u, 0x4u, 0x8u, 0x10u, 0x20u, 0x40u, 0x80u, 0x100u, 0x200u, 0x400u, \
@@ -1126,7 +1127,7 @@ sq_set_of_antidiag( const int index )
 // Returns the square set of the white army. That means all the squares
 // that contain a white chessman.
 Bitboard
-ss_white_army( const Pos *p )
+white_army( const Pos *p )
 {
     return p->ppa[ WHITE_KING ] | p->ppa[ WHITE_QUEEN ] |
         p->ppa[ WHITE_ROOK ] | p->ppa[ WHITE_BISHOP ] |
@@ -1136,7 +1137,7 @@ ss_white_army( const Pos *p )
 // Returns the square set of the black army. That means all the squares
 // that contain a black chessman.
 Bitboard
-ss_black_army( const Pos *p )
+black_army( const Pos *p )
 {
     return p->ppa[ BLACK_KING ] | p->ppa[ BLACK_QUEEN ] |
         p->ppa[ BLACK_ROOK ] | p->ppa[ BLACK_BISHOP ] |
@@ -1150,7 +1151,41 @@ ss_black_army( const Pos *p )
 Bitboard
 sq_nav( Bitboard sq, enum sq_dir dir )
 {
-    return SQ_NAV[ sq_bit_index( sq ) ][ dir ];
+    Bitboard rv = SQ_NAV[ sq_bit_index( sq ) ][ dir ];
+
+    // NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST
+    /*
+    if(!(sq & 0xff818181818181ffULL) && dir < ONE_OCLOCK)
+        switch(dir) {
+            case NORTH:
+                // assert((sq << 8) == rv);
+                return sq << 8;
+            case NORTHEAST:
+                // assert((sq << 9) == rv);
+                return sq << 9;
+            case EAST:
+                // assert((sq << 1) == rv);
+                return sq << 1;
+            case SOUTHEAST:
+                // assert((sq >> 7) == rv);
+                return sq >> 7;
+            case SOUTH:
+                // assert((sq >> 8) == rv);
+                return sq >> 8;
+            case SOUTHWEST:
+                // assert((sq >> 9) == rv);
+                return sq >> 9;
+            case WEST:
+                // assert((sq >> 1) == rv);
+                return sq >> 1;
+            case NORTHWEST:
+                // assert((sq << 7) == rv);
+                return sq << 7;
+            default: assert(false);
+        }
+    */
+
+    return rv;
 }
 
 // Examines the Pos variable 'p' to see if there's a castling
@@ -1165,16 +1200,18 @@ sq_nav( Bitboard sq, enum sq_dir dir )
 bool
 has_castling_right( const Pos *p, const char *color, const char *side )
 {
+    /*
     assert( !strcmp( color, "white" ) || !strcmp( color, "black" ) );
     assert( !strcmp( side, "queenside" ) || !strcmp( side, "kingside" ) ||
         !strcmp( side, "a-side" ) || !strcmp( side, "h-side" ) );
+    */
 
-    bool white = !strcmp( color, "white" ), kingside =
-        ( !strcmp( side, "kingside" ) || !strcmp( side, "h-side" ) );
+    bool w = (color[0] == 'w'),
+        kingside = (side[0] == 'k' || side[0] == 'h');
 
-    uint8_t bit = ( white ? 8 : 2 );
-    if( !kingside ) bit >>= 1;
-    assert( is_sq_bit( bit ) );
+    uint8_t bit = ( w ? 8 : 2 );
+    if(!kingside) bit >>= 1;
+    // assert(bindex(bit));
 
     return bit & p->turn_and_ca_flags;
 }

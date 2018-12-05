@@ -11,6 +11,7 @@ void shredder_to_std_fen_conv( char *fen );
 void make_monster_performance_test();
 void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
 void rawcodes_performance_test();
+int sq_bit_index( Bitboard sq_bit );
 
 #endif
 // end EXTRA_H

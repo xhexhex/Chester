@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "move_gen.h"
 #include "validation.h"
+#include "extra.h"
 
 static void x_san_to_rawcode_find_dest_sq( const Pos *p,
     const char *san, char *dest );

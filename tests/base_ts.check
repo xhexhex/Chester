@@ -524,17 +524,15 @@ while( true ) {
     ck_assert( sq_set_of_antidiag( 14 ) == SB.h8 );
     // ck_assert( sq_set_of_antidiag( 15 ) == 0 );
 
-#tcase ss_white_army_tests
+#tcase white_army_tests
 
-#test C_ss_white_army_std_start_pos
-    ck_assert( ss_white_army( fen_to_pos( FEN_STD_START_POS ) ) ==
-        0xffffU );
+#test white_army_std_start_pos
+    ck_assert(white_army(fen_to_pos(FEN_STD_START_POS)) == 0xffffU);
 
-#tcase ss_black_army_tests
+#tcase black_army_tests
 
-#test C_ss_black_army_std_start_pos
-    ck_assert( ss_black_army( fen_to_pos( FEN_STD_START_POS ) ) ==
-        0xffff000000000000U );
+#test black_army_std_start_pos
+    ck_assert(black_army(fen_to_pos(FEN_STD_START_POS)) == 0xffff000000000000U);
 
 #tcase SQ_NAV_tests
 

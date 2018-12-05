@@ -358,6 +358,23 @@ rawcode_bit_indexes( Rawcode rc, int *orig, int *dest )
     *dest = sq_name_index( dest_sq_name );
 }
 
+// Returns the bit index of the square bit argument 'sq_bit'. The bit
+// index (of a Bitboard) is an integer in the range [0,63]. Note that the
+// bit index is also the exponent 'k' in sq_bit = 2^k.
+//
+// Note that the function does the same thing as bindex() and is probably
+// as efficient as bindex().
+int
+sq_bit_index( Bitboard sq_bit )
+{
+    for( int i = 0; i < 64; i++ )
+        if( sq_bit == SBA[i] )
+            return i;
+
+    assert(false);
+    return -1;
+} // Review: 2018-06-03
+
 /****************************
  ****                    ****
  ****  Static functions  ****

@@ -196,34 +196,6 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 //
 // Test case
 //
-#tcase sq_bit_index_tests
-
-#test C_sq_bit_index_all_valid_inputs_test
-    for( int i = 0; i < 64; i++ )
-        ck_assert( sq_bit_index( SBA[i] ) == i );
-
-    const Bitboard one = 1;
-    ck_assert( sq_bit_index(one) == 0 );
-    ck_assert( sq_bit_index(one << 3) == 3 );
-    ck_assert( sq_bit_index(8) == 3 );
-    ck_assert( sq_bit_index((Bitboard) pow(2,0)) == 0 );
-    ck_assert( sq_bit_index((Bitboard) pow(2,50)) == 50 );
-    ck_assert( sq_bit_index((Bitboard) pow(2,63)) == 63 );
-    ck_assert( sq_bit_index(one << 63) == 63 );
-    ck_assert( sq_bit_index(SB.e4) == 28 );
-    ck_assert( sq_bit_index(SB.a8) == 56 );
-    ck_assert( sq_bit_index(SB.h8) == 63 );
-
-#test C_sq_bit_index_tested_with_odd_bb_values
-    for( Bitboard bb = 3; bb < 10000; bb += 2 ) {
-        // Won't work if the 'assert(false)' in sq_bit_index() is "live"
-        // ck_assert( sq_bit_index( bb ) == -1 );
-        ck_assert(true);
-    }
-
-//
-// Test case
-//
 #tcase file_of_sq_tests
 
 #define SQ_BIT_FILE_TEST_FOR_LOOP( file_char ) \
@@ -1643,3 +1615,48 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #undef COMMA
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase bindex_tests
+
+#test bindex_trivial_test
+    ck_assert(bindex((Bitboard) 0) == -1);
+    ck_assert(bindex((Bitboard) 1) == 0);
+    ck_assert(bindex((Bitboard) 2) == 1);
+    ck_assert(bindex((Bitboard) 4) == 2);
+    ck_assert(bindex((Bitboard) 256) == 8);
+    ck_assert(bindex((Bitboard) 256) == 8);
+    ck_assert(bindex((Bitboard) 0x4000000000000000ULL) == 62);
+    ck_assert(bindex((Bitboard) 0x8000000000000000ULL) == 63);
+
+#test bindex_comprehensive_test
+    Bitboard bit = 1;
+    const Bitboard ONE = 1;
+    int expected_bit_index = 0;
+
+    while(true) {
+        ck_assert(bindex(bit) == expected_bit_index);
+        ck_assert(sq_bit_index(bit) == expected_bit_index);
+        if(bit == (ONE << 63)) break;
+        bit <<= 1, ++expected_bit_index; }
+
+    ck_assert(expected_bit_index == 63);
+
+#test bindex_performance_test
+    const int LOOP_COUNT = 100 * 1000;
+    const Bitboard ONE = 1;
+
+    long long t0 = time_in_milliseconds(), dur;
+    for(int count = 1; count <= LOOP_COUNT; count++) {
+        Bitboard bit = 1;
+
+        while(true) {
+            int bi = bindex(bit);
+            assert(bi >= 0); // ck_assert() is slow
+            if(bit == (ONE << 63)) break;
+            bit <<= 1; } }
+
+    dur = time_in_milliseconds() - t0;
+    ck_assert(dur < 500);

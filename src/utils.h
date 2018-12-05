@@ -34,7 +34,6 @@ Bitboard sq_name_to_sq_bit( const char *sq_name );
 const char *sq_bit_to_sq_name( Bitboard sq_bit );
 char file_of_sq( Bitboard sq_bit );
 char rank_of_sq( Bitboard sq_bit );
-int sq_bit_index( Bitboard sq_bit );
 char *uint64_to_bin_str( uint64_t uint64 );
 void print_pos_var( const Pos *p );
 const char *sq_navigator( const char *sq_name, enum sq_dir dir );
@@ -67,6 +66,7 @@ char *next_line( char **lines );
 void string_sort( char *s[], int count );
 long long time_in_milliseconds();
 long long time_in_microseconds();
+int bindex(Bitboard bit);
 
 #endif
 // end UTILS_H

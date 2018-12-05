@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "../src/base.h"
 #include "../src/utils.h"
@@ -249,3 +250,24 @@ static const char *expected_ppfs[] = {
     TEST_WITH_ARGS( 1792, 63, 55 )
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase sq_bit_index_tests
+
+#test sq_bit_index_all_valid_inputs_test
+    for( int i = 0; i < 64; i++ )
+        ck_assert( sq_bit_index( SBA[i] ) == i );
+
+    const Bitboard one = 1;
+    ck_assert( sq_bit_index(one) == 0 );
+    ck_assert( sq_bit_index(one << 3) == 3 );
+    ck_assert( sq_bit_index(8) == 3 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,0)) == 0 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,50)) == 50 );
+    ck_assert( sq_bit_index((Bitboard) pow(2,63)) == 63 );
+    ck_assert( sq_bit_index(one << 63) == 63 );
+    ck_assert( sq_bit_index(SB.e4) == 28 );
+    ck_assert( sq_bit_index(SB.a8) == 56 );
+    ck_assert( sq_bit_index(SB.h8) == 63 );
