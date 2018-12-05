@@ -1151,41 +1151,7 @@ black_army( const Pos *p )
 Bitboard
 sq_nav( Bitboard sq, enum sq_dir dir )
 {
-    Bitboard rv = SQ_NAV[ sq_bit_index( sq ) ][ dir ];
-
-    // NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST
-    /*
-    if(!(sq & 0xff818181818181ffULL) && dir < ONE_OCLOCK)
-        switch(dir) {
-            case NORTH:
-                // assert((sq << 8) == rv);
-                return sq << 8;
-            case NORTHEAST:
-                // assert((sq << 9) == rv);
-                return sq << 9;
-            case EAST:
-                // assert((sq << 1) == rv);
-                return sq << 1;
-            case SOUTHEAST:
-                // assert((sq >> 7) == rv);
-                return sq >> 7;
-            case SOUTH:
-                // assert((sq >> 8) == rv);
-                return sq >> 8;
-            case SOUTHWEST:
-                // assert((sq >> 9) == rv);
-                return sq >> 9;
-            case WEST:
-                // assert((sq >> 1) == rv);
-                return sq >> 1;
-            case NORTHWEST:
-                // assert((sq << 7) == rv);
-                return sq << 7;
-            default: assert(false);
-        }
-    */
-
-    return rv;
+    return SQ_NAV[bindex(sq)][dir];
 }
 
 // Examines the Pos variable 'p' to see if there's a castling

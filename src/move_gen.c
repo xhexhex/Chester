@@ -60,6 +60,8 @@ static bool x_castle_rooks_path_blocked( const Pos *p, bool kingside,
 //static void x_rawcodes_en_passant( const Pos *p, int mover,
 //    Rawcode *pseudo /* , int *vacant*/ );
 static int x_qsort_rawcode_compare( const void *a, const void *b );
+static Rawcode *x_rawcodes_place_results_in_array( const Pos *p,
+    Bitboard saved[6][12], int *vacant );
 
 /***********************
  **** External data ****
@@ -268,68 +270,77 @@ single_fen_move_gen( const char *fen )
 Rawcode *
 rawcodes( const Pos *p )
 {
-    Rawcode pseudo[500]; // Array for pseudo-legal moves
-    int vacant = 0; // Index of first vacant slot in 'pseudo'
     const bool w = whites_turn(p);
     const Bitboard friends = w ? white_army(p) : black_army(p),
         enemies = w ? black_army(p) : white_army(p);
 
-    Rawcode O_O, O_O_O;
-    if((O_O = castle(p, "kingside"))) pseudo[vacant++] = O_O;
-    if((O_O_O = castle(p, "queenside"))) pseudo[vacant++] = O_O_O;
+    Bitboard saved[6][12]; // Six piece types with a max of 12 each
+    for(int i = 0; i < 6; i++) for(int j = 0; j < 12; j++) saved[i][j] = 0;
+    int ki = -1, qi = -1, ri = -1, bi = -1, ni = -1, pi = -1;
 
     for(int i = 0; i < 64; i++) {
         const Bitboard BB_ORIG = SBA[i];
-        const int ORIG = bindex(BB_ORIG);
 
-        if(BB_ORIG & p->ppa[w ? WHITE_KING : BLACK_KING]) {
-            for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
-                Bitboard bit = BB_ORIG;
-                if((bit = sq_nav(bit, dir)) && !(bit & friends)) {
-                    pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(bit)];
-                }
-            }
-        } else if( BB_ORIG & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] ) {
+        if(BB_ORIG & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) {
+            ++qi;
+
             for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
-                    pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(bit)];
+                    saved[1][qi] |= bit;
                     if(bit & enemies) break;
                 }
             }
-        } else if( BB_ORIG & p->ppa[w ? WHITE_ROOK : BLACK_ROOK] ) {
+        } else if(BB_ORIG & p->ppa[w ? WHITE_ROOK : BLACK_ROOK]) {
+            ++ri;
+
             for(enum sq_dir dir = NORTH; dir <= WEST; dir += 2) {
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
-                    pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(bit)];
+                    saved[2][ri] |= bit;
                     if(bit & enemies) break;
                 }
             }
-        } else if( BB_ORIG & p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP] ) {
+        } else if(BB_ORIG & p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP]) {
+            ++bi;
+
             for(enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2) {
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
-                    pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(bit)];
+                    saved[3][bi] |= bit;
                     if(bit & enemies) break;
                 }
             }
-        } else if( BB_ORIG & p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT] ) {
+        } else if(BB_ORIG & p->ppa[w ? WHITE_KING : BLACK_KING]) {
+            ++ki;
+
+            for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
+                Bitboard bit = BB_ORIG;
+                if((bit = sq_nav(bit, dir)) && !(bit & friends)) {
+                    saved[0][ki] |= bit;
+                }
+            }
+        } else if(BB_ORIG & p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT]) {
+            ++ni;
+
             for(enum sq_dir dir = ONE_OCLOCK; dir <= ELEVEN_OCLOCK; dir++) {
                 Bitboard bit = BB_ORIG;
                 if((bit = sq_nav(bit, dir)) && !(bit & friends)) {
-                    pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(bit)];
+                    saved[4][ni] |= bit;
                 }
             }
-        } else if( BB_ORIG & p->ppa[w ? WHITE_PAWN : BLACK_PAWN] ) {
+        } else if(BB_ORIG & p->ppa[w ? WHITE_PAWN : BLACK_PAWN]) {
+            ++pi;
+
             // Handle pawn advance >>
             Bitboard sq_in_front = sq_nav(BB_ORIG, w ? NORTH : SOUTH);
             if(!(sq_in_front & p->ppa[EMPTY_SQUARE])) goto pawn_capture;
-            pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(sq_in_front)];
+            saved[5][pi] |= sq_in_front;
             sq_in_front = sq_nav( sq_in_front, w ? NORTH : SOUTH );
             if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) goto pawn_capture;
             if(!(w && (rank('2') & BB_ORIG)) && !(!w && (rank('7') & BB_ORIG)))
                 goto pawn_capture;
-            pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(sq_in_front)];
+            saved[5][pi] |= sq_in_front;
             // << Handle pawn advance
 
             Bitboard the_epts, wcs, ecs; // Western, eastern capture square
@@ -340,10 +351,8 @@ rawcodes( const Pos *p )
                 ecs = sq_nav(BB_ORIG, w ? NORTHEAST : SOUTHEAST);
             if(!((wcs | ecs) & enemies))
                 goto en_passant;
-            if(wcs & enemies)
-                pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(wcs)];
-            if(ecs & enemies)
-                pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(ecs)];
+            if(wcs & enemies) saved[5][pi] |= wcs;
+            if(ecs & enemies) saved[5][pi] |= ecs;
 
             // Handle en passant capture
             en_passant:
@@ -351,16 +360,23 @@ rawcodes( const Pos *p )
             if( the_epts && (
                     the_epts == sq_nav(BB_ORIG, w ? NORTHWEST : SOUTHWEST) ||
                     the_epts == sq_nav(BB_ORIG, w ? NORTHEAST : SOUTHEAST)
-            )) pseudo[vacant++] = ORIG_DEST_RC[ORIG][bindex(the_epts)];
+            )) saved[5][pi] |= the_epts;
         }
     } // End for
 
+    int vacant = 0; // Index of first vacant slot in 'pseudo'
+    Rawcode *pseudo = x_rawcodes_place_results_in_array(p, saved, &vacant);
+
+    Rawcode O_O, O_O_O;
+    if((O_O = castle(p, "kingside"))) pseudo[vacant++] = O_O;
+    if((O_O_O = castle(p, "queenside"))) pseudo[vacant++] = O_O_O;
+
     int updated_vacant = vacant;
-    for( int i = 0; i < vacant; i++ ) { // For each non-vacant slot in 'pseudo'
+    for(int i = 0; i < vacant; i++) { // For each non-vacant slot in 'pseudo'
         Pos copy;
-        copy_pos( p, &copy );
-        make_monster( &copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-' );
-        if( king_can_be_captured( &copy ) ) pseudo[i] = 0, --updated_vacant; }
+        copy_pos(p, &copy);
+        make_monster(&copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-');
+        if(king_can_be_captured(&copy) ) pseudo[i] = 0, --updated_vacant; }
 
     Rawcode *codes;
     assert((codes = malloc((updated_vacant + 1) * sizeof(Rawcode))));
@@ -368,18 +384,16 @@ rawcodes( const Pos *p )
     *codes = updated_vacant;
 
     int j = 0;
-    for( int i = 0; i < vacant; i++ )
-        // Illegal moves have previously been replaced with zero
-        if( pseudo[i] )
-            codes[++j] = pseudo[i];
-    assert( j == updated_vacant );
+    for(int i = 0; i < vacant; i++) if(pseudo[i]) codes[++j] = pseudo[i];
+    assert(j == updated_vacant);
+    free(pseudo);
 
     // Let's assume 'codes' contains the rawcodes 1, 2 and 3. The whole
     // dynamically allocated array should be the following after sorting:
     // {3,1,2,3}. Note that the first element of 'codes' always indicates
     // the remaining number of elements in the array, i.e., the number of
     // rawcodes the array contains (three in this case).
-    qsort( codes + 1, *codes, sizeof(Rawcode), x_qsort_rawcode_compare );
+    qsort(codes + 1, *codes, sizeof(Rawcode), x_qsort_rawcode_compare);
 
     return codes;
 }
@@ -1068,117 +1082,6 @@ x_castle_rooks_path_blocked( const Pos *p, bool kingside,
 
 #undef INIT_VARS
 
-/*
-static void
-x_rawcodes_king_and_knight( const Pos *p, int mover, Rawcode *pseudo,
-    int *vacant, bool king )
-{
-    Bitboard friendly_cm =
-        whites_turn(p) ? white_army(p) : black_army(p);
-
-    for( enum sq_dir d = king ? NORTH : ONE_OCLOCK;
-        d <= ( king ? NORTHWEST : ELEVEN_OCLOCK ); d++ )
-    {
-        Bitboard bit = SBA[mover];
-        if( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
-            int target = bindex(bit);
-            pseudo[(vacant)++] = ORIG_DEST_RC[mover][target];
-        }
-    }
-}
-*/
-
-/*
-static void
-x_rawcodes_rook_and_bishop( const Pos *p, int mover, Rawcode *pseudo,
-    int *vacant, bool rook )
-{
-    // int loc_vacant = *vacant;
-    assert(p);
-    Bitboard
-        friendly_cm =
-            whites_turn(p) ? white_army(p) : black_army(p),
-        enemy_cm =
-            whites_turn(p) ? black_army(p) : white_army(p);
-
-    for( enum sq_dir d = rook ? NORTH : NORTHEAST;
-        d <= ( rook ? WEST : NORTHWEST ); d += 2 )
-    {
-        Bitboard bit = SBA[mover];
-        while( (bit = sq_nav(bit, d)) && !(bit & friendly_cm) ) {
-            int target = bindex(bit);
-            pseudo[(vacant)++] = ORIG_DEST_RC[mover][target];
-            if( bit & enemy_cm ) break;
-        }
-    }
-}
-*/
-
-/*
-static void
-x_rawcodes_pawn_advance( const Pos *p, int mover,
-    Rawcode *pseudo , int *vacant  )
-{
-    Bitboard sq_in_front =
-        sq_nav( SBA[mover], whites_turn(p) ? NORTH : SOUTH );
-    assert( sq_in_front );
-    if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) return;
-
-    pseudo[(vacant)++] = ORIG_DEST_RC[mover][bindex(sq_in_front)];
-
-    sq_in_front = sq_nav( sq_in_front, whites_turn(p) ? NORTH : SOUTH );
-    if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) return;
-    if( !(whites_turn(p) && (rank('2') & SBA[mover])) &&
-            !(!whites_turn(p) && (rank('7') & SBA[mover])) )
-        return;
-
-    pseudo[(vacant)++] = ORIG_DEST_RC[mover][bindex(sq_in_front)];
-}
-*/
-
-/*
-static void
-x_rawcodes_pawn_capture( const Pos *p, int mover,
-    Rawcode *pseudo ,  int *vacant  )
-{
-    Bitboard
-        w_capture_sq = // "w" for "western"
-            sq_nav( SBA[mover], whites_turn(p) ? NORTHWEST : SOUTHWEST ),
-        e_capture_sq = // "e" for "eastern"
-            sq_nav( SBA[mover], whites_turn(p) ? NORTHEAST : SOUTHEAST ),
-        enemy_cm =
-            whites_turn(p) ? black_army(p) : white_army(p);
-    assert( w_capture_sq || e_capture_sq );
-
-    if( !( (w_capture_sq | e_capture_sq) & enemy_cm) ) return;
-
-    if( w_capture_sq & enemy_cm ) {
-        pseudo[(vacant)++] = ORIG_DEST_RC[mover][bindex(w_capture_sq)];
-    }
-    if( e_capture_sq & enemy_cm ) {
-        pseudo[(vacant)++] = ORIG_DEST_RC[mover][bindex(e_capture_sq)];
-    }
-}
-*/
-
-/*
-static void
-x_rawcodes_en_passant( const Pos *p, int mover, Rawcode *pseudo , int *vacant )
-{
-    Bitboard the_epts = epts(p);
-    if(!the_epts) return;
-
-    Chessman cm = occupant_of_sq(p, SBA[mover]);
-    if( cm != WHITE_PAWN && cm != BLACK_PAWN ) return;
-
-    if( the_epts == sq_nav(SBA[mover], whites_turn(p) ? NORTHWEST : SOUTHWEST) ||
-        the_epts == sq_nav(SBA[mover], whites_turn(p) ? NORTHEAST : SOUTHEAST)
-    ) {
-        pseudo[(vacant)++] = ORIG_DEST_RC[mover][sq_bit_index(the_epts)];
-    }
-}
-*/
-
 static int
 x_qsort_rawcode_compare( const void *a, const void *b )
 {
@@ -1187,4 +1090,28 @@ x_qsort_rawcode_compare( const void *a, const void *b )
     if( x < y ) return -1;
     else if( x > y ) return 1;
     else return 0;
+}
+
+static Rawcode *
+x_rawcodes_place_results_in_array( const Pos *p, Bitboard saved[6][12],
+    int *vacant )
+{
+    bool w = whites_turn(p);
+    Rawcode *pseudo = malloc(512 * sizeof(Rawcode));
+    const Bitboard ONE = 1;
+
+    for(int top = 0; top < 6; top++) { // type of piece
+        for(int orig = 0, index = -1; orig < 64; orig++) {
+            if((ONE << orig) & p->ppa[(w ? WHITE_KING : BLACK_KING) + top]) {
+                ++index;
+                for(int dest = 0; dest < 64; dest++) {
+                    if((ONE << dest) & saved[top][index]) {
+                        pseudo[(*vacant)++] = ORIG_DEST_RC[orig][dest];
+                    }
+                }
+            }
+        }
+    }
+
+    return pseudo;
 }
