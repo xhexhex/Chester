@@ -11,3 +11,4 @@
 * If it's White's turn and EPTS is set, the full move number should be greater than one
 * If EPTS is set, then the two squares behind should be empty along with the EPTS itself
 * Refactor and document `rawmoves()`
+* Have a look at x_validate_fen_test_11(). There seems to be a "Conditional jump or move depends on uninitialised value" problem (detected by Valgrind).

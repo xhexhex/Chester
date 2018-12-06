@@ -5,10 +5,13 @@
 
 #include "chester.h"
 #include "ct_che_make_moves.h"
+#include "../../src/utils.h"
+#include "../../src/move_gen.h"
 
 extern int test_count, error_count;
 
-char state[FEN_MAX_LENGTH + 1];
+static char state_fen[FEN_MAX_LENGTH + 1];
+static Pos state_pos;
 static int leaf_count;
 static bool show_progress;
 
@@ -17,20 +20,23 @@ static void x_check_input_fen_and_san( const char *input[][2],
 static void x_check_expected_output_fen( const char *expected_output[],
     const char *caller_name );
 static char *x_first_char_of_last_line(const char *fens);
-static int x_recursive_ex_perft( int depth );
+static int x_recursive_perft_v1( int depth );
+static int x_recursive_perft_v2( int depth );
 
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
 void
-che_make_moves_tested_with_pawn_promotions()
+che_make_moves_tested_with_single_moves()
 {
     ++test_count;
 
     const char *input[][2] = {
+        {FEN_STD_START_POS, "e4"},
         {"k7/4P2R/8/8/8/8/8/4K3 w - - 19 75", "e8=Q#"},
         {"4k3/8/8/8/8/8/2p5/3RK3 b D - 12 34", "cxd1=R+"},
         {NULL, NULL} };
     const char *expected[] = {
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n",
         "k3Q3/7R/8/8/8/8/8/4K3 b - - 0 75\n",
         "4k3/8/8/8/8/8/8/3rK3 w - - 0 35\n",
         NULL };
@@ -188,17 +194,34 @@ FUNCTION_MAKER(3, NULL
 void
 ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
 {
-    ++test_count, strcpy(state, root), leaf_count = 0,
+    ++test_count, strcpy(state_fen, root), leaf_count = 0,
         show_progress = progress;
 
     if(show_progress)
         printf("Progress: %s: perft(%d): ", __func__, depth), fflush(stdout);
-    int node_count = x_recursive_ex_perft(depth);
+    int node_count = x_recursive_perft_v1(depth);
     if(show_progress) printf("\n");
 
-    if( node_count != expected_nc ) {
+    if(node_count != expected_nc) {
         printf("FAIL: %s(\"%s\", %d, ...): Invalid node count: %d\n",
             __func__, root, depth, node_count);
+        ++error_count; }
+}
+
+void
+ct_perft_v2( const Pos *root, int depth, int expected_nc, bool progress )
+{
+    ++test_count, copy_pos(root, &state_pos), leaf_count = 0,
+        show_progress = progress;
+
+    if(show_progress)
+        printf("Progress: %s: perft(%d): ", __func__, depth), fflush(stdout);
+    int node_count = x_recursive_perft_v2(depth);
+    if(show_progress) printf("\n");
+
+    if(node_count != expected_nc) {
+        printf("FAIL: %s(..., %d, ...): Invalid node count: %d\n",
+            __func__, depth, node_count);
         ++error_count; }
 }
 
@@ -223,7 +246,8 @@ x_check_input_fen_and_san( const char *input[][2], const char *caller_name )
 static void
 x_check_expected_output_fen( const char *expected_output[], const char *caller_name )
 {
-    char writable_copy[8 * 1024];
+    char writable_copy[1024];
+    for(int i = 0; i < 1024; i++) writable_copy[i] = '\0';
 
     for(int i = 0; expected_output[i]; i++) {
         strcpy(writable_copy, expected_output[i]);
@@ -250,29 +274,55 @@ x_first_char_of_last_line(const char *fens)
 }
 
 static int
-x_recursive_ex_perft( int depth )
+x_recursive_perft_v1( int depth )
 {
     if(!depth) {
-        if(show_progress && ++leaf_count % 1000000 == 0)
+        if(show_progress && ++leaf_count % (1000 * 1000) == 0)
             printf("M"), fflush(stdout);
         return 1; }
 
     int nodes = 0;
-    char *unmod_ptr = che_make_moves(state, NULL), *children = unmod_ptr,
+    char *unmod_ptr = che_make_moves(state_fen, NULL), *children = unmod_ptr,
         *the_end = children + strlen(children), *child = children,
         orig_state[FEN_MAX_LENGTH + 1];
-    strcpy(orig_state, state);
+    strcpy(orig_state, state_fen);
     for(char *ptr = children; ptr < the_end; ++ptr)
         if(*ptr == '\n') *ptr = '\0';
 
     while(child < the_end) {
-        strcpy(state, child);
-        nodes += x_recursive_ex_perft(depth - 1);
-        strcpy(state, orig_state);
+        strcpy(state_fen, child);
+        nodes += x_recursive_perft_v1(depth - 1);
+        strcpy(state_fen, orig_state);
 
         while(*++child);
         ++child; }
 
     free(unmod_ptr);
+    return nodes;
+}
+
+static int
+x_recursive_perft_v2( int depth )
+{
+    if(!depth) {
+        if(show_progress && ++leaf_count % (1000 * 1000) == 0)
+            printf("M"), fflush(stdout);
+        return 1; }
+
+    Pos orig_state;
+    copy_pos(&state_pos, &orig_state);
+
+    int nodes = 0;
+    Rawcode *move_list = rawcodes(&state_pos), n_moves = move_list[0];
+    for(int i = 1; i <= (int) n_moves; i++) {
+        Rawcode rc = move_list[i];
+        bool promotion = is_promotion(&state_pos, rc);
+        assert(!promotion);
+        make_monster(&state_pos, rc, '-');
+        nodes += x_recursive_perft_v2(depth - 1);
+        copy_pos(&orig_state, &state_pos); }
+
+    free(move_list);
+
     return nodes;
 }

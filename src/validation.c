@@ -299,6 +299,16 @@ x_validate_fen_test_10( const char *fen )
         atoi( hmcf ) > 0 && atoi( hmcf ) <= (int) UINT16_MAX );
 }
 
+/*
+==21994== Conditional jump or move depends on uninitialised value(s)
+==21994==    at 0x4E48AFA: x_validate_fen_test_11 (validation.c:305)
+==21994==    by 0x4E481C6: che_fen_validator (validation.c:83)
+==21994==    by 0x40186E: x_check_expected_output_fen (ct_che_make_moves.c:256)
+==21994==    by 0x401095: che_make_moves_tested_with_single_moves (ct_che_make_moves.c:45)
+==21994==    by 0x400E51: main (main.c:49)
+==21994==  Uninitialised value was created by a stack allocation
+==21994==    at 0x401798: x_check_expected_output_fen (ct_che_make_moves.c:248)
+*/
 static bool
 x_validate_fen_test_11( const char *fen )
 {

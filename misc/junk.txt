@@ -44,3 +44,30 @@ for(uint8_t byte = 0; ; byte++) {
     if(byte == 255) break;
 }
 */
+
+/*
+char ring_verse[] =
+    "Three Rings for the Elven-kings under the sky,\n"
+    "Seven for the Dwarf-lords in their halls of stone,\n"
+    "Nine for Mortal Men doomed to die,\n"
+    "One for the Dark Lord on his dark throne\n"
+    "In the Land of Mordor where the Shadows lie.\n"
+    "One Ring to rule them all, One Ring to find them,\n"
+    "One Ring to bring them all, and in the darkness bind them,\n"
+    "In the Land of Mordor where the Shadows lie.\n";
+char *unmod_ptr = malloc(strlen(ring_verse) + 1), *copy = unmod_ptr, *line;
+strcpy(copy, ring_verse);
+
+const int REPS = 1000 * 1000;
+long long t0 = time_in_milliseconds();
+for(int count = 1; count <= REPS; count++) {
+    copy = unmod_ptr, strcpy(copy, ring_verse);
+    while((line = next_line(&copy))) {
+        // printf("Line: \"%s\"\n", line);
+    }
+    // printf("~\n");
+}
+printf("The operation took %lld ms\n", time_in_milliseconds() - t0);
+
+free(unmod_ptr);
+*/
