@@ -12,3 +12,5 @@
 * If EPTS is set, then the two squares behind should be empty along with the EPTS itself
 * Refactor and document `rawmoves()`
 * Have a look at x_validate_fen_test_11(). There seems to be a "Conditional jump or move depends on uninitialised value" problem (detected by Valgrind).
+* Apply the macro `APM_COUNT` (the explicit constant 1792 is used in many places)
+* Rename `FEN_STD_START_POS` to `INIT_POS`

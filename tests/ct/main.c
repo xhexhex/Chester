@@ -46,8 +46,9 @@ main()
     ct_perft_v2(p, 2, 400, false);
     ct_perft_v2(p, 3, 8902, false);
     ct_perft_v2(p, 4, 197281, false);
-    ct_perft_v2(p, 5, 4865609, true);
-    ct_perft_v2(p, 6, 119060324, true);
+    ct_perft_v2(p, 5, 4865609, false);
+    // ct_perft_v2(p, 6, 119060324, true);
+    // ct_perft_v2(p, 7, 3195901860, true);
 
     free((void *) p);
 

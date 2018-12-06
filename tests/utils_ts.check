@@ -747,7 +747,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 #test C_expand_caf_tested_with_all_4_char_Shredder_FEN_CAFs
     char ecaf[ 9 + 1 ];
     size_t tested_cafs_count = 0;
-    for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) {
+    for( int i = 0; i < SHREDDER_FEN_CAFS_COUNT; i++ ) {
         const char *caf = SHREDDER_FEN_CAFS[ i ];
         if( strlen( caf ) == 4 ) {
             expand_caf( caf, ecaf );

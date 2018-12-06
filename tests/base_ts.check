@@ -598,11 +598,11 @@ while( true ) {
 #test C_SHREDDER_FEN_CAFS_array_size_test
     int counter = 0;
     for( ; SHREDDER_FEN_CAFS[ counter ]; counter++ ) {}
-    ck_assert( counter == (int) SHREDDER_FEN_CAFS_COUNT );
+    ck_assert( counter == SHREDDER_FEN_CAFS_COUNT );
 
 #define N_CHAR_ELEMENTS_COUNT( length, exp_count ) \
 int counter = 0; \
-for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ ) \
+for( int i = 0; i < SHREDDER_FEN_CAFS_COUNT; i++ ) \
     if( strlen( SHREDDER_FEN_CAFS[ i ] ) == length ) ++counter; \
 ck_assert( counter == exp_count );
 

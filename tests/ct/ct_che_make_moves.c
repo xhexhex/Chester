@@ -12,7 +12,7 @@ extern int test_count, error_count;
 
 static char state_fen[FEN_MAX_LENGTH + 1];
 static Pos state_pos;
-static int leaf_count;
+static long long leaf_count;
 static bool show_progress;
 
 static void x_check_input_fen_and_san( const char *input[][2],
@@ -21,7 +21,7 @@ static void x_check_expected_output_fen( const char *expected_output[],
     const char *caller_name );
 static char *x_first_char_of_last_line(const char *fens);
 static int x_recursive_perft_v1( int depth );
-static int x_recursive_perft_v2( int depth );
+static long long x_recursive_perft_v2( int depth );
 
 #define FAIL_MSG "%s: FAIL: i = %d\n", __func__, i
 
@@ -209,18 +209,18 @@ ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
 }
 
 void
-ct_perft_v2( const Pos *root, int depth, int expected_nc, bool progress )
+ct_perft_v2( const Pos *root, int depth, long long expected_nc, bool progress )
 {
     ++test_count, copy_pos(root, &state_pos), leaf_count = 0,
         show_progress = progress;
 
     if(show_progress)
         printf("Progress: %s: perft(%d): ", __func__, depth), fflush(stdout);
-    int node_count = x_recursive_perft_v2(depth);
+    long long node_count = x_recursive_perft_v2(depth);
     if(show_progress) printf("\n");
 
     if(node_count != expected_nc) {
-        printf("FAIL: %s(..., %d, ...): Invalid node count: %d\n",
+        printf("FAIL: %s(..., %d, ...): Invalid node count: %lld\n",
             __func__, depth, node_count);
         ++error_count; }
 }
@@ -301,18 +301,23 @@ x_recursive_perft_v1( int depth )
     return nodes;
 }
 
-static int
+static long long
 x_recursive_perft_v2( int depth )
 {
     if(!depth) {
-        if(show_progress && ++leaf_count % (1000 * 1000) == 0)
-            printf("M"), fflush(stdout);
-        return 1; }
+        if(show_progress && ++leaf_count % (10 * 1000 * 1000) == 0) {
+            printf("X"), fflush(stdout);
+            if(show_progress && leaf_count % (100 * 1000 * 1000) == 0) {
+                printf("\n");
+            }
+        }
+        return 1;
+    }
 
     Pos orig_state;
     copy_pos(&state_pos, &orig_state);
 
-    int nodes = 0;
+    long long nodes = 0;
     Rawcode *move_list = rawcodes(&state_pos), n_moves = move_list[0];
     for(int i = 1; i <= (int) n_moves; i++) {
         Rawcode rc = move_list[i];

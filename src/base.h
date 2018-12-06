@@ -18,21 +18,18 @@ struct single_instance_variable_SB {
         a5, b5, c5, d5, e5, f5, g5, h5,
         a6, b6, c6, d6, e6, f6, g6, h6,
         a7, b7, c7, d7, e7, f7, g7, h7,
-        a8, b8, c8, d8, e8, f8, g8, h8;
-};
+        a8, b8, c8, d8, e8, f8, g8, h8; };
 
 extern const struct single_instance_variable_SB SB;
 extern const Bitboard SBA[], SQ_NAV[][16];
-extern const size_t POSSIBLE_IRPF_VALUES_COUNT, SHREDDER_FEN_CAFS_COUNT;
+extern const size_t POSSIBLE_IRPF_VALUES_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
-
+extern const int SHREDDER_FEN_CAFS_COUNT;
+extern const char * const SHREDDER_FEN_CAFS[];
 extern const char PPF_CHESSMAN_LETTERS[], STD_FEN_CAF_REGEX[];
 extern const char * const SNA[];
-extern const char * const SHREDDER_FEN_CAFS[];
-
 extern const char APM_DATA[];
 extern const int8_t RC_ORIG_SQ_BINDEX[], RC_DEST_SQ_BINDEX[];
-
 extern const Rawcode ORIG_DEST_RC[64][64];
 
 #define APM_COUNT 1792

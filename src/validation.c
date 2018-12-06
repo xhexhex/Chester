@@ -477,7 +477,7 @@ x_kings_with_ca_rights_on_different_files( const char *r1, const char *r8,
 static bool
 x_valid_shredder_fen_caf( const char *caf )
 {
-    for( int i = 0; i < (int) SHREDDER_FEN_CAFS_COUNT; i++ )
+    for( int i = 0; i < SHREDDER_FEN_CAFS_COUNT; i++ )
         if( !strcmp( caf, SHREDDER_FEN_CAFS[ i ] ) )
             return true;
 
