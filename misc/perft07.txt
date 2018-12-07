@@ -1,0 +1,3 @@
+The duration of perft(0..7).
+
+[2018-12-07] 93 min 44 s

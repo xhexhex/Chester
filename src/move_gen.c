@@ -49,23 +49,15 @@ static bool x_castle_kings_exclusive_path_in_check( const Pos *p,
     bool kingside, Bitboard castling_king );
 static bool x_castle_rooks_path_blocked( const Pos *p, bool kingside,
     Bitboard castling_rook, Bitboard castling_king );
-// static void x_rawcodes_king_and_knight( const Pos *p, int mover,
-//    Rawcode *pseudo /*, int *vacant*/ , bool rook );
-// static void x_rawcodes_rook_and_bishop( const Pos *p, int mover,
-//    Rawcode *pseudo /*, int *vacant*/ , bool rook );
-// static void x_rawcodes_pawn_advance( const Pos *p, int mover,
-//    Rawcode *pseudo /*, int *vacant */ );
-//static void x_rawcodes_pawn_capture( const Pos *p, int mover,
-//    Rawcode *pseudo /* , int *vacant*/ );
-//static void x_rawcodes_en_passant( const Pos *p, int mover,
-//    Rawcode *pseudo /* , int *vacant*/ );
 static int x_qsort_rawcode_compare( const void *a, const void *b );
 static Rawcode *x_rawcodes_place_results_in_array( const Pos *p,
     Bitboard saved[6][12], int *vacant );
 
-/***********************
- **** External data ****
- ***********************/
+/*************************
+ ****                 ****
+ ****  External data  ****
+ ****                 ****
+ *************************/
 
 // Used for getting the "knight squares" of a particular square. For example,
 // the knight squares of square b1 is the set { d2, c3, a3 }.
@@ -397,6 +389,68 @@ rawcodes( const Pos *p )
 
     return codes;
 }
+
+int8_t
+    glo_orig_k,
+    glo_orig_q1, glo_orig_q2,
+    glo_orig_r1, glo_orig_r2,
+    glo_orig_b1, glo_orig_b2,
+    glo_orig_n1, glo_orig_n2,
+    glo_orig_p1, glo_orig_p2, glo_orig_p3, glo_orig_p4,
+    glo_orig_p5, glo_orig_p6, glo_orig_p7, glo_orig_p8;
+
+static void
+x_move_gen_set_glo_orig( const Pos *p, bool w )
+{
+    const Bitboard ONE = 1;
+    bool q1_unset = true;
+
+    glo_orig_k = bindex(p->ppa[w ? WHITE_KING : BLACK_KING]);
+
+    glo_orig_q1 = -1, glo_orig_q2 = -1;
+    int i = 0;
+    for(; i < 64; i++)
+        if((ONE << i) & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] && q1_unset) {
+            glo_orig_q1 = bindex(ONE << i); q1_unset = false; }
+        else if((ONE << i) & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) {
+            glo_orig_q2 = bindex(ONE << i); break; }
+
+    // printf("i = %d\n", i);
+}
+
+Bitboard
+    glo_dest_k,
+    glo_dest_q1, glo_dest_q2,
+    glo_dest_r1, glo_dest_r2,
+    glo_dest_b1, glo_dest_b2,
+    glo_dest_n1, glo_dest_n2,
+    glo_dest_p1, glo_dest_p2, glo_dest_p3, glo_dest_p4,
+    glo_dest_p5, glo_dest_p6, glo_dest_p7, glo_dest_p8;
+
+// TODO: doc
+void move_gen( const Pos *p )
+{
+    bool w = whites_turn(p);
+    x_move_gen_set_glo_orig(p, w);
+    const Bitboard friends = w ? white_army(p) : black_army(p),
+        enemies = w ? black_army(p) : white_army(p), ONE = 1;
+
+    glo_dest_k =
+    glo_dest_q1 = glo_dest_q2 = glo_dest_r1 = glo_dest_r2 =
+    glo_dest_b1 = glo_dest_b2 = glo_dest_n1 = glo_dest_n2 =
+    glo_dest_p1 = glo_dest_p2 = glo_dest_p3 = glo_dest_p4 =
+    glo_dest_p5 = glo_dest_p6 = glo_dest_p7 = glo_dest_p8 = 0;
+
+    // Find pseudo-legal moves: king
+    glo_dest_k = (KING_SQS[glo_orig_k] ^ (friends & KING_SQS[glo_orig_k]));
+}
+
+    /*
+    register Bitboard
+        loc_dest_q1, loc_dest_q2,
+        loc_dest_r1, loc_dest_r2,
+        loc_dest_b1, loc_dest_b2;
+    */
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in

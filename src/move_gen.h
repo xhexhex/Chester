@@ -28,8 +28,24 @@ extern const Bitboard KNIGHT_SQS[];
 extern const Bitboard KING_SQS[];
 extern const Bitboard ROOK_SQS[];
 extern const Bitboard BISHOP_SQS[];
+extern int8_t
+    glo_orig_k,
+    glo_orig_q1, glo_orig_q2,
+    glo_orig_r1, glo_orig_r2,
+    glo_orig_b1, glo_orig_b2,
+    glo_orig_n1, glo_orig_n2,
+    glo_orig_p1, glo_orig_p2, glo_orig_p3, glo_orig_p4,
+    glo_orig_p5, glo_orig_p6, glo_orig_p7, glo_orig_p8;
+extern Bitboard
+    glo_dest_k,
+    glo_dest_q1, glo_dest_q2,
+    glo_dest_r1, glo_dest_r2,
+    glo_dest_b1, glo_dest_b2,
+    glo_dest_n1, glo_dest_n2,
+    glo_dest_p1, glo_dest_p2, glo_dest_p3, glo_dest_p4,
+    glo_dest_p5, glo_dest_p6, glo_dest_p7, glo_dest_p8;
 
-bool king_can_be_captured( const Pos *p );
+bool king_can_be_captured( const Pos *p ); // Rename to taboo()?
 Bitboard kerc( const Bitboard sq_bit );
 Bitboard attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... );
 Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );
@@ -48,6 +64,7 @@ bool is_castle( const Pos *p, Rawcode move );
 bool king_in_check( const Pos *p );
 bool checkmate( const Pos *p );
 char *single_fen_move_gen( const char *fen );
+void move_gen( const Pos *p );
 
 #endif
 // end MOVE_GEN_H
