@@ -3,6 +3,7 @@
 #include "../src/validation.h"
 #include "../src/extra.h"
 #include "../src/base.h"
+#include "../src/move_gen.h"
 
 #suite validation_ts
 
@@ -17,7 +18,7 @@
 
 #test C_che_fen_validator_returns_FEN_NO_ERRORS_batch_1
     const char *valid_fens[] = {
-        FEN_STD_START_POS,
+        INIT_POS,
         "1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
         "1rkr4/8/8/8/8/8/8/1RKR4 w DBdb - 0 50",
         "2r1k2r/8/8/8/8/8/8/2RRK3 b Cch - 0 50",
@@ -678,7 +679,7 @@
     const char *fen;
 
     CONVERT_FEN_TO_POS_AND_CHECK_PPA(
-        FEN_STD_START_POS )
+        INIT_POS )
     CONVERT_FEN_TO_POS_AND_CHECK_PPA(
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1" )
     CONVERT_FEN_TO_POS_AND_CHECK_PPA(

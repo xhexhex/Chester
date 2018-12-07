@@ -356,34 +356,6 @@ file_and_rank_to_sq_name( const char file, const char rank )
     return SNA[ sq_name_index( tmp_sq_name ) ];
 }
 
-// Returns the diagonal the square parameter is on
-Bitboard
-diag_of_sq( Bitboard sq_bit )
-{
-    assert( is_sq_bit( sq_bit ) );
-
-    for( int i = 0; i < 15; i++ )
-        if( sq_bit & sq_set_of_diag( i ) )
-            return sq_set_of_diag( i );
-
-    assert( false );
-    return 0u;
-}
-
-// Returns the antidiagonal the square parameter is on
-Bitboard
-antidiag_of_sq( Bitboard sq_bit )
-{
-    assert( is_sq_bit( sq_bit ) );
-
-    for( int i = 0; i < 15; i++ )
-        if( sq_bit & sq_set_of_antidiag( i ) )
-            return sq_set_of_antidiag( i );
-
-    assert( false );
-    return 0u;
-}
-
 // Returns the next square in the square set parameter 'ss'. The square
 // returned is removed from 'ss'. This makes it convenient to call
 // next_sq_bit() repeatedly until 'ss' is empty.
@@ -683,7 +655,7 @@ resolve_ambiguous_ecaf( char *ecaf, const char *fen )
 
 // Examines the PPF of 'fen' and returns the letter symbol of the chessman
 // on square 'sq'. If the square is empty, then '-' is returned. For example,
-// the call occupant_of_sq_fen_v( FEN_STD_START_POS, "e1" ) would return 'K'.
+// the call occupant_of_sq_fen_v( INIT_POS, "e1" ) would return 'K'.
 // Note that occupant_of_sq_fen_v() is the FEN string equivalent (or version)
 // of occupant_of_sq().
 char
@@ -872,6 +844,26 @@ time_in_microseconds()
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return 1000000*tv.tv_sec + tv.tv_usec;
+}
+
+// Returns the square set of the white army. That means all the squares
+// that contain a white chessman.
+Bitboard
+white_army( const Pos *p )
+{
+    return p->ppa[ WHITE_KING ] | p->ppa[ WHITE_QUEEN ] |
+        p->ppa[ WHITE_ROOK ] | p->ppa[ WHITE_BISHOP ] |
+        p->ppa[ WHITE_KNIGHT ] | p->ppa[ WHITE_PAWN ];
+}
+
+// Returns the square set of the black army. That means all the squares
+// that contain a black chessman.
+Bitboard
+black_army( const Pos *p )
+{
+    return p->ppa[ BLACK_KING ] | p->ppa[ BLACK_QUEEN ] |
+        p->ppa[ BLACK_ROOK ] | p->ppa[ BLACK_BISHOP ] |
+        p->ppa[ BLACK_KNIGHT ] | p->ppa[ BLACK_PAWN ];
 }
 
 /****************************

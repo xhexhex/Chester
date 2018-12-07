@@ -31,7 +31,7 @@ che_make_moves_tested_with_single_moves()
     ++test_count;
 
     const char *input[][2] = {
-        {FEN_STD_START_POS, "e4"},
+        {INIT_POS, "e4"},
         {"k7/4P2R/8/8/8/8/8/4K3 w - - 19 75", "e8=Q#"},
         {"4k3/8/8/8/8/8/2p5/3RK3 b D - 12 34", "cxd1=R+"},
         {NULL, NULL} };
@@ -132,64 +132,16 @@ FUNCTION_MAKER(3, NULL
 #undef FAIL_MSG
 
 /*
-    [2018-11-23]
-    henrik@nterror:~/junk$ time ./chester_tester
-    Progress: ct_perft_v1: perft(4): MMM...M
-    ...
     real    9m59.843s
-    ...
-
-    [2018-11-24]
-    henrik@nterror:~/Downloads$ time ./chester_tester
-    Progress: ct_perft_v1: perft(4): MMM...M
-    ...
     real    8m45.880s
-    ...
-
-    [2018-11-30]
-    henrik@nterror:~/Dropbox/Chester$ time make ct
-    Progress: ct_perft_v1: perft(4): MMM...M
-    ...
     real    8m8.033s
-    ...
-
-    [2018-12-01]
-    henrik@nterror:~/Dropbox/Chester$ time make ct
-    Progress: ct_perft_v1: perft(4): MMM...M
-    ...
     real    0m27.833s
-    ...
-
-    [2018-12-02]
-    henrik@nterror:~/Dropbox/Chester$ time make ct
-    Progress: ct_perft_v1: perft(4):
-    ...
     real    0m25.051s
-    ...
-
-    [2018-12-03]
-    henrik@nterror:~/Dropbox/Chester$ make && time make ct
-    ...
     real    0m24.610s
-    ...
-
-    [2018-12-03]
-    henrik@nterror:~/Dropbox/Chester$ make && time make ct
-    ...
     real    0m23.751s
-    ...
-
-    [2018-12-04]
-    henrik@nterror:~/Dropbox/Chester$ make && time make ct
-    ...
     real    0m21.429s
-    ...
-
-    [2018-12-04]
-    henrik@nterror:~/Dropbox/Chester$ make && time make ct
-    ...
     real    0m18.995s
-    ...
+    real    0m16.784s
 */
 void
 ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
@@ -323,7 +275,7 @@ x_recursive_perft_v2( int depth )
         Rawcode rc = move_list[i];
         bool promotion = is_promotion(&state_pos, rc);
         assert(!promotion);
-        make_monster(&state_pos, rc, '-');
+        make_move(&state_pos, rc, '-');
         nodes += x_recursive_perft_v2(depth - 1);
         copy_pos(&orig_state, &state_pos); }
 

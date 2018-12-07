@@ -11,8 +11,8 @@ typedef uint16_t Rawcode;
 #define FEN_MIN_LENGTH 27
 #define FEN_MAX_LENGTH 92
 
-// The standard starting position
-#define FEN_STD_START_POS \
+// The initial position of standard chess
+#define INIT_POS \
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 // The possible return values of che_fen_validator()
@@ -48,6 +48,8 @@ enum che_fen_error che_fen_validator( const char *fen );
 bool che_is_san( const char *san );
 char *che_make_moves( const char *fen, const char *sans );
 char *che_move_gen( const char *fens );
+char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
+void che_free_ff( void *ff );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 // che_move_checker(), che_legal_moves()

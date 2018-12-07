@@ -106,11 +106,11 @@
 #test rawcode_to_san_test_1
     Pos *p; char *actual_san;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS, "g1f3", '-', "Nf3")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "b1a3", '-', "Na3")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e2e4", '-', "e4")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "d2d3", '-', "d3")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "h2h4", '-', "h4")
+    TEST_WITH_ARGS(INIT_POS, "g1f3", '-', "Nf3")
+    TEST_WITH_ARGS(INIT_POS, "b1a3", '-', "Na3")
+    TEST_WITH_ARGS(INIT_POS, "e2e4", '-', "e4")
+    TEST_WITH_ARGS(INIT_POS, "d2d3", '-', "d3")
+    TEST_WITH_ARGS(INIT_POS, "h2h4", '-', "h4")
 
 #test rawcode_to_san_test_2
     Pos *p; char *actual_san;

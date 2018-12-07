@@ -80,8 +80,8 @@ static const char *expected_ppfs[] = {
     char fen[FEN_MAX_LENGTH + 1];
 
     TEST_WITH_ARGS(
-        FEN_STD_START_POS,
-        FEN_STD_START_POS )
+        INIT_POS,
+        INIT_POS )
     TEST_WITH_ARGS(
         "rnbqk2r/ppp2p1p/3b4/3PN2n/2BP1ppP/8/PPP3P1/RNBQK2R w KQkq - 1 9",
         "rnbqk2r/ppp2p1p/3b4/3PN2n/2BP1ppP/8/PPP3P1/RNBQK2R w KQkq - 1 9" )
@@ -271,3 +271,59 @@ static const char *expected_ppfs[] = {
     ck_assert( sq_bit_index(SB.e4) == 28 );
     ck_assert( sq_bit_index(SB.a8) == 56 );
     ck_assert( sq_bit_index(SB.h8) == 63 );
+
+//
+// Test case
+//
+#tcase diag_of_sq_tests
+
+#test diag_of_sq_tested_with_squares_of_main_antidiagonal
+    ck_assert( diag_of_sq( SB.h1 ) == 0x80U );
+    ck_assert( diag_of_sq( SB.g2 ) == 0x804020U );
+    ck_assert( diag_of_sq( SB.f3 ) == 0x8040201008U );
+    ck_assert( diag_of_sq( SB.e4 ) == 0x80402010080402U );
+    ck_assert( diag_of_sq( SB.d5 ) == 0x4020100804020100U );
+    ck_assert( diag_of_sq( SB.c6 ) == 0x1008040201000000U );
+    ck_assert( diag_of_sq( SB.b7 ) == 0x402010000000000U );
+    ck_assert( diag_of_sq( SB.a8 ) == 0x100000000000000U );
+
+#test diag_of_sq_tested_with_squares_of_antidiagonal_g1a7
+    ck_assert( diag_of_sq( SB.g1 ) == 0x8040U );
+    ck_assert( diag_of_sq( SB.f2 ) == 0x80402010U );
+    ck_assert( diag_of_sq( SB.e3 ) == 0x804020100804U );
+    ck_assert( diag_of_sq( SB.d4 ) == 0x8040201008040201U );
+    ck_assert( diag_of_sq( SB.c5 ) == 0x2010080402010000U );
+    ck_assert( diag_of_sq( SB.b6 ) == 0x804020100000000U );
+    ck_assert( diag_of_sq( SB.a7 ) == 0x201000000000000U );
+
+#test diag_of_sq_tested_with_all_squares
+    for( int i = 0; i < 64; i++ )
+        ck_assert( diag_of_sq( SBA[ i ] ) );
+
+//
+// Test case
+//
+#tcase antidiag_of_sq_tests
+
+#test antidiag_of_sq_tested_with_squares_of_main_diagonal
+    ck_assert( antidiag_of_sq( SB.a1 ) == 0x1U );
+    ck_assert( antidiag_of_sq( SB.b2 ) == 0x10204U );
+    ck_assert( antidiag_of_sq( SB.c3 ) == 0x102040810U );
+    ck_assert( antidiag_of_sq( SB.d4 ) == 0x1020408102040U );
+    ck_assert( antidiag_of_sq( SB.e5 ) == 0x204081020408000U );
+    ck_assert( antidiag_of_sq( SB.f6 ) == 0x810204080000000U );
+    ck_assert( antidiag_of_sq( SB.g7 ) == 0x2040800000000000U );
+    ck_assert( antidiag_of_sq( SB.h8 ) == 0x8000000000000000U );
+
+#test antidiag_of_sq_tested_with_squares_of_diagonal_b1h7
+    ck_assert( antidiag_of_sq( SB.b1 ) == 0x102U );
+    ck_assert( antidiag_of_sq( SB.c2 ) == 0x1020408U );
+    ck_assert( antidiag_of_sq( SB.d3 ) == 0x10204081020U );
+    ck_assert( antidiag_of_sq( SB.e4 ) == 0x102040810204080U );
+    ck_assert( antidiag_of_sq( SB.f5 ) == 0x408102040800000U );
+    ck_assert( antidiag_of_sq( SB.g6 ) == 0x1020408000000000U );
+    ck_assert( antidiag_of_sq( SB.h7 ) == 0x4080000000000000U );
+
+#test antidiag_of_sq_tested_with_all_squares
+    for( int i = 0; i < 64; i++ )
+        ck_assert( antidiag_of_sq( SBA[ i ] ) );

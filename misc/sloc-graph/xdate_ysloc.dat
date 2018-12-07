@@ -1,6 +1,6 @@
 # Data for the SLOC line graph
 #
-# The SLOC value should not include code from extra.*
+# The SLOC value should not include code from extra.* and data.c
 #
 2017-09-16, 0
 2017-10-21, 569
@@ -17,3 +17,4 @@
 2018-09-10, 3058
 2018-09-22, 3192
 2018-11-05, 3623
+2018-12-07, 3031

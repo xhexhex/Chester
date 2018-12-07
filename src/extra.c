@@ -11,6 +11,24 @@
 #include "validation.h"
 #include "move_gen.h"
 
+// Diagonals and antidiagonals
+const Bitboard
+    SS_DIAG_H1H1 = 0x80U, SS_DIAG_G1H2 = 0x8040U, SS_DIAG_F1H3 = 0x804020U,
+    SS_DIAG_E1H4 = 0x80402010U, SS_DIAG_D1H5 = 0x8040201008U,
+    SS_DIAG_C1H6 = 0x804020100804U, SS_DIAG_B1H7 = 0x80402010080402U,
+    SS_DIAG_A1H8 = 0x8040201008040201U, SS_DIAG_A2G8 = 0x4020100804020100U,
+    SS_DIAG_A3F8 = 0x2010080402010000U, SS_DIAG_A4E8 = 0x1008040201000000U,
+    SS_DIAG_A5D8 = 0x804020100000000U, SS_DIAG_A6C8 = 0x402010000000000U,
+    SS_DIAG_A7B8 = 0x201000000000000U, SS_DIAG_A8A8 = 0x100000000000000U,
+    SS_ANTIDIAG_A1A1 = 0x1U, SS_ANTIDIAG_B1A2 = 0x102U,
+    SS_ANTIDIAG_C1A3 = 0x10204U, SS_ANTIDIAG_D1A4 = 0x1020408U,
+    SS_ANTIDIAG_E1A5 = 0x102040810U, SS_ANTIDIAG_F1A6 = 0x10204081020U,
+    SS_ANTIDIAG_G1A7 = 0x1020408102040U, SS_ANTIDIAG_H1A8 = 0x102040810204080U,
+    SS_ANTIDIAG_H2B8 = 0x204081020408000U, SS_ANTIDIAG_H3C8 = 0x408102040800000U,
+    SS_ANTIDIAG_H4D8 = 0x810204080000000U, SS_ANTIDIAG_H5E8 = 0x1020408000000000U,
+    SS_ANTIDIAG_H6F8 = 0x2040800000000000U, SS_ANTIDIAG_H7G8 = 0x4080000000000000U,
+    SS_ANTIDIAG_H8H8 = 0x8000000000000000U;
+
 //
 // Static function prototypes
 //
@@ -22,6 +40,8 @@ static void x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen,
     char *ecaf, int index );
 static void x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen,
     const char *ecaf, int index );
+static Bitboard x_sq_set_of_diag( const int index );
+static Bitboard x_sq_set_of_antidiag( const int index );
 
 // The following function is purely for performance research purposes.
 // It converts the tic-tac-toe (ttt) version of a piece placement array
@@ -159,14 +179,14 @@ slow_pos_to_fen( const Pos *p )
 
     fen_field[1] = whites_turn(p) ? "w" : "b";
 
-    char caf[4 + 1] = {'\0'}, *expanded_caf = ecaf(p);
+    char caf[4 + 1] = {'\0'}, *expanded_caf = get_ecaf(p);
     caf[0] = '-';
     for(int i = 0, j = 0; i < 4; i++)
         if(expanded_caf[i] != '-')
             caf[j++] = expanded_caf[i];
     free(expanded_caf), fen_field[2] = caf;
 
-    fen_field[3] = epts(p) ? (char *) sq_bit_to_sq_name(epts(p)) : "-";
+    fen_field[3] = get_epts(p) ? (char *) sq_bit_to_sq_name(get_epts(p)) : "-";
 
     char hmcf[5 + 1], fmnf[5 + 1];
     sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn );
@@ -248,12 +268,12 @@ shredder_to_std_fen_conv( char *fen )
 
 // An ad hoc tester function to evaluate the efficiency of move_move().
 void
-make_monster_performance_test()
+make_move_performance_test()
 {
     const int REPS = 1 * 10000;
 
     const char *fen[] = {
-        FEN_STD_START_POS,
+        INIT_POS,
         "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7",
         "3b4/P3P3/8/8/8/8/8/K6k w - - 1 123",
         "b3k3/8/8/8/3P4/8/8/4K2R b K d3 0 9",
@@ -270,11 +290,11 @@ make_monster_performance_test()
     const Pos *p[5];
     Pos result[5];
     for(int i = 0; i < 5; i++) p[i] = fen_to_pos(fen[i]);
-    copy_pos(p[0], &result[0]), make_monster(&result[0], 936, '-');  // "e4"
-    copy_pos(p[1], &result[1]), make_monster(&result[1], 1140, '-'); // "O-O"
-    copy_pos(p[2], &result[2]), make_monster(&result[2], 1098, 'q'); // "exd8=Q"
-    copy_pos(p[3], &result[3]), make_monster(&result[3], 193, '-');  // "Bxh1"
-    copy_pos(p[4], &result[4]), make_monster(&result[4], 1685, '-'); // "hxg3+"
+    copy_pos(p[0], &result[0]), make_move(&result[0], 936, '-');  // "e4"
+    copy_pos(p[1], &result[1]), make_move(&result[1], 1140, '-'); // "O-O"
+    copy_pos(p[2], &result[2]), make_move(&result[2], 1098, 'q'); // "exd8=Q"
+    copy_pos(p[3], &result[3]), make_move(&result[3], 193, '-');  // "Bxh1"
+    copy_pos(p[4], &result[4]), make_move(&result[4], 1685, '-'); // "hxg3+"
 
     for(int i = 0; i < 5; i++) {
         char *tmp = pos_to_fen(&result[i]);
@@ -283,15 +303,15 @@ make_monster_performance_test()
 
     Pos pos;
     long long t0 = time_in_milliseconds();
-    // 50 * 1000 calls to make_monster() is the standard
+    // 50 * 1000 calls to make_move() is the standard
     for(int count = 1; count <= REPS; count++) {
-        copy_pos(p[0], &pos), make_monster(&pos,  936, '-');
-        copy_pos(p[1], &pos), make_monster(&pos, 1140, '-');
-        copy_pos(p[2], &pos), make_monster(&pos, 1098, 'q');
-        copy_pos(p[3], &pos), make_monster(&pos,  193, '-');
-        copy_pos(p[4], &pos), make_monster(&pos, 1685, '-'); }
+        copy_pos(p[0], &pos), make_move(&pos,  936, '-');
+        copy_pos(p[1], &pos), make_move(&pos, 1140, '-');
+        copy_pos(p[2], &pos), make_move(&pos, 1098, 'q');
+        copy_pos(p[3], &pos), make_move(&pos,  193, '-');
+        copy_pos(p[4], &pos), make_move(&pos, 1685, '-'); }
 
-    printf("%s: %d calls to make_monster() took %lld ms\n",
+    printf("%s: %d calls to make_move() took %lld ms\n",
         __func__, 5 * REPS, time_in_milliseconds() - t0);
 
     for(int i = 0; i < 5; i++) free((void *) p[i]);
@@ -308,7 +328,7 @@ rawcodes_performance_test()
         // FEN_SUPERPOSITION_1,
         // FEN_SUPERPOSITION_2,
 
-        FEN_STD_START_POS,
+        INIT_POS,
         "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123",
         "k7/8/8/4K3/8/3N4/5r2/4r3 w - - 12 34",
         "k7/8/4N3/4K3/8/3N4/5r2/4r3 w - - 12 34",
@@ -374,6 +394,143 @@ sq_bit_index( Bitboard sq_bit )
     assert(false);
     return -1;
 } // Review: 2018-06-03
+
+// Returns the diagonal the square parameter is on
+Bitboard
+diag_of_sq( Bitboard sq_bit )
+{
+    assert( is_sq_bit( sq_bit ) );
+
+    for( int i = 0; i < 15; i++ )
+        if( sq_bit & sq_set_of_diag( i ) )
+            return sq_set_of_diag( i );
+
+    assert( false );
+    return 0u;
+}
+
+// Returns the antidiagonal the square parameter is on
+Bitboard
+antidiag_of_sq( Bitboard sq_bit )
+{
+    assert( is_sq_bit( sq_bit ) );
+
+    for( int i = 0; i < 15; i++ )
+        if( sq_bit & sq_set_of_antidiag( i ) )
+            return sq_set_of_antidiag( i );
+
+    assert( false );
+    return 0u;
+}
+
+// Can be used to collectively access the SS_DIAG_* constants as if they
+// were elements of the same array. The index of diagonal h1h1 is 0 and
+// the index of a8a8 is 14.
+Bitboard
+sq_set_of_diag( const int index )
+{
+    return x_sq_set_of_diag( index );
+}
+
+// Same as above for the SS_ANTIDIAG_* constants. The index of antidiagonal
+// a1a1 is 0 and the index of h8h8 14.
+Bitboard
+sq_set_of_antidiag( const int index )
+{
+    return x_sq_set_of_antidiag( index );
+}
+
+void
+make_move_sanity_checks( const Pos *p, Rawcode rc, char promotion,
+    int orig, int dest, Chessman mover, Chessman target )
+{
+    bool w = whites_turn(p);
+
+    // 'promotion' should be one of the five valid character values.
+    // If 'promotion' is not the char '-', then the move involved
+    // should be a promotion.
+    assert( promotion == '-' || promotion == 'q' || promotion == 'r' ||
+        promotion == 'b' || promotion == 'n' );
+    assert( ( promotion == '-' && !is_promotion(p, rc) ) ||
+        ( (promotion == 'q' || promotion == 'r' || promotion == 'b' ||
+            promotion == 'n') &&
+        is_promotion(p, rc) ) );
+
+    // On White's turn only white chessmen can move; the same for Black
+    assert(
+        (w && mover >= WHITE_KING && mover <= WHITE_PAWN) ||
+        (!w && mover >= BLACK_KING && mover <= BLACK_PAWN));
+    // A castling move is either O-O or O-O-O but not both
+    assert( !(is_short_castle(p, rc) && is_long_castle(p, rc)) );
+    // A pawn advance such as e2–e4 cannot involve a capture
+    assert( !is_pawn_advance(p, rc) || target == EMPTY_SQUARE );
+    // If a pawn moves a single square diagonally "upwards", it should
+    // involve a capture
+    assert( !( mover == (w ? WHITE_PAWN : BLACK_PAWN) &&
+        ( SBA[dest] == sq_nav(SBA[orig], w ? NORTHWEST :
+                SOUTHWEST) ||
+            SBA[dest] == sq_nav(SBA[orig], w ? NORTHEAST :
+                SOUTHEAST) ) ) ||
+        is_capture(p, rc) );
+
+    // It's OK for make_move() to execute moves that result in a position
+    // where a king can be captured. However, the position should be legal
+    // before the execution of the move.
+    assert( !king_can_be_captured(p) );
+
+    // The white king captures a white rook if and only if the move in
+    // question is a castling move (according to is_castle()).
+    assert(!w || (
+        ((mover == WHITE_KING && target == WHITE_ROOK) && is_castle(p, rc)) ||
+        (!(mover == WHITE_KING && target == WHITE_ROOK) && !is_castle(p, rc))));
+    // The black king captures a black rook if and only if the move in
+    // question is a castling move (according to is_castle()).
+    assert(w || (
+        ((mover == BLACK_KING && target == BLACK_ROOK) && is_castle(p, rc)) ||
+        (!(mover == BLACK_KING && target == BLACK_ROOK) && !is_castle(p, rc))));
+
+    Bitboard the_epts = get_epts(p); // En passant target square
+    bool ep = (the_epts == SBA[dest] &&
+        (mover == WHITE_PAWN || mover == BLACK_PAWN));
+
+    // (ep == true) if and only if (is_en_passant_capture(p, rc) == true)
+    assert( (ep && is_en_passant_capture(p, rc)) ||
+        (!ep && !is_en_passant_capture(p, rc)) );
+
+    // The EPTS is empty
+    assert(!ep || ((the_epts & p->ppa[EMPTY_SQUARE]) && target == EMPTY_SQUARE));
+
+    Bitboard double_advanced_pawn = the_epts;
+    if(w) double_advanced_pawn >>= 8;
+    else double_advanced_pawn <<= 8;
+    // The square "after" the EPTS is occupied by a pawn of the
+    // non-active color
+    assert(!ep || ((double_advanced_pawn & p->ppa[w ? BLACK_PAWN : WHITE_PAWN])));
+
+    bool pp = ( // pp, pawn promotion
+        (mover == WHITE_PAWN && orig >= 48 && orig <= 55 ) ||
+        (mover == BLACK_PAWN && orig >=  8 && orig <= 15));
+    assert((pp && is_promotion(p, rc)) || (!pp && !is_promotion(p, rc)));
+
+    bool capture = ( ep ||
+        (mover >= WHITE_KING && mover <= WHITE_PAWN &&
+            target >= BLACK_QUEEN && target <= BLACK_PAWN) ||
+        (mover >= BLACK_KING && mover <= BLACK_PAWN &&
+            target >= WHITE_QUEEN && target <= WHITE_PAWN) );
+
+    assert((capture &&  is_capture(p, rc)) || (!capture && !is_capture(p, rc)));
+
+    bool sspa = ( // sspa, single step pawn advance
+        (mover == WHITE_PAWN && SBA[dest] == (SBA[orig] << 8)) ||
+        (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 8)));
+    bool dspa = ( // dspa, double step pawn advance
+        (mover == WHITE_PAWN && SBA[dest] == (SBA[orig] << 16)) ||
+        (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 16)));
+    assert(( sspa &&  is_single_step_pawn_advance(p, rc)) ||
+        (!sspa && !is_single_step_pawn_advance(p, rc)));
+    assert(( dspa &&  is_double_step_pawn_advance(p, rc)) ||
+        (!dspa && !is_double_step_pawn_advance(p, rc)));
+}
 
 /****************************
  ****                    ****
@@ -524,4 +681,52 @@ x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int in
 
     fen[index] = 'K', fen[index + 1] = 'Q',
         fen[index + 2] = 'k', fen[index + 3] = 'q';
+}
+
+static Bitboard
+x_sq_set_of_diag( const int index )
+{
+    switch( index ) {
+        case 0: return SS_DIAG_H1H1;
+        case 1: return SS_DIAG_G1H2;
+        case 2: return SS_DIAG_F1H3;
+        case 3: return SS_DIAG_E1H4;
+        case 4: return SS_DIAG_D1H5;
+        case 5: return SS_DIAG_C1H6;
+        case 6: return SS_DIAG_B1H7;
+        case 7: return SS_DIAG_A1H8;
+        case 8: return SS_DIAG_A2G8;
+        case 9: return SS_DIAG_A3F8;
+        case 10: return SS_DIAG_A4E8;
+        case 11: return SS_DIAG_A5D8;
+        case 12: return SS_DIAG_A6C8;
+        case 13: return SS_DIAG_A7B8;
+        case 14: return SS_DIAG_A8A8;
+
+        default: assert( false ); return 0u;
+    }
+}
+
+static Bitboard
+x_sq_set_of_antidiag( const int index )
+{
+    switch( index ) {
+        case 0: return SS_ANTIDIAG_A1A1;
+        case 1: return SS_ANTIDIAG_B1A2;
+        case 2: return SS_ANTIDIAG_C1A3;
+        case 3: return SS_ANTIDIAG_D1A4;
+        case 4: return SS_ANTIDIAG_E1A5;
+        case 5: return SS_ANTIDIAG_F1A6;
+        case 6: return SS_ANTIDIAG_G1A7;
+        case 7: return SS_ANTIDIAG_H1A8;
+        case 8: return SS_ANTIDIAG_H2B8;
+        case 9: return SS_ANTIDIAG_H3C8;
+        case 10: return SS_ANTIDIAG_H4D8;
+        case 11: return SS_ANTIDIAG_H5E8;
+        case 12: return SS_ANTIDIAG_H6F8;
+        case 13: return SS_ANTIDIAG_H7G8;
+        case 14: return SS_ANTIDIAG_H8H8;
+
+        default: assert( false ); return 0u;
+    }
 }

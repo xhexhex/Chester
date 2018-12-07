@@ -161,7 +161,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
     ck_assert( occupant_of_sq(p, sq_bit_arg) == expected_cm );
 
 #test C_occupant_of_sq_tested_with_the_standard_starting_position
-    Pos *p = fen_to_pos(FEN_STD_START_POS);
+    Pos *p = fen_to_pos(INIT_POS);
 
     for( int i = 16; i <= 47; i++ ) {
         TEST_WITH_ARGS( SBA[i], EMPTY_SQUARE )
@@ -425,58 +425,9 @@ free( bin_str );
         ( lower_right_sq_name =
             sq_navigator( lower_right_sq_name, NORTHWEST ) ) );
 
-#tcase diag_of_sq_tests
-
-#test C_diag_of_sq_tested_with_squares_of_main_antidiagonal
-    ck_assert( diag_of_sq( SB.h1 ) == 0x80U );
-    ck_assert( diag_of_sq( SB.g2 ) == 0x804020U );
-    ck_assert( diag_of_sq( SB.f3 ) == 0x8040201008U );
-    ck_assert( diag_of_sq( SB.e4 ) == 0x80402010080402U );
-    ck_assert( diag_of_sq( SB.d5 ) == 0x4020100804020100U );
-    ck_assert( diag_of_sq( SB.c6 ) == 0x1008040201000000U );
-    ck_assert( diag_of_sq( SB.b7 ) == 0x402010000000000U );
-    ck_assert( diag_of_sq( SB.a8 ) == 0x100000000000000U );
-
-#test C_diag_of_sq_tested_with_squares_of_antidiagonal_g1a7
-    ck_assert( diag_of_sq( SB.g1 ) == 0x8040U );
-    ck_assert( diag_of_sq( SB.f2 ) == 0x80402010U );
-    ck_assert( diag_of_sq( SB.e3 ) == 0x804020100804U );
-    ck_assert( diag_of_sq( SB.d4 ) == 0x8040201008040201U );
-    ck_assert( diag_of_sq( SB.c5 ) == 0x2010080402010000U );
-    ck_assert( diag_of_sq( SB.b6 ) == 0x804020100000000U );
-    ck_assert( diag_of_sq( SB.a7 ) == 0x201000000000000U );
-
-#test C_diag_of_sq_tested_with_all_squares
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( diag_of_sq( SBA[ i ] ) );
-    }
-
-#tcase antidiag_of_sq_tests
-
-#test C_antidiag_of_sq_tested_with_squares_of_main_diagonal
-    ck_assert( antidiag_of_sq( SB.a1 ) == 0x1U );
-    ck_assert( antidiag_of_sq( SB.b2 ) == 0x10204U );
-    ck_assert( antidiag_of_sq( SB.c3 ) == 0x102040810U );
-    ck_assert( antidiag_of_sq( SB.d4 ) == 0x1020408102040U );
-    ck_assert( antidiag_of_sq( SB.e5 ) == 0x204081020408000U );
-    ck_assert( antidiag_of_sq( SB.f6 ) == 0x810204080000000U );
-    ck_assert( antidiag_of_sq( SB.g7 ) == 0x2040800000000000U );
-    ck_assert( antidiag_of_sq( SB.h8 ) == 0x8000000000000000U );
-
-#test C_antidiag_of_sq_tested_with_squares_of_diagonal_b1h7
-    ck_assert( antidiag_of_sq( SB.b1 ) == 0x102U );
-    ck_assert( antidiag_of_sq( SB.c2 ) == 0x1020408U );
-    ck_assert( antidiag_of_sq( SB.d3 ) == 0x10204081020U );
-    ck_assert( antidiag_of_sq( SB.e4 ) == 0x102040810204080U );
-    ck_assert( antidiag_of_sq( SB.f5 ) == 0x408102040800000U );
-    ck_assert( antidiag_of_sq( SB.g6 ) == 0x1020408000000000U );
-    ck_assert( antidiag_of_sq( SB.h7 ) == 0x4080000000000000U );
-
-#test C_antidiag_of_sq_tested_with_all_squares
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( antidiag_of_sq( SBA[ i ] ) );
-    }
-
+//
+// Test case
+//
 #tcase next_sq_of_ss_tests
 
 #test C_next_sq_of_ss_tested_repeatedly_with_empty_ss
@@ -678,7 +629,7 @@ free( bin_str );
 #test C_fen_fields_works
     char **ff, *exp_vals[ 6 ];
 
-    FEN_FIELDS_WORKS( FEN_STD_START_POS,
+    FEN_FIELDS_WORKS( INIT_POS,
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
         "w", "KQkq", "-", "0", "1" )
     FEN_FIELDS_WORKS( "rn1qkbnr/ppp2ppp/8/4p3/4P3/5Q2/PPP2PPP/RNB1KB1R "
@@ -746,7 +697,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test C_expand_caf_tested_with_all_4_char_Shredder_FEN_CAFs
     char ecaf[ 9 + 1 ];
-    size_t tested_cafs_count = 0;
+    int tested_cafs_count = 0;
     for( int i = 0; i < SHREDDER_FEN_CAFS_COUNT; i++ ) {
         const char *caf = SHREDDER_FEN_CAFS[ i ];
         if( strlen( caf ) == 4 ) {
@@ -1155,7 +1106,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     char caf[ 4 + 1 ], ecaf[ 9 + 1 ];
     char **ff;
 
-    RESOLVE_AMBIGUOUS_ECAF_TEST( FEN_STD_START_POS, "AHah" )
+    RESOLVE_AMBIGUOUS_ECAF_TEST( INIT_POS, "AHah" )
     RESOLVE_AMBIGUOUS_ECAF_TEST( "4k3/8/8/8/8/8/8/1RK5 w B - 0 40", "B---" )
     RESOLVE_AMBIGUOUS_ECAF_TEST( "5kr1/8/8/8/8/8/8/4K3 b g - 0 40", "---g" )
 
@@ -1326,7 +1277,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 #tcase occupant_of_sq_fen_v_tests
 
 #test C_occupant_of_sq_fen_v_tested_with_single_calls
-    ck_assert( occupant_of_sq_fen_v( FEN_STD_START_POS, "e1" ) == 'K' );
+    ck_assert( occupant_of_sq_fen_v( INIT_POS, "e1" ) == 'K' );
 
 #define FULL_TEST( expected_arg, fen_arg ) \
     char expected[] = expected_arg, fen[] = fen_arg; \
@@ -1337,7 +1288,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 #test C_occupant_of_sq_fen_v_tested_with_std_start_pos
     FULL_TEST(
         "RNBQKBNRPPPPPPPP--------------------------------pppppppprnbqkbnr",
-        FEN_STD_START_POS )
+        INIT_POS )
 
 #test C_occupant_of_sq_fen_v_tested_with_personally_significant_pos
     FULL_TEST(
@@ -1453,7 +1404,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     free(p);
 
 #test C_copy_pos_tested_with_std_start_pos
-    TEST_WITH_ARGS( FEN_STD_START_POS )
+    TEST_WITH_ARGS( INIT_POS )
 
 #undef TEST_WITH_ARGS
 
@@ -1505,7 +1456,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     free( (Pos *) p );
 
 #test set_mover_target_orig_and_dest_test_01
-    TEST_WITH_ARGS( FEN_STD_START_POS, "e2e4",
+    TEST_WITH_ARGS( INIT_POS, "e2e4",
         WHITE_PAWN, EMPTY_SQUARE, 12, 28 )
 
 #test set_mover_target_orig_and_dest_test_02
@@ -1660,3 +1611,23 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
     dur = time_in_milliseconds() - t0;
     ck_assert(dur < 500);
+
+//
+// Test case
+//
+#tcase white_army_tests
+
+#test white_army_std_start_pos
+    const Pos *p = fen_to_pos(INIT_POS);
+    ck_assert(white_army(p) == 0xffffU);
+    free((void *) p);
+
+//
+// Test case
+//
+#tcase black_army_tests
+
+#test black_army_std_start_pos
+    const Pos *p = fen_to_pos(INIT_POS);
+    ck_assert(black_army(p) == 0xffff000000000000U);
+    free((void *) p);

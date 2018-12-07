@@ -1,7 +1,6 @@
 # TODO
 > A list of things I haven't had the self-discipline to get done yet
 
-* Try compiling and using Chester on Windows
 * Document `che_fen_validator()`
 * Rename function `num_of_sqs_in_sq_set()` to `bit_count()`
 * Rename `bb_is_sq_bit()` to `is_sq_bit()` and review
@@ -12,5 +11,3 @@
 * If EPTS is set, then the two squares behind should be empty along with the EPTS itself
 * Refactor and document `rawmoves()`
 * Have a look at x_validate_fen_test_11(). There seems to be a "Conditional jump or move depends on uninitialised value" problem (detected by Valgrind).
-* Apply the macro `APM_COUNT` (the explicit constant 1792 is used in many places)
-* Rename `FEN_STD_START_POS` to `INIT_POS`

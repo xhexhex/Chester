@@ -42,8 +42,6 @@ int sq_name_index( const char *sq_name );
 int num_of_sqs_in_sq_set( Bitboard bb );
 Bitboard sq_rectangle( Bitboard upper_left, Bitboard lower_right );
 const char *file_and_rank_to_sq_name( const char file, const char rank );
-Bitboard diag_of_sq( Bitboard sq_bit );
-Bitboard antidiag_of_sq( Bitboard sq_bit );
 Bitboard next_sq_of_ss( Bitboard *ss );
 void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
 void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );
@@ -67,6 +65,8 @@ void string_sort( char *s[], int count );
 long long time_in_milliseconds();
 long long time_in_microseconds();
 int bindex(Bitboard bit);
+Bitboard white_army( const Pos *p );
+Bitboard black_army( const Pos *p );
 
 #endif
 // end UTILS_H

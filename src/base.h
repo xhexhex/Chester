@@ -21,47 +21,44 @@ struct single_instance_variable_SB {
         a8, b8, c8, d8, e8, f8, g8, h8; };
 
 extern const struct single_instance_variable_SB SB;
-extern const Bitboard SBA[], SQ_NAV[][16];
-extern const size_t POSSIBLE_IRPF_VALUES_COUNT;
+extern const Bitboard SBA[];
+extern const char * const SNA[];
+extern const Bitboard SQ_NAV[][16];
+extern const int POSSIBLE_IRPF_VALUES_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
 extern const int SHREDDER_FEN_CAFS_COUNT;
 extern const char * const SHREDDER_FEN_CAFS[];
-extern const char PPF_CHESSMAN_LETTERS[], STD_FEN_CAF_REGEX[];
-extern const char * const SNA[];
+extern const char PPF_CHESSMAN_LETTERS[];
+extern const char STD_FEN_CAF_REGEX[];
+extern const Rawcode MIN_RAWCODE;
+extern const Rawcode MAX_RAWCODE;
 extern const char APM_DATA[];
-extern const int8_t RC_ORIG_SQ_BINDEX[], RC_DEST_SQ_BINDEX[];
+extern const int8_t RC_ORIG_SQ_BINDEX[];
+extern const int8_t RC_DEST_SQ_BINDEX[];
 extern const Rawcode ORIG_DEST_RC[64][64];
-
-#define APM_COUNT 1792
 
 // The minimum and maximum lengths for the PPF of a FEN string
 #define PPF_MIN_LENGTH 17
 #define PPF_MAX_LENGTH 71
 
-// FEN strings of special significance
-#define FEN_PERSONALLY_SIGNIFICANT \
-    "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
-#define FEN_GAME_OF_THE_CENTURY \
-    "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP1b1/2N2N2/PP3PPP/3RKB1R b K - 6 11"
-#define FEN_SUPERPOSITION_1 \
-    "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1"
-#define FEN_SUPERPOSITION_2 \
-    "3Q4/1Q4Q1/4Q3/2Q4R/Q4Q2/3Q4/1Q4Rp/1K1BBNNk w - - 0 1"
-
-// The 'ppa' member of the Pos type should be indexed with these,
-// e.g., p->ppa[WHITE_KING]
+// The 'ppa' member of a Pos variable should be indexed with these,
+// e.g., p->ppa[WHITE_KING].
 typedef enum {
     EMPTY_SQUARE,
     WHITE_KING, WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT, WHITE_PAWN,
     BLACK_KING, BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT, BLACK_PAWN
 } Chessman;
 
-// TODO: Doc
+// The 16 square directions. The first eight directions correspond to the
+// squares to which a king can move on a non-edge square. For example,
+// if the king is on square e4, then it could move to e5 (NORTH), e3 (SOUTH)
+// or d5 (NORTHWEST). Directions from ONE_OCLOCK to ELEVEN_OCLOCK correspond
+// to the directions a knight can jump on a square such as e4. For example,
+// from e4 a knight could jump to f6 (ONE_OCLOCK) or d2 (SEVEN_OCLOCK).
 enum sq_dir {
     NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST,
     ONE_OCLOCK, TWO_OCLOCK, FOUR_OCLOCK, FIVE_OCLOCK,
-    SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK
-};
+    SEVEN_OCLOCK, EIGHT_OCLOCK, TEN_OCLOCK, ELEVEN_OCLOCK };
 
 // The Pos type or "Pos variable" is Chester's internal representation
 // of chess positions. A Pos variable contains the same information as
@@ -73,35 +70,20 @@ typedef struct {
     uint16_t hmc, fmn;
 } Pos;
 
-// The square sets for the 15 diagonals and 15 antidiagonals of the chessboard
-extern const Bitboard
-    SS_DIAG_H1H1, SS_DIAG_G1H2, SS_DIAG_F1H3, SS_DIAG_E1H4, SS_DIAG_D1H5,
-    SS_DIAG_C1H6, SS_DIAG_B1H7, SS_DIAG_A1H8, SS_DIAG_A2G8, SS_DIAG_A3F8,
-    SS_DIAG_A4E8, SS_DIAG_A5D8, SS_DIAG_A6C8, SS_DIAG_A7B8, SS_DIAG_A8A8,
-    SS_ANTIDIAG_A1A1, SS_ANTIDIAG_B1A2, SS_ANTIDIAG_C1A3,
-    SS_ANTIDIAG_D1A4, SS_ANTIDIAG_E1A5, SS_ANTIDIAG_F1A6,
-    SS_ANTIDIAG_G1A7, SS_ANTIDIAG_H1A8, SS_ANTIDIAG_H2B8,
-    SS_ANTIDIAG_H3C8, SS_ANTIDIAG_H4D8, SS_ANTIDIAG_H5E8,
-    SS_ANTIDIAG_H6F8, SS_ANTIDIAG_H7G8, SS_ANTIDIAG_H8H8;
-
-// The expression evaluates to true if it is White's turn to move.
-#define whites_turn( pos_ptr ) ( pos_ptr->turn_and_ca_flags & 0x80U )
+// The expression evaluates to true iff it is White's turn to move.
+#define whites_turn(pos_ptr) (pos_ptr->turn_and_ca_flags & 0x80U)
 
 // Function prototypes
 Pos *fen_to_pos( const char *fen );
 char *pos_to_fen( const Pos *p );
-Bitboard sq_set_of_diag( const int index );
-Bitboard sq_set_of_antidiag( const int index );
-Bitboard white_army( const Pos *p );
-Bitboard black_army( const Pos *p );
 Bitboard sq_nav( Bitboard sq, enum sq_dir dir );
 bool has_castling_right( const Pos *p, const char *color, const char *side );
-Bitboard epts( const Pos *p );
+Bitboard get_epts( const Pos *p );
 Rawcode rawcode( const char *rawmove );
 void rawmove( Rawcode rawcode, char *writable );
-void make_monster( Pos *p, Rawcode rc, char promotion );
+void make_move( Pos *p, Rawcode rc, char promotion );
 void remove_castling_rights( Pos *p, const char *color, const char *side );
-char *ecaf( const Pos *p );
+char *get_ecaf( const Pos *p );
 void toggle_turn( Pos *p );
 char *single_san_make_move( const char *fen, const char *san );
 

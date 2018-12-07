@@ -104,7 +104,7 @@ create_APM_DATA_duplicate()
 
 #define REMAINING_FOUR_FIELDS( exp_wt, exp_epts, exp_hmc, exp_fmn ) \
     ck_assert( (!exp_wt && !whites_turn(p)) || (exp_wt && whites_turn(p)) ), \
-    ck_assert( epts(p) == exp_epts ), ck_assert( p->hmc == exp_hmc ), \
+    ck_assert( get_epts(p) == exp_epts ), ck_assert( p->hmc == exp_hmc ), \
     ck_assert( p->fmn == exp_fmn );
 
 #define IRP_CHECK( exp_queenside_value, exp_kingside_value, \
@@ -115,7 +115,7 @@ create_APM_DATA_duplicate()
     ck_assert( SBA[sq_bit_index(p->irp[1])] == exp_kingside_sq_bit );
 
 #test C_fen_to_pos_with_std_start_pos_fen
-    Pos *p = fen_to_pos( FEN_STD_START_POS );
+    Pos *p = fen_to_pos( INIT_POS );
 
     PPA_CHECK( 0xffffffff0000,
         0x10, 0x8, 0x81, 0x24, 0x42, 0xff00,
@@ -126,7 +126,7 @@ create_APM_DATA_duplicate()
     REMAINING_FOUR_FIELDS( true, 0, 0, 1 )
 
     // Duplicate testing to make sure the above macro works as expected
-    ck_assert( whites_turn(p) ), ck_assert( !epts(p) ),
+    ck_assert( whites_turn(p) ), ck_assert( !get_epts(p) ),
     ck_assert( !p->hmc ), ck_assert( p->fmn == 1 );
 
     IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
@@ -144,7 +144,7 @@ create_APM_DATA_duplicate()
     REMAINING_FOUR_FIELDS( false, SB.e3, 0, 100 )
 
     // Duplicate testing to make sure the above macro works as expected
-    ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.e3 ),
+    ck_assert( !whites_turn(p) ), ck_assert( get_epts(p) == SB.e3 ),
         ck_assert( !p->hmc ), ck_assert( p->fmn == 100 );
 
     IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
@@ -162,7 +162,7 @@ create_APM_DATA_duplicate()
     REMAINING_FOUR_FIELDS( false, SB.a3, 0, 50 )
 
     // Duplicate testing to make sure the above macro works as expected
-    ck_assert( !whites_turn(p) ), ck_assert( epts(p) == SB.a3 ),
+    ck_assert( !whites_turn(p) ), ck_assert( get_epts(p) == SB.a3 ),
         ck_assert( !p->hmc ), ck_assert( p->fmn == 50 );
 
     IRP_CHECK( 1, 0x80, SB.a1, SB.h1 )
@@ -290,7 +290,7 @@ create_APM_DATA_duplicate()
 
     TEST_WITH_ARGS("b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9")
     TEST_WITH_ARGS("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1")
-    TEST_WITH_ARGS(FEN_STD_START_POS)
+    TEST_WITH_ARGS(INIT_POS)
     TEST_WITH_ARGS("r2k3r/8/8/8/8/8/8/R2K3R b HAha - 19 75")
     TEST_WITH_ARGS("4k2r/8/8/8/8/8/8/R3K2R w KQk - 0 1")
     TEST_WITH_ARGS("4k2r/8/8/8/8/8/8/R3K3 w Qk - 0 4000")
@@ -311,8 +311,8 @@ create_APM_DATA_duplicate()
 #test pos_to_fen_inverse_fn_test_2
     Pos *p; char *actual;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS,
-        FEN_STD_START_POS)
+    TEST_WITH_ARGS(INIT_POS,
+        INIT_POS)
     TEST_WITH_ARGS("3rkr2/8/8/8/8/8/8/3RKR2 w DFdf - 0 50",
         "3rkr2/8/8/8/8/8/8/3RKR2 w FDfd - 0 50")
     TEST_WITH_ARGS("1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
@@ -335,7 +335,7 @@ create_APM_DATA_duplicate()
 // pos_to_fen() should be at least 50 times as fast as slow_pos_to_fen().
 #test pos_to_fen_performance_test
     const char *fen[] = {
-        FEN_STD_START_POS,
+        INIT_POS,
         FEN_GAME_OF_THE_CENTURY,
         FEN_PERSONALLY_SIGNIFICANT,
         // "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1",
@@ -382,7 +382,7 @@ create_APM_DATA_duplicate()
 #test C_whites_turn_works
     Pos *p;
 
-    p = fen_to_pos( FEN_STD_START_POS );
+    p = fen_to_pos( INIT_POS );
     ck_assert( whites_turn( p ) );
     free( p );
 
@@ -524,16 +524,6 @@ while( true ) {
     ck_assert( sq_set_of_antidiag( 14 ) == SB.h8 );
     // ck_assert( sq_set_of_antidiag( 15 ) == 0 );
 
-#tcase white_army_tests
-
-#test white_army_std_start_pos
-    ck_assert(white_army(fen_to_pos(FEN_STD_START_POS)) == 0xffffU);
-
-#tcase black_army_tests
-
-#test black_army_std_start_pos
-    ck_assert(black_army(fen_to_pos(FEN_STD_START_POS)) == 0xffff000000000000U);
-
 #tcase SQ_NAV_tests
 
 #test C_SQ_NAV_basic_integrity_test
@@ -611,13 +601,13 @@ ck_assert( counter == exp_count );
     N_CHAR_ELEMENTS_COUNT( 1, 17 ) // "abcdefgh", "ABCDEFGH", "-"
 
 #test C_SHREDDER_FEN_CAFS_array_2c_elements_test
-    N_CHAR_ELEMENTS_COUNT( 2, 6 * (int) POSSIBLE_IRPF_VALUES_COUNT + 8 )
+    N_CHAR_ELEMENTS_COUNT( 2, 6 * POSSIBLE_IRPF_VALUES_COUNT + 8 )
 
 #test C_SHREDDER_FEN_CAFS_array_3c_elements_test
-    N_CHAR_ELEMENTS_COUNT( 3, 8 * (int) POSSIBLE_IRPF_VALUES_COUNT )
+    N_CHAR_ELEMENTS_COUNT( 3, 8 * POSSIBLE_IRPF_VALUES_COUNT )
 
 #test C_SHREDDER_FEN_CAFS_array_4c_elements_test
-    N_CHAR_ELEMENTS_COUNT( 4, 2 * (int) POSSIBLE_IRPF_VALUES_COUNT )
+    N_CHAR_ELEMENTS_COUNT( 4, 2 * POSSIBLE_IRPF_VALUES_COUNT )
 
 #undef N_CHAR_ELEMENTS_COUNT
 
@@ -673,14 +663,14 @@ ck_assert( counter == exp_count );
 
 #define CREATE_ASSERT_AND_FREE( fen_arg, expected_value ) \
     p = fen_to_pos( fen_arg ); \
-    ck_assert( epts(p) == expected_value ); \
+    ck_assert( get_epts(p) == expected_value ); \
     free(p);
 
 #test C_epts_returns_zero
     Pos *p;
 
     CREATE_ASSERT_AND_FREE(
-        FEN_STD_START_POS, 0 )
+        INIT_POS, 0 )
     CREATE_ASSERT_AND_FREE(
         "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1", 0 )
     CREATE_ASSERT_AND_FREE(
@@ -778,7 +768,7 @@ ck_assert( counter == exp_count );
 #define RAWCODE_TEST(rawmove_arg, expected_rawcode) \
     ck_assert( rawcode(rawmove_arg) == expected_rawcode );
 
-#test C_rawcode_tested_with_manually_selected_valid_rawmoves
+#test rawcode_tested_with_manually_selected_rawmoves
     RAWCODE_TEST("a1a2", 1)
     RAWCODE_TEST("a1a4", 3)
     RAWCODE_TEST("a1e5", 17)
@@ -786,21 +776,11 @@ ck_assert( counter == exp_count );
     RAWCODE_TEST("h8h6", 1791)
     RAWCODE_TEST("a3a4", 50)
 
-#test C_rawcode_tested_with_manually_selected_invalid_rawmoves
-    RAWCODE_TEST(NULL, 0)
-    RAWCODE_TEST("", 0)
-    RAWCODE_TEST("e2E4", 0)
-    RAWCODE_TEST("e2e4 ", 0)
-    RAWCODE_TEST(" g1f3", 0)
-    RAWCODE_TEST("e2e2", 0)
-    RAWCODE_TEST("Henrik", 0)
-    RAWCODE_TEST("e2", 0)
-
-#test C_rawcode_comprehensive_sequential_check
+#test rawcode_comprehensive_sequential_check
     char current[4 + 1] = {'\0'};
     assert( !current[4] );
 
-    for( int i = 0; i < APM_COUNT; i++ ) {
+    for( int i = 0; i < MAX_RAWCODE; i++ ) {
         for( int j = 0; j < 4; j++ )
             current[j] = APM_DATA[4*i + j];
 
@@ -836,7 +816,7 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_monster_castling_tests
+#tcase make_move_castling_tests
 
 #define TEST_WITH_ARGS( fen_arg, code, promotion, empty, \
         wking, wqueen, wrook, wbishop, wknight, wpawn, \
@@ -845,7 +825,7 @@ ck_assert( counter == exp_count );
         epts_file_arg, hmc_arg, fmn_arg ) \
     ck_assert( !che_fen_validator( fen_arg ) ); \
     p = fen_to_pos( fen_arg ); \
-    make_monster( p, code, promotion ); \
+    make_move( p, code, promotion ); \
     ck_assert( p->ppa[EMPTY_SQUARE] == (empty) ); \
     ck_assert( p->ppa[WHITE_KING] == (wking) ); \
     ck_assert( p->ppa[WHITE_QUEEN] == (wqueen) ); \
@@ -867,7 +847,7 @@ ck_assert( counter == exp_count );
     ck_assert( p->fmn == (fmn_arg) ); \
     free(p);
 
-#test make_monster_tested_with_kingside_castling_moves_for_white
+#test make_move_tested_with_kingside_castling_moves_for_white
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -895,7 +875,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b7 | SB.c7 | SB.e5 | SB.f6 | SB.g7 | SB.h7),
         3, 1, 128, 0, 5, 11 )
 
-#test make_monster_tested_with_queenside_castling_moves_for_white
+#test make_move_tested_with_queenside_castling_moves_for_white
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -923,7 +903,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b7 | SB.c7 | SB.e5 | SB.f6 | SB.g7 | SB.h7),
         3, 1, 128, 0, 5, 11 )
 
-#test make_monster_tested_with_kingside_castling_moves_for_black
+#test make_move_tested_with_kingside_castling_moves_for_black
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -951,7 +931,7 @@ ck_assert( counter == exp_count );
             (SB.a7 | SB.b7 | SB.c7 | SB.d5 | SB.e7 | SB.f7 | SB.g6 | SB.h7),
         140, 4, 64, 0, 3, 6 )
 
-#test make_monster_tested_with_queenside_castling_moves_for_black
+#test make_move_tested_with_queenside_castling_moves_for_black
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -979,9 +959,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_monster_non_castling_non_pawn_move_tests
+#tcase make_move_non_castling_non_pawn_move_tests
 
-#test make_monster_tested_with_white_king_moves
+#test make_move_tested_with_white_king_moves
     Pos *p;
 
     // Non-captures
@@ -1012,7 +992,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, (SB.d8 | SB.f8), 0, 0, 0,
         (2 + 1), 8, 32, 0, 0, 1 )
 
-#test make_monster_tested_with_black_king_moves
+#test make_move_tested_with_black_king_moves
     Pos *p;
 
     // Non-captures
@@ -1043,7 +1023,7 @@ ck_assert( counter == exp_count );
         SB.d8, 0, SB.h8, 0, 0, 0,
         (128 + 4), 1, 128, 0, 0, 101 )
 
-#test make_monster_tested_with_white_queen_moves
+#test make_move_tested_with_white_queen_moves
     Pos *p;
 
     // Non-captures
@@ -1068,7 +1048,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7 | SB.h5),
         0, 1, 128, 0, 0, 20 )
 
-#test make_monster_tested_with_black_queen_moves
+#test make_move_tested_with_black_queen_moves
     Pos *p;
 
     // Non-captures
@@ -1087,7 +1067,7 @@ ck_assert( counter == exp_count );
         SB.e8, SB.d1, 0, 0, 0, 0,
         128, 1, 128, 0, 0, 101 )
 
-#test make_monster_tested_with_white_rook_moves
+#test make_move_tested_with_white_rook_moves
     Pos *p;
 
     // Non-captures
@@ -1136,7 +1116,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.h8, 0, 0, 0,
         0, 1, 128, 0, 0, 1 )
 
-#test make_monster_tested_with_black_rook_moves
+#test make_move_tested_with_black_rook_moves
     Pos *p;
 
     // Non-captures
@@ -1197,7 +1177,7 @@ ck_assert( counter == exp_count );
         SB.c8, 0, (SB.b8 | SB.d1 | SB.b7), 0, 0, 0,
         (128 + 4 + 1), 2, 8, 0, 0, 2 )
 
-#test make_monster_tested_with_white_bishop_moves
+#test make_move_tested_with_white_bishop_moves
     Pos *p;
 
     // Non-captures
@@ -1222,7 +1202,7 @@ ck_assert( counter == exp_count );
             (SB.a5 | SB.b6 | SB.c7 | SB.e6 | SB.f7 | SB.g7),
         (8 + 4 + 2 + 1), 1, 128, 0, 0, 10 )
 
-#test make_monster_tested_with_black_bishop_moves
+#test make_move_tested_with_black_bishop_moves
     Pos *p;
 
     // Non-captures
@@ -1243,7 +1223,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, 0, SB.h1, 0, 0,
         128, 1, 128, 0, 0, 10 )
 
-#test make_monster_tested_with_white_knight_moves
+#test make_move_tested_with_white_knight_moves
     Pos *p;
 
     // Non-captures
@@ -1262,7 +1242,7 @@ ck_assert( counter == exp_count );
         SB.e6, 0, 0, SB.h5, 0, (SB.a7 | SB.b6 | SB.h6),
         0, 1, 128, 0, 0, 77 )
 
-#test make_monster_tested_with_black_knight_moves
+#test make_move_tested_with_black_knight_moves
     Pos *p;
 
     // Non-captures
@@ -1284,9 +1264,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_monster_pawn_move_tests
+#tcase make_move_pawn_move_tests
 
-#test make_monster_tested_with_double_advancing_white_pawns
+#test make_move_tested_with_double_advancing_white_pawns
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1308,7 +1288,7 @@ ck_assert( counter == exp_count );
         SB.g5, 0, 0, 0, 0, 0,
         0, 1, 128, 128, 0, 100 )
 
-#test make_monster_tested_with_double_advancing_black_pawns
+#test make_move_tested_with_double_advancing_black_pawns
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1334,7 +1314,7 @@ ck_assert( counter == exp_count );
         SB.d8, 0, (SB.b8 | SB.e8), 0, 0, SB.h5,
         128 + 8 + 4 + 2 + 1, 2, 16, 128, 0, 51 )
 
-#test make_monster_tested_with_white_pawns_doing_non_en_passant_captures
+#test make_move_tested_with_white_pawns_doing_non_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1350,7 +1330,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.d5, SB.e5, 0, 0,
         0, 1, 128, 0, 0, 100 )
 
-#test make_monster_tested_with_black_pawns_doing_non_en_passant_captures
+#test make_move_tested_with_black_pawns_doing_non_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1372,7 +1352,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, SB.h8, 0, SB.h1, (SB.e5 | SB.b7),
         128, 1, 128, 0, 0, 21 )
 
-#test make_monster_tested_with_white_pawns_getting_a_promotion
+#test make_move_tested_with_white_pawns_getting_a_promotion
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1394,7 +1374,7 @@ ck_assert( counter == exp_count );
         SB.h1, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 123 )
 
-#test make_monster_tested_with_black_pawns_getting_a_promotion
+#test make_move_tested_with_black_pawns_getting_a_promotion
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1416,7 +1396,7 @@ ck_assert( counter == exp_count );
         SB.e8, 0, 0, SB.f1, 0, SB.b2,
         128 + 4, 1, 32, 0, 0, 101 )
 
-#test make_monster_tested_with_white_pawns_doing_en_passant_captures
+#test make_move_tested_with_white_pawns_doing_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1432,7 +1412,7 @@ ck_assert( counter == exp_count );
         SB.c7, 0, 0, 0, 0, 0,
         0, 1, 128, 0, 0, 100 )
 
-#test make_monster_tested_with_black_pawns_doing_en_passant_captures
+#test make_move_tested_with_black_pawns_doing_en_passant_captures
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1457,9 +1437,9 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase make_monster_misc_tests
+#tcase make_move_misc_tests
 
-#test make_monster_tested_with_misc_positions_batch_01
+#test make_move_tested_with_misc_positions_batch_01
     Pos *p;
 
     TEST_WITH_ARGS(
@@ -1488,26 +1468,26 @@ ck_assert( counter == exp_count );
 #test remove_castling_rights_test_01
     Pos *p;
 
-    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "kingside",
+    TEST_WITH_ARGS( INIT_POS, "white", "kingside",
         (128 + 4 + 2 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "h-side",
+    TEST_WITH_ARGS( INIT_POS, "white", "h-side",
         (128 + 4 + 2 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "queenside",
+    TEST_WITH_ARGS( INIT_POS, "white", "queenside",
         (128 + 8 + 2 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "a-side",
+    TEST_WITH_ARGS( INIT_POS, "white", "a-side",
         (128 + 8 + 2 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "white", "both",
+    TEST_WITH_ARGS( INIT_POS, "white", "both",
         (128 + 2 + 1) )
 
-    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "kingside",
+    TEST_WITH_ARGS( INIT_POS, "black", "kingside",
         (128 + 8 + 4 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "h-side",
+    TEST_WITH_ARGS( INIT_POS, "black", "h-side",
         (128 + 8 + 4 + 1) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "queenside",
+    TEST_WITH_ARGS( INIT_POS, "black", "queenside",
         (128 + 8 + 4 + 2) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "a-side",
+    TEST_WITH_ARGS( INIT_POS, "black", "a-side",
         (128 + 8 + 4 + 2) )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "black", "both",
+    TEST_WITH_ARGS( INIT_POS, "black", "both",
         (128 + 8 + 4) )
 
 #test remove_castling_rights_test_02
@@ -1566,7 +1546,7 @@ ck_assert( counter == exp_count );
 #test ecaf_test
     char
         *fen[] = {
-            FEN_STD_START_POS,
+            INIT_POS,
             "1rkr4/8/8/8/8/8/8/1RKR4 w DBdb - 0 50",
             "1rkr4/8/8/8/8/8/8/1RKR4 b BDbd - 0 50",
             "nqnrk2r/pppp1ppb/7p/8/1bB5/1N2P3/PPPRN1PP/1Q2K1BR b Hdh - 4 7",
@@ -1590,7 +1570,7 @@ ck_assert( counter == exp_count );
     for(int i = 0; fen[i]; i++) {
         ck_assert( !che_fen_validator(fen[i]) );
         Pos *p = fen_to_pos(fen[i]);
-        char *the_ecaf = ecaf(p);
+        char *the_ecaf = get_ecaf(p);
         // printf("%s\n", the_ecaf);
         free(p);
         ck_assert( !strcmp(the_ecaf, expected[i]) );
@@ -1613,7 +1593,7 @@ ck_assert( counter == exp_count );
     char *actual_fen;
 
     TEST_WITH_ARGS(
-        FEN_STD_START_POS,
+        INIT_POS,
         "e4",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1")
     TEST_WITH_ARGS(
@@ -1729,12 +1709,12 @@ ck_assert( counter == exp_count );
 
     TEST_WITH_ARGS(NULL, "e4",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4",
+    TEST_WITH_ARGS(INIT_POS, "e4",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5",
+    TEST_WITH_ARGS(INIT_POS, "e4\ne5",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5\nf4\n",
+    TEST_WITH_ARGS(INIT_POS, "e4\ne5\nf4\n",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")
@@ -1746,7 +1726,7 @@ ck_assert( counter == exp_count );
 #test che_make_moves_test_2
     char *actual_fens;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS,
+    TEST_WITH_ARGS(INIT_POS,
         "e4\ne5\nNf3\nNc6\nBc4\nNd4\nNxe5\nQg5\nNxf7\nQxg2\nRf1\nQxe4+\nBe2\nNf3#\n",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
@@ -1812,14 +1792,14 @@ ck_assert( counter == exp_count );
 #test che_make_moves_test_4
     char *actual_fens;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4 e5",
+    TEST_WITH_ARGS(INIT_POS, "e4 e5",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4\ne5 f4 ",
+    TEST_WITH_ARGS(INIT_POS, "e4\ne5 f4 ",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS, "e4 e5 f4\n",
+    TEST_WITH_ARGS(INIT_POS, "e4 e5 f4\n",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2\n"
         "rnbqkbnr/pppp1ppp/8/4p3/4PP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2\n")

@@ -55,7 +55,7 @@ const char PPF_CHESSMAN_LETTERS[] = "-KQRBNPkqrbnp";
 // [   ][   ][   ][ x ][   ][   ][ x ][   ]
 //                                     LSB
 //
-const size_t POSSIBLE_IRPF_VALUES_COUNT = 21;
+const int POSSIBLE_IRPF_VALUES_COUNT = 21;
 const uint8_t POSSIBLE_IRPF_VALUES[] = {
     1 + 4, 1 + 8, 1 + 16, 1 + 32, 1 + 64, 1 + 128,
     2 + 8, 2 + 16, 2 + 32, 2 + 64, 2 + 128,
@@ -276,9 +276,9 @@ const Bitboard SQ_NAV[][ 16 ] = {
 
 // APM stands for "All Possible (raw)Moves". The following string should
 // logically be understood as the string array {"a1a2", "a1a3", ..., "h8h7"}
-// with 1792 elements. The rawmove "g1f3" is included in APM_DATA because
-// there exists a chessman that can move from g1 to f3. For the same reason
-// there is no such rawmove as "e1d4".
+// with MAX_RAWCODE elements. The rawmove "g1f3" is included in APM_DATA
+// because there exists a chessman that can move from g1 to f3. For the same
+// reason there is no such rawmove as "e1d4".
 const char APM_DATA[] =
     "a1a2a1a3a1a4a1a5a1a6a1a7a1a8a1b1a1b2a1b3a1c1a1c2a1c3a1d1a1d4a1e1"
     "a1e5a1f1a1f6a1g1a1g7a1h1a1h8a2a1a2a3a2a4a2a5a2a6a2a7a2a8a2b1a2b2"
@@ -392,6 +392,10 @@ const char APM_DATA[] =
     "h6h8h7a7h7b1h7b7h7c2h7c7h7d3h7d7h7e4h7e7h7f5h7f6h7f7h7f8h7g5h7g6"
     "h7g7h7g8h7h1h7h2h7h3h7h4h7h5h7h6h7h8h8a1h8a8h8b2h8b8h8c3h8c8h8d4"
     "h8d8h8e5h8e8h8f6h8f7h8f8h8g6h8g7h8g8h8h1h8h2h8h3h8h4h8h5h8h6h8h7";
+
+// Rawcodes are integers in the range [1, 1792]. The number of rawcodes
+// is MAX_RAWCODE.
+const Rawcode MIN_RAWCODE = 1, MAX_RAWCODE = 1792;
 
 // Rawcode origin square bit indexes. A rawcode such as 1 = rawcode("a1a2")
 // is a representation of two squares, namely the origin square and the

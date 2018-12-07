@@ -27,7 +27,7 @@
 #test C_king_can_be_captured_returns_false
     // Test FENs moved to #test C_che_fen_str_validator_returns_FEN_NO_ERRORS
     const char *positions_in_which_king_cannot_be_captured[] = {
-        FEN_STD_START_POS,
+        INIT_POS,
         NULL };
 
     for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {
@@ -459,9 +459,9 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         0, CASTLE_KINGS_PATH_BLOCKED )
     TEST_WITH_ARGS( "8/8/8/8/8/4k3/8/4KB1R w K - 0 100", "h-side",
         0, CASTLE_KINGS_PATH_BLOCKED )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "kingside",
+    TEST_WITH_ARGS( INIT_POS, "kingside",
         0, CASTLE_KINGS_PATH_BLOCKED )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "queenside",
+    TEST_WITH_ARGS( INIT_POS, "queenside",
         0, CASTLE_KINGS_PATH_BLOCKED )
     TEST_WITH_ARGS( "r4Nk1/8/8/8/8/8/8/RRK5 b a - 10 100", "a-side",
         0, CASTLE_KINGS_PATH_BLOCKED )
@@ -1228,8 +1228,8 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #test is_promotion_tested_with_non_capturing_white_pawn_promotions
     const Pos *p;
 
-    TEST_WITH_ARGS( FEN_STD_START_POS, "e2e4", false )
-    TEST_WITH_ARGS( FEN_STD_START_POS, "b1c3", false )
+    TEST_WITH_ARGS( INIT_POS, "e2e4", false )
+    TEST_WITH_ARGS( INIT_POS, "b1c3", false )
     TEST_WITH_ARGS( "4k3/P7/8/8/8/8/8/4K3 w - - 1 83", "a7a8", true )
     TEST_WITH_ARGS( "8/3kPK2/8/8/8/8/8/8 w - - 1 123", "e7e8", true )
     TEST_WITH_ARGS( "4k3/7P/8/8/8/8/8/4K3 w - - 1 83", "h7h8", true )
@@ -1348,19 +1348,19 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #test che_move_gen_test_1
     char *results;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS,
+    TEST_WITH_ARGS(INIT_POS,
         "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n")
     TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
         "-\n")
     TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34\nk5r1/8/8/8/8/8/r7/7K w - - 12 34",
         "-\n-\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS "\n" "4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
+    TEST_WITH_ARGS(INIT_POS "\n" "4k3/4P3/4K3/8/8/8/8/8 b - - 12 34",
         "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n-\n")
     TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34" "\n" FEN_PERSONALLY_SIGNIFICANT,
         "-\nKf8 Kh8\n")
-    TEST_WITH_ARGS(FEN_STD_START_POS "\n" FEN_PERSONALLY_SIGNIFICANT "\n",
+    TEST_WITH_ARGS(INIT_POS "\n" FEN_PERSONALLY_SIGNIFICANT "\n",
         "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\nKf8 Kh8\n")
-    TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT "\n" FEN_STD_START_POS,
+    TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT "\n" INIT_POS,
         "Kf8 Kh8\n" "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4\n")
     TEST_WITH_ARGS("4k3/4P3/4K3/8/8/8/8/8 b - - 12 34\n7k/8/8/8/8/8/r7/K7 w - - 0 123",
         "-\nKb1 Kxa2\n")
@@ -1453,7 +1453,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
 #test single_fen_move_gen_test_1
     char *actual;
 
-    TEST_WITH_ARGS(FEN_STD_START_POS,
+    TEST_WITH_ARGS(INIT_POS,
         "Na3 Nc3 Nf3 Nh3 a3 a4 b3 b4 c3 c4 d3 d4 e3 e4 f3 f4 g3 g4 h3 h4")
     TEST_WITH_ARGS(FEN_PERSONALLY_SIGNIFICANT,
         "Kf8 Kh8")

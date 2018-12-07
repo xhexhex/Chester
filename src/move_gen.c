@@ -356,7 +356,7 @@ rawcodes( const Pos *p )
 
             // Handle en passant capture
             en_passant:
-            the_epts = epts(p);
+            the_epts = get_epts(p);
             if( the_epts && (
                     the_epts == sq_nav(BB_ORIG, w ? NORTHWEST : SOUTHWEST) ||
                     the_epts == sq_nav(BB_ORIG, w ? NORTHEAST : SOUTHEAST)
@@ -375,7 +375,7 @@ rawcodes( const Pos *p )
     for(int i = 0; i < vacant; i++) { // For each non-vacant slot in 'pseudo'
         Pos copy;
         copy_pos(p, &copy);
-        make_monster(&copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-');
+        make_move(&copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-');
         if(king_can_be_captured(&copy) ) pseudo[i] = 0, --updated_vacant; }
 
     Rawcode *codes;
@@ -688,9 +688,9 @@ is_en_passant_capture( const Pos *p, Rawcode move )
 {
     INIT_VARS
 
-    Bitboard epts_bb = epts(p);
+    Bitboard epts_bb = get_epts(p);
 
-    if( !epts_bb || SBA[dest] != epts(p) ||
+    if( !epts_bb || SBA[dest] != get_epts(p) ||
             (mover != WHITE_PAWN && mover != BLACK_PAWN) )
         return false;
 
