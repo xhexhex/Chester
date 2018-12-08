@@ -10,9 +10,12 @@
 
 #suite move_gen_ts
 
-#tcase king_can_be_captured_tests
+//
+// Test case
+//
+#tcase forsaken_king_tests
 
-#test C_king_can_be_captured_returns_true
+#test forsaken_king_returns_true
     // Test FENs moved to
     // #test C_che_fen_str_validator_returns_FEN_*_KING_CAN_BE_CAPTURED
     const char *positions_in_which_king_can_be_captured[] = {
@@ -20,21 +23,24 @@
         NULL };
 
     for( int i = 0; positions_in_which_king_can_be_captured[ i ]; i++ ) {
-        ck_assert( king_can_be_captured( fen_to_pos(
+        ck_assert( forsaken_king( fen_to_pos(
             positions_in_which_king_can_be_captured[ i ] ) ) );
     }
 
-#test C_king_can_be_captured_returns_false
+#test forsaken_king_returns_false
     // Test FENs moved to #test C_che_fen_str_validator_returns_FEN_NO_ERRORS
     const char *positions_in_which_king_cannot_be_captured[] = {
         INIT_POS,
         NULL };
 
     for( int i = 0; positions_in_which_king_cannot_be_captured[ i ]; i++ ) {
-        ck_assert( !king_can_be_captured( fen_to_pos(
+        ck_assert( !forsaken_king( fen_to_pos(
             positions_in_which_king_cannot_be_captured[ i ] ) ) );
     }
 
+//
+// Test case
+//
 #tcase KNIGHT_SQS_array_tests
 
 #define KNIGHT_SQS_OF_CORNER_SQS_TEST( corner_sq, knight_sq_1, knight_sq_2 ) \

@@ -368,7 +368,7 @@ rawcodes( const Pos *p )
         Pos copy;
         copy_pos(p, &copy);
         make_move(&copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-');
-        if(king_can_be_captured(&copy) ) pseudo[i] = 0, --updated_vacant; }
+        if(forsaken_king(&copy) ) pseudo[i] = 0, --updated_vacant; }
 
     Rawcode *codes;
     assert((codes = malloc((updated_vacant + 1) * sizeof(Rawcode))));
@@ -402,7 +402,6 @@ int8_t
 static void
 x_move_gen_set_glo_orig( const Pos *p, bool w )
 {
-    const Bitboard ONE = 1;
     bool q1_unset = true;
 
     glo_orig_k = bindex(p->ppa[w ? WHITE_KING : BLACK_KING]);
@@ -432,8 +431,8 @@ void move_gen( const Pos *p )
 {
     bool w = whites_turn(p);
     x_move_gen_set_glo_orig(p, w);
-    const Bitboard friends = w ? white_army(p) : black_army(p),
-        enemies = w ? black_army(p) : white_army(p), ONE = 1;
+    const Bitboard friends = w ? white_army(p) : black_army(p);
+        // enemies = w ? black_army(p) : white_army(p);
 
     glo_dest_k =
     glo_dest_q1 = glo_dest_q2 = glo_dest_r1 = glo_dest_r2 =
@@ -456,11 +455,60 @@ void move_gen( const Pos *p )
 // being able to capture the enemy king is different from having it in
 // check. The difference is in the active color.
 bool
-king_can_be_captured( const Pos *p )
+forsaken_king( const Pos *p )
 {
-    return whites_turn( p ) ?
-        white_attackers( p->ppa, p->ppa[BLACK_KING] ) :
-        black_attackers( p->ppa, p->ppa[WHITE_KING] );
+    bool w = whites_turn(p);
+    int king = bindex(p->ppa[w ? BLACK_KING : WHITE_KING]);
+    const Bitboard friends = w ? black_army(p) : white_army(p),
+        enemies = w ? white_army(p) : black_army(p),
+        rank_1 = 0xffU, rank_8 = (rank_1 << 56);
+
+    // Shortcuts >>
+    if(!(enemies & (KNIGHT_SQS[king] | ROOK_SQS[king] | BISHOP_SQS[king])))
+        return false;
+    if(!w && king > 0 && king < 7 && !(enemies & rank_1) &&
+        (friends & SQ_NAV[king][NORTHWEST]) &&
+        (friends & SQ_NAV[king][NORTH]) &&
+        (friends & SQ_NAV[king][NORTHEAST]) &&
+        !(KNIGHT_SQS[king] & p->ppa[BLACK_KNIGHT])
+    ) return false;
+    if(w && king > 56 && king < 63 && !(enemies & rank_8) &&
+        (friends & SQ_NAV[king][SOUTHWEST]) &&
+        (friends & SQ_NAV[king][SOUTH]) &&
+        (friends & SQ_NAV[king][SOUTHEAST]) &&
+        !(KNIGHT_SQS[king] & p->ppa[WHITE_KNIGHT])
+    ) return false;
+    // << Shortcuts
+
+    if( ( w && (SQ_NAV[king][SOUTHWEST] & p->ppa[WHITE_PAWN])) ||
+        ( w && (SQ_NAV[king][SOUTHEAST] & p->ppa[WHITE_PAWN])) ||
+        (!w && (SQ_NAV[king][NORTHWEST] & p->ppa[BLACK_PAWN])) ||
+        (!w && (SQ_NAV[king][NORTHEAST] & p->ppa[BLACK_PAWN]))
+    ) return true;
+
+    if( (KING_SQS[king] & p->ppa[w ? WHITE_KING : BLACK_KING]) ||
+        (KNIGHT_SQS[king] & p->ppa[w ? WHITE_KNIGHT : BLACK_KNIGHT])
+    ) return true;
+
+    // Dealing with the ray pieces
+    for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
+        Bitboard bit = (ONE << king);
+
+        // ...SQ_RAY[king][dir]...
+        while((bit = SQ_NAV[bindex(bit)][dir]) && !(bit & friends)) {
+            if(bit & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) return true;
+            if((bit & p->ppa[w ? WHITE_ROOK : BLACK_ROOK]) &&
+                (dir == NORTH || dir == EAST || dir == SOUTH || dir == WEST)
+            ) return true;
+            if((bit & p->ppa[w ? WHITE_BISHOP : BLACK_BISHOP]) &&
+                (dir == NORTHEAST || dir == SOUTHEAST ||
+                    dir == SOUTHWEST || dir == NORTHWEST)
+            ) return true;
+            if(bit & enemies) break;
+        }
+    }
+
+    return false;
 }
 
 // KERC, knight's effective range circle. The call kerc( SB.e4 ) would
@@ -780,7 +828,7 @@ king_in_check( const Pos *p )
     copy_pos(p, &pos);
     toggle_turn(&pos);
 
-    return king_can_be_captured(&pos);
+    return forsaken_king(&pos);
 }
 
 // Returns true iff the position 'p' is a checkmate.

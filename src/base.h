@@ -36,6 +36,7 @@ extern const char APM_DATA[];
 extern const int8_t RC_ORIG_SQ_BINDEX[];
 extern const int8_t RC_DEST_SQ_BINDEX[];
 extern const Rawcode ORIG_DEST_RC[64][64];
+extern const Bitboard ONE;
 
 // The minimum and maximum lengths for the PPF of a FEN string
 #define PPF_MIN_LENGTH 17

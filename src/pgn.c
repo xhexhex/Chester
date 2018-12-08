@@ -173,7 +173,7 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
         Pos pos; \
         copy_pos(p, &pos); \
         make_move( &pos, rawcode(move), '-' ); \
-        if( king_can_be_captured( &pos ) ) \
+        if( forsaken_king( &pos ) ) \
             orig_sq_bb ^= bit; }
 
 #define APPLY_DISAMBIGUATOR { \

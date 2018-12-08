@@ -432,7 +432,7 @@ x_validate_fen_test_18( const Pos *p )
 static bool
 x_validate_fen_test_19( const Pos *p )
 {
-    return !king_can_be_captured( p );
+    return !forsaken_king( p );
 }
 
 static bool

@@ -132,6 +132,8 @@ FUNCTION_MAKER(3, NULL
 #undef FAIL_MSG
 
 /*
+    ct_perft_v1(INIT_POS, 4, 197281, false)
+    ---------------------------------------
     real    9m59.843s
     real    8m45.880s
     real    8m8.033s
@@ -160,6 +162,12 @@ ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
         ++error_count; }
 }
 
+/*
+    ct_perft_v2(p, 5, 4865609, false)
+    ---------------------------------
+    real    0m5.888s
+    real    0m5.685s
+ */
 void
 ct_perft_v2( const Pos *root, int depth, long long expected_nc, bool progress )
 {

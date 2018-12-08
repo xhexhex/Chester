@@ -45,7 +45,7 @@ extern Bitboard
     glo_dest_p1, glo_dest_p2, glo_dest_p3, glo_dest_p4,
     glo_dest_p5, glo_dest_p6, glo_dest_p7, glo_dest_p8;
 
-bool king_can_be_captured( const Pos *p ); // Rename to taboo()?
+bool forsaken_king( const Pos *p );
 Bitboard kerc( const Bitboard sq_bit );
 Bitboard attackers( const Bitboard *ppa, Bitboard sq, int num_arg, ... );
 Bitboard white_attackers( const Bitboard *ppa, Bitboard sq );

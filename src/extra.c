@@ -476,7 +476,7 @@ make_move_sanity_checks( const Pos *p, Rawcode rc, char promotion,
     // It's OK for make_move() to execute moves that result in a position
     // where a king can be captured. However, the position should be legal
     // before the execution of the move.
-    assert( !king_can_be_captured(p) );
+    assert( !forsaken_king(p) );
 
     // The white king captures a white rook if and only if the move in
     // question is a castling move (according to is_castle()).
