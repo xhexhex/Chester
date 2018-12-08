@@ -13,3 +13,4 @@
 * Have a look at x_validate_fen_test_11(). There seems to be a "Conditional jump or move depends on uninitialised value" problem (detected by Valgrind).
 * Review forsaken_king() and add "ray functionality"
 * Add ray functionality to rawcodes()
+* Add tests for SQ_RAY[][], document

@@ -167,6 +167,7 @@ ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
     ---------------------------------
     real    0m5.888s
     real    0m5.685s
+    real    0m4.935s
  */
 void
 ct_perft_v2( const Pos *root, int depth, long long expected_nc, bool progress )

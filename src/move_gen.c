@@ -270,13 +270,18 @@ rawcodes( const Pos *p )
     for(int i = 0; i < 6; i++) for(int j = 0; j < 12; j++) saved[i][j] = 0;
     int ki = -1, qi = -1, ri = -1, bi = -1, ni = -1, pi = -1;
 
-    for(int i = 0; i < 64; i++) {
+    for(int i = 0; i < 64; i++) { // Rename i to orig?
         const Bitboard BB_ORIG = SBA[i];
 
         if(BB_ORIG & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) {
             ++qi;
 
             for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
+                Bitboard ray = SQ_RAY[i][dir];
+                if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
+                    saved[1][qi] |= ray;
+                    continue; }
+
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
                     saved[1][qi] |= bit;
@@ -287,6 +292,11 @@ rawcodes( const Pos *p )
             ++ri;
 
             for(enum sq_dir dir = NORTH; dir <= WEST; dir += 2) {
+                Bitboard ray = SQ_RAY[i][dir];
+                if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
+                    saved[2][ri] |= ray;
+                    continue; }
+
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
                     saved[2][ri] |= bit;
@@ -297,6 +307,11 @@ rawcodes( const Pos *p )
             ++bi;
 
             for(enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2) {
+                Bitboard ray = SQ_RAY[i][dir];
+                if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
+                    saved[3][bi] |= ray;
+                    continue; }
+
                 Bitboard bit = BB_ORIG;
                 while((bit = sq_nav(bit, dir)) && !(bit & friends)) {
                     saved[3][bi] |= bit;
@@ -492,9 +507,9 @@ forsaken_king( const Pos *p )
 
     // Dealing with the ray pieces
     for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
-        Bitboard bit = (ONE << king);
+        if(!(enemies & SQ_RAY[king][dir])) continue;
 
-        // ...SQ_RAY[king][dir]...
+        Bitboard bit = (ONE << king);
         while((bit = SQ_NAV[bindex(bit)][dir]) && !(bit & friends)) {
             if(bit & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) return true;
             if((bit & p->ppa[w ? WHITE_ROOK : BLACK_ROOK]) &&
