@@ -366,16 +366,25 @@ rawcodes( const Pos *p )
     int vacant = 0; // Index of first vacant slot in 'pseudo'
     Rawcode *pseudo = x_rawcodes_place_results_in_array(p, saved, &vacant);
 
-    Rawcode O_O, O_O_O;
-    if((O_O = castle(p, "kingside"))) pseudo[vacant++] = O_O;
-    if((O_O_O = castle(p, "queenside"))) pseudo[vacant++] = O_O_O;
+    // turn_and_ca_flags:
+    //  7   6   5   4   3   2   1   0   <= Bit indexes
+    // [x] [ ] [ ] [ ] [x] [ ] [ ] [x]  <= Bit values
+    //  t               K   Q   k   q   <= Meaning (t for turn)
+    bool castling_moves_might_exist = p->fmn > 3 && (
+        (w && p->turn_and_ca_flags & 0xcU) ||
+        (!w && p->turn_and_ca_flags & 0x3U));
+
+    if(castling_moves_might_exist) {
+        Rawcode O_O, O_O_O;
+        if((O_O = castle(p, "kingside"))) pseudo[vacant++] = O_O;
+        if((O_O_O = castle(p, "queenside"))) pseudo[vacant++] = O_O_O; }
 
     int updated_vacant = vacant;
     for(int i = 0; i < vacant; i++) { // For each non-vacant slot in 'pseudo'
         Pos copy;
         copy_pos(p, &copy);
         make_move(&copy, pseudo[i], is_promotion(p, pseudo[i]) ? 'q' : '-');
-        if(forsaken_king(&copy) ) pseudo[i] = 0, --updated_vacant; }
+        if(forsaken_king(&copy)) pseudo[i] = 0, --updated_vacant; }
 
     Rawcode *codes;
     assert((codes = malloc((updated_vacant + 1) * sizeof(Rawcode))));
