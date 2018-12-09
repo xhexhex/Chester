@@ -14,3 +14,4 @@
 * Review forsaken_king() and add "ray functionality"
 * Add ray functionality to rawcodes()
 * Add tests for SQ_RAY[][], document
+* Optimize attackers()

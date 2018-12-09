@@ -330,50 +330,6 @@ create_APM_DATA_duplicate()
 
 #undef TEST_WITH_ARGS
 
-// Compares the performance of pos_to_fen() to slow_pos_to_fen() (the
-// latter is the original implementation of the former). The function
-// pos_to_fen() should be at least 50 times as fast as slow_pos_to_fen().
-#test pos_to_fen_performance_test
-    const char *fen[] = {
-        INIT_POS,
-        FEN_GAME_OF_THE_CENTURY,
-        FEN_PERSONALLY_SIGNIFICANT,
-        // "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w BHbh - 0 1",
-        "nrnqbbkr/pppppppp/8/8/8/8/PPPPPPPP/NRNQBBKR w HBhb - 0 1",
-        "b1n1k1r1/p1pq1ppp/6n1/1rb1p3/8/1PN3N1/P1PP1PPP/BR1QK1R1 w GBg - 0 9",
-        NULL };
-
-    Pos *p[5];
-    for(int i = 0; i < 5; i++) p[i] = fen_to_pos(fen[i]);
-
-    char *actual_1, *actual_2;
-    for(int i = 0; i < 5; i++) {
-        actual_1 = pos_to_fen(p[i]);
-        ck_assert(!strcmp(actual_1, fen[i]));
-        actual_2 = slow_pos_to_fen(p[i]);
-        ck_assert(!strcmp(actual_1, actual_2));
-        free(actual_1), free(actual_2); }
-
-    const int REPS = 1000;
-    long long t0 = time_in_microseconds(), d1, d2; // d, duration
-    for(int count = 1; count <= REPS; count++)
-        for(int i = 0; i < 5; i++)
-            actual_1 = pos_to_fen(p[i]), free(actual_1);
-    d1 = time_in_microseconds() - t0;
-    // printf("pos_to_fen() took %lld µs\n", d1);
-
-    t0 = time_in_microseconds();
-    for(int count = 1; count <= REPS; count++)
-        for(int i = 0; i < 5; i++)
-            actual_2 = slow_pos_to_fen(p[i]), free(actual_2);
-    d2 = time_in_microseconds() - t0;
-
-    double performance_ratio = (double) d2 / d1;
-    // printf("Performance ratio: %.2f\n", (double) d2 / d1);
-    ck_assert(performance_ratio > 50);
-
-    for(int i = 0; i < 5; i++) free(p[i]);
-
 //
 // Test case
 //

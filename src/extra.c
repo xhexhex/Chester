@@ -325,10 +325,9 @@ rawcodes_performance_test()
     long long t0, dur, sum = 0;
 
     const char *fen[] = {
-        FEN_SUPERPOSITION_1,
-        FEN_SUPERPOSITION_2,
+        // FEN_SUPERPOSITION_1,
+        // FEN_SUPERPOSITION_2,
 
-        /*
         INIT_POS,
         "k4r2/8/8/2p5/8/4K3/r7/8 w - c6 0 123",
         "k7/8/8/4K3/8/3N4/5r2/4r3 w - - 12 34",
@@ -339,7 +338,6 @@ rawcodes_performance_test()
         "1r2krbq/p1pp2bp/4p1p1/3nPp2/3P1P2/1N1N2P1/PPP4P/1R2KRBQ w FBfb f6 0 11",
         "r1bqk2r/2ppbppp/p1n2n2/1p2p3/4P3/1B3N2/PPPP1PPP/RNBQR1K1 b kq - 1 7",
         "4k3/8/8/8/3q4/8/8/4K3 b - - 13 37",
-        */
         NULL };
 
     int i = 0;

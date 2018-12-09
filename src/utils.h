@@ -5,9 +5,6 @@
 
 #include "base.h"
 
-#define SRAND( seed ) if( !srand_has_been_called ) \
-{ srand_has_been_called = true; srand( seed ); }
-
 // Expands 'caf', stores the result in 'ecaf' and resolves ambiguous results using
 // 'fen'. If the ambiguity cannot be resolved due to an invalid FEN, 'ecaf' will
 // remain unchanged by resolve_ambiguous_ecaf(). 'ecaf' is assumed to be a writable
@@ -22,8 +19,6 @@
 // variables 'i' and 'j'.
 #define swap( x, y, T ) \
     do { T tmp = x; x = y; y = tmp; } while( false )
-
-extern bool srand_has_been_called;
 
 bool str_m_pat( const char *str, const char *pat );
 void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );

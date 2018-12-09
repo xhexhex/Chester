@@ -1595,23 +1595,6 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
     ck_assert(expected_bit_index == 63);
 
-#test bindex_performance_test
-    const int LOOP_COUNT = 100 * 1000;
-    const Bitboard ONE = 1;
-
-    long long t0 = time_in_milliseconds(), dur;
-    for(int count = 1; count <= LOOP_COUNT; count++) {
-        Bitboard bit = 1;
-
-        while(true) {
-            int bi = bindex(bit);
-            assert(bi >= 0); // ck_assert() is slow
-            if(bit == (ONE << 63)) break;
-            bit <<= 1; } }
-
-    dur = time_in_milliseconds() - t0;
-    ck_assert(dur < 500);
-
 //
 // Test case
 //

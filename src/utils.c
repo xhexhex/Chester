@@ -37,8 +37,6 @@ static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
 static int x_qsort_string_compare( const void *a, const void *b );
 
-bool srand_has_been_called = false;
-
 /******************************
  ****                      ****
  ****  External functions  ****
@@ -696,16 +694,15 @@ occupant_of_sq_fen_v( const char *fen, const char *sq )
 Bitboard
 in_between( Bitboard sq_1, Bitboard sq_2 )
 {
-    assert( is_sq_bit(sq_1) );
-    assert( is_sq_bit(sq_2) );
+    // assert( is_sq_bit(sq_1) );
+    // assert( is_sq_bit(sq_2) );
 
     if( sq_1 == sq_2 ) return 0;
 
-    for( enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++ ) {
+    for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
         Bitboard sq = sq_1, bb = 0;
-        while( (sq = sq_nav(sq, dir )) ) {
-            if( sq == sq_2 )
-                return bb;
+        while((sq = SQ_NAV[bindex(sq)][dir])) {
+            if(sq == sq_2) return bb;
             bb |= sq;
         }
     }

@@ -161,7 +161,9 @@ fen_to_pos( const char *fen )
             ++bi; }
     } // End for
 
-    while(*ptr_1++); ptr_2 = ptr_1; while(*ptr_2++);
+    while(*ptr_1++);
+    ptr_2 = ptr_1;
+    while(*ptr_2++);
     x_fen_to_pos_init_turn_and_ca_flags(p, ptr_1, ptr_2, fen);
     x_fen_to_pos_init_irp(p, ptr_2, fen);
 

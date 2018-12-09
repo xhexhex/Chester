@@ -58,7 +58,7 @@ bool is_capture( const Pos *p, Rawcode move );
 bool is_pawn_advance( const Pos *p, Rawcode move );
 bool is_single_step_pawn_advance( const Pos *p, Rawcode move );
 bool is_double_step_pawn_advance( const Pos *p, Rawcode move );
-bool is_promotion( const Pos *p, Rawcode move );
+bool is_promotion( const Pos *p, Rawcode rc );
 bool is_en_passant_capture( const Pos *p, Rawcode move );
 bool is_castle( const Pos *p, Rawcode move );
 bool king_in_check( const Pos *p );

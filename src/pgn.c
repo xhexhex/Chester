@@ -312,8 +312,7 @@ x_rawcode_to_san_castling_move( const Pos *p, Rawcode rc, char promotion )
     assert(promotion == '-');
     make_move(&after_move, rc, promotion);
     if(king_in_check(&after_move))
-        castle_san[is_short_castle(p, rc) ? 3 : 5] =
-            (checkmate(&after_move) ? '#' : '+');
+        strcat(castle_san, checkmate(&after_move) ? "#" : "+");
 
     return castle_san;
 }

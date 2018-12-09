@@ -40,15 +40,6 @@ static Bitboard x_attackers_knights(
     const Bitboard *ppa, Bitboard sq, bool color_is_white );
 static Bitboard x_attackers_pawns(
     const Bitboard *ppa, Bitboard sq, bool color_is_white );
-static void x_castle_set_castling_king_and_rook( const Pos *p, bool kingside,
-    Bitboard *castling_king, Bitboard *castling_rook );
-static bool x_castle_king_in_check( const Pos *p );
-static bool x_castle_kings_path_blocked( const Pos *p, bool kingside,
-    Bitboard castling_king, Bitboard castling_rook );
-static bool x_castle_kings_exclusive_path_in_check( const Pos *p,
-    bool kingside, Bitboard castling_king );
-static bool x_castle_rooks_path_blocked( const Pos *p, bool kingside,
-    Bitboard castling_rook, Bitboard castling_king );
 static int x_qsort_rawcode_compare( const void *a, const void *b );
 static Rawcode *x_rawcodes_place_results_in_array( const Pos *p,
     Bitboard saved[6][12], int *vacant );
@@ -264,20 +255,21 @@ rawcodes( const Pos *p )
 {
     const bool w = whites_turn(p);
     const Bitboard friends = w ? white_army(p) : black_army(p),
-        enemies = w ? black_army(p) : white_army(p);
+        enemies = w ? black_army(p) : white_army(p),
+        rank_2 = 0xff00U, rank_7 = (rank_2 << 40);
 
     Bitboard saved[6][12]; // Six piece types with a max of 12 each
     for(int i = 0; i < 6; i++) for(int j = 0; j < 12; j++) saved[i][j] = 0;
     int ki = -1, qi = -1, ri = -1, bi = -1, ni = -1, pi = -1;
 
-    for(int i = 0; i < 64; i++) { // Rename i to orig?
-        const Bitboard BB_ORIG = SBA[i];
+    for(int orig = 0; orig < 64; orig++) {
+        const Bitboard BB_ORIG = ONE << orig;
 
         if(BB_ORIG & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) {
             ++qi;
 
             for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
-                Bitboard ray = SQ_RAY[i][dir];
+                Bitboard ray = SQ_RAY[orig][dir];
                 if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
                     saved[1][qi] |= ray;
                     continue; }
@@ -292,7 +284,7 @@ rawcodes( const Pos *p )
             ++ri;
 
             for(enum sq_dir dir = NORTH; dir <= WEST; dir += 2) {
-                Bitboard ray = SQ_RAY[i][dir];
+                Bitboard ray = SQ_RAY[orig][dir];
                 if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
                     saved[2][ri] |= ray;
                     continue; }
@@ -307,7 +299,7 @@ rawcodes( const Pos *p )
             ++bi;
 
             for(enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2) {
-                Bitboard ray = SQ_RAY[i][dir];
+                Bitboard ray = SQ_RAY[orig][dir];
                 if(ray && (ray & p->ppa[EMPTY_SQUARE]) == ray) {
                     saved[3][bi] |= ray;
                     continue; }
@@ -344,8 +336,8 @@ rawcodes( const Pos *p )
             if(!(sq_in_front & p->ppa[EMPTY_SQUARE])) goto pawn_capture;
             saved[5][pi] |= sq_in_front;
             sq_in_front = sq_nav( sq_in_front, w ? NORTH : SOUTH );
-            if( !(sq_in_front & p->ppa[EMPTY_SQUARE]) ) goto pawn_capture;
-            if(!(w && (rank('2') & BB_ORIG)) && !(!w && (rank('7') & BB_ORIG)))
+            if(!(sq_in_front & p->ppa[EMPTY_SQUARE])) goto pawn_capture;
+            if(!(w && (rank_2 & BB_ORIG)) && !(!w && (rank_7 & BB_ORIG)))
                 goto pawn_capture;
             saved[5][pi] |= sq_in_front;
             // << Handle pawn advance
@@ -364,7 +356,7 @@ rawcodes( const Pos *p )
             // Handle en passant capture
             en_passant:
             the_epts = get_epts(p);
-            if( the_epts && (
+            if(the_epts && (
                     the_epts == sq_nav(BB_ORIG, w ? NORTHWEST : SOUTHWEST) ||
                     the_epts == sq_nav(BB_ORIG, w ? NORTHEAST : SOUTHEAST)
             )) saved[5][pi] |= the_epts;
@@ -636,27 +628,57 @@ Rawcode
 castle( const Pos *p, const char *castle_type )
 {
     bool kingside = (castle_type[0] == 'k' || castle_type[0] == 'h'),
-        no_castling_right = !has_castling_right(p, whites_turn(p) ?
-            "white" : "black", kingside ? "kingside" : "queenside");
+        w = whites_turn(p);
+    uint8_t bit = (w ? 8 : 2);
+    if(!kingside) bit >>= 1;
+    bool no_castling_right = !(bit & p->turn_and_ca_flags);
 
-    Bitboard ck, cr; // castling king, castling rook
-    x_castle_set_castling_king_and_rook(p, kingside, &ck, &cr);
+    // Castling king, castling rook
+    Bitboard ck = p->ppa[w ? WHITE_KING : BLACK_KING],
+        cr = p->irp[kingside ? 1 : 0];
+    if(!w) cr <<= 56;
 
     // The global variable is for unit testing purposes
     castle_error = CASTLE_OK;
 
-    if(no_castling_right)
+    if(no_castling_right) {
         castle_error = CASTLE_NO_CASTLING_RIGHT;
-    else if(x_castle_king_in_check(p))
+        return 0; }
+    if(king_in_check(p)) {
         castle_error = CASTLE_KING_IN_CHECK;
-    else if(x_castle_kings_path_blocked(p, kingside, ck, cr))
-        castle_error = CASTLE_KINGS_PATH_BLOCKED;
-    else if(x_castle_kings_exclusive_path_in_check(p, kingside, ck))
-        castle_error = CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK;
-    else if(x_castle_rooks_path_blocked(p, kingside, cr, ck))
-        castle_error = CASTLE_ROOKS_PATH_BLOCKED;
+        return 0; }
 
-    if(castle_error) return 0;
+    Bitboard kings_dest = (kingside ? SB.g1 : SB.c1);
+    if(!w) kings_dest <<= 56;
+    Bitboard sqs_in_between = in_between(ck, kings_dest);
+    if(ck != kings_dest && ((sqs_in_between | kings_dest) &
+            (~p->ppa[EMPTY_SQUARE] ^ cr))) {
+        castle_error = CASTLE_KINGS_PATH_BLOCKED;
+        return 0; }
+
+    Bitboard sq = ck;
+    bool kings_exclusive_path_in_check = false;
+    // Examine each of the squares between the origin and destination
+    // squares of the king
+    while(true) {
+        if(kingside) sq <<= 1; else sq >>= 1;
+        if(!(sq & sqs_in_between)) break;
+        if((w && black_attackers(p->ppa, sq)) ||
+                (!w && white_attackers(p->ppa, sq)))
+            // Square under attack by enemy chessmen
+            kings_exclusive_path_in_check = true; }
+    if(kings_exclusive_path_in_check) {
+        castle_error = CASTLE_KINGS_EXCLUSIVE_PATH_IN_CHECK;
+        return 0; }
+
+    Bitboard rooks_dest = (kingside ? SB.f1 : SB.d1);
+    if(!w) rooks_dest <<= 56;
+    sqs_in_between = in_between(cr, rooks_dest);
+    if(cr != rooks_dest && ((sqs_in_between | rooks_dest) &
+            (~p->ppa[EMPTY_SQUARE] ^ ck))) {
+        castle_error = CASTLE_ROOKS_PATH_BLOCKED;
+        return 0; }
+
     return ORIG_DEST_RC[bindex(ck)][bindex(cr)];
 }
 
@@ -769,22 +791,19 @@ is_double_step_pawn_advance( const Pos *p, Rawcode move )
 
 #undef ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
 
-// Returns true if and only if 'move' is a pawn promotion move
+// Returns true if and only if 'rc' is a pawn promotion move
 // in position 'p'.
 bool
-is_promotion( const Pos *p, Rawcode move )
+is_promotion( const Pos *p, Rawcode rc )
 {
-    INIT_VARS
+    int orig = RC_ORIG_SQ_BINDEX[rc], dest = RC_DEST_SQ_BINDEX[rc];
+    Chessman mover;
+    for(Chessman cm = EMPTY_SQUARE; cm <= BLACK_PAWN; cm++)
+        if((ONE << orig) & p->ppa[cm]) { mover = cm; break; }
 
     if( mover != WHITE_PAWN && mover != BLACK_PAWN ) return false;
 
-    // pros_prom_sq: prospective promotion square
-    Bitboard pawn = SBA[orig], pros_prom_sq = SBA[dest];
-
-    assert( !(pawn & rank('1')) && (!(pawn & rank('8'))) );
-
-    // Pawn advance as opposed to pawn capture
-    assert( !is_pawn_advance(p, move) || target == EMPTY_SQUARE );
+    Bitboard pawn = ONE << orig, pros_prom_sq = ONE << dest;
 
     if( mover == WHITE_PAWN )
         return ( (pawn & SB.a7) && ( pros_prom_sq & (SB.a8 | SB.b8) ) ) ||
@@ -1108,96 +1127,6 @@ x_attackers_pawns( const Bitboard *ppa, Bitboard sq, bool color_is_white )
         ( sq_nav( sq, color_is_white ? SOUTHEAST : NORTHEAST ) |
         sq_nav( sq, color_is_white ? SOUTHWEST : NORTHWEST ) );
 }
-
-static void
-x_castle_set_castling_king_and_rook( const Pos *p, bool kingside,
-    Bitboard *castling_king, Bitboard *castling_rook )
-{
-    *castling_king = p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING];
-    *castling_rook = p->irp[kingside ? 1 : 0];
-    if(!whites_turn(p)) *castling_rook <<= 56;
-}
-
-static bool
-x_castle_king_in_check( const Pos *p )
-{
-    return
-        ( whites_turn(p) && black_attackers(p->ppa, p->ppa[WHITE_KING])) ||
-        (!whites_turn(p) && white_attackers(p->ppa, p->ppa[BLACK_KING]));
-}
-
-#define INIT_VARS \
-    Bitboard kings_dest = (kingside ? SB.g1 : SB.c1); \
-    if( !whites_turn(p) ) kings_dest <<= 56; \
-    Bitboard sqs_in_between = in_between( castling_king, kings_dest );
-    /*
-    assert( num_of_sqs_in_sq_set(sqs_in_between) >= 0 &&
-        num_of_sqs_in_sq_set(sqs_in_between) <= 4 );
-    */
-
-static bool
-x_castle_kings_path_blocked( const Pos *p, bool kingside,
-    Bitboard castling_king, Bitboard castling_rook )
-{
-    INIT_VARS
-
-    return
-        ( castling_king != kings_dest ) &&
-        (
-            ( sqs_in_between | kings_dest ) &
-            ( ( white_army(p) | black_army(p) ) ^ castling_rook )
-        );
-}
-
-static bool
-x_castle_kings_exclusive_path_in_check( const Pos *p, bool kingside,
-    Bitboard castling_king )
-{
-    INIT_VARS
-
-    Bitboard bit = castling_king;
-
-    // Examine each of the squares between the origin and destination
-    // squares of the king
-    while(true) {
-        if( kingside ) bit <<= 1;
-        else bit >>= 1;
-        if( !(bit & sqs_in_between) ) break;
-
-        if( ( whites_turn(p) && black_attackers(p->ppa, bit) ) ||
-                ( !whites_turn(p) && white_attackers(p->ppa, bit) ) )
-            return true; // Square under attack by enemy chessmen
-    }
-
-    return false;
-}
-
-#undef INIT_VARS
-
-#define INIT_VARS \
-    Bitboard rooks_dest = (kingside ? SB.f1 : SB.d1); \
-    if( !whites_turn(p) ) rooks_dest <<= 56; \
-    Bitboard sqs_in_between = in_between( castling_rook, rooks_dest );
-    /*
-    assert( num_of_sqs_in_sq_set(sqs_in_between) >= 0 && \
-        num_of_sqs_in_sq_set(sqs_in_between) <= 2 );
-    */
-
-static bool
-x_castle_rooks_path_blocked( const Pos *p, bool kingside,
-    Bitboard castling_rook, Bitboard castling_king )
-{
-    INIT_VARS
-
-    return
-        ( castling_rook != rooks_dest ) &&
-        (
-            ( sqs_in_between | rooks_dest ) &
-            ( ( white_army(p) | black_army(p) ) ^ castling_king )
-        );
-}
-
-#undef INIT_VARS
 
 static int
 x_qsort_rawcode_compare( const void *a, const void *b )
