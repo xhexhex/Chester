@@ -16,7 +16,7 @@ typedef uint16_t Rawcode;
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 // The possible return values of che_fen_validator()
-// *** "FERR_" instead of "FEN_"? ***
+// *** "FERR_" instead of "FEN_"? Or "CFE_"? ***
 // FEN_NO_ERRORS => FERR_NONE
 enum che_fen_error {
     FEN_NO_ERRORS,
@@ -50,9 +50,9 @@ char *che_make_moves( const char *fen, const char *sans );
 char *che_move_gen( const char *fens );
 char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
 void che_free_ff( void *ff );
+long long che_perft( const char *fen, int depth, bool mt );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
-// che_move_checker(), che_legal_moves()
 
 #endif
 // end CHESTER_H

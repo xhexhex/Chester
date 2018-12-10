@@ -38,10 +38,19 @@ extern const int8_t RC_DEST_SQ_BINDEX[];
 extern const Rawcode ORIG_DEST_RC[64][64];
 extern const Bitboard ONE;
 extern const Bitboard SQ_RAY[][8];
+extern const Bitboard KNIGHT_SQS[];
+extern const Bitboard KING_SQS[];
+extern const Bitboard ROOK_SQS[];
+extern const Bitboard BISHOP_SQS[];
 
 // The minimum and maximum lengths for the PPF of a FEN string
 #define PPF_MIN_LENGTH 17
 #define PPF_MAX_LENGTH 71
+
+// It is said that the maximum number of moves in any chess position
+// is 218. An example of a position with 218 moves is
+// "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1".
+#define MAX_LEGAL_MOVE_COUNT 218
 
 // The 'ppa' member of a Pos variable should be indexed with these,
 // e.g., p->ppa[WHITE_KING].

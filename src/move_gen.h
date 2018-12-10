@@ -24,10 +24,6 @@ enum castle_error_codes {
 
 extern enum castle_error_codes castle_error;
 
-extern const Bitboard KNIGHT_SQS[];
-extern const Bitboard KING_SQS[];
-extern const Bitboard ROOK_SQS[];
-extern const Bitboard BISHOP_SQS[];
 extern int8_t
     glo_orig_k,
     glo_orig_q1, glo_orig_q2,

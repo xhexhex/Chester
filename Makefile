@@ -1,4 +1,4 @@
-CFLAGS := -std=c99 -Wall -Wextra -Wpedantic -Werror-implicit-function-declaration -Wno-overlength-strings -g -O0
+CFLAGS := -std=c99 -Wall -Wextra -Wpedantic -Werror-implicit-function-declaration -Wno-overlength-strings -g -O0 -pthread
 TARGET := libchester.so
 SOURCES := $(wildcard src/*.c)
 HEADERS := $(wildcard src/*.h)
@@ -20,7 +20,7 @@ check: $(GEN_CHECKFILES_BIN)
 	@for ts in $(GEN_CHECKFILES_BIN); do ./$$ts; done
 
 $(GEN_CHECKFILES_BIN): %: %.c $(HEADERS) $(SOURCES)
-	@gcc $(CFLAGS) -pthread -o $@ $< $(SOURCES) -lcheck -lm -lrt -lsubunit
+	@gcc $(CFLAGS) -o $@ $< $(SOURCES) -lcheck -lm -lrt -lsubunit
 
 $(GEN_CHECKFILES_C): %.c: %.check
 	@checkmk $< > $@

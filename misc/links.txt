@@ -5,3 +5,4 @@ https://peterellisjones.com/posts/generating-legal-chess-moves-efficiently/
 https://gist.github.com/peterellisjones/8c46c28141c162d1d8a0f0badbc9cff9
 https://stackoverflow.com/questions/30199744/cost-of-static-memory-allocation-vs-dynamic-memory-allocation-in-c
 http://www.open-chess.org/viewtopic.php?f=5&t=2855
+https://www.geeksforgeeks.org/sum-array-using-pthreads/
