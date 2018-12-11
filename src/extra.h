@@ -3,6 +3,11 @@
 
 #include "base.h"
 
+#define FEN_PERSONALLY_SIGNIFICANT \
+    "6k1/r1q1b2n/6QP/p3R3/1p3p2/1P6/1PP2P2/2K4R b - - 1 35"
+#define FEN_GAME_OF_THE_CENTURY \
+    "r2q1rk1/pp2ppbp/1np2np1/2Q3B1/3PP1b1/2N2N2/PP3PPP/3RKB1R b K - 6 11"
+
 // The square sets for the 15 diagonals and 15 antidiagonals of the chessboard
 extern const Bitboard
     SS_DIAG_H1H1, SS_DIAG_G1H2, SS_DIAG_F1H3, SS_DIAG_E1H4, SS_DIAG_D1H5,

@@ -144,9 +144,11 @@ FUNCTION_MAKER(3, NULL
     real    0m21.429s
     real    0m18.995s
     real    0m16.784s
+    real    0m15.919s
 */
 void
-ct_perft_v1( const char *root, int depth, int expected_nc, bool progress )
+ct_fen_based_perft( const char *root, int depth, int expected_nc,
+    bool progress )
 {
     ++test_count, strcpy(state_fen, root), leaf_count = 0,
         show_progress = progress;

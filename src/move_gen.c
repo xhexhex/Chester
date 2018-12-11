@@ -185,12 +185,14 @@ x_recursive_perft( int depth, const int index )
         move_count = move_list[0];
     for(int i = 1; i <= (int) move_count; i++) {
         Rawcode rc = move_list[i];
-        bool promotion = is_promotion(&x_state_pos[index], rc);
-        assert(!promotion);
-        make_move(&x_state_pos[index], rc, '-');
-        node_count += x_recursive_perft(depth - 1, index);
-        copy_pos(&orig_state, &x_state_pos[index]); }
-
+        bool prom = is_promotion(&x_state_pos[index], rc);
+        const char piece[] = "qrbn";
+        for(int i = 0; i < (prom ? 4 : 1); i++) {
+            make_move(&x_state_pos[index], rc, prom ? piece[i] : '-');
+            node_count += x_recursive_perft(depth - 1, index);
+            copy_pos(&orig_state, &x_state_pos[index]);
+        }
+    }
     free(move_list);
 
     return node_count;
@@ -413,6 +415,7 @@ rawcodes( const Pos *p )
     return codes;
 }
 
+/*
 int8_t
     glo_orig_k,
     glo_orig_q1, glo_orig_q2,
@@ -466,13 +469,7 @@ void move_gen( const Pos *p )
     // Find pseudo-legal moves: king
     glo_dest_k = (KING_SQS[glo_orig_k] ^ (friends & KING_SQS[glo_orig_k]));
 }
-
-    /*
-    register Bitboard
-        loc_dest_q1, loc_dest_q2,
-        loc_dest_r1, loc_dest_r2,
-        loc_dest_b1, loc_dest_b2;
-    */
+*/
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in
