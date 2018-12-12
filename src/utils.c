@@ -121,29 +121,6 @@ compress_eppf_rank( const char *eppf_rank, char *compressed_rank )
     assert( str_m_pat( compressed_rank, "^[KQRBNPkqrbnp12345678]*$" ) );
 }
 
-// Sets or unsets the bits in 'bits' specified by 'BITMASK'. The bits are
-// set ("assigned" the value of 1) if BIT equals true; otherwise the
-// bits are unset.
-void
-set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT )
-{
-    *bits = BIT ? ( *bits | BITMASK ) : ( *bits & ~BITMASK );
-}
-
-// A slightly more convenient way to set bits with set_or_unset_bits()
-void
-set_bits( uint64_t *bits, const uint64_t BITMASK )
-{
-    set_or_unset_bits( bits, BITMASK, 1 );
-}
-
-// A slightly more convenient way to unset bits with set_or_unset_bits()
-void
-unset_bits( uint64_t *bits, const uint64_t BITMASK )
-{
-    set_or_unset_bits( bits, BITMASK, 0 );
-}
-
 // Returns the type of chessman on square 'sq_bit' in position 'p'. For
 // example, if we assume 'p' represents the standard starting position,
 // then the call occupant_of_sq(p, SB.e1) would return WHITE_KING.
@@ -299,20 +276,13 @@ sq_name_index( const char *sq_name )
     return ret_val;
 }
 
-// Returns the number of squares in a square set. For example, the
-// number of squares in the square set { d4, e4, d5, e5 } is four.
-// As usual, the square set is represented as a bitboard.
+// Returns the number of set bits in 'bb'.
 int
-num_of_sqs_in_sq_set( Bitboard bb )
+bit_count( Bitboard bb )
 {
-    int num_of_sqs = 0;
-    const uint64_t bit = 1u;
-
-    for( int i = 0; i < 64; i++ )
-        if( bb & ( bit << i ) )
-            ++num_of_sqs;
-
-    return num_of_sqs;
+    int num_of_set_bits = 0;
+    for(int i = 0; i < 64; ++i) if(bb & ONE << i) ++num_of_set_bits;
+    return num_of_set_bits;
 }
 
 // Returns the square rectangle determined by the parameters. Any rectangle

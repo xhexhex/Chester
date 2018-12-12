@@ -1802,7 +1802,7 @@ ck_assert( counter == exp_count );
 //
 // Test case
 //
-#tcase RC_XXX_SQ_BINDEX_tests
+#tcase RC_XXXX_SQ_BINDEX_tests
 
 #test RC_ORIG_SQ_BINDEX_and_RC_DEST_SQ_BINDEX_comprehensive_test
     int orig, dest;
@@ -1839,3 +1839,23 @@ ck_assert( counter == exp_count );
             ck_assert(dest == dest_2);
         }
     }
+
+//
+// Test case
+//
+#tcase SQ_RAY_tests
+
+#test SQ_RAY_test_1
+    ck_assert(sizeof(SQ_RAY) == 64 * 8 * 8);
+
+#test SQ_RAY_test_2
+    for(int sq = 0; sq < 64; sq++)
+        for(enum sq_dir dir = NORTH; dir <= NORTHWEST; ++dir)
+            ck_assert(!(SQ_RAY[sq][dir] & ONE << sq));
+
+#test SQ_RAY_test_3
+    for(int sq = 0; sq < 64; sq++) {
+        Bitboard bb = 0;
+        for(enum sq_dir dir = NORTH; dir <= NORTHWEST; ++dir)
+            bb |= SQ_RAY[sq][dir];
+        ck_assert(bb == (ROOK_SQS[sq] | BISHOP_SQS[sq])); }

@@ -37,7 +37,7 @@ extern const int8_t RC_ORIG_SQ_BINDEX[];
 extern const int8_t RC_DEST_SQ_BINDEX[];
 extern const Rawcode ORIG_DEST_RC[64][64];
 extern const Bitboard ONE;
-extern const Bitboard SQ_RAY[][8];
+extern const Bitboard SQ_RAY[64][8];
 extern const Bitboard KNIGHT_SQS[];
 extern const Bitboard KING_SQS[];
 extern const Bitboard ROOK_SQS[];

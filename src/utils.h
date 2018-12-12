@@ -21,9 +21,6 @@
     do { T tmp = x; x = y; y = tmp; } while( false )
 
 bool str_m_pat( const char *str, const char *pat );
-void set_or_unset_bits( uint64_t *bits, const uint64_t BITMASK, const bool BIT );
-void set_bits( uint64_t *bits, const uint64_t BITMASK );
-void unset_bits( uint64_t *bits, const uint64_t BITMASK );
 Chessman occupant_of_sq( const Pos *p, Bitboard sq_bit );
 Bitboard sq_name_to_sq_bit( const char *sq_name );
 const char *sq_bit_to_sq_name( Bitboard sq_bit );
@@ -34,7 +31,7 @@ void print_pos_var( const Pos *p );
 const char *sq_navigator( const char *sq_name, enum sq_dir dir );
 const char *ALT_sq_navigator( const char *sq_name, enum sq_dir dir );
 int sq_name_index( const char *sq_name );
-int num_of_sqs_in_sq_set( Bitboard bb );
+int bit_count( Bitboard bb );
 Bitboard sq_rectangle( Bitboard upper_left, Bitboard lower_right );
 const char *file_and_rank_to_sq_name( const char file, const char rank );
 Bitboard next_sq_of_ss( Bitboard *ss );
@@ -62,6 +59,7 @@ long long time_in_microseconds();
 int bindex(Bitboard bit);
 Bitboard white_army( const Pos *p );
 Bitboard black_army( const Pos *p );
+// void bindex_to_sq_name( int bindex, char *writable );
 
 #endif
 // end UTILS_H

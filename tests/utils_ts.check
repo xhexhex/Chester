@@ -50,71 +50,6 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 //
 // Test case
 //
-#tcase set_or_unset_bits_tests
-
-// Moving from the LSB to the MSB, each bit in turn is set to one
-// and left that way.
-#test C_set_or_unset_bits_test_1
-    uint64_t bit_array = 0;
-    const uint64_t BIT_TO_SET = 1;
-
-    for( int i = 0; i < 64; i++ ) {
-        set_or_unset_bits( &bit_array, BIT_TO_SET << i, 1 );
-
-        // printf( "%d\t0x%lx\n", i, bit_array );
-
-        if( i < 63 ) ck_assert( bit_array == (uint64_t) pow( 2, i + 1 ) - 1 );
-        else ck_assert( bit_array == UINT64_MAX );
-    }
-
-// On the first iteration the MSB of 'bit_array' is set, on the second
-// iteration the bit next to the MSB, and on the last iteration the LSB
-// is set. While doing this, the previously set bits are unset. This makes
-// 'bit_array' a decreasing power of two with values between 2^63 and 1.
-#test C_set_or_unset_bits_test_2
-    uint64_t bit_array = 0, bits_to_unset = 0;
-    const uint64_t BIT_TO_SET = (uint64_t) pow( 2, 63 );
-
-    for( int i = 0; i < 64; i++ ) {
-        set_or_unset_bits( &bit_array, BIT_TO_SET >> i, 1 );
-        if( i > 0 )
-            set_or_unset_bits( &bits_to_unset, BIT_TO_SET >> ( i - 1 ), 1 );
-        set_or_unset_bits( &bit_array, bits_to_unset, 0 );
-
-        ck_assert( bit_array == (uint64_t) pow( 2, 63 - i ) );
-    }
-
-// Testing set_or_unset_bits() with various values
-#test C_set_or_unset_bits_test_3
-    uint64_t ba = UINT64_MAX, bitmask = UINT64_MAX;
-
-    set_or_unset_bits( &ba, bitmask, 1 );
-    ck_assert( ba == UINT64_MAX );
-    set_or_unset_bits( &ba, bitmask, 0 );
-    ck_assert( !ba );
-
-    ba = UINT64_MAX, bitmask = 0;
-    set_or_unset_bits( &ba, bitmask, 1 );
-    ck_assert( ba == UINT64_MAX );
-
-    bitmask = UINT64_MAX;
-    set_or_unset_bits( &ba, bitmask, 1 );
-    ck_assert( ba == UINT64_MAX );
-
-    ba = 0, bitmask = UINT64_MAX;
-    set_or_unset_bits( &ba, bitmask, 0 );
-    ck_assert( !ba );
-
-    set_or_unset_bits( &ba, bitmask, 1 );
-    ck_assert( ba == UINT64_MAX );
-
-    bitmask = 0xaaaaaaaaaaaaaaaaU;
-    set_or_unset_bits( &ba, bitmask, 0 );
-    ck_assert( ba == 0x5555555555555555u );
-
-    set_or_unset_bits( &ba, bitmask, 1 );
-    ck_assert( ba == UINT64_MAX );
-
 #tcase sq_name_to_sq_bit_tests
 
 #test C_sq_name_to_sq_bit_test_with_all_valid_inputs
@@ -348,27 +283,29 @@ free( bin_str );
     // sq_name_index( "aa" );
     // sq_name_index( "h9" );
 
-#tcase num_of_sqs_in_sq_set_tests
+//
+// Test case
+//
+#tcase bit_count_tests
 
-#test C_num_of_sqs_in_sq_set_returns_0
-    ck_assert( !num_of_sqs_in_sq_set( 0u ) );
+#test bit_count_returns_0
+    ck_assert(!bit_count(0));
 
-#test C_num_of_sqs_in_sq_set_returns_1
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( 1 == num_of_sqs_in_sq_set( SBA[ i ] ) );
-    }
+#test bit_count_returns_1
+    for(int i = 0; i < 64; i++) ck_assert(1 == bit_count(ONE << i));
 
-#test C_num_of_sqs_in_sq_set_returns_8
-    for( int file_letter = 'a'; file_letter <= 'h'; file_letter++ ) {
-        ck_assert( 8 == num_of_sqs_in_sq_set( file( file_letter ) ) );
-    }
-    for( int rank_number = '1'; rank_number <= '8'; rank_number++ ) {
-        ck_assert( 8 == num_of_sqs_in_sq_set( rank( rank_number ) ) );
-    }
+#test bit_count_returns_8
+    for(int file_letter = 'a'; file_letter <= 'h'; file_letter++)
+        ck_assert(8 == bit_count(file(file_letter)));
+    for(int rank_number = '1'; rank_number <= '8'; rank_number++)
+        ck_assert(8 == bit_count(rank(rank_number)));
 
-#test C_num_of_sqs_in_sq_set_returns_64
-    ck_assert( 64 == num_of_sqs_in_sq_set( 0xffffffffffffffffU ) );
+#test bit_count_returns_64
+    ck_assert(64 == bit_count(0xffffffffffffffffU));
 
+//
+// Test case
+//
 #tcase file_and_rank_to_sq_name_tests
 
 #test C_file_and_rank_to_sq_name_works

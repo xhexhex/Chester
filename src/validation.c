@@ -134,8 +134,8 @@ che_is_san( const char *san )
 bool
 is_sq_name( const char *sq_name )
 {
-    return sq_name && str_m_pat( sq_name, "^[abcdefgh][12345678]$" );
-} // Review: 2018-06-08
+    return sq_name && str_m_pat(sq_name, "^[abcdefgh][12345678]$");
+}
 
 // In the 'ppa' member of a Pos variable, exactly one bit should be set
 // per bit index. In logical terms this means that each square is either
@@ -180,17 +180,13 @@ ppa_integrity_check( const Bitboard *ppa )
     return NULL;
 } // Review: 2018-06-02
 
-// Returns true if and only if 'bb' is a square bit
+// Returns true if and only if 'bb' has exactly one bit set.
 bool
 is_sq_bit( Bitboard bb )
 {
-    const uint64_t ONE = 1;
-    for( int exponent = 0; exponent <= 63; exponent++ )
-        if( bb == (ONE << exponent) )
-            return true;
-
+    for(int bi = 0; bi < 64; ++bi) if(bb == ONE << bi) return true;
     return false;
-} // Review: 2018-06-08
+}
 
 /****************************
  ****                    ****

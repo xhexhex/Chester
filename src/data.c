@@ -861,7 +861,13 @@ const Rawcode ORIG_DEST_RC[64][64] = {
 
 const Bitboard ONE = 1;
 
-// TODO: doc
+// Each chessboard square has eight "rays" associated with it. If the
+// square is an edge or corner square, some of the rays will be of
+// zero length meaning they will contain no squares. A particular ray
+// is specified using a bit index (indicating the square) and one of
+// the enum sq_dir constants NORTH, NORTHEAST, ..., NORTHWEST. For example,
+// (SQ_RAY[28][NORTH] | SQ_RAY[28][EAST] | SQ_RAY[28][WEST] | SQ_RAY[28][SOUTH])
+// equals ROOK_SQS[28], 28 being the bit index corresponding to square e4.
 const Bitboard SQ_RAY[][8] = {
     {0x101010101010100U, 0x8040201008040200U, 0xfeU, 0x0U, 0x0U, 0x0U,
     0x0U, 0x0U}, {0x202020202020200U, 0x80402010080400U, 0xfcU, 0x0U,

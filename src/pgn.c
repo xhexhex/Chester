@@ -273,7 +273,7 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     }
 
     assert(osb & pwa);
-    int num_pwa = num_of_sqs_in_sq_set(pwa);
+    int num_pwa = bit_count(pwa);
     assert(num_pwa);
     assert(((type == 'Q' || type == 'N') && num_pwa <= 8) ||
         ((type == 'R' || type == 'B') && num_pwa <= 4));
@@ -284,14 +284,14 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     Bitboard file_of_osb = file(file_of_sq(osb)), the_pwa_on_file_of_orig =
         (file_of_osb & pwa);
     assert(the_pwa_on_file_of_orig);
-    if(num_of_sqs_in_sq_set(the_pwa_on_file_of_orig) == 1) {
+    if(bit_count(the_pwa_on_file_of_orig) == 1) {
         disambiguator[0] = file_of_sq(osb);
         return disambiguator; }
 
     Bitboard rank_of_osb = rank(rank_of_sq(osb)), the_pwa_on_rank_of_orig =
         (rank_of_osb & pwa);
     assert(the_pwa_on_rank_of_orig);
-    if(num_of_sqs_in_sq_set(the_pwa_on_rank_of_orig) == 1) {
+    if(bit_count(the_pwa_on_rank_of_orig) == 1) {
         disambiguator[0] = rank_of_sq(osb);
         return disambiguator; }
 
