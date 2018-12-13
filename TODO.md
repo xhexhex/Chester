@@ -17,3 +17,4 @@
 * Remove `sq_nav()`
 * Refactor and document `rawcodes()`
 * Try to get rid of `sq_name_to_sq_bit()`
+* Remove `SBA[]`
