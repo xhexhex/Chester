@@ -174,7 +174,7 @@ ppa_integrity_check( const Bitboard *ppa )
                 ++number_of_set_bits;
 
         if( number_of_set_bits != 1 )
-            return SNA[bit_index];
+            return SQ_NAME[bit_index];
     }
 
     return NULL;

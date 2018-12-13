@@ -907,7 +907,7 @@ x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
     int *num_of_sqs_north, int *num_of_sqs_east,
     int *num_of_sqs_south, int *num_of_sqs_west )
 {
-    const char *sq = SNA[bindex(sq_bit)];
+    const char *sq = SQ_NAME[bindex(sq_bit)];
 
     int *eight_dirs[ 8 ] = { NULL };
     eight_dirs[ NORTH ] = num_of_sqs_north, eight_dirs[ EAST ] = num_of_sqs_east,
@@ -982,8 +982,8 @@ x_kerc_find_upper_right_or_lower_left_corner(
     const Bitboard upper_left, const Bitboard lower_right,
     const bool find_upper_right )
 {
-    const char *upper_left_sq_name = SNA[bindex(upper_left)],
-        *lower_right_sq_name = SNA[bindex(lower_right)];
+    const char *upper_left_sq_name = SQ_NAME[bindex(upper_left)],
+        *lower_right_sq_name = SQ_NAME[bindex(lower_right)];
     char tmp_sq_name[ 3 ] = { 0 };
 
     tmp_sq_name[ 0 ] = find_upper_right ?

@@ -28,9 +28,8 @@ const Bitboard SBA[] = {
 
 #undef ALL_SQ_BIT_VALUES
 
-// SNA, square names array. SNA[0] is "a1", SNA[1] is "b1", ...,
-// SNA[63] is "h8".
-const char * const SNA[] = {
+// The means of getting the square name of a bit index.
+const char * const SQ_NAME[] = {
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
     "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
     "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",

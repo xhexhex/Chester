@@ -251,7 +251,7 @@ ALT_sq_navigator( const char *sq_name, enum sq_dir dir )
     return x_ALT_sq_navigator_knights_sqs( sq_name, dir );
 }
 
-// Returns the index 'i' of the square name argument such that SNA[ i ]
+// Returns the index 'i' of the square name argument such that SQ_NAME[ i ]
 // equals 'sq_name'
 int
 sq_name_index( const char *sq_name )
@@ -308,7 +308,7 @@ file_and_rank_to_sq_name( const char file, const char rank )
     tmp_sq_name[ 0 ] = file;
     tmp_sq_name[ 1 ] = rank;
 
-    return SNA[ sq_name_index( tmp_sq_name ) ];
+    return SQ_NAME[ sq_name_index( tmp_sq_name ) ];
 }
 
 // Returns the next square in the square set parameter 'ss'. The square
@@ -830,7 +830,7 @@ black_army( const Pos *p )
 if( dir == dir_constant ) { \
     if( sq_bit & ( ss_file_or_rank ) ) \
         return NULL; \
-    return SNA[ sq_bit_index( sq_bit ) + ( int_constant ) ]; }
+    return SQ_NAME[ sq_bit_index( sq_bit ) + ( int_constant ) ]; }
 
 static const char *
 x_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
@@ -882,7 +882,7 @@ x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
     if( dir == NORTHWEST || dir == NORTH || dir == NORTHEAST ) ++sq_name_copy[ 1 ];
     else if( dir == SOUTHWEST || dir == SOUTH || dir == SOUTHEAST ) --sq_name_copy[ 1 ];
 
-    return is_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ? SQ_NAME[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 static const char *
@@ -901,7 +901,7 @@ x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
     else if( dir == FOUR_OCLOCK || dir == EIGHT_OCLOCK ) --sq_name_copy[ 1 ];
     else sq_name_copy[ 1 ] -= 2;
 
-    return is_sq_name( sq_name_copy ) ? SNA[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ? SQ_NAME[ sq_name_index( sq_name_copy ) ] : NULL;
 }
 
 /*

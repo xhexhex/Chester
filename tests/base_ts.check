@@ -33,8 +33,8 @@ create_APM_DATA_duplicate()
 
                     if( !(SBA[dest] & dest_sqs) ) continue;
 
-                    ptr[0] = SNA[src][0], ptr[1] = SNA[src][1],
-                        ptr[2] = SNA[dest][0], ptr[3] = SNA[dest][1];
+                    ptr[0] = SQ_NAME[src][0], ptr[1] = SQ_NAME[src][1],
+                        ptr[2] = SQ_NAME[dest][0], ptr[3] = SQ_NAME[dest][1];
 
                     ptr += 4;
                 }
@@ -368,7 +368,7 @@ Bitboard sq_bit = sq_name_to_sq_bit( "h1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
-    char *sq = (char *) SNA[bindex(sq_bit)];
+    char *sq = (char *) SQ_NAME[bindex(sq_bit)];
 
     do {
         bb |= sq_name_to_sq_bit( sq );
@@ -399,7 +399,7 @@ Bitboard sq_bit = sq_name_to_sq_bit( "a1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
-    char *sq = (char *) SNA[bindex(sq_bit)];
+    char *sq = (char *) SQ_NAME[bindex(sq_bit)];
 
     do {
         bb |= sq_name_to_sq_bit( sq );
@@ -505,7 +505,7 @@ while( true ) {
 
 #test C_SQ_NAV_comprehensive_test_with_ALT_sq_navigator
     for( int row = 0; row < 64; row++ ) {
-        const char *origin_sq = SNA[ row ];
+        const char *origin_sq = SQ_NAME[ row ];
         for( int col = 0; col < 16; col++ ) {
             const char *sq_in_dir =
                 ALT_sq_navigator( origin_sq, (enum sq_dir) col );

@@ -58,7 +58,6 @@ long long time_in_microseconds();
 int bindex(Bitboard bit);
 Bitboard white_army( const Pos *p );
 Bitboard black_army( const Pos *p );
-// void bindex_to_sq_name( int bindex, char *writable );
 
 #endif
 // end UTILS_H

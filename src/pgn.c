@@ -49,12 +49,12 @@ san_to_rawcode( const Pos *p, const char *san )
     x_san_to_rawcode_find_dest_sq(p, san, dest);
 
     if( san[0] == 'O' ) {
-        strcpy(orig, SNA[bindex(p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING])]);
+        strcpy(orig, SQ_NAME[bindex(p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING])]);
     } else if( str_m_pat(san, "^[a-h][1-8]") ) {
         Bitboard pawn = sq_name_to_sq_bit(dest);
         while( !( ( pawn = sq_nav(pawn, whites_turn(p) ? SOUTH : NORTH) ) &
             p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) );
-        strcpy( orig, SNA[bindex(pawn)] );
+        strcpy( orig, SQ_NAME[bindex(pawn)] );
     } else if( str_m_pat(san, "^[a-h]x") ) {
         orig[0] = san[0], orig[1] = dest[1] + ( whites_turn(p) ? -1 : 1 );
     } else if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
@@ -117,7 +117,7 @@ rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
 
     char *san = (char *) malloc(san_length + 1);
     strcpy(san, piece_letter), strcat(san, disambiguator), strcat(san, capture),
-        strcat(san, SNA[dest]), strcat(san, promotion_indicator),
+        strcat(san, SQ_NAME[dest]), strcat(san, promotion_indicator),
         strcat(san, check_or_mate);
     free(piece_letter), free(disambiguator), free(capture),
         free(promotion_indicator), free(check_or_mate);
@@ -142,7 +142,7 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
     if( san[0] == 'O' ) {
         Bitboard castling_rook_bb = p->irp[strlen(san) < 5 ? 1 : 0];
         castling_rook_bb <<= (whites_turn(p) ? 0 : 56);
-        const char *castling_rook = SNA[bindex(castling_rook_bb)];
+        const char *castling_rook = SQ_NAME[bindex(castling_rook_bb)];
         strcpy( dest, castling_rook );
         return; }
 
@@ -215,7 +215,7 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
         REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
 
     assert( is_sq_bit(orig_sq_bb) );
-    strcpy(orig_sq, SNA[bindex(orig_sq_bb)]);
+    strcpy(orig_sq, SQ_NAME[bindex(orig_sq_bb)]);
 }
 
 #undef REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
@@ -295,7 +295,7 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
         return disambiguator; }
 
     ++*san_length;
-    strcpy(disambiguator, SNA[orig]);
+    strcpy(disambiguator, SQ_NAME[orig]);
     return disambiguator;
 }
 
@@ -325,7 +325,7 @@ x_rawcode_to_san_set_piece_letter( const Pos *p, Rawcode rc, Chessman mover,
     if(mover != WHITE_PAWN && mover != BLACK_PAWN)
         piece_letter[0] = toupper(PPF_CHESSMAN_LETTERS[mover]);
     else if(target != EMPTY_SQUARE || is_en_passant_capture(p, rc))
-        piece_letter[0] = SNA[orig][0];
+        piece_letter[0] = SQ_NAME[orig][0];
 
     *san_length += strlen(piece_letter);
     return piece_letter;

@@ -69,7 +69,7 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 
 #test C_sq_name_to_sq_bit_inverse_function_test
     for( int i = 0; i < 64; i++ )
-        ck_assert(sq_name_to_sq_bit(SNA[i]) == SBA[i]);
+        ck_assert(sq_name_to_sq_bit(SQ_NAME[i]) == SBA[i]);
 
 //
 // Test case
@@ -243,10 +243,10 @@ free( bin_str );
 
 #test C_sq_navigator_comprehensive_test_with_alt_impl
     for( int i = 0; i < 64; i++ ) {
-        char *hps = hps_of_sq( SNA[ i ], false ),
-            *hps_from_alt_impl = hps_of_sq( SNA[ i ], true );
-        // printf( "PRI: %s: %s\n", SNA[ i ], hps );
-        // printf( "SEC: %s: %s\n\n", SNA[ i ], hps_from_alt_impl );
+        char *hps = hps_of_sq( SQ_NAME[ i ], false ),
+            *hps_from_alt_impl = hps_of_sq( SQ_NAME[ i ], true );
+        // printf( "PRI: %s: %s\n", SQ_NAME[ i ], hps );
+        // printf( "SEC: %s: %s\n\n", SQ_NAME[ i ], hps_from_alt_impl );
         ck_assert( !strcmp( hps, hps_from_alt_impl ) );
         free( hps );
         free( hps_from_alt_impl );
@@ -256,7 +256,7 @@ free( bin_str );
 
 #test C_sq_name_index_test_with_all_valid_inputs
     for( int i = 0; i < 64; i++ ) {
-        ck_assert( i == sq_name_index( SNA[ i ] ) );
+        ck_assert( i == sq_name_index( SQ_NAME[ i ] ) );
     }
 
 #test C_sq_name_index_test_with_invalid_inputs
@@ -1204,7 +1204,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     char expected[] = expected_arg, fen[] = fen_arg; \
     ck_assert( strlen(expected) == 64 ); \
     for( int i = 0; i < 64; i++ ) \
-        ck_assert( occupant_of_sq_fen_v( fen, SNA[i] ) == expected[i] );
+        ck_assert( occupant_of_sq_fen_v( fen, SQ_NAME[i] ) == expected[i] );
 
 #test C_occupant_of_sq_fen_v_tested_with_std_start_pos
     FULL_TEST(

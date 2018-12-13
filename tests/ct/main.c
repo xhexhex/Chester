@@ -31,7 +31,7 @@ main()
 {
     printf("Remember Valgrind!\n");
 
-    const bool quick = true, mt = true; // mt, multithreading
+    const bool quick = false, mt = true; // mt, multithreading
     char test_group_id = 'A';
 
     // Test group A

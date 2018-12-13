@@ -629,7 +629,7 @@
 
 #test C_is_sq_name_returns_true_with_all_64_valid_square_names
     for( int i = 0; i < 64; i++ )
-        ck_assert( is_sq_name( SNA[i] ) );
+        ck_assert( is_sq_name( SQ_NAME[i] ) );
 
 #test C_is_sq_name_returns_false
     ck_assert( !is_sq_name( NULL ) );

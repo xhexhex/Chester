@@ -22,7 +22,7 @@ struct single_instance_variable_SB {
 
 extern const struct single_instance_variable_SB SB;
 extern const Bitboard SBA[];
-extern const char * const SNA[];
+extern const char * const SQ_NAME[];
 extern const Bitboard SQ_NAV[][16];
 extern const int POSSIBLE_IRPF_VALUES_COUNT;
 extern const uint8_t POSSIBLE_IRPF_VALUES[];
