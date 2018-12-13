@@ -368,7 +368,7 @@ Bitboard sq_bit = sq_name_to_sq_bit( "h1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
-    char *sq = (char *) sq_bit_to_sq_name( sq_bit );
+    char *sq = (char *) SNA[bindex(sq_bit)];
 
     do {
         bb |= sq_name_to_sq_bit( sq );
@@ -399,7 +399,7 @@ Bitboard sq_bit = sq_name_to_sq_bit( "a1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
-    char *sq = (char *) sq_bit_to_sq_name( sq_bit );
+    char *sq = (char *) SNA[bindex(sq_bit)];
 
     do {
         bb |= sq_name_to_sq_bit( sq );

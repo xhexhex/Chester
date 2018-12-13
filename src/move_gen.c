@@ -119,13 +119,14 @@ che_perft( const char *fen, int depth, bool mt )
     long long result[MAX_LEGAL_MOVE_COUNT];
     int cindex = -1;
     const Pos *root = fen_to_pos(fen);
+    struct args args[MAX_LEGAL_MOVE_COUNT];
 
     if(mt) {
         Rawcode *move_list = rawcodes(root);
         for(int i = 1; i <= *move_list; i++) {
             Rawcode rc = move_list[i];
             Pos pos;
-            if(is_promotion(root, rc)) { // NOT TESTED
+            if(is_promotion(root, rc)) {
                 const char piece[] = "qrbn";
                 for(int i = 0; i < 4; i++) {
                     copy_pos(root, &pos);
@@ -141,17 +142,21 @@ che_perft( const char *fen, int depth, bool mt )
         free(move_list);
 
         pthread_t thread[MAX_LEGAL_MOVE_COUNT];
-        struct args args[MAX_LEGAL_MOVE_COUNT];
 
         for(int i = 0; i <= cindex; i++) {
-            args[i].depth = depth - 1;
-            args[i].root = x_state_pos[i];
-            args[i].result = &result[i];
-            args[i].index = i;
+            args[i].depth = depth - 1, args[i].root = x_state_pos[i],
+                args[i].result = &result[i], args[i].index = i;
+
             pthread_create(&thread[i], NULL, x_perft_thread, (void *) &args[i]);
         }
         for(int i = 0; i <= cindex; i++) pthread_join(thread[i], NULL);
-    } else assert(false);
+    } else {
+        cindex = 0;
+        args[0].depth = depth, args[0].root = *root,
+            args[0].result = &result[0], args[0].index = 0;
+
+        x_perft_thread(&args[0]);
+    }
 
     long long sum_of_results = 0;
     for(int i = 0; i <= cindex; i++) sum_of_results += result[i];
@@ -902,7 +907,7 @@ x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
     int *num_of_sqs_north, int *num_of_sqs_east,
     int *num_of_sqs_south, int *num_of_sqs_west )
 {
-    const char *sq = sq_bit_to_sq_name( sq_bit );
+    const char *sq = SNA[bindex(sq_bit)];
 
     int *eight_dirs[ 8 ] = { NULL };
     eight_dirs[ NORTH ] = num_of_sqs_north, eight_dirs[ EAST ] = num_of_sqs_east,
@@ -977,8 +982,8 @@ x_kerc_find_upper_right_or_lower_left_corner(
     const Bitboard upper_left, const Bitboard lower_right,
     const bool find_upper_right )
 {
-    const char *upper_left_sq_name = sq_bit_to_sq_name( upper_left ),
-        *lower_right_sq_name = sq_bit_to_sq_name( lower_right );
+    const char *upper_left_sq_name = SNA[bindex(upper_left)],
+        *lower_right_sq_name = SNA[bindex(lower_right)];
     char tmp_sq_name[ 3 ] = { 0 };
 
     tmp_sq_name[ 0 ] = find_upper_right ?

@@ -163,55 +163,6 @@ comparative_ttt_ppa_to_ppf_conv_test( const int reps )
     printf("Performance ratio: %.2f\n", (double) result_1 / result_2);
 }
 
-// Converts the Pos variable pointed to by 'p' to the corresponding FEN
-// string. The FEN string is allocated dynamically so free() should be
-// called when the string is no longer needed.
-//
-// This is the old version of pos_to_fen(). The current pos_to_fen()
-// is much more efficient.
-char *
-slow_pos_to_fen( const Pos *p )
-{
-    char *fen, *fen_field[6];
-
-    char eppf[PPF_MAX_LENGTH + 1];
-    ppa_to_eppf( p->ppa, eppf ), fen_field[0] = compress_eppf(eppf);
-
-    fen_field[1] = whites_turn(p) ? "w" : "b";
-
-    char caf[4 + 1] = {'\0'}, *expanded_caf = get_ecaf(p);
-    caf[0] = '-';
-    for(int i = 0, j = 0; i < 4; i++)
-        if(expanded_caf[i] != '-')
-            caf[j++] = expanded_caf[i];
-    free(expanded_caf), fen_field[2] = caf;
-
-    fen_field[3] = get_epts(p) ? (char *) sq_bit_to_sq_name(get_epts(p)) : "-";
-
-    char hmcf[5 + 1], fmnf[5 + 1];
-    sprintf( hmcf, "%d", p->hmc ), sprintf( fmnf, "%d", p->fmn );
-    fen_field[4] = hmcf, fen_field[5] = fmnf;
-
-    int fen_length = 5; // The five field-separating spaces
-    for(int i = 0; i < 6; i++) fen_length += (int) strlen(fen_field[i]);
-    fen = (char *) malloc(fen_length + 1);
-    fen[fen_length] = '\0';
-
-    int fen_index = 0;
-    for(int i = 0; ; i++) {
-        for(int j = 0; j < (int) strlen(fen_field[i]); j++)
-            fen[fen_index++] = fen_field[i][j];
-
-        if( i == 5 ) break;
-        fen[fen_index++] = ' '; }
-    assert(fen_index == fen_length);
-
-    free(fen_field[0]);
-
-    shredder_to_std_fen_conv(fen);
-    return fen;
-}
-
 // Converts a Shredder-FEN to a standard FEN in a "soft" or conditional
 // manner. This means that a conversion only takes place when a king
 // with castling rights is on square e1 (e8) and the rooks involved

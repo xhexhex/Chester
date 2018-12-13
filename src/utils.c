@@ -145,19 +145,6 @@ sq_name_to_sq_bit( const char *sq_name )
     return SBA[ sq_bit_array_index ];
 }
 
-// Converts a square bit to a square name
-const char *
-sq_bit_to_sq_name( Bitboard sq_bit )
-{
-    assert( is_sq_bit( sq_bit ) );
-
-    char file = file_of_sq( sq_bit ), rank = rank_of_sq( sq_bit );
-    int sq_name_array_index = file - 'a' + ( rank - '1' ) * 8;
-
-    assert( sq_name_array_index >= 0 && sq_name_array_index <= 63 );
-    return SNA[ sq_name_array_index ];
-}
-
 // Returns the chessboard file of the square bit argument 'sq_bit'.
 // For example, file_of_sq(SB.e4) returns 'e'.
 char

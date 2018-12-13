@@ -31,7 +31,7 @@ main()
 {
     printf("Remember Valgrind!\n");
 
-    const bool quick = false;
+    const bool quick = true, mt = true; // mt, multithreading
     char test_group_id = 'A';
 
     // Test group A
@@ -49,40 +49,38 @@ main()
     ct_fen_based_perft(INIT_POS, 2, 400, false);
     ct_fen_based_perft(INIT_POS, 3, 8902, false);
     x_test_che_perft_with_range_of_levels(FEN_SUPERPOSITION_1, 0, 5,
-        true, NULL);
+        mt, NULL);
     if(!quick) ct_fen_based_perft(INIT_POS, 4, 197281, false);
 
     // Test group C
     if(!quick) fprintf(stderr, "%c", test_group_id++);
-    x_test_che_perft_with_range_of_levels(INIT_POS, 0, quick ? 5 : 6, true,
+    x_test_che_perft_with_range_of_levels(INIT_POS, 0, quick ? 5 : 6, mt,
         EPR_INIT_POS);
 
     // Test group D
     if(!quick) fprintf(stderr, "%c", test_group_id++);
     x_test_che_perft_with_range_of_levels(FEN_KIWIPETE, 0, quick ? 4 : 5,
-        true, EPR_KIWIPETE);
+        mt, EPR_KIWIPETE);
 
     // Test group E
     if(!quick) fprintf(stderr, "%c", test_group_id++);
     x_test_che_perft_with_range_of_levels(FEN_PERFT_POS_3, 0, quick ? 6 : 7,
-        true, EPR_PERFT_POS_3);
+        mt, EPR_PERFT_POS_3);
 
     // Test group F
     if(!quick) fprintf(stderr, "%c", test_group_id++);
     x_test_che_perft_with_range_of_levels(FEN_PERFT_POS_4, 0, quick ? 5 : 6,
-        true, EPR_PERFT_POS_4);
+        mt, EPR_PERFT_POS_4);
 
     // Test group G
     if(!quick) fprintf(stderr, "%c", test_group_id++);
     x_test_che_perft_with_range_of_levels(FEN_PERFT_POS_5, 0, quick ? 4 : 5,
-        true, EPR_PERFT_POS_5);
+        mt, EPR_PERFT_POS_5);
 
     // Test group H
     if(!quick) fprintf(stderr, "%c", test_group_id++);
     x_test_che_perft_with_range_of_levels(FEN_PERFT_POS_6, 0, quick ? 4 : 5,
-        true, EPR_PERFT_POS_6);
-
-    // <single-threaded perfts here>
+        mt, EPR_PERFT_POS_6);
 
     if(!quick) printf("\n");
     if(!error_count)

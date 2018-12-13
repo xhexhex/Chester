@@ -49,13 +49,12 @@ san_to_rawcode( const Pos *p, const char *san )
     x_san_to_rawcode_find_dest_sq(p, san, dest);
 
     if( san[0] == 'O' ) {
-        strcpy( orig, sq_bit_to_sq_name( p->ppa[whites_turn(p) ?
-            WHITE_KING : BLACK_KING] ) );
+        strcpy(orig, SNA[bindex(p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING])]);
     } else if( str_m_pat(san, "^[a-h][1-8]") ) {
         Bitboard pawn = sq_name_to_sq_bit(dest);
         while( !( ( pawn = sq_nav(pawn, whites_turn(p) ? SOUTH : NORTH) ) &
             p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) );
-        strcpy( orig, sq_bit_to_sq_name(pawn) );
+        strcpy( orig, SNA[bindex(pawn)] );
     } else if( str_m_pat(san, "^[a-h]x") ) {
         orig[0] = san[0], orig[1] = dest[1] + ( whites_turn(p) ? -1 : 1 );
     } else if( str_m_pat(san, "^[KQRBN]x?[a-h][1-8][+#]?$") ) {
@@ -143,7 +142,7 @@ x_san_to_rawcode_find_dest_sq( const Pos *p, const char *san, char *dest )
     if( san[0] == 'O' ) {
         Bitboard castling_rook_bb = p->irp[strlen(san) < 5 ? 1 : 0];
         castling_rook_bb <<= (whites_turn(p) ? 0 : 56);
-        const char *castling_rook = sq_bit_to_sq_name(castling_rook_bb);
+        const char *castling_rook = SNA[bindex(castling_rook_bb)];
         strcpy( dest, castling_rook );
         return; }
 
@@ -216,7 +215,7 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
         REMOVE_MOVER_CANDIDATES_IN_ABSOLUTE_PIN
 
     assert( is_sq_bit(orig_sq_bb) );
-    strcpy( orig_sq, sq_bit_to_sq_name(orig_sq_bb) );
+    strcpy(orig_sq, SNA[bindex(orig_sq_bb)]);
 }
 
 #undef REMOVE_MOVER_CANDIDATES_WITH_BLOCKED_PATHS
