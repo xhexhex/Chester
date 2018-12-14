@@ -364,22 +364,22 @@ create_APM_DATA_duplicate()
 
 #test C_SS_DIAG_constants_tested_with_sq_navigator
 
-Bitboard sq_bit = sq_name_to_sq_bit( "h1" ), bb;
+Bitboard sq_bit = ONE << sq_name_to_bindex( "h1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
     char *sq = (char *) SQ_NAME[bindex(sq_bit)];
 
     do {
-        bb |= sq_name_to_sq_bit( sq );
+        bb |= ONE << sq_name_to_bindex( sq );
     } while( ( sq = (char *) sq_navigator( sq, NORTHEAST ) ) );
     ck_assert( bb == sq_set_of_diag( index ) );
     ++index;
 
-    if( sq_bit == sq_name_to_sq_bit( "a8" ) )
+    if( sq_bit == ONE << sq_name_to_bindex( "a8" ) )
         break;
-    else if( sq_bit < sq_name_to_sq_bit( "a2" ) &&
-            sq_bit != sq_name_to_sq_bit( "a1" ) )
+    else if( sq_bit < ONE << sq_name_to_bindex( "a2" ) &&
+            sq_bit != ONE << sq_name_to_bindex( "a1" ) )
         sq_bit >>= 1;
     else
         sq_bit <<= 8;
@@ -395,21 +395,21 @@ while( true ) {
 
 #test C_SS_ANTIDIAG_constants_tested_with_sq_navigator
 
-Bitboard sq_bit = sq_name_to_sq_bit( "a1" ), bb;
+Bitboard sq_bit = ONE << sq_name_to_bindex( "a1" ), bb;
 int index = 0;
 while( true ) {
     bb = 0u;
     char *sq = (char *) SQ_NAME[bindex(sq_bit)];
 
     do {
-        bb |= sq_name_to_sq_bit( sq );
+        bb |= ONE << sq_name_to_bindex( sq );
     } while( ( sq = (char *) sq_navigator( sq, NORTHWEST ) ) );
     ck_assert( bb == sq_set_of_antidiag( index ) );
     ++index;
 
-    if( sq_bit == sq_name_to_sq_bit( "h8" ) )
+    if( sq_bit == ONE << sq_name_to_bindex( "h8" ) )
         break;
-    else if( sq_bit < sq_name_to_sq_bit( "h1" ) )
+    else if( sq_bit < ONE << sq_name_to_bindex( "h1" ) )
         sq_bit <<= 1;
     else
         sq_bit <<= 8;
@@ -510,8 +510,8 @@ while( true ) {
             const char *sq_in_dir =
                 ALT_sq_navigator( origin_sq, (enum sq_dir) col );
 
-            const Bitboard sq_bit = sq_in_dir ? sq_name_to_sq_bit(
-                sq_in_dir ) : 0u;
+            const Bitboard sq_bit = sq_in_dir ? (ONE << sq_name_to_bindex(
+                sq_in_dir)) : 0u;
             ck_assert( SQ_NAV[ row ][ col ] == sq_bit );
         }
     }

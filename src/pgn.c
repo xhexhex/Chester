@@ -51,7 +51,7 @@ san_to_rawcode( const Pos *p, const char *san )
     if( san[0] == 'O' ) {
         strcpy(orig, SQ_NAME[bindex(p->ppa[whites_turn(p) ? WHITE_KING : BLACK_KING])]);
     } else if( str_m_pat(san, "^[a-h][1-8]") ) {
-        Bitboard pawn = sq_name_to_sq_bit(dest);
+        Bitboard pawn = ONE << sq_name_to_bindex(dest);
         while( !( ( pawn = sq_nav(pawn, whites_turn(p) ? SOUTH : NORTH) ) &
             p->ppa[whites_turn(p) ? WHITE_PAWN : BLACK_PAWN] ) );
         strcpy( orig, SQ_NAME[bindex(pawn)] );
@@ -187,7 +187,7 @@ x_san_to_rawcode_find_piece_move_orig_sq( const Pos *p, char piece,
     char disambiguator, const char *dest_sq, char *orig_sq )
 {
     bool w = whites_turn(p);
-    int dest_bi = sq_bit_index( sq_name_to_sq_bit(dest_sq) );
+    int dest_bi = sq_name_to_bindex(dest_sq);
     Bitboard orig_sq_bb;
 
     switch( piece ) {

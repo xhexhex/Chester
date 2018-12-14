@@ -43,17 +43,18 @@
 //
 #tcase KNIGHT_SQS_array_tests
 
-#define KNIGHT_SQS_OF_CORNER_SQS_TEST( corner_sq, knight_sq_1, knight_sq_2 ) \
-ck_assert( KNIGHT_SQS[ sq_name_index( corner_sq ) ] == \
-    ( sq_name_to_sq_bit( knight_sq_1 ) | sq_name_to_sq_bit( knight_sq_2 ) ) );
+#define KNIGHT_SQS_OF_CORNER_SQS_TEST(corner_sq, knight_sq_1, knight_sq_2) \
+    ck_assert( KNIGHT_SQS[sq_name_to_bindex( corner_sq )] == ( \
+        ONE << sq_name_to_bindex(knight_sq_1) | \
+        ONE << sq_name_to_bindex(knight_sq_2) ) );
 
 #define KNIGHT_SQS_OF_CENTER_SQS_TEST( center_sq, ksq1, ksq2, ksq3, ksq4, \
-ksq5, ksq6, ksq7, ksq8 ) \
-ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
-    sq_name_to_sq_bit( ksq1 ) | sq_name_to_sq_bit( ksq2 ) | \
-    sq_name_to_sq_bit( ksq3 ) | sq_name_to_sq_bit( ksq4 ) | \
-    sq_name_to_sq_bit( ksq5 ) | sq_name_to_sq_bit( ksq6 ) | \
-    sq_name_to_sq_bit( ksq7 ) | sq_name_to_sq_bit( ksq8 ) ) );
+        ksq5, ksq6, ksq7, ksq8 ) \
+    ck_assert( KNIGHT_SQS[sq_name_to_bindex( center_sq )] == ( \
+        ONE << sq_name_to_bindex( ksq1 ) | ONE << sq_name_to_bindex( ksq2 ) | \
+        ONE << sq_name_to_bindex( ksq3 ) | ONE << sq_name_to_bindex( ksq4 ) | \
+        ONE << sq_name_to_bindex( ksq5 ) | ONE << sq_name_to_bindex( ksq6 ) | \
+        ONE << sq_name_to_bindex( ksq7 ) | ONE << sq_name_to_bindex( ksq8 ) ) );
 
 #test C_KNIGHT_SQS_corner_squares_test
     KNIGHT_SQS_OF_CORNER_SQS_TEST( "a1", "c2", "b3" )
@@ -203,7 +204,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
             char *current_sq = (char *) sq;
             while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
-                bb |= sq_name_to_sq_bit( current_sq );
+                bb |= ONE << sq_name_to_bindex( current_sq );
             }
         }
         ck_assert( bb == ROOK_SQS[ i ] );
@@ -223,7 +224,7 @@ ck_assert( KNIGHT_SQS[ sq_name_index( center_sq ) ] == ( \
         for( enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
             char *current_sq = (char *) sq;
             while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
-                bb |= sq_name_to_sq_bit( current_sq );
+                bb |= ONE << sq_name_to_bindex( current_sq );
             }
         }
         ck_assert( bb == BISHOP_SQS[ i ] );

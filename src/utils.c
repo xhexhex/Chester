@@ -135,16 +135,6 @@ occupant_of_sq( const Pos *p, Bitboard sq_bit )
     return -1;
 } // Review: 2018-06-20
 
-// Converts a square name such as "c2" to a square bit such as 0x400
-Bitboard
-sq_name_to_sq_bit( const char *sq_name )
-{
-    assert( str_m_pat( sq_name, "^[abcdefgh][12345678]$" ) );
-    int sq_bit_array_index = sq_name[ 0 ] - 'a' + ( sq_name[ 1 ] - '1' ) * 8;
-    assert( sq_bit_array_index >= 0 && sq_bit_array_index <= 63 );
-    return SBA[ sq_bit_array_index ];
-}
-
 // Returns the chessboard file of the square bit argument 'sq_bit'.
 // For example, file_of_sq(SB.e4) returns 'e'.
 char
@@ -251,18 +241,6 @@ ALT_sq_navigator( const char *sq_name, enum sq_dir dir )
     return x_ALT_sq_navigator_knights_sqs( sq_name, dir );
 }
 
-// Returns the index 'i' of the square name argument such that SQ_NAME[ i ]
-// equals 'sq_name'
-int
-sq_name_index( const char *sq_name )
-{
-    assert( is_sq_name( sq_name ) );
-    int ret_val = ( sq_name[ 1 ] - '1' ) * 8 + ( sq_name[ 0 ] - 'a' );
-
-    assert( ret_val >= 0 && ret_val <= 63 );
-    return ret_val;
-}
-
 // Returns the number of set bits in 'bb'.
 int
 bit_count( Bitboard bb )
@@ -308,7 +286,7 @@ file_and_rank_to_sq_name( const char file, const char rank )
     tmp_sq_name[ 0 ] = file;
     tmp_sq_name[ 1 ] = rank;
 
-    return SQ_NAME[ sq_name_index( tmp_sq_name ) ];
+    return SQ_NAME[ sq_name_to_bindex( tmp_sq_name ) ];
 }
 
 // Returns the next square in the square set parameter 'ss'. The square
@@ -835,7 +813,7 @@ if( dir == dir_constant ) { \
 static const char *
 x_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
 {
-    Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
+    Bitboard sq_bit = ONE << sq_name_to_bindex(sq_name);
 
     FIND_SQUARE_IN_DIRECTION( NORTH, rank('8'), 8 )
     FIND_SQUARE_IN_DIRECTION( NORTHEAST, file('h') | rank('8'), 9 )
@@ -853,7 +831,7 @@ x_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
 static const char *
 x_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 {
-    Bitboard sq_bit = sq_name_to_sq_bit( sq_name );
+    Bitboard sq_bit = ONE << sq_name_to_bindex(sq_name);
 
     FIND_SQUARE_IN_DIRECTION( ONE_OCLOCK,    file('h') | rank('7') | rank('8'),  17 )
     FIND_SQUARE_IN_DIRECTION( TWO_OCLOCK,    file('g') | file('h') | rank('8'),  10 )
@@ -882,7 +860,7 @@ x_ALT_sq_navigator_kings_sqs( const char *sq_name, enum sq_dir dir )
     if( dir == NORTHWEST || dir == NORTH || dir == NORTHEAST ) ++sq_name_copy[ 1 ];
     else if( dir == SOUTHWEST || dir == SOUTH || dir == SOUTHEAST ) --sq_name_copy[ 1 ];
 
-    return is_sq_name( sq_name_copy ) ? SQ_NAME[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ? SQ_NAME[ sq_name_to_bindex( sq_name_copy ) ] : NULL;
 }
 
 static const char *
@@ -901,7 +879,8 @@ x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
     else if( dir == FOUR_OCLOCK || dir == EIGHT_OCLOCK ) --sq_name_copy[ 1 ];
     else sq_name_copy[ 1 ] -= 2;
 
-    return is_sq_name( sq_name_copy ) ? SQ_NAME[ sq_name_index( sq_name_copy ) ] : NULL;
+    return is_sq_name( sq_name_copy ) ?
+        SQ_NAME[ sq_name_to_bindex( sq_name_copy ) ] : NULL;
 }
 
 /*
@@ -928,7 +907,7 @@ x_sq_rectangle( const char *ulc, const char *lrc )
         const char *sq_of_current_row = first_sq_of_row;
 
         while( sq_of_current_row && ( sq_of_current_row[ 0 ] <= lrc[ 0 ] ) ) {
-            bb |= sq_name_to_sq_bit( sq_of_current_row );
+            bb |= ONE << sq_name_to_bindex(sq_of_current_row);
             sq_of_current_row = sq_navigator( sq_of_current_row, EAST ); }
 
         first_sq_of_row = sq_navigator( first_sq_of_row, SOUTH ); }

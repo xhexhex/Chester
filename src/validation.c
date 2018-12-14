@@ -621,15 +621,14 @@ x_che_is_san_doubly_disambiguated_piece_move( const char *san )
     dest[0] = ( san[3] == 'x' ? san[4] : san[3] );
     dest[1] = ( san[3] == 'x' ? san[5] : san[4] );
 
-    Bitboard orig_bb = sq_name_to_sq_bit(orig),
-        dest_bb = sq_name_to_sq_bit(dest);
+    int bi_orig = sq_name_to_bindex(orig), bi_dest = sq_name_to_bindex(dest);
 
     if(
-        ( san[0] == 'Q' && ( dest_bb & ( ROOK_SQS[sq_bit_index(orig_bb)] |
-            BISHOP_SQS[sq_bit_index(orig_bb)] ) ) ) ||
-        ( san[0] == 'R' && ( dest_bb & ROOK_SQS[sq_bit_index(orig_bb)] ) ) ||
-        ( san[0] == 'B' && ( dest_bb & BISHOP_SQS[sq_bit_index(orig_bb)] ) ) ||
-        ( san[0] == 'N' && ( dest_bb & KNIGHT_SQS[sq_bit_index(orig_bb)] ) )
+        ( san[0] == 'Q' && ( ONE << bi_dest & ( ROOK_SQS[bi_orig] |
+            BISHOP_SQS[bi_orig] ) ) ) ||
+        ( san[0] == 'R' && ( ONE << bi_dest & ROOK_SQS[bi_orig] ) ) ||
+        ( san[0] == 'B' && ( ONE << bi_dest & BISHOP_SQS[bi_orig] ) ) ||
+        ( san[0] == 'N' && ( ONE << bi_dest & KNIGHT_SQS[bi_orig] ) )
     )
         SET_STATUS_AND_RETURN_TRUE
 

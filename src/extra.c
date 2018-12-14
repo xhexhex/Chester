@@ -325,8 +325,8 @@ rawcode_bit_indexes( Rawcode rc, int *orig, int *dest )
     assert( is_sq_name( orig_sq_name ) );
     assert( is_sq_name( dest_sq_name ) );
 
-    *orig = sq_name_index( orig_sq_name );
-    *dest = sq_name_index( dest_sq_name );
+    *orig = sq_name_to_bindex( orig_sq_name );
+    *dest = sq_name_to_bindex( dest_sq_name );
 }
 
 // Returns the bit index of the square bit argument 'sq_bit'. The bit

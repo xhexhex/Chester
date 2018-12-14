@@ -5,11 +5,11 @@
 
 #include "base.h"
 
-// Expands 'caf', stores the result in 'ecaf' and resolves ambiguous results using
-// 'fen'. If the ambiguity cannot be resolved due to an invalid FEN, 'ecaf' will
-// remain unchanged by resolve_ambiguous_ecaf(). 'ecaf' is assumed to be a writable
-// array of at least ten bytes. For more details on CAF expansion, view the documention
-// of expand_caf().
+// Expands 'caf', stores the result in 'ecaf' and resolves ambiguous results
+// using 'fen'. If the ambiguity cannot be resolved due to an invalid FEN,
+// 'ecaf' will remain unchanged by resolve_ambiguous_ecaf(). 'ecaf' is
+// assumed to be a writable array of at least ten bytes. For more details
+// on CAF expansion, view the documention of expand_caf().
 #define EXPAND_CAF( caf, ecaf, fen ) \
     expand_caf( caf, ecaf ); \
     resolve_ambiguous_ecaf( ecaf, fen );
@@ -20,16 +20,20 @@
 #define swap( x, y, T ) \
     do { T tmp = x; x = y; y = tmp; } while( false )
 
+// Calculates the bit index corresponding to 'sq_name'. For example, if
+// 'sq_name' contains the square name string "e4", the result of the
+// calculation is 28.
+#define sq_name_to_bindex(sq_name) \
+    (sq_name[0] - 'a' + 8 * (sq_name[1] - '1'))
+
 bool str_m_pat( const char *str, const char *pat );
 Chessman occupant_of_sq( const Pos *p, Bitboard sq_bit );
-Bitboard sq_name_to_sq_bit( const char *sq_name );
 char file_of_sq( Bitboard sq_bit );
 char rank_of_sq( Bitboard sq_bit );
 char *uint64_to_bin_str( uint64_t uint64 );
 void print_pos_var( const Pos *p );
 const char *sq_navigator( const char *sq_name, enum sq_dir dir );
 const char *ALT_sq_navigator( const char *sq_name, enum sq_dir dir );
-int sq_name_index( const char *sq_name );
 int bit_count( Bitboard bb );
 Bitboard sq_rectangle( Bitboard upper_left, Bitboard lower_right );
 const char *file_and_rank_to_sq_name( const char file, const char rank );

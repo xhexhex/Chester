@@ -1,7 +1,6 @@
 # TODO
 > A list of things I haven't had the self-discipline to get done yet
 
-* Create an iterative version of `x_recursive_perft()`
 * Optimize `attackers()`
 * Review `che_fen_validator()` -- more tests?
 * Optimize and document `che_fen_validator()`
@@ -16,5 +15,4 @@
    jump or move depends on uninitialised value" problem (detected by Valgrind).
 * Remove `sq_nav()`
 * Refactor and document `rawcodes()`
-* Try to get rid of `sq_name_to_sq_bit()`
 * Remove `SBA[]`

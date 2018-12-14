@@ -991,7 +991,7 @@ x_kerc_find_upper_right_or_lower_left_corner(
         tmp_sq_name[ 1 ] = find_upper_right ?
             upper_left_sq_name[ 1 ] : lower_right_sq_name[ 1 ];
 
-    return SBA[ sq_name_index( tmp_sq_name ) ];
+    return SBA[ sq_name_to_bindex( tmp_sq_name ) ];
 }
 
 static Bitboard

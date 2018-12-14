@@ -50,30 +50,6 @@ hps_of_sq( const char *sq_name, bool use_alt_impl ) // Hash pattern squares of s
 //
 // Test case
 //
-#tcase sq_name_to_sq_bit_tests
-
-#test C_sq_name_to_sq_bit_test_with_all_valid_inputs
-    char sq_name[ 3 ] = { '\0' };
-    ck_assert( !sq_name[ 2 ] );
-
-    Bitboard sq_bit = 1u;
-    for( int rank = '1'; rank <= '8'; rank++ ) {
-        for( int file = 'a'; file <= 'h'; file++ ) {
-            sq_name[ 0 ] = file;
-            sq_name[ 1 ] = rank;
-            // printf( "%s  %lx\n", sq_name, sq_bit );
-            ck_assert( sq_name_to_sq_bit( sq_name ) == sq_bit );
-            sq_bit <<= 1;
-        }
-    }
-
-#test C_sq_name_to_sq_bit_inverse_function_test
-    for( int i = 0; i < 64; i++ )
-        ck_assert(sq_name_to_sq_bit(SQ_NAME[i]) == SBA[i]);
-
-//
-// Test case
-//
 #tcase occupant_of_sq_tests
 
 #define TEST_WITH_ARGS( sq_bit_arg, expected_cm ) \
@@ -252,21 +228,6 @@ free( bin_str );
         free( hps_from_alt_impl );
     }
 
-#tcase sq_name_index_tests
-
-#test C_sq_name_index_test_with_all_valid_inputs
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( i == sq_name_index( SQ_NAME[ i ] ) );
-    }
-
-#test C_sq_name_index_test_with_invalid_inputs
-    ck_assert( true );
-    // sq_name_index( NULL );
-    // sq_name_index( "" );
-    // sq_name_index( "a" );
-    // sq_name_index( "aa" );
-    // sq_name_index( "h9" );
-
 //
 // Test case
 //
@@ -325,22 +286,22 @@ free( bin_str );
     for( int i = 'a'; i <= 'h'; i++ )
         ck_assert( file( i ) ==
             sq_rectangle(
-                sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '8' ) ),
-                sq_name_to_sq_bit( file_and_rank_to_sq_name( i, '1' ) ) ) );
+                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( i, '8' ) ),
+                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( i, '1' ) ) ) );
 
 #test C_sq_rectangle_ranks_test
     for( int i = '1'; i <= '8'; i++ )
         ck_assert( rank( i ) ==
             sq_rectangle(
-                sq_name_to_sq_bit( file_and_rank_to_sq_name( 'a', i ) ),
-                sq_name_to_sq_bit( file_and_rank_to_sq_name( 'h', i ) ) ) );
+                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( 'a', i ) ),
+                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( 'h', i ) ) ) );
 
 #test C_sq_rectangle_returns_empty_bitboard
     const Bitboard upper_left = SB.h1;
     Bitboard lower_right;
     const char *lower_right_sq_name = "g2";
     do {
-        lower_right = sq_name_to_sq_bit( lower_right_sq_name );
+        lower_right = ONE << sq_name_to_bindex( lower_right_sq_name );
         ck_assert( !sq_rectangle( upper_left, lower_right ) );
     } while( lower_right_sq_name &&
         ( lower_right_sq_name =
@@ -1535,3 +1496,20 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
     const Pos *p = fen_to_pos(INIT_POS);
     ck_assert(black_army(p) == 0xffff000000000000U);
     free((void *) p);
+
+//
+// Test case
+//
+#tcase sq_name_to_bindex_tests
+
+#test sq_name_to_bindex_comprehensive_test
+    int expected = 0, actual;
+    char sq_name[2 + 1] = {'\0'};
+
+    for(int rank = '1'; rank <= '8'; ++rank) {
+        for(int file = 'a'; file <= 'h'; ++file, ++expected) {
+            sq_name[0] = file, sq_name[1] = rank;
+            actual = sq_name_to_bindex(sq_name);
+            ck_assert(actual == expected);
+        }
+    }
