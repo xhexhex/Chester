@@ -12,6 +12,8 @@
 #include "validation.h"
 #include "pgn.h"
 
+// Needed in che_perft()
+struct args {Pos root; int depth; long long *result; int index;};
 static Pos x_state_pos[MAX_LEGAL_MOVE_COUNT];
 
 static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
@@ -48,6 +50,8 @@ static Rawcode *x_rawcodes_place_results_in_array( const Pos *p,
     Bitboard saved[6][12], int *vacant );
 static void *x_perft_thread( void *ptr );
 static long long x_recursive_perft( int depth, const int index );
+static void x_che_perft_with_mt( const Pos *root, int depth, int *cindex,
+    struct args *args, const long long *result );
 
 // Used by function castle() to store the outcome of castling move
 // evaluation. The purpose of the global variable is to faciliate
@@ -108,9 +112,12 @@ che_move_gen( const char *fens )
     return results;
 }
 
-struct args {Pos root; int depth; long long *result; int index;};
-
-// TODO: doc
+// Computes perft('depth') of position 'fen'. For example, if 'root_node'
+// is the FEN for the standard starting position (INIT_POS), then the call
+// che_perft(root_node, 4, true) returns 197281. The parameter 'mt'
+// indicates whether or not to use multithreading.
+//
+// More information: https://www.chessprogramming.org/Perft
 long long
 che_perft( const char *fen, int depth, bool mt )
 {
@@ -121,86 +128,15 @@ che_perft( const char *fen, int depth, bool mt )
     const Pos *root = fen_to_pos(fen);
     struct args args[MAX_LEGAL_MOVE_COUNT];
 
-    if(mt) {
-        Rawcode *move_list = rawcodes(root);
-        for(int i = 1; i <= *move_list; i++) {
-            Rawcode rc = move_list[i];
-            Pos pos;
-            if(is_promotion(root, rc)) {
-                const char piece[] = "qrbn";
-                for(int i = 0; i < 4; i++) {
-                    copy_pos(root, &pos);
-                    make_move(&pos, rc, piece[i]);
-                    x_state_pos[++cindex] = pos;
-                }
-            } else {
-                copy_pos(root, &pos);
-                make_move(&pos, rc, '-');
-                x_state_pos[++cindex] = pos;
-            }
-        } // End for
-        free(move_list);
-
-        pthread_t thread[MAX_LEGAL_MOVE_COUNT];
-
-        for(int i = 0; i <= cindex; i++) {
-            args[i].depth = depth - 1, args[i].root = x_state_pos[i],
-                args[i].result = &result[i], args[i].index = i;
-
-            pthread_create(&thread[i], NULL, x_perft_thread, (void *) &args[i]);
-        }
-        for(int i = 0; i <= cindex; i++) pthread_join(thread[i], NULL);
-    } else {
-        cindex = 0;
-        args[0].depth = depth, args[0].root = *root,
-            args[0].result = &result[0], args[0].index = 0;
-
+    if(mt) x_che_perft_with_mt(root, depth, &cindex, args, result);
+    else cindex = 0, args[0].depth = depth, args[0].root = *root,
+        args[0].result = &result[0], args[0].index = 0,
         x_perft_thread(&args[0]);
-    }
 
     long long sum_of_results = 0;
     for(int i = 0; i <= cindex; i++) sum_of_results += result[i];
-
     free((void *) root);
-
     return sum_of_results;
-}
-
-static void *
-x_perft_thread(void *ptr)
-{
-    struct args *args = (struct args *) ptr;
-    copy_pos(&args->root, &x_state_pos[args->index]);
-
-    *args->result = x_recursive_perft(args->depth, args->index);
-
-    return NULL;
-}
-
-static long long
-x_recursive_perft( int depth, const int index )
-{
-    if(!depth) return 1;
-
-    Pos orig_state;
-    copy_pos(&x_state_pos[index], &orig_state);
-
-    long long node_count = 0;
-    Rawcode *move_list = rawcodes(&x_state_pos[index]),
-        move_count = move_list[0];
-    for(int i = 1; i <= (int) move_count; i++) {
-        Rawcode rc = move_list[i];
-        bool prom = is_promotion(&x_state_pos[index], rc);
-        const char piece[] = "qrbn";
-        for(int i = 0; i < (prom ? 4 : 1); i++) {
-            make_move(&x_state_pos[index], rc, prom ? piece[i] : '-');
-            node_count += x_recursive_perft(depth - 1, index);
-            copy_pos(&orig_state, &x_state_pos[index]);
-        }
-    }
-    free(move_list);
-
-    return node_count;
 }
 
 // Returns the legal moves in the position specified by the 'fen' argument
@@ -419,62 +355,6 @@ rawcodes( const Pos *p )
 
     return codes;
 }
-
-/*
-int8_t
-    glo_orig_k,
-    glo_orig_q1, glo_orig_q2,
-    glo_orig_r1, glo_orig_r2,
-    glo_orig_b1, glo_orig_b2,
-    glo_orig_n1, glo_orig_n2,
-    glo_orig_p1, glo_orig_p2, glo_orig_p3, glo_orig_p4,
-    glo_orig_p5, glo_orig_p6, glo_orig_p7, glo_orig_p8;
-
-static void
-x_move_gen_set_glo_orig( const Pos *p, bool w )
-{
-    bool q1_unset = true;
-
-    glo_orig_k = bindex(p->ppa[w ? WHITE_KING : BLACK_KING]);
-
-    glo_orig_q1 = -1, glo_orig_q2 = -1;
-    int i = 0;
-    for(; i < 64; i++)
-        if((ONE << i) & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN] && q1_unset) {
-            glo_orig_q1 = bindex(ONE << i); q1_unset = false; }
-        else if((ONE << i) & p->ppa[w ? WHITE_QUEEN : BLACK_QUEEN]) {
-            glo_orig_q2 = bindex(ONE << i); break; }
-
-    // printf("i = %d\n", i);
-}
-
-Bitboard
-    glo_dest_k,
-    glo_dest_q1, glo_dest_q2,
-    glo_dest_r1, glo_dest_r2,
-    glo_dest_b1, glo_dest_b2,
-    glo_dest_n1, glo_dest_n2,
-    glo_dest_p1, glo_dest_p2, glo_dest_p3, glo_dest_p4,
-    glo_dest_p5, glo_dest_p6, glo_dest_p7, glo_dest_p8;
-
-// TODO: doc
-void move_gen( const Pos *p )
-{
-    bool w = whites_turn(p);
-    x_move_gen_set_glo_orig(p, w);
-    const Bitboard friends = w ? white_army(p) : black_army(p);
-        // enemies = w ? black_army(p) : white_army(p);
-
-    glo_dest_k =
-    glo_dest_q1 = glo_dest_q2 = glo_dest_r1 = glo_dest_r2 =
-    glo_dest_b1 = glo_dest_b2 = glo_dest_n1 = glo_dest_n2 =
-    glo_dest_p1 = glo_dest_p2 = glo_dest_p3 = glo_dest_p4 =
-    glo_dest_p5 = glo_dest_p6 = glo_dest_p7 = glo_dest_p8 = 0;
-
-    // Find pseudo-legal moves: king
-    glo_dest_k = (KING_SQS[glo_orig_k] ^ (friends & KING_SQS[glo_orig_k]));
-}
-*/
 
 // Checks whether a king can be captured in the given position. Note that
 // being able to capture the enemy king is different from having it in
@@ -1178,4 +1058,76 @@ x_rawcodes_place_results_in_array( const Pos *p, Bitboard saved[6][12],
     }
 
     return pseudo;
+}
+
+static void
+x_che_perft_with_mt(const Pos *root, int depth, int *cindex,
+    struct args *args, const long long *result)
+{
+    Rawcode *move_list = rawcodes(root);
+
+    for(int i = 1; i <= *move_list; i++) {
+        Rawcode rc = move_list[i];
+        Pos pos;
+        if(is_promotion(root, rc)) {
+            const char piece[] = "qrbn";
+            for(int i = 0; i < 4; i++) {
+                copy_pos(root, &pos);
+                make_move(&pos, rc, piece[i]);
+                x_state_pos[++*cindex] = pos;
+            }
+        } else {
+            copy_pos(root, &pos);
+            make_move(&pos, rc, '-');
+            x_state_pos[++*cindex] = pos;
+        }
+    } // End for
+    free(move_list);
+
+    pthread_t thread[MAX_LEGAL_MOVE_COUNT];
+
+    for(int i = 0; i <= *cindex; i++) {
+        args[i].depth = depth - 1, args[i].root = x_state_pos[i],
+            args[i].result = (long long *) &result[i], args[i].index = i;
+
+        pthread_create(&thread[i], NULL, x_perft_thread, (void *) &args[i]); }
+
+    for(int i = 0; i <= *cindex; i++) pthread_join(thread[i], NULL);
+}
+
+static void *
+x_perft_thread(void *ptr)
+{
+    struct args *args = (struct args *) ptr;
+    copy_pos(&args->root, &x_state_pos[args->index]);
+
+    *args->result = x_recursive_perft(args->depth, args->index);
+
+    return NULL;
+}
+
+static long long
+x_recursive_perft( int depth, const int index )
+{
+    if(!depth) return 1;
+
+    Pos orig_state;
+    copy_pos(&x_state_pos[index], &orig_state);
+
+    long long node_count = 0;
+    Rawcode *move_list = rawcodes(&x_state_pos[index]),
+        move_count = move_list[0];
+    for(int i = 1; i <= (int) move_count; i++) {
+        Rawcode rc = move_list[i];
+        bool prom = is_promotion(&x_state_pos[index], rc);
+        const char piece[] = "qrbn";
+        for(int i = 0; i < (prom ? 4 : 1); i++) {
+            make_move(&x_state_pos[index], rc, prom ? piece[i] : '-');
+            node_count += x_recursive_perft(depth - 1, index);
+            copy_pos(&orig_state, &x_state_pos[index]);
+        }
+    }
+    free(move_list);
+
+    return node_count;
 }

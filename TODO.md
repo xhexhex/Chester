@@ -16,3 +16,4 @@
 * Remove `sq_nav()`
 * Refactor and document `rawcodes()`
 * Remove `SBA[]`
+* Add hashing support to `che_perft()`
