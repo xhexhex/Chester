@@ -142,21 +142,21 @@ fen_to_pos( const char *fen )
             ++bi_ptr, bi = *bi_ptr;
         } else if(*c >= '1' && *c <= '8') {
             for(char count = '1'; count <= *c; count++, bi++)
-                p->ppa[EMPTY_SQUARE] |= SBA[bi];
+                p->ppa[EMPTY_SQUARE] |= ONE << bi;
         } else {
             switch(*c) {
-                case 'K': p->ppa[WHITE_KING  ] |= SBA[bi]; break;
-                case 'Q': p->ppa[WHITE_QUEEN ] |= SBA[bi]; break;
-                case 'R': p->ppa[WHITE_ROOK  ] |= SBA[bi]; break;
-                case 'B': p->ppa[WHITE_BISHOP] |= SBA[bi]; break;
-                case 'N': p->ppa[WHITE_KNIGHT] |= SBA[bi]; break;
-                case 'P': p->ppa[WHITE_PAWN  ] |= SBA[bi]; break;
-                case 'k': p->ppa[BLACK_KING  ] |= SBA[bi]; break;
-                case 'q': p->ppa[BLACK_QUEEN ] |= SBA[bi]; break;
-                case 'r': p->ppa[BLACK_ROOK  ] |= SBA[bi]; break;
-                case 'b': p->ppa[BLACK_BISHOP] |= SBA[bi]; break;
-                case 'n': p->ppa[BLACK_KNIGHT] |= SBA[bi]; break;
-                case 'p': p->ppa[BLACK_PAWN  ] |= SBA[bi]; break;
+                case 'K': p->ppa[WHITE_KING  ] |= ONE << bi; break;
+                case 'Q': p->ppa[WHITE_QUEEN ] |= ONE << bi; break;
+                case 'R': p->ppa[WHITE_ROOK  ] |= ONE << bi; break;
+                case 'B': p->ppa[WHITE_BISHOP] |= ONE << bi; break;
+                case 'N': p->ppa[WHITE_KNIGHT] |= ONE << bi; break;
+                case 'P': p->ppa[WHITE_PAWN  ] |= ONE << bi; break;
+                case 'k': p->ppa[BLACK_KING  ] |= ONE << bi; break;
+                case 'q': p->ppa[BLACK_QUEEN ] |= ONE << bi; break;
+                case 'r': p->ppa[BLACK_ROOK  ] |= ONE << bi; break;
+                case 'b': p->ppa[BLACK_BISHOP] |= ONE << bi; break;
+                case 'n': p->ppa[BLACK_KNIGHT] |= ONE << bi; break;
+                case 'p': p->ppa[BLACK_PAWN  ] |= ONE << bi; break;
                 default: assert(false); }
             ++bi; }
     } // End for
@@ -337,12 +337,12 @@ make_move( Pos *p, Rawcode rc, char promotion )
 
     Bitboard the_epts = (p->epts_file ?
         (Bitboard) p->epts_file << (w ? 40 : 16) : 0);
-    bool ep = (the_epts == SBA[dest] && (mover == WHITE_PAWN ||
+    bool ep = (the_epts == ONE << dest && (mover == WHITE_PAWN ||
         mover == BLACK_PAWN));
 
     if((mover == WHITE_KING && target == WHITE_ROOK) ||
             (mover == BLACK_KING && target == BLACK_ROOK)) {
-        Bitboard castling_rook = (SBA[dest] &
+        Bitboard castling_rook = (ONE << dest &
                 (p->ppa[WHITE_ROOK] | p->ppa[BLACK_ROOK])),
             tmp = castling_rook;
         if(tmp > SB.h1) tmp >>= 56;
@@ -392,9 +392,9 @@ make_move( Pos *p, Rawcode rc, char promotion )
             target = w ? BLACK_PAWN : WHITE_PAWN; }
 
         // Make the origin square vacant
-        p->ppa[mover] ^= SBA[orig], p->ppa[EMPTY_SQUARE] |= SBA[orig];
+        p->ppa[mover] ^= ONE << orig, p->ppa[EMPTY_SQUARE] |= ONE << orig;
         // Make the moving chessman "reappear" in the destination square
-        p->ppa[mover] |= SBA[dest], p->ppa[target] ^= SBA[dest];
+        p->ppa[mover] |= ONE << dest, p->ppa[target] ^= ONE << dest;
 
         if(mover == WHITE_KING) {
             if(p->turn_and_ca_flags & 8) p->turn_and_ca_flags ^= 8;
@@ -403,21 +403,21 @@ make_move( Pos *p, Rawcode rc, char promotion )
             if(p->turn_and_ca_flags & 2) p->turn_and_ca_flags ^= 2;
             if(p->turn_and_ca_flags & 1) p->turn_and_ca_flags ^= 1; }
 
-        if((mover == WHITE_ROOK && SBA[orig] == p->irp[1]) ||
-                (target == WHITE_ROOK && SBA[dest] == p->irp[1])) {
+        if((mover == WHITE_ROOK && ONE << orig == p->irp[1]) ||
+                (target == WHITE_ROOK && ONE << dest == p->irp[1])) {
             if(p->turn_and_ca_flags & 8) p->turn_and_ca_flags ^= 8;
-        } else if((mover == WHITE_ROOK && SBA[orig] == p->irp[0]) ||
-                (target == WHITE_ROOK && SBA[dest] == p->irp[0])) {
+        } else if((mover == WHITE_ROOK && ONE << orig == p->irp[0]) ||
+                (target == WHITE_ROOK && ONE << dest == p->irp[0])) {
             if(p->turn_and_ca_flags & 4) p->turn_and_ca_flags ^= 4; }
 
-        if((mover == BLACK_ROOK && SBA[orig] ==
+        if((mover == BLACK_ROOK && ONE << orig ==
                 ((Bitboard) p->irp[1] << 56)) ||
-                (target == BLACK_ROOK && SBA[dest] ==
+                (target == BLACK_ROOK && ONE << dest ==
                 ((Bitboard) p->irp[1] << 56))) {
             if(p->turn_and_ca_flags & 2) p->turn_and_ca_flags ^= 2;
-        } else if((mover == BLACK_ROOK && SBA[orig] ==
+        } else if((mover == BLACK_ROOK && ONE << orig ==
                 ((Bitboard) p->irp[0] << 56)) ||
-                (target == BLACK_ROOK && SBA[dest] ==
+                (target == BLACK_ROOK && ONE << dest ==
                 ((Bitboard) p->irp[0] << 56))) {
             if(p->turn_and_ca_flags & 1) p->turn_and_ca_flags ^= 1; }
     } // End else
@@ -427,7 +427,7 @@ make_move( Pos *p, Rawcode rc, char promotion )
         (mover == BLACK_PAWN && orig >=  8 && orig <= 15));
 
     if(pp) {
-        Bitboard pawn = SBA[dest];
+        Bitboard pawn = ONE << dest;
         p->ppa[w ? WHITE_PAWN : BLACK_PAWN] ^= pawn;
 
         Chessman promote_to = WHITE_QUEEN;
@@ -449,16 +449,16 @@ make_move( Pos *p, Rawcode rc, char promotion )
         (mover >= BLACK_KING && mover <= BLACK_PAWN &&
             target >= WHITE_QUEEN && target <= WHITE_PAWN) );
     bool sspa = ( // sspa, single step pawn advance
-        (mover == WHITE_PAWN && SBA[dest] == (SBA[orig] << 8)) ||
-        (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 8)));
+        (mover == WHITE_PAWN && ONE << dest == (ONE << orig << 8)) ||
+        (mover == BLACK_PAWN && ONE << dest == (ONE << orig >> 8)));
     bool dspa = ( // dspa, double step pawn advance
-        (mover == WHITE_PAWN && SBA[dest] == (SBA[orig] << 16)) ||
-        (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 16)));
+        (mover == WHITE_PAWN && ONE << dest == (ONE << orig << 16)) ||
+        (mover == BLACK_PAWN && ONE << dest == (ONE << orig >> 16)));
 
     if(capture || sspa || dspa) p->hmc = 0;
     else p->hmc++;
 
-    if(dspa) p->epts_file = (SBA[orig] >> (w ? 48 : 8));
+    if(dspa) p->epts_file = (ONE << orig >> (w ? 48 : 8));
     else p->epts_file = 0;
 
     if(w) p->fmn++;

@@ -289,22 +289,6 @@ file_and_rank_to_sq_name( const char file, const char rank )
     return SQ_NAME[ sq_name_to_bindex( tmp_sq_name ) ];
 }
 
-// Returns the next square in the square set parameter 'ss'. The square
-// returned is removed from 'ss'. This makes it convenient to call
-// next_sq_bit() repeatedly until 'ss' is empty.
-Bitboard
-next_sq_of_ss( Bitboard *ss )
-{
-    if( !( *ss ) ) return 0;
-
-    Bitboard sq = SB.a1;
-    while( !( ( *ss ) & sq ) ) sq <<= 1;
-    *ss ^= sq;
-
-    assert( is_sq_bit( sq ) );
-    return sq;
-}
-
 // Does the opposite of expand_ppf(). The function returns a pointer to a dynamically
 // allocated string which is the result of "compressing" the 'eppf' argument. It's
 // the caller's responsibility to release the allocated memory with free().

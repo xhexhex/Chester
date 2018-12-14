@@ -310,32 +310,6 @@ free( bin_str );
 //
 // Test case
 //
-#tcase next_sq_of_ss_tests
-
-#test C_next_sq_of_ss_tested_repeatedly_with_empty_ss
-    Bitboard ss = 0;
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( !next_sq_of_ss( &ss ) );
-    }
-
-#test C_next_sq_of_ss_tested_with_full_ss
-    Bitboard ss = ~0;
-    for( int i = 0; i < 64; i++ ) {
-        ck_assert( next_sq_of_ss( &ss ) == SBA[ i ] );
-    }
-    ck_assert( !ss );
-
-#test C_next_sq_of_ss_tested_with_center_ss
-    Bitboard ss = 0x1818000000U;
-    ck_assert( next_sq_of_ss( &ss ) == 0x8000000U );
-    ck_assert( next_sq_of_ss( &ss ) == 0x10000000U );
-    ck_assert( next_sq_of_ss( &ss ) == 0x800000000U );
-    ck_assert( next_sq_of_ss( &ss ) == 0x1000000000U );
-    ck_assert( next_sq_of_ss( &ss ) == 0 );
-
-//
-// Test case
-//
 #tcase expand_ppf_rank_tests
 
 #test C_expand_ppf_rank_test
