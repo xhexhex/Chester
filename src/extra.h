@@ -22,7 +22,6 @@ extern const Bitboard
 char *dyn_ttt_ppa_to_ppf_conv( const uint16_t *ppa );
 void sta_ttt_ppa_to_ppf_conv( const uint16_t *ppa, char *s );
 void comparative_ttt_ppa_to_ppf_conv_test( const int reps );
-void shredder_to_std_fen_conv( char *fen );
 void make_move_performance_test();
 void rawcode_bit_indexes( Rawcode code, int *orig, int *dest );
 void rawcodes_performance_test();
@@ -33,6 +32,8 @@ Bitboard sq_set_of_diag( const int index );
 Bitboard sq_set_of_antidiag( const int index );
 void make_move_sanity_checks( const Pos *p, Rawcode rc, char promotion,
     int orig, int dest, Chessman mover, Chessman target );
+Bitboard kerc( const Bitboard sq_bit );
+Bitboard rectangle_of_sqs( int upper_left, int lower_right );
 
 #endif
 // end EXTRA_H

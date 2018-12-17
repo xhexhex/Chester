@@ -249,48 +249,6 @@ bit_count( Bitboard bb )
     return num_of_set_bits;
 }
 
-// Returns the rectangle of squares indicated by the bit index parameters
-// 'ulc' and 'lrc' (upper left/lower right corner). Any rectangular area
-// on the chessboard can be defined by its upper left and lower right
-// corner squares. The following is a square rectangle that has four rows
-// and five columns.
-//
-//     c6  d6  e6  f6  g6
-//     c5  d5  e5  f5  g5
-//     c4  d4  e4  f4  g4
-//     c3  d3  e3  f3  g3
-//
-// The function begins its job knowing only the upper left corner and the
-// lower right corner:
-//
-//     c6  ??  ??  ??  ??
-//     ??  ??  ??  ??  ??
-//     ??  ??  ??  ??  ??
-//     ??  ??  ??  ??  g3
-//
-// The function returns zero if the arguments don't make sense as an upper
-// left and lower right corner. For example, rectangle_of_sqs(28, 35)
-// returns zero.
-Bitboard
-rectangle_of_sqs( int ulc, int lrc )
-{
-    Bitboard rectangle = 0;
-
-    int urc; // Upper right corner
-    if(ulc == lrc || SQ_RAY[ulc][EAST] & ONE << lrc) urc = lrc;
-    else if(SQ_RAY[ulc][SOUTH] & ONE << lrc) urc = ulc;
-    else urc = bindex(SQ_RAY[ulc][EAST] & SQ_RAY[lrc][NORTH]);
-
-    const Bitboard top_row = ONE << ulc | (SQ_RAY[ulc][EAST] &
-        SQ_RAY[urc][WEST]) | ONE << urc;
-    int height = 0;
-    for(int bi = lrc; bi <= urc; bi += 8, ++height) {}
-    for(int coef = 0; coef < height; ++coef)
-        rectangle |= top_row >> coef * 8;
-
-    return rectangle;
-}
-
 // The call file_and_rank_to_sq_name( 'e', '4' ) would return "e4"
 const char *
 file_and_rank_to_sq_name( const char file, const char rank )

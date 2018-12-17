@@ -84,82 +84,9 @@
         ck_assert( KNIGHT_SQS[ sq_index ] == kerc_of_sq );
     }
 
-#tcase kerc_tests
-
-#test C_kerc_edge_squares_test
-    ck_assert( kerc( SB.a1 ) == 0x30707U );
-    ck_assert( kerc( SB.b1 ) == 0x70f0fU );
-    ck_assert( kerc( SB.c1 ) == 0xe1f1fU );
-    ck_assert( kerc( SB.d1 ) == 0x1c3e3eU );
-    ck_assert( kerc( SB.e1 ) == 0x387c7cU );
-    ck_assert( kerc( SB.f1 ) == 0x70f8f8U );
-    ck_assert( kerc( SB.g1 ) == 0xe0f0f0U );
-    ck_assert( kerc( SB.h1 ) == 0xc0e0e0U );
-
-    ck_assert( kerc( SB.a2 ) == 0x3070707U );
-    ck_assert( kerc( SB.a3 ) == 0x307070703U );
-    ck_assert( kerc( SB.a4 ) == 0x30707070300U );
-    ck_assert( kerc( SB.a5 ) == 0x3070707030000U );
-    ck_assert( kerc( SB.a6 ) == 0x307070703000000U );
-    ck_assert( kerc( SB.a7 ) == 0x707070300000000U );
-
-    ck_assert( kerc( SB.h2 ) == 0xc0e0e0e0U );
-    ck_assert( kerc( SB.h3 ) == 0xc0e0e0e0c0U );
-    ck_assert( kerc( SB.h4 ) == 0xc0e0e0e0c000U );
-    ck_assert( kerc( SB.h5 ) == 0xc0e0e0e0c00000U );
-    ck_assert( kerc( SB.h6 ) == 0xc0e0e0e0c0000000U );
-    ck_assert( kerc( SB.h7 ) == 0xe0e0e0c000000000U );
-
-    ck_assert( kerc( SB.a8 ) == 0x707030000000000U );
-    ck_assert( kerc( SB.b8 ) == 0xf0f070000000000U );
-    ck_assert( kerc( SB.c8 ) == 0x1f1f0e0000000000U );
-    ck_assert( kerc( SB.d8 ) == 0x3e3e1c0000000000U );
-    ck_assert( kerc( SB.e8 ) == 0x7c7c380000000000U );
-    ck_assert( kerc( SB.f8 ) == 0xf8f8700000000000U );
-    ck_assert( kerc( SB.g8 ) == 0xf0f0e00000000000U );
-    ck_assert( kerc( SB.h8 ) == 0xe0e0c00000000000U );
-
-#test C_kerc_semiedge_squares_test
-    ck_assert( kerc( SB.b2 ) == 0x70f0f0fU );
-    ck_assert( kerc( SB.c2 ) == 0xe1f1f1fU );
-    ck_assert( kerc( SB.d2 ) == 0x1c3e3e3eU );
-    ck_assert( kerc( SB.e2 ) == 0x387c7c7cU );
-    ck_assert( kerc( SB.f2 ) == 0x70f8f8f8U );
-    ck_assert( kerc( SB.g2 ) == 0xe0f0f0f0U );
-
-    ck_assert( kerc( SB.b3 ) == 0x70f0f0f07U );
-    ck_assert( kerc( SB.b4 ) == 0x70f0f0f0700U );
-    ck_assert( kerc( SB.b5 ) == 0x70f0f0f070000U );
-    ck_assert( kerc( SB.b6 ) == 0x70f0f0f07000000U );
-
-    ck_assert( kerc( SB.g3 ) == 0xe0f0f0f0e0U );
-    ck_assert( kerc( SB.g4 ) == 0xe0f0f0f0e000U );
-    ck_assert( kerc( SB.g5 ) == 0xe0f0f0f0e00000U );
-    ck_assert( kerc( SB.g6 ) == 0xe0f0f0f0e0000000U );
-
-    ck_assert( kerc( SB.b7 ) == 0xf0f0f0700000000U );
-    ck_assert( kerc( SB.c7 ) == 0x1f1f1f0e00000000U );
-    ck_assert( kerc( SB.d7 ) == 0x3e3e3e1c00000000U );
-    ck_assert( kerc( SB.e7 ) == 0x7c7c7c3800000000U );
-    ck_assert( kerc( SB.f7 ) == 0xf8f8f87000000000U );
-    ck_assert( kerc( SB.g7 ) == 0xf0f0f0e000000000U );
-
-#test C_kerc_extended_center_squares_test
-    Bitboard kerc_pattern = 0xe1f1f1f0eU, // The KERC of c3
-        sq_bit = SB.c3;
-    for( int counter = 1; counter <= 16; counter++ ) {
-        ck_assert( kerc_pattern == kerc( sq_bit ) );
-
-        if( counter % 4 ) {
-            kerc_pattern <<= 1;
-            sq_bit <<= 1;
-        }
-        else {
-            kerc_pattern <<= 5;
-            sq_bit <<= 5;
-        }
-    }
-
+//
+// Test case
+//
 #tcase KING_SQS_array_tests
 
 #test C_KING_SQS_non_edge_squares_test

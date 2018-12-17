@@ -16,20 +16,6 @@
 struct args {Pos root; int depth; long long *result; int index;};
 static Pos x_state_pos[MAX_LEGAL_MOVE_COUNT];
 
-static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
-    int *num_of_sqs_north, int *num_of_sqs_east,
-    int *num_of_sqs_south, int *num_of_sqs_west );
-static Bitboard x_kerc_find_upper_left_corner( const Bitboard sq_bit,
-    const int num_of_sqs_north, const int num_of_sqs_west );
-static Bitboard x_kerc_find_lower_right_corner( const Bitboard sq_bit,
-    const int num_of_sqs_south, const int num_of_sqs_east );
-static Bitboard x_kerc_find_upper_right_or_lower_left_corner(
-    const Bitboard upper_left, const Bitboard lower_right,
-    const bool find_upper_right );
-static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
-    const int num_of_sqs_north, const int num_of_sqs_east,
-    const int num_of_sqs_south, const int num_of_sqs_west,
-    const Bitboard upper_left, const Bitboard lower_right );
 static void x_attackers_init_attacker_type(
     bool *attacker_type, va_list arg_ptr, int num_arg );
 static void x_attackers_find(
@@ -416,39 +402,6 @@ forsaken_king( const Pos *p )
     return false;
 }
 
-// KERC, knight's effective range circle. The call kerc( SB.e4 ) would
-// return 0x387c7c7c3800U. Here's a diagram of the bitboard:
-//
-//     -  -  -  -  -  -  -  -  8
-//     -  -  -  -  -  -  -  -  7
-//     -  -  -  #  #  #  -  -  6
-//     -  -  #  #  #  #  #  -  5
-//     -  -  #  #  #  #  #  -  4
-//     -  -  #  #  #  #  #  -  3
-//     -  -  -  #  #  #  -  -  2
-//     -  -  -  -  -  -  -  -  1
-//     a  b  c  d  e  f  g  h
-//
-Bitboard
-kerc( const Bitboard sq_bit )
-{
-    assert( is_sq_bit( sq_bit ) );
-
-    int num_of_sqs_north, num_of_sqs_east, num_of_sqs_south, num_of_sqs_west;
-    x_kerc_zero_one_or_two_sqs_in_dir( sq_bit, &num_of_sqs_north,
-        &num_of_sqs_east, &num_of_sqs_south, &num_of_sqs_west );
-
-    const Bitboard upper_left = x_kerc_find_upper_left_corner( sq_bit,
-        num_of_sqs_north, num_of_sqs_west ),
-        lower_right = x_kerc_find_lower_right_corner( sq_bit,
-        num_of_sqs_south, num_of_sqs_east );
-
-    Bitboard sq_rect = rectangle_of_sqs(bindex(upper_left), bindex(lower_right));
-
-    return x_kerc_unset_corner_bits( sq_rect, num_of_sqs_north, num_of_sqs_east,
-        num_of_sqs_south, num_of_sqs_west, upper_left, lower_right );
-}
-
 // Returns a bitboard of the chessmen attacking square 'sq'. The variable
 // part of the argument list should consist of one or more Chessman
 // constants. This list of chessmen identify the attackers. For example,
@@ -781,121 +734,6 @@ checkmate( const Pos *p )
  ****  Static functions  ****
  ****                    ****
  ****************************/
-
-static void
-x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
-    int *num_of_sqs_north, int *num_of_sqs_east,
-    int *num_of_sqs_south, int *num_of_sqs_west )
-{
-    const char *sq = SQ_NAME[bindex(sq_bit)];
-
-    int *eight_dirs[ 8 ] = { NULL };
-    eight_dirs[ NORTH ] = num_of_sqs_north, eight_dirs[ EAST ] = num_of_sqs_east,
-        eight_dirs[ SOUTH ] = num_of_sqs_south, eight_dirs[ WEST ] = num_of_sqs_west;
-    *( eight_dirs[ NORTH ] ) = *( eight_dirs[ EAST ] ) =
-        *( eight_dirs[ SOUTH ] ) = *( eight_dirs[ WEST ] ) = 0;
-
-    for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
-        if( sq_navigator( sq, dir ) )
-            **( eight_dirs + dir ) += 1;
-        else
-            continue;
-
-        if( sq_navigator( sq_navigator( sq, dir ), dir ) )
-            **( eight_dirs + dir ) += 1;
-    }
-
-    assert(
-        ( *num_of_sqs_north >= 0 && *num_of_sqs_north <= 2 ) &&
-        ( *num_of_sqs_east  >= 0 && *num_of_sqs_east  <= 2 ) &&
-        ( *num_of_sqs_south >= 0 && *num_of_sqs_south <= 2 ) &&
-        ( *num_of_sqs_west  >= 0 && *num_of_sqs_west  <= 2 ) );
-}
-
-#define X_KERC_IF_ELSE_IF( north_or_south, east_or_west, \
-        first_swift_op, second_shift_op ) \
-if( north_or_south == 0 && east_or_west == 0 ) \
-    ret_val = sq_bit; \
-else if( north_or_south == 0 && east_or_west == 1 ) \
-    ret_val = sq_bit first_swift_op 1; \
-else if( north_or_south == 0 && east_or_west == 2 ) \
-    ret_val = sq_bit first_swift_op 2; \
-else if( north_or_south == 1 && east_or_west == 0 ) \
-    ret_val = sq_bit second_shift_op 8; \
-else if( north_or_south == 1 && east_or_west == 1 ) \
-    ret_val = sq_bit second_shift_op 7; \
-else if( north_or_south == 1 && east_or_west == 2 ) \
-    ret_val = sq_bit second_shift_op 6; \
-else if( north_or_south == 2 && east_or_west == 0 ) \
-    ret_val = sq_bit second_shift_op 16; \
-else if( north_or_south == 2 && east_or_west == 1 ) \
-    ret_val = sq_bit second_shift_op 15; \
-else if( north_or_south == 2 && east_or_west == 2 ) \
-    ret_val = sq_bit second_shift_op 14;
-
-static Bitboard
-x_kerc_find_upper_left_corner( const Bitboard sq_bit,
-    const int num_of_sqs_north, const int num_of_sqs_west )
-{
-    Bitboard ret_val = 0u;
-
-    X_KERC_IF_ELSE_IF( num_of_sqs_north, num_of_sqs_west, >>, << )
-
-    assert( ret_val );
-    return ret_val;
-}
-
-static Bitboard
-x_kerc_find_lower_right_corner( const Bitboard sq_bit,
-    const int num_of_sqs_south, const int num_of_sqs_east )
-{
-    Bitboard ret_val = 0u;
-
-    X_KERC_IF_ELSE_IF( num_of_sqs_south, num_of_sqs_east, <<, >> )
-
-    assert( ret_val );
-    return ret_val;
-}
-
-static Bitboard
-x_kerc_find_upper_right_or_lower_left_corner(
-    const Bitboard upper_left, const Bitboard lower_right,
-    const bool find_upper_right )
-{
-    const char *upper_left_sq_name = SQ_NAME[bindex(upper_left)],
-        *lower_right_sq_name = SQ_NAME[bindex(lower_right)];
-    char tmp_sq_name[ 3 ] = { 0 };
-
-    tmp_sq_name[ 0 ] = find_upper_right ?
-            lower_right_sq_name[ 0 ] : upper_left_sq_name[ 0 ],
-        tmp_sq_name[ 1 ] = find_upper_right ?
-            upper_left_sq_name[ 1 ] : lower_right_sq_name[ 1 ];
-
-    return SBA[ sq_name_to_bindex( tmp_sq_name ) ];
-}
-
-static Bitboard
-x_kerc_unset_corner_bits( Bitboard sq_rect,
-    const int num_of_sqs_north, const int num_of_sqs_east,
-    const int num_of_sqs_south, const int num_of_sqs_west,
-    const Bitboard upper_left, const Bitboard lower_right )
-{
-    const Bitboard upper_right = x_kerc_find_upper_right_or_lower_left_corner(
-        upper_left, lower_right, true ),
-        lower_left = x_kerc_find_upper_right_or_lower_left_corner(
-        upper_left, lower_right, false );
-
-    if( num_of_sqs_north == 2 && num_of_sqs_east == 2 )
-        sq_rect ^= upper_right;
-    if( num_of_sqs_south == 2 && num_of_sqs_east == 2 )
-        sq_rect ^= lower_right;
-    if( num_of_sqs_south == 2 && num_of_sqs_west == 2 )
-        sq_rect ^= lower_left;
-    if( num_of_sqs_north == 2 && num_of_sqs_west == 2 )
-        sq_rect ^= upper_left;
-
-    return sq_rect;
-}
 
 static void
 x_attackers_init_attacker_type(

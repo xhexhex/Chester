@@ -35,7 +35,6 @@ void print_pos_var( const Pos *p );
 const char *sq_navigator( const char *sq_name, enum sq_dir dir );
 const char *ALT_sq_navigator( const char *sq_name, enum sq_dir dir );
 int bit_count( Bitboard bb );
-Bitboard rectangle_of_sqs( int upper_left, int lower_right );
 const char *file_and_rank_to_sq_name( const char file, const char rank );
 void expand_ppf_rank( const char *ppf_rank, char *expanded_rank );
 void compress_eppf_rank( const char *eppf_rank, char *compressed_rank );

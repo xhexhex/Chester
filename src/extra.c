@@ -32,16 +32,22 @@ const Bitboard
 //
 // Static function prototypes
 //
-static void x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen,
-    const char *ecaf, int index );
-static void x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen,
-    char *ecaf, int index );
-static void x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen,
-    char *ecaf, int index );
-static void x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen,
-    const char *ecaf, int index );
 static Bitboard x_sq_set_of_diag( const int index );
 static Bitboard x_sq_set_of_antidiag( const int index );
+static void x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
+    int *num_of_sqs_north, int *num_of_sqs_east,
+    int *num_of_sqs_south, int *num_of_sqs_west );
+static Bitboard x_kerc_find_upper_left_corner( const Bitboard sq_bit,
+    const int num_of_sqs_north, const int num_of_sqs_west );
+static Bitboard x_kerc_find_lower_right_corner( const Bitboard sq_bit,
+    const int num_of_sqs_south, const int num_of_sqs_east );
+static Bitboard x_kerc_find_upper_right_or_lower_left_corner(
+    const Bitboard upper_left, const Bitboard lower_right,
+    const bool find_upper_right );
+static Bitboard x_kerc_unset_corner_bits( Bitboard sq_rect,
+    const int num_of_sqs_north, const int num_of_sqs_east,
+    const int num_of_sqs_south, const int num_of_sqs_west,
+    const Bitboard upper_left, const Bitboard lower_right );
 
 // The following function is purely for performance research purposes.
 // It converts the tic-tac-toe (ttt) version of a piece placement array
@@ -161,60 +167,6 @@ comparative_ttt_ppa_to_ppf_conv_test( const int reps )
     printf("\nThe second operation took %lld ms\n", result_2);
 
     printf("Performance ratio: %.2f\n", (double) result_1 / result_2);
-}
-
-// Converts a Shredder-FEN to a standard FEN in a "soft" or conditional
-// manner. This means that a conversion only takes place when a king
-// with castling rights is on square e1 (e8) and the rooks involved
-// are on the squares a1 (a8) or h1 (h8). For example, consider the
-// Shredder-FEN "r3kr2/8/8/8/8/8/8/1R2K2R w Ha - 0 123". Both sides have
-// castling rights and the kings are on the squares e1 and e8 implying
-// the kings are on their original squares. The rooks involved with
-// White's kingside and Black's queenside castling are on the squares
-// h1 and a8, respectively. The placement of the kings and rooks relevant
-// to castling implies that the Shredder-FEN is really a standard FEN
-// "in disguise".
-//
-// The main use of shredder_to_std_fen_conv() is in slow_pos_to_fen(). It
-// seems intuitively correct that some_fen == pos_to_fen( fen_to_pos(some_fen) ).
-// Among other things this implies that if the input to fen_to_pos() is
-// a standard FEN, the output of pos_to_fen() should also be a standard
-// FEN.
-//
-// When considering Chester and standard FENs vs Shredder-FENs, it's good
-// to keep in mind that Chester considers the CAF "KQkq" to be a synonym
-// for either "HAha" or "AHah".
-void
-shredder_to_std_fen_conv( char *fen )
-{
-    char caf[4 + 1] = {'\0'}, ecaf[9 + 1];
-    int index = 0, encountered_spaces = 0, caf_length = 0,
-        castling_rights_count = 0;
-
-    while( encountered_spaces < 2 )
-        if(fen[index++] == ' ') ++encountered_spaces;
-    for(int i = 0; fen[index + i] != ' '; i++) ++caf_length;
-
-    for(int i = index; i < index + caf_length; i++)
-        caf[i - index] = fen[i];
-    assert( strlen(caf) > 0 );
-    if( !strcmp(caf, "-") || str_m_pat(caf, "^K?Q?k?q?$") ) return;
-    assert( str_m_pat(caf, "^[A-H]?[A-H]?[a-h]?[a-h]?$") );
-
-    EXPAND_CAF(caf, ecaf, fen)
-    assert( str_m_pat(ecaf, "^[-A-H][-A-H][-a-h][-a-h]$") );
-    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ++castling_rights_count;
-
-    switch(castling_rights_count) {
-        case 4: x_shredder_to_std_fen_conv_handle_len_4_caf(fen, ecaf, index);
-            break;
-        case 3: x_shredder_to_std_fen_conv_handle_len_3_caf(fen, ecaf, index);
-            break;
-        case 2: x_shredder_to_std_fen_conv_handle_len_2_caf(fen, ecaf, index);
-            break;
-        case 1: x_shredder_to_std_fen_conv_handle_len_1_caf(fen, ecaf, index);
-            break;
-        default: assert(false); }
 }
 
 // An ad hoc tester function to evaluate the efficiency of move_move().
@@ -344,7 +296,7 @@ sq_bit_index( Bitboard sq_bit )
 
     assert(false);
     return -1;
-} // Review: 2018-06-03
+}
 
 // Returns the diagonal the square parameter is on
 Bitboard
@@ -483,156 +435,86 @@ make_move_sanity_checks( const Pos *p, Rawcode rc, char promotion,
         (!dspa && !is_double_step_pawn_advance(p, rc)));
 }
 
+// KERC, knight's effective range circle. The call kerc( SB.e4 ) would
+// return 0x387c7c7c3800U. Here's a diagram of the bitboard:
+//
+//     -  -  -  -  -  -  -  -  8
+//     -  -  -  -  -  -  -  -  7
+//     -  -  -  #  #  #  -  -  6
+//     -  -  #  #  #  #  #  -  5
+//     -  -  #  #  #  #  #  -  4
+//     -  -  #  #  #  #  #  -  3
+//     -  -  -  #  #  #  -  -  2
+//     -  -  -  -  -  -  -  -  1
+//     a  b  c  d  e  f  g  h
+//
+Bitboard
+kerc( const Bitboard sq_bit )
+{
+    assert( is_sq_bit( sq_bit ) );
+
+    int num_of_sqs_north, num_of_sqs_east, num_of_sqs_south, num_of_sqs_west;
+    x_kerc_zero_one_or_two_sqs_in_dir( sq_bit, &num_of_sqs_north,
+        &num_of_sqs_east, &num_of_sqs_south, &num_of_sqs_west );
+
+    const Bitboard upper_left = x_kerc_find_upper_left_corner( sq_bit,
+        num_of_sqs_north, num_of_sqs_west ),
+        lower_right = x_kerc_find_lower_right_corner( sq_bit,
+        num_of_sqs_south, num_of_sqs_east );
+
+    Bitboard sq_rect = rectangle_of_sqs(bindex(upper_left), bindex(lower_right));
+
+    return x_kerc_unset_corner_bits( sq_rect, num_of_sqs_north, num_of_sqs_east,
+        num_of_sqs_south, num_of_sqs_west, upper_left, lower_right );
+}
+
+// Returns the rectangle of squares indicated by the bit index parameters
+// 'ulc' and 'lrc' (upper left/lower right corner). Any rectangular area
+// on the chessboard can be defined by its upper left and lower right
+// corner squares. The following is a square rectangle that has four rows
+// and five columns.
+//
+//     c6  d6  e6  f6  g6
+//     c5  d5  e5  f5  g5
+//     c4  d4  e4  f4  g4
+//     c3  d3  e3  f3  g3
+//
+// The function begins its job knowing only the upper left corner and the
+// lower right corner:
+//
+//     c6  ??  ??  ??  ??
+//     ??  ??  ??  ??  ??
+//     ??  ??  ??  ??  ??
+//     ??  ??  ??  ??  g3
+//
+// The function returns zero if the arguments don't make sense as an upper
+// left and lower right corner. For example, rectangle_of_sqs(28, 35)
+// returns zero.
+Bitboard
+rectangle_of_sqs( int ulc, int lrc )
+{
+    Bitboard rectangle = 0;
+
+    int urc; // Upper right corner
+    if(ulc == lrc || SQ_RAY[ulc][EAST] & ONE << lrc) urc = lrc;
+    else if(SQ_RAY[ulc][SOUTH] & ONE << lrc) urc = ulc;
+    else urc = bindex(SQ_RAY[ulc][EAST] & SQ_RAY[lrc][NORTH]);
+
+    const Bitboard top_row = ONE << ulc | (SQ_RAY[ulc][EAST] &
+        SQ_RAY[urc][WEST]) | ONE << urc;
+    int height = 0;
+    for(int bi = lrc; bi <= urc; bi += 8, ++height) {}
+    for(int coef = 0; coef < height; ++coef)
+        rectangle |= top_row >> coef * 8;
+
+    return rectangle;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
  ****                    ****
  ****************************/
-
-#define SET_EPPF \
-    char **ff = fen_fields(fen), eppf[PPF_MAX_LENGTH + 1]; \
-    expand_ppf(ff[0], eppf); \
-    free_fen_fields(ff);
-
-static bool
-x_len_2_caf_needs_to_be_modified( const char *fen, const char *ecaf )
-{
-    char cr[2 + 1] = {'\0'}; // cr, castling rights
-    int crc = 1; // crc, castling rights count
-    if( !(ecaf[0] != '-' && ecaf[2] != '-') &&
-            !(ecaf[1] != '-' && ecaf[3] != '-') )
-        ++crc;
-
-    if(crc == 1) {
-        for(int i = 0; ; i++)
-            if(ecaf[i] != '-') { cr[0] = tolower(ecaf[i]); break; }
-    } else if(crc == 2) {
-        for(int i = 0, j = -1; ; i++)
-            if(ecaf[i] != '-') {
-                cr[++j] = tolower(ecaf[i]);
-                if(j == 1) break; }
-    } else assert(false);
-
-    if(crc == 2 && cr[0] < cr[1]) swap(cr[0], cr[1], char);
-
-    if( ( crc == 1 && (cr[0] != 'a' && cr[0] != 'h') ) ||
-            ( crc == 2 && (cr[0] != 'h' || cr[1] != 'a') ) )
-        return false;
-
-    bool white_has_castling_rights = (isupper(ecaf[0]) || isupper(ecaf[1]));
-
-    SET_EPPF
-    return (white_has_castling_rights && eppf[67] == 'K') || eppf[4] == 'k';
-}
-
-static bool
-x_len_3_caf_needs_to_be_modified( const char *fen, const char *ecaf )
-{
-    char castling_rights[2 + 1] = {'\0'};
-    bool use_uppercase_half = (ecaf[0] != '-' && ecaf[1] != '-');
-
-    castling_rights[0] = ecaf[use_uppercase_half ? 0 : 2];
-    castling_rights[1] = ecaf[use_uppercase_half ? 1 : 3];
-
-    if(castling_rights[0] < castling_rights[1])
-        swap(castling_rights[0], castling_rights[1], char);
-
-    if( tolower(castling_rights[0]) != 'h' ||
-            tolower(castling_rights[1]) != 'a' )
-        return false;
-
-    SET_EPPF
-    return eppf[67] == 'K';
-}
-
-static bool
-x_len_4_caf_needs_to_be_modified( const char *fen, const char *ecaf )
-{
-    bool in_alphabetical_order = (ecaf[0] < ecaf[1]);
-    char queenside_rook = ecaf[in_alphabetical_order ? 0 : 1],
-        kingside_rook = ecaf[in_alphabetical_order ? 1 : 0];
-
-    if( kingside_rook != 'H' || queenside_rook != 'A' ) return false;
-
-    SET_EPPF
-    return eppf[67] == 'K';
-}
-
-static void
-x_shredder_to_std_fen_conv_handle_len_1_caf( char *fen, const char *ecaf, int index )
-{
-    char cr; // cr, castling right
-    for(int i = 0; ; i++) if(ecaf[i] != '-') { cr = ecaf[i]; break; }
-    if( tolower(cr) != 'a' && tolower(cr) != 'h' ) return;
-
-    SET_EPPF
-    if( (isupper(cr) && eppf[67] != 'K') || (islower(cr) && eppf[4] != 'k') ) return;
-
-    switch(cr) {
-        case 'H': fen[index] = 'K'; break;
-        case 'A': fen[index] = 'Q'; break;
-        case 'h': fen[index] = 'k'; break;
-        case 'a': fen[index] = 'q'; break;
-        default: assert(false); }
-}
-
-#undef SET_EPPF
-
-static void
-x_shredder_to_std_fen_conv_handle_len_2_caf( char *fen, char *ecaf, int index )
-{
-    if( !x_len_2_caf_needs_to_be_modified(fen, ecaf) ) return;
-
-    char caf[2 + 1] = {'\0'};
-    int j = -1;
-    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') caf[++j] = ecaf[i];
-    assert(j == 1), assert(strlen(caf) == 2);
-
-    if( ( str_m_pat(caf, "^[A-H]{2}$") || str_m_pat(caf, "^[a-h]{2}$") ) &&
-            caf[0] < caf[1] )
-        swap( caf[0], caf[1], char );
-
-    for(int i = 0; i < 2; i++)
-        switch(caf[i]) {
-            case 'H': caf[i] = 'K'; break;
-            case 'A': caf[i] = 'Q'; break;
-            case 'h': caf[i] = 'k'; break;
-            case 'a': caf[i] = 'q'; break;
-            default: assert(false); }
-
-    fen[index] = caf[0], fen[index + 1] = caf[1];
-}
-
-static void
-x_shredder_to_std_fen_conv_handle_len_3_caf( char *fen, char *ecaf, int index )
-{
-    if( !x_len_3_caf_needs_to_be_modified(fen, ecaf) ) return;
-
-    bool alphabet_order = (
-        (ecaf[0] != '-' && ecaf[1] != '-' && ecaf[0] < ecaf[1]) ||
-        (ecaf[2] != '-' && ecaf[3] != '-' && ecaf[2] < ecaf[3]) );
-    if(alphabet_order) {
-        swap(ecaf[0], ecaf[1], char);
-        swap(ecaf[2], ecaf[3], char); }
-
-    const char full_std_caf[] = "KQkq";
-    for(int i = 0; i < 4; i++) if(ecaf[i] != '-') ecaf[i] = full_std_caf[i];
-
-    int j = -1;
-    for(int i = 0; i < 4; i++ ) {
-        if(ecaf[i] == '-') continue;
-        ++j; fen[index + j] = ecaf[i]; }
-    assert(j == 2);
-}
-
-static void
-x_shredder_to_std_fen_conv_handle_len_4_caf( char *fen, const char *ecaf, int index )
-{
-    if( !x_len_4_caf_needs_to_be_modified(fen, ecaf) ) return;
-
-    fen[index] = 'K', fen[index + 1] = 'Q',
-        fen[index + 2] = 'k', fen[index + 3] = 'q';
-}
 
 static Bitboard
 x_sq_set_of_diag( const int index )
@@ -681,3 +563,120 @@ x_sq_set_of_antidiag( const int index )
         default: assert( false ); return 0u;
     }
 }
+
+static void
+x_kerc_zero_one_or_two_sqs_in_dir( const Bitboard sq_bit,
+    int *num_of_sqs_north, int *num_of_sqs_east,
+    int *num_of_sqs_south, int *num_of_sqs_west )
+{
+    const char *sq = SQ_NAME[bindex(sq_bit)];
+
+    int *eight_dirs[ 8 ] = { NULL };
+    eight_dirs[ NORTH ] = num_of_sqs_north, eight_dirs[ EAST ] = num_of_sqs_east,
+        eight_dirs[ SOUTH ] = num_of_sqs_south, eight_dirs[ WEST ] = num_of_sqs_west;
+    *( eight_dirs[ NORTH ] ) = *( eight_dirs[ EAST ] ) =
+        *( eight_dirs[ SOUTH ] ) = *( eight_dirs[ WEST ] ) = 0;
+
+    for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
+        if( sq_navigator( sq, dir ) )
+            **( eight_dirs + dir ) += 1;
+        else
+            continue;
+
+        if( sq_navigator( sq_navigator( sq, dir ), dir ) )
+            **( eight_dirs + dir ) += 1;
+    }
+
+    assert(
+        ( *num_of_sqs_north >= 0 && *num_of_sqs_north <= 2 ) &&
+        ( *num_of_sqs_east  >= 0 && *num_of_sqs_east  <= 2 ) &&
+        ( *num_of_sqs_south >= 0 && *num_of_sqs_south <= 2 ) &&
+        ( *num_of_sqs_west  >= 0 && *num_of_sqs_west  <= 2 ) );
+}
+
+#define X_KERC_IF_ELSE_IF( north_or_south, east_or_west, \
+        first_swift_op, second_shift_op ) \
+    if( north_or_south == 0 && east_or_west == 0 ) \
+        ret_val = sq_bit; \
+    else if( north_or_south == 0 && east_or_west == 1 ) \
+        ret_val = sq_bit first_swift_op 1; \
+    else if( north_or_south == 0 && east_or_west == 2 ) \
+        ret_val = sq_bit first_swift_op 2; \
+    else if( north_or_south == 1 && east_or_west == 0 ) \
+        ret_val = sq_bit second_shift_op 8; \
+    else if( north_or_south == 1 && east_or_west == 1 ) \
+        ret_val = sq_bit second_shift_op 7; \
+    else if( north_or_south == 1 && east_or_west == 2 ) \
+        ret_val = sq_bit second_shift_op 6; \
+    else if( north_or_south == 2 && east_or_west == 0 ) \
+        ret_val = sq_bit second_shift_op 16; \
+    else if( north_or_south == 2 && east_or_west == 1 ) \
+        ret_val = sq_bit second_shift_op 15; \
+    else if( north_or_south == 2 && east_or_west == 2 ) \
+        ret_val = sq_bit second_shift_op 14;
+
+static Bitboard
+x_kerc_find_upper_left_corner( const Bitboard sq_bit,
+    const int num_of_sqs_north, const int num_of_sqs_west )
+{
+    Bitboard ret_val = 0u;
+
+    X_KERC_IF_ELSE_IF( num_of_sqs_north, num_of_sqs_west, >>, << )
+
+    assert( ret_val );
+    return ret_val;
+}
+
+static Bitboard
+x_kerc_find_lower_right_corner( const Bitboard sq_bit,
+    const int num_of_sqs_south, const int num_of_sqs_east )
+{
+    Bitboard ret_val = 0u;
+
+    X_KERC_IF_ELSE_IF( num_of_sqs_south, num_of_sqs_east, <<, >> )
+
+    assert( ret_val );
+    return ret_val;
+}
+
+static Bitboard
+x_kerc_find_upper_right_or_lower_left_corner(
+    const Bitboard upper_left, const Bitboard lower_right,
+    const bool find_upper_right )
+{
+    const char *upper_left_sq_name = SQ_NAME[bindex(upper_left)],
+        *lower_right_sq_name = SQ_NAME[bindex(lower_right)];
+    char tmp_sq_name[ 3 ] = { 0 };
+
+    tmp_sq_name[ 0 ] = find_upper_right ?
+            lower_right_sq_name[ 0 ] : upper_left_sq_name[ 0 ],
+        tmp_sq_name[ 1 ] = find_upper_right ?
+            upper_left_sq_name[ 1 ] : lower_right_sq_name[ 1 ];
+
+    return SBA[ sq_name_to_bindex( tmp_sq_name ) ];
+}
+
+static Bitboard
+x_kerc_unset_corner_bits( Bitboard sq_rect,
+    const int num_of_sqs_north, const int num_of_sqs_east,
+    const int num_of_sqs_south, const int num_of_sqs_west,
+    const Bitboard upper_left, const Bitboard lower_right )
+{
+    const Bitboard upper_right = x_kerc_find_upper_right_or_lower_left_corner(
+        upper_left, lower_right, true ),
+        lower_left = x_kerc_find_upper_right_or_lower_left_corner(
+        upper_left, lower_right, false );
+
+    if( num_of_sqs_north == 2 && num_of_sqs_east == 2 )
+        sq_rect ^= upper_right;
+    if( num_of_sqs_south == 2 && num_of_sqs_east == 2 )
+        sq_rect ^= lower_right;
+    if( num_of_sqs_south == 2 && num_of_sqs_west == 2 )
+        sq_rect ^= lower_left;
+    if( num_of_sqs_north == 2 && num_of_sqs_west == 2 )
+        sq_rect ^= upper_left;
+
+    return sq_rect;
+}
+
+#undef X_KERC_IF_ELSE_IF

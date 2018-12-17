@@ -263,48 +263,6 @@ free( bin_str );
 //
 // Test case
 //
-#tcase rectangle_of_sqs_tests
-
-#test rectangle_of_sqs_test_1
-    ck_assert( 0x3c3c3c3c0000U == rectangle_of_sqs( 42, 21 ) );
-    ck_assert( 0x7e000000U == rectangle_of_sqs( 25, 30 ) );
-    ck_assert( 0x1818000000U == rectangle_of_sqs( 35, 28 ) );
-    ck_assert( UINT64_MAX == rectangle_of_sqs( 56, 7 ) );
-    ck_assert( 0x303000000000000U == rectangle_of_sqs( 56, 49 ) );
-    ck_assert( 0xc0c0000000000000U == rectangle_of_sqs( 62, 55 ) );
-    ck_assert( 0x303U == rectangle_of_sqs( 8, 1 ) );
-    ck_assert( 0xc0c0U == rectangle_of_sqs( 14, 7 ) );
-    ck_assert( !rectangle_of_sqs( 28, 27 ) );
-    ck_assert( !rectangle_of_sqs( 34, 42 ) );
-    ck_assert( !rectangle_of_sqs(28, 35) );
-    ck_assert( !rectangle_of_sqs( 7, 56 ) );
-
-#test rectangle_of_sqs_test_2
-    for(int i = 0; i < 64; i++)
-        ck_assert(ONE << i == rectangle_of_sqs(i, i));
-
-#test rectangle_of_sqs_test_3
-    int ulc = 7;
-    for(int lrc = 14; lrc <= 56; lrc += 7)
-        ck_assert(!rectangle_of_sqs(ulc, lrc));
-
-    ulc = 4;
-    for(int lrc = 12; lrc <= 60; lrc += 8)
-        ck_assert(!rectangle_of_sqs(ulc, lrc));
-
-    ulc = 31;
-    for(int lrc = 30; lrc >= 24; --lrc)
-        ck_assert(!rectangle_of_sqs(ulc, lrc));
-
-#test rectangle_of_sqs_test_4
-    ck_assert(0x1010101010101010U == rectangle_of_sqs(60, 4));
-    ck_assert(0xff00000000000000U == rectangle_of_sqs(56, 63));
-    ck_assert(0xffU == rectangle_of_sqs(0, 7));
-    ck_assert(0x101010101010101U == rectangle_of_sqs(56, 0));
-
-//
-// Test case
-//
 #tcase expand_ppf_rank_tests
 
 #test C_expand_ppf_rank_test
