@@ -443,7 +443,7 @@ kerc( const Bitboard sq_bit )
         lower_right = x_kerc_find_lower_right_corner( sq_bit,
         num_of_sqs_south, num_of_sqs_east );
 
-    Bitboard sq_rect = sq_rectangle( upper_left, lower_right );
+    Bitboard sq_rect = rectangle_of_sqs(bindex(upper_left), bindex(lower_right));
 
     return x_kerc_unset_corner_bits( sq_rect, num_of_sqs_north, num_of_sqs_east,
         num_of_sqs_south, num_of_sqs_west, upper_left, lower_right );

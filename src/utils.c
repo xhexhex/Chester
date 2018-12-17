@@ -22,7 +22,6 @@ static const char *x_ALT_sq_navigator_kings_sqs(
     const char *sq_name, enum sq_dir dir );
 static const char *x_ALT_sq_navigator_knights_sqs(
     const char *sq_name, enum sq_dir dir );
-static Bitboard x_sq_rectangle( const char *ulc, const char *lrc );
 static void x_compress_eppf_rank_dashes_to_digit(
     int *eri_ptr, int cri, const char *eppf_rank, char *compressed_rank );
 static void x_expand_caf_convert_std_caf_to_shredder_caf( char *caf );
@@ -250,31 +249,47 @@ bit_count( Bitboard bb )
     return num_of_set_bits;
 }
 
-// Returns the square rectangle determined by the parameters. Any rectangle
-// on the chessboard can be defined by its upper left and lower right corners.
-// Here's an example of a square rectangle where the upper left and lower right
-// corners are marked with square brackets:
-// [c5]  d5   e5   f5
-//  c4   d4   e4  [f4]
+// Returns the rectangle of squares indicated by the bit index parameters
+// 'ulc' and 'lrc' (upper left/lower right corner). Any rectangular area
+// on the chessboard can be defined by its upper left and lower right
+// corner squares. The following is a square rectangle that has four rows
+// and five columns.
+//
+//     c6  d6  e6  f6  g6
+//     c5  d5  e5  f5  g5
+//     c4  d4  e4  f4  g4
+//     c3  d3  e3  f3  g3
+//
+// The function begins its job knowing only the upper left corner and the
+// lower right corner:
+//
+//     c6  ??  ??  ??  ??
+//     ??  ??  ??  ??  ??
+//     ??  ??  ??  ??  ??
+//     ??  ??  ??  ??  g3
+//
+// The function returns zero if the arguments don't make sense as an upper
+// left and lower right corner. For example, rectangle_of_sqs(28, 35)
+// returns zero.
 Bitboard
-sq_rectangle( const Bitboard upper_left, const Bitboard lower_right )
+rectangle_of_sqs( int ulc, int lrc )
 {
-    assert( is_sq_bit( upper_left ) && is_sq_bit( lower_right ) );
+    Bitboard rectangle = 0;
 
-    if( upper_left == lower_right ) return upper_left;
+    int urc; // Upper right corner
+    if(ulc == lrc || SQ_RAY[ulc][EAST] & ONE << lrc) urc = lrc;
+    else if(SQ_RAY[ulc][SOUTH] & ONE << lrc) urc = ulc;
+    else urc = bindex(SQ_RAY[ulc][EAST] & SQ_RAY[lrc][NORTH]);
 
-    const char file_ulc = file_of_sq( upper_left ),
-        file_lrc = file_of_sq( lower_right ),
-        rank_ulc = rank_of_sq( upper_left ),
-        rank_lrc = rank_of_sq( lower_right );
+    const Bitboard top_row = ONE << ulc | (SQ_RAY[ulc][EAST] &
+        SQ_RAY[urc][WEST]) | ONE << urc;
+    int height = 0;
+    for(int bi = lrc; bi <= urc; bi += 8, ++height) {}
+    for(int coef = 0; coef < height; ++coef)
+        rectangle |= top_row >> coef * 8;
 
-    if( file_ulc <= file_lrc && rank_ulc >= rank_lrc ) {
-        const char *ulc = file_and_rank_to_sq_name( file_ulc, rank_ulc ),
-            *lrc = file_and_rank_to_sq_name( file_lrc, rank_lrc );
-        return x_sq_rectangle( ulc, lrc ); }
-
-    return 0;
-} // Review: 2018-01-03
+    return rectangle;
+}
 
 // The call file_and_rank_to_sq_name( 'e', '4' ) would return "e4"
 const char *
@@ -865,38 +880,6 @@ x_ALT_sq_navigator_knights_sqs( const char *sq_name, enum sq_dir dir )
 
     return is_sq_name( sq_name_copy ) ?
         SQ_NAME[ sq_name_to_bindex( sq_name_copy ) ] : NULL;
-}
-
-/*
-The following is a square rectangle that has four rows and five columns.
-    c6  d6  e6  f6  g6
-    c5  d5  e5  f5  g5
-    c4  d4  e4  f4  g4
-    c3  d3  e3  f3  g3
-
-x_sq_rectangle() begins its job knowing only the upper left corner and the
-lower right corner:
-    c6  ??  ??  ??  ??
-    ??  ??  ??  ??  ??
-    ??  ??  ??  ??  ??
-    ??  ??  ??  ??  g3
-*/
-static Bitboard // ulc: upper left corner, lrc: lower right corner
-x_sq_rectangle( const char *ulc, const char *lrc )
-{
-    Bitboard bb = 0u;
-    const char *first_sq_of_row = ulc;
-
-    while( first_sq_of_row && ( first_sq_of_row[ 1 ] >= lrc[ 1 ] ) ) {
-        const char *sq_of_current_row = first_sq_of_row;
-
-        while( sq_of_current_row && ( sq_of_current_row[ 0 ] <= lrc[ 0 ] ) ) {
-            bb |= ONE << sq_name_to_bindex(sq_of_current_row);
-            sq_of_current_row = sq_navigator( sq_of_current_row, EAST ); }
-
-        first_sq_of_row = sq_navigator( first_sq_of_row, SOUTH ); }
-
-    return bb;
 }
 
 static void

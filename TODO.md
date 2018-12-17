@@ -18,3 +18,4 @@
 * Remove `SBA[]`
 * Add hashing support to `che_perft()`
 * Redo `sq_rectangle()`, then get rid off `file_and_rank_to_sq_name()`
+* Update `in_between()` so it makes use of square rays

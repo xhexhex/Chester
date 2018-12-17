@@ -263,49 +263,44 @@ free( bin_str );
 //
 // Test case
 //
-#tcase sq_rectangle_tests
+#tcase rectangle_of_sqs_tests
 
-#test C_sq_rectangle_manually_selected_assertions
-    ck_assert( !sq_rectangle( SB.h1, SB.a8 ) );
-    ck_assert( 0x3c3c3c3c0000U == sq_rectangle( SB.c6, SB.f3 ) );
-    ck_assert( 0x7e000000U == sq_rectangle( SB.b4, SB.g4 ) );
-    ck_assert( 0x1818000000U == sq_rectangle( SB.d5, SB.e4 ) );
-    ck_assert( UINT64_MAX == sq_rectangle( SB.a8, SB.h1 ) );
-    ck_assert( 0x303000000000000U == sq_rectangle( SB.a8, SB.b7 ) );
-    ck_assert( 0xc0c0000000000000U == sq_rectangle( SB.g8, SB.h7 ) );
-    ck_assert( 0x303U == sq_rectangle( SB.a2, SB.b1 ) );
-    ck_assert( 0xc0c0U == sq_rectangle( SB.g2, SB.h1 ) );
-    ck_assert( 0 == sq_rectangle( SB.e4, SB.d4 ) );
-    ck_assert( 0 == sq_rectangle( SB.c5, SB.c6 ) );
+#test rectangle_of_sqs_test_1
+    ck_assert( 0x3c3c3c3c0000U == rectangle_of_sqs( 42, 21 ) );
+    ck_assert( 0x7e000000U == rectangle_of_sqs( 25, 30 ) );
+    ck_assert( 0x1818000000U == rectangle_of_sqs( 35, 28 ) );
+    ck_assert( UINT64_MAX == rectangle_of_sqs( 56, 7 ) );
+    ck_assert( 0x303000000000000U == rectangle_of_sqs( 56, 49 ) );
+    ck_assert( 0xc0c0000000000000U == rectangle_of_sqs( 62, 55 ) );
+    ck_assert( 0x303U == rectangle_of_sqs( 8, 1 ) );
+    ck_assert( 0xc0c0U == rectangle_of_sqs( 14, 7 ) );
+    ck_assert( !rectangle_of_sqs( 28, 27 ) );
+    ck_assert( !rectangle_of_sqs( 34, 42 ) );
+    ck_assert( !rectangle_of_sqs(28, 35) );
+    ck_assert( !rectangle_of_sqs( 7, 56 ) );
 
-#test C_sq_rectangle_upper_left_equals_lower_right
-    for( int i = 0; i < 64; i++ )
-        ck_assert( SBA[ i ] == sq_rectangle( SBA[ i ], SBA[ i ] ) );
+#test rectangle_of_sqs_test_2
+    for(int i = 0; i < 64; i++)
+        ck_assert(ONE << i == rectangle_of_sqs(i, i));
 
-#test C_sq_rectangle_files_test
-    for( int i = 'a'; i <= 'h'; i++ )
-        ck_assert( file( i ) ==
-            sq_rectangle(
-                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( i, '8' ) ),
-                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( i, '1' ) ) ) );
+#test rectangle_of_sqs_test_3
+    int ulc = 7;
+    for(int lrc = 14; lrc <= 56; lrc += 7)
+        ck_assert(!rectangle_of_sqs(ulc, lrc));
 
-#test C_sq_rectangle_ranks_test
-    for( int i = '1'; i <= '8'; i++ )
-        ck_assert( rank( i ) ==
-            sq_rectangle(
-                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( 'a', i ) ),
-                ONE << sq_name_to_bindex( file_and_rank_to_sq_name( 'h', i ) ) ) );
+    ulc = 4;
+    for(int lrc = 12; lrc <= 60; lrc += 8)
+        ck_assert(!rectangle_of_sqs(ulc, lrc));
 
-#test C_sq_rectangle_returns_empty_bitboard
-    const Bitboard upper_left = SB.h1;
-    Bitboard lower_right;
-    const char *lower_right_sq_name = "g2";
-    do {
-        lower_right = ONE << sq_name_to_bindex( lower_right_sq_name );
-        ck_assert( !sq_rectangle( upper_left, lower_right ) );
-    } while( lower_right_sq_name &&
-        ( lower_right_sq_name =
-            sq_navigator( lower_right_sq_name, NORTHWEST ) ) );
+    ulc = 31;
+    for(int lrc = 30; lrc >= 24; --lrc)
+        ck_assert(!rectangle_of_sqs(ulc, lrc));
+
+#test rectangle_of_sqs_test_4
+    ck_assert(0x1010101010101010U == rectangle_of_sqs(60, 4));
+    ck_assert(0xff00000000000000U == rectangle_of_sqs(56, 63));
+    ck_assert(0xffU == rectangle_of_sqs(0, 7));
+    ck_assert(0x101010101010101U == rectangle_of_sqs(56, 0));
 
 //
 // Test case
