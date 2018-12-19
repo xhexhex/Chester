@@ -249,19 +249,6 @@ bit_count( Bitboard bb )
     return num_of_set_bits;
 }
 
-// The call file_and_rank_to_sq_name( 'e', '4' ) would return "e4"
-const char *
-file_and_rank_to_sq_name( const char file, const char rank )
-{
-    assert( file >= 'a' && file <= 'h' && rank >= '1' && rank <= '8' );
-
-    char tmp_sq_name[ 3 ] = { 0 };
-    tmp_sq_name[ 0 ] = file;
-    tmp_sq_name[ 1 ] = rank;
-
-    return SQ_NAME[ sq_name_to_bindex( tmp_sq_name ) ];
-}
-
 // Does the opposite of expand_ppf(). The function returns a pointer to a dynamically
 // allocated string which is the result of "compressing" the 'eppf' argument. It's
 // the caller's responsibility to release the allocated memory with free().

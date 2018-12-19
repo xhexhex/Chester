@@ -251,18 +251,6 @@ free( bin_str );
 //
 // Test case
 //
-#tcase file_and_rank_to_sq_name_tests
-
-#test C_file_and_rank_to_sq_name_works
-    ck_assert( !strcmp( "e4", file_and_rank_to_sq_name( 'e', '4' ) ) );
-    ck_assert( !strcmp( "a1", file_and_rank_to_sq_name( 'a', '1' ) ) );
-    ck_assert( !strcmp( "h1", file_and_rank_to_sq_name( 'h', '1' ) ) );
-    ck_assert( !strcmp( "a8", file_and_rank_to_sq_name( 'a', '8' ) ) );
-    ck_assert( !strcmp( "h8", file_and_rank_to_sq_name( 'h', '8' ) ) );
-
-//
-// Test case
-//
 #tcase expand_ppf_rank_tests
 
 #test C_expand_ppf_rank_test
