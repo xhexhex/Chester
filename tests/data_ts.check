@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "../src/base.h"
+#include "../src/utils.h"
+#include "../src/extra.h"
+
+#suite data_ts
+
+//
+// Test case
+//
+#tcase KNIGHT_SQS_tests
+
+#define KNIGHT_SQS_OF_CORNER_SQS_TEST(corner_sq, knight_sq_1, knight_sq_2) \
+    ck_assert( KNIGHT_SQS[sq_name_to_bindex( corner_sq )] == ( \
+        ONE << sq_name_to_bindex(knight_sq_1) | \
+        ONE << sq_name_to_bindex(knight_sq_2) ) );
+
+#define KNIGHT_SQS_OF_CENTER_SQS_TEST( center_sq, ksq1, ksq2, ksq3, ksq4, \
+        ksq5, ksq6, ksq7, ksq8 ) \
+    ck_assert( KNIGHT_SQS[sq_name_to_bindex( center_sq )] == ( \
+        ONE << sq_name_to_bindex( ksq1 ) | ONE << sq_name_to_bindex( ksq2 ) | \
+        ONE << sq_name_to_bindex( ksq3 ) | ONE << sq_name_to_bindex( ksq4 ) | \
+        ONE << sq_name_to_bindex( ksq5 ) | ONE << sq_name_to_bindex( ksq6 ) | \
+        ONE << sq_name_to_bindex( ksq7 ) | ONE << sq_name_to_bindex( ksq8 ) ) );
+
+#test KNIGHT_SQS_corner_squares_test
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "a1", "c2", "b3" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "h1", "f2", "g3" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "a8", "b6", "c7" )
+    KNIGHT_SQS_OF_CORNER_SQS_TEST( "h8", "g6", "f7" )
+
+#test KNIGHT_SQS_center_squares_test
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "d4", "c2", "e2", "b3", "f3", "b5", "f5", "c6", "e6" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "e4", "d2", "f2", "c3", "g3", "c5", "g5", "d6", "f6" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "d5", "c3", "e3", "b4", "f4", "b6", "f6", "c7", "e7" )
+    KNIGHT_SQS_OF_CENTER_SQS_TEST(
+        "e5", "d3", "f3", "c4", "g4", "c6", "g6", "d7", "f7" )
+
+#test KNIGHT_SQS_comprehensive_test
+    for( int sq_index = 0; sq_index < 64; sq_index++ ) {
+        Bitboard sq_bit = SBA[ sq_index ], kerc_of_sq = kerc( sq_bit );
+
+        kerc_of_sq ^= ( kerc_of_sq & file( file_of_sq( sq_bit ) ) );
+        kerc_of_sq ^= ( kerc_of_sq & rank( rank_of_sq( sq_bit ) ) );
+        kerc_of_sq ^= ( kerc_of_sq & diag_of_sq( sq_bit ) );
+        kerc_of_sq ^= ( kerc_of_sq & antidiag_of_sq( sq_bit ) );
+
+        ck_assert( KNIGHT_SQS[ sq_index ] == kerc_of_sq );
+    }
+
+#undef KNIGHT_SQS_OF_CORNER_SQS_TEST
+#undef KNIGHT_SQS_OF_CENTER_SQS_TEST
+
+//
+// Test case
+//
+#tcase KING_SQS_tests
+
+#test KING_SQS_non_edge_squares_test
+    for( Bitboard sq_bit = SB.b2, king_sqs = 0x70507U; sq_bit <= SB.g7;
+            king_sqs <<= ( sq_bit & file('g') ) ? 3 : 1,
+            sq_bit   <<= ( sq_bit & file('g') ) ? 3 : 1 )
+        ck_assert( king_sqs == KING_SQS[ sq_bit_index( sq_bit ) ] );
+
+#test KING_SQS_corner_squares_test
+    ck_assert( KING_SQS[  0 ] == 0x302U );
+    ck_assert( KING_SQS[  7 ] == 0xc040U );
+    ck_assert( KING_SQS[ 56 ] == 0x203000000000000U );
+    ck_assert( KING_SQS[ 63 ] == 0x40c0000000000000U );
+
+#test KING_SQS_edge_squares_test
+    Bitboard bb1 = 0x705U, bb2 = 0x507000000000000U;
+    for( int i = 1; i <= 6; i++, bb1 <<= 1, bb2 <<= 1 ) {
+        ck_assert( KING_SQS[ i ] == bb1 );
+        ck_assert( KING_SQS[ i + 56 ] == bb2 ); }
+
+    bb1 = 0x30203U, bb2 = 0xc040c0U;
+    for( int i = 8; i <= 48; i += 8, bb1 <<= 8, bb2 <<= 8 ) {
+        ck_assert( KING_SQS[ i ] == bb1 );
+        ck_assert( KING_SQS[ i + 7 ] == bb2 ); }
+
+//
+// Test case
+//
+#tcase ROOK_SQS_tests
+
+#test ROOK_SQS_center_square_test
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.d4 ) ] == 0x8080808f7080808U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.e4 ) ] == 0x10101010ef101010U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.d5 ) ] == 0x80808f708080808U );
+    ck_assert( ROOK_SQS[ sq_bit_index( SB.e5 ) ] == 0x101010ef10101010U );
+
+#test ROOK_SQS_comprehensive_test
+    for( int i = 0; i < 64; i++ ) {
+        Bitboard bb = 0U;
+        const char *sq = SQ_NAME[ i ];
+        for( enum sq_dir dir = NORTH; dir <= WEST; dir += 2 ) {
+            char *current_sq = (char *) sq;
+            while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
+                bb |= ONE << sq_name_to_bindex( current_sq );
+            }
+        }
+        ck_assert( bb == ROOK_SQS[ i ] );
+    }
+
+//
+// Test case
+//
+#tcase BISHOP_SQS_tests
+
+#test testing_BISHOP_SQS_with_manually_selected_squares
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.a1 ) ] == 0x8040201008040200U );
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.d4 ) ] == 0x8041221400142241U );
+    ck_assert( BISHOP_SQS[ sq_bit_index( SB.h8 ) ] == 0x40201008040201U );
+
+#test BISHOP_SQS_comprehensive_test
+    for( int i = 0; i < 64; i++ ) {
+        Bitboard bb = 0U;
+        const char *sq = SQ_NAME[ i ];
+        for( enum sq_dir dir = NORTHEAST; dir <= NORTHWEST; dir += 2 ) {
+            char *current_sq = (char *) sq;
+            while( ( current_sq = (char *) sq_navigator( current_sq, dir ) ) ) {
+                bb |= ONE << sq_name_to_bindex( current_sq );
+            }
+        }
+        ck_assert( bb == BISHOP_SQS[ i ] );
+    }
