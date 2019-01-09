@@ -111,7 +111,7 @@ void remove_castling_rights( Pos *p, const char *color, const char *side );
 char *get_ecaf( const Pos *p );
 void toggle_turn( Pos *p );
 char *single_san_make_move( const char *fen, const char *san );
-struct game_tree *tree_maker( const char *fen, uint8_t height );
+struct game_tree *build_game_tree( const char *fen, uint8_t height );
 void free_game_tree( struct game_tree *gt );
 
 #endif

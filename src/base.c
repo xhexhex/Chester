@@ -534,7 +534,7 @@ toggle_turn( Pos *p )
 
 // TODO: doc
 struct game_tree *
-tree_maker( const char *fen, uint8_t height )
+build_game_tree( const char *fen, uint8_t height )
 {
     assert(fen && height);
 
