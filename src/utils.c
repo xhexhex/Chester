@@ -14,6 +14,8 @@
 #include "validation.h"
 #include "extra.h"
 
+static Pos x_state_pos;
+
 static const char *x_sq_navigator_kings_sqs(
     const char *sq_name, enum sq_dir dir );
 static const char *x_sq_navigator_knights_sqs(
@@ -35,6 +37,7 @@ static void x_expand_caf_handle_1_char_caf_cases( char *ecaf, const char *cptr )
 static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
 static int x_qsort_string_compare( const void *a, const void *b );
+static long long x_gt_node_count( uint8_t depth );
 
 /******************************
  ****                      ****
@@ -42,12 +45,29 @@ static int x_qsort_string_compare( const void *a, const void *b );
  ****                      ****
  ******************************/
 
-// TODO: doc
+// Returns the number of nodes/positions/states in the game tree with
+// the root 'fen' and height 'height'. If 'fen' is null, then the initial
+// position is assumed.
+//
+// A few initial position game tree sizes:
+// * che_gt_node_count(NULL, 0) == 1
+// * che_gt_node_count(NULL, 1) == 1 + 20
+// * che_gt_node_count(NULL, 2) == 1 + 20 + 400
+// * che_gt_node_count(NULL, 3) == 1 + 20 + 400 + 8902
+//                              == perft(0) + perft(1) + perft(2) + perft(3)
 long long
-che_gt_node_count( const char *fen, const uint8_t depth )
+che_gt_node_count( const char *fen, uint8_t height )
 {
-    assert(fen && depth);
-    return 0;
+    if(!fen) fen = INIT_POS;
+
+    const Pos *p = fen_to_pos(fen);
+    copy_pos(p, &x_state_pos);
+    free((void *) p);
+
+    long long nc = 1; // Node count
+    nc += x_gt_node_count(height);
+
+    return nc;
 }
 
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
@@ -986,4 +1006,31 @@ static int
 x_qsort_string_compare( const void *a, const void *b )
 {
     return strcmp(*(const char **) a, *(const char **) b);
+}
+
+static long long
+x_gt_node_count( const uint8_t depth )
+{
+    if(depth == 0) return 0;
+
+    Pos orig_state;
+    copy_pos(&x_state_pos, &orig_state);
+
+    Rawcode *rc = rawcodes(&x_state_pos);
+    long long nc = *rc;
+
+    for(int i = 1; i <= *rc; i++) {
+        bool prom = is_promotion(&x_state_pos, rc[i]);
+        if(prom) nc += 3;
+
+        for(int j = 0; j < (prom ? 4 : 1); j++) {
+            const char piece[] = "qrbn";
+            make_move(&x_state_pos, rc[i], prom ? piece[j] : '-');
+            nc += x_gt_node_count(depth - 1);
+            copy_pos(&orig_state, &x_state_pos);
+        }
+    }
+
+    free(rc);
+    return nc;
 }

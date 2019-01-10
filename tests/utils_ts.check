@@ -1435,4 +1435,38 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 #tcase che_gt_node_count_tests
 
 #test che_gt_node_count_test_1
-    che_gt_node_count("hello", 1);
+    ck_assert(che_gt_node_count(INIT_POS, 0) == 1);
+    ck_assert(che_gt_node_count(NULL,     1) == 1 + 20);
+    ck_assert(che_gt_node_count(INIT_POS, 2) == 1 + 20 + 400);
+    ck_assert(che_gt_node_count(NULL,     3) == 1 + 20 + 400 + 8902);
+    ck_assert(che_gt_node_count(INIT_POS, 4) == 1 + 20 + 400 + 8902 + 197281);
+
+#test che_gt_node_count_test_2
+    const char fen[] = "K1k2n2/P3P3/8/8/8/8/8/8 w - - 12 34";
+    ck_assert(che_gt_node_count(fen, 0) == 1);
+    ck_assert(che_gt_node_count(fen, 1) == 1 + 8);
+
+#test che_gt_node_count_test_3
+    const char fen[] = "7K/4P3/8/8/8/8/4p3/7k w - - 12 34";
+    ck_assert(!che_fen_validator(fen));
+
+    ck_assert(che_gt_node_count(fen, 0) == 1);
+    ck_assert(che_gt_node_count(fen, 1) == 1 + 7);
+    ck_assert(che_gt_node_count(fen, 2) == 1 + 7 + 49);
+
+#test che_gt_node_count_test_4
+    ck_assert(che_gt_node_count(FEN_KIWIPETE, 3) == 1 + 48 + 2039 + 97862);
+
+#test che_gt_node_count_test_5
+    ck_assert(che_gt_node_count(FEN_PERFT_POS_3, 4) ==
+        1 + 14 + 191 + 2812 + 43238);
+
+#test che_gt_node_count_test_6
+    ck_assert(che_gt_node_count(FEN_PERFT_POS_4, 4) ==
+        1 + 6 + 264 + 9467 + 422333);
+
+#test che_gt_node_count_test_7
+    ck_assert(che_gt_node_count(FEN_PERFT_POS_5, 3) == 1 + 44 + 1486 + 62379);
+
+#test che_gt_node_count_test_8
+    ck_assert(che_gt_node_count(FEN_PERFT_POS_6, 3) == 1 + 46 + 2079 + 89890);

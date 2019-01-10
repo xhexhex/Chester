@@ -76,7 +76,7 @@ char *che_move_gen( const char *fens );
 char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
 void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
-long long che_gt_node_count( const char *fen, uint8_t depth );
+long long che_gt_node_count( const char *fen, uint8_t height );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 
