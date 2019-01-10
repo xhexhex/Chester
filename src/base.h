@@ -81,20 +81,6 @@ typedef struct {
     uint16_t hmc, fmn;
 } Pos;
 
-// TODO: doc
-struct gt_node {
-    Pos state;
-    struct gt_node *parent;
-    struct gt_node *children;
-};
-
-// TODO: doc
-struct game_tree {
-    struct gt_node *root;
-    uint8_t height;
-    uint32_t node_count;
-};
-
 // The expression evaluates to true iff it is White's turn to move.
 #define whites_turn(pos_ptr) (pos_ptr->turn_and_ca_flags & 0x80U)
 
@@ -111,8 +97,6 @@ void remove_castling_rights( Pos *p, const char *color, const char *side );
 char *get_ecaf( const Pos *p );
 void toggle_turn( Pos *p );
 char *single_san_make_move( const char *fen, const char *san );
-struct game_tree *build_game_tree( const char *fen, uint8_t height );
-void free_game_tree( struct game_tree *gt );
 
 #endif
 // End BASE_H

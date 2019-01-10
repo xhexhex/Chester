@@ -1428,3 +1428,11 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
             ck_assert(actual == expected);
         }
     }
+
+//
+// Test case
+//
+#tcase che_gt_node_count_tests
+
+#test che_gt_node_count_test_1
+    che_gt_node_count("hello", 1);

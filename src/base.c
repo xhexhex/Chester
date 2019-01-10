@@ -532,26 +532,6 @@ toggle_turn( Pos *p )
         p->turn_and_ca_flags |= (1 << 7);
 }
 
-// TODO: doc
-struct game_tree *
-build_game_tree( const char *fen, uint8_t height )
-{
-    assert(fen && height);
-
-    struct game_tree *gt = malloc(sizeof(struct game_tree));
-    gt->root = NULL;
-    gt->height = 0, gt->node_count = 1;
-
-    return gt;
-}
-
-// TODO: doc
-void
-free_game_tree( struct game_tree *gt )
-{
-    assert(gt);
-}
-
 /****************************
  ****                    ****
  ****  Static functions  ****

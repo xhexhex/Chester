@@ -42,6 +42,14 @@ static int x_qsort_string_compare( const void *a, const void *b );
  ****                      ****
  ******************************/
 
+// TODO: doc
+long long
+che_gt_node_count( const char *fen, const uint8_t depth )
+{
+    assert(fen && depth);
+    return 0;
+}
+
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
 // extended regular expression 'pat'.
 bool
