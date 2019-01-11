@@ -1859,3 +1859,24 @@ ck_assert( counter == exp_count );
         for(enum sq_dir dir = NORTH; dir <= NORTHWEST; ++dir)
             bb |= SQ_RAY[sq][dir];
         ck_assert(bb == (ROOK_SQS[sq] | BISHOP_SQS[sq])); }
+
+//
+// Test case
+//
+#tcase che_build_fen_gt_tests
+
+#test che_build_fen_gt_test_1
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 2);
+    printf("Root cc: %u\n", gt.cc[1]);
+    for(int i = 0; i < gt.cc[1]; i++) printf("%u  ", gt.children[1][i]);
+    printf("\n");
+
+    /*
+    printf("NC: %u\n", gt.nc);
+    for(uint32_t id = 1; id <= gt.nc; id++) {
+        // printf("%3u: \"%s\"\n", id, gt.fen[id]);
+        free(gt.fen[id]);
+    }
+    free(gt.fen);
+    printf("Cool!\n");
+    */

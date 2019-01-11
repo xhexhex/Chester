@@ -96,6 +96,79 @@ che_make_moves( const char *fen, const char *sans )
     return fens;
 }
 
+/*
+struct fen_game_tree {
+    char **fen;
+    uint8_t height, *cc; // cc, child count
+    // nc, node count; lo, level offset
+    uint32_t nc, perft, lo[30 + 1], *parent, **children;
+};
+ */
+// On child count 'cc':
+// * Should be considered a one-based array with 'gt.nc' elements
+// * To start with slots from 1 to gt.nc – gt.perft should be set to zero
+//   and slots from gt.nc – gt.perft + 1 to gt.nc to MAX_LEGAL_MOVE_COUNT + 1
+// * Why not initialize level offset 'lo' first?
+struct fen_game_tree
+che_build_fen_gt( const char *fen, uint8_t height )
+{
+    assert(height <= 30);
+    if(!fen) fen = INIT_POS;
+
+    for(int level = 0; level <= height; level++) {
+        printf(">> %lld\n", che_perft(fen, level, true));
+    }
+
+    struct fen_game_tree gt;
+    long long nc = che_gt_node_count(fen, height); // Mod so that is used only in assert()
+    assert(nc <= 100000000);
+    gt.nc = nc, gt.perft = che_perft(fen, height, true);
+    // printf("# %u\n", gt.nc);
+
+    gt.height = height;
+    assert((gt.cc = malloc((gt.nc + 1) * sizeof(uint8_t))));
+    for(uint32_t i = 1; i <= gt.nc; i++) gt.cc[i] = 0;
+
+    assert((gt.parent = malloc((gt.nc + 1) * sizeof(uint32_t))));
+    assert((gt.children = malloc((gt.nc + 1) * sizeof(void *))));
+    const int SLOT_COUNT = 50;
+    uint8_t *num_alloc_slots = malloc((gt.nc + 1) * sizeof(uint8_t));
+    for(uint32_t i = 1; i <= gt.nc; i++) {
+        assert((gt.children[i] = malloc(SLOT_COUNT * sizeof(uint32_t))));
+        num_alloc_slots[i] = SLOT_COUNT; }
+
+    // TODO: Named constant for 'lo' size
+    for(int i = 0; i <= 30; i++) gt.lo[i] = 0;
+
+    assert((gt.fen = malloc((gt.nc + 1) * sizeof(void *))));
+    assert((gt.fen[1] = malloc(strlen(fen) + 1)));
+    strcpy(gt.fen[1], fen);
+
+
+    uint32_t cur = 1, vac = 1; // current, vacant
+    for(; cur <= gt.nc - gt.perft; cur++) {
+        char *unmod_ptr = che_make_moves(gt.fen[cur], NULL),
+            *children = unmod_ptr, *child;
+        while((child = next_line(&children))) {
+            assert((gt.fen[++vac] = malloc(strlen(child) + 1)));
+            strcpy(gt.fen[vac], child);
+            // 'vac' is a child of 'cur'
+            if(gt.cc[cur] == num_alloc_slots[cur]) {
+                assert(false);
+            } else {
+                // printf("Hello? cur = %u, gt.cc[cur] = %u\n", cur, gt.cc[cur]);
+                // printf("+ %p\n", (void *) gt.children );
+                gt.children[cur][gt.cc[cur]] = vac;
+                // printf("Bye?\n");
+                ++gt.cc[cur];
+            }
+        }
+        free(unmod_ptr);
+    }
+
+    return gt;
+}
+
 // Returns the result of making the move 'san' in position 'fen'. For
 // example, the call
 // single_san_make_move("5k2/8/8/4p3/8/8/8/R3K2R w KQ e6 0 99", "O-O-O")

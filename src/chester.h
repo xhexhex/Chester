@@ -66,6 +66,14 @@ enum che_fen_error {
     FEN_KING_CAN_BE_CAPTURED_ERROR,
     FEN_HMCF_CONTRADICTS_FMNF_ERROR };
 
+// TODO: doc
+struct fen_game_tree {
+    char **fen;
+    uint8_t height, *cc; // cc, child count
+    // nc, node count; lo, level offset
+    uint32_t nc, perft, lo[30 + 1], *parent, **children;
+};
+
 //
 // The Chester interface
 //
@@ -77,6 +85,7 @@ char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
 void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
+struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 
