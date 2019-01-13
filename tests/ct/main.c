@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "ct_che_make_moves.h"
+#include "ct_che_build_fen_gt.h"
 #include "chester.h"
 
 int test_count, error_count;
@@ -29,6 +30,21 @@ x_test_che_perft_with_range_of_levels( const char *fen, int first,
 int
 main()
 {
+    /*
+    printf("Forever I code\n");
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 3);
+    assert(gt.nc == 9323);
+    che_free_fen_gt(gt);
+    */
+
+    struct fen_game_tree gt_ip4 = che_build_fen_gt(NULL, 4);
+    assert(gt_ip4.nc == 206604);
+    che_build_fen_gt_tw_fools_mate(gt_ip4);
+    che_build_fen_gt_tw_ip4_stats(gt_ip4);
+    che_free_fen_gt(gt_ip4);
+
+    return 0;
+
     printf("Remember Valgrind!\n");
 
     const bool quick = true, mt = true; // mt, multithreading

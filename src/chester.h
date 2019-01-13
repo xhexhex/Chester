@@ -66,12 +66,15 @@ enum che_fen_error {
     FEN_KING_CAN_BE_CAPTURED_ERROR,
     FEN_HMCF_CONTRADICTS_FMNF_ERROR };
 
+// FEN game tree level offset (array) size
+#define FGT_LO_SIZE 21
+
 // TODO: doc
 struct fen_game_tree {
     char **fen;
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
-    uint32_t nc, perft, lo[30 + 1], *parent, **children;
+    uint32_t nc, lo[FGT_LO_SIZE], *parent, **children;
 };
 
 //
@@ -86,6 +89,7 @@ void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
 struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
+void che_free_fen_gt( struct fen_game_tree gt );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

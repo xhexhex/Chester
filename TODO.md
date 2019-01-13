@@ -18,3 +18,4 @@
 * Remove `SBA[]`
 * Add hashing support to `che_perft()`
 * Update `in_between()` so it makes use of square rays
+* Refactor and document `che_{build,free}_fen_gt()`

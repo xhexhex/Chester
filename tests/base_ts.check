@@ -48,6 +48,22 @@ create_APM_DATA_duplicate()
     return dup;
 }
 
+static int
+x_fen_find_and_count(char **fen, uint32_t size, char *search_key,
+    uint32_t *ids)
+{
+    int match_count = 0, index = -1;
+
+    for(uint32_t id = 1; id <= size; id++) {
+        if(!strcmp(fen[id], search_key)) {
+            ++match_count;
+            if(ids) ids[++index] = id;
+        }
+    }
+
+    return match_count;
+}
+
 #suite base_ts
 
 //
@@ -1866,17 +1882,65 @@ ck_assert( counter == exp_count );
 #tcase che_build_fen_gt_tests
 
 #test che_build_fen_gt_test_1
-    struct fen_game_tree gt = che_build_fen_gt(NULL, 2);
-    printf("Root cc: %u\n", gt.cc[1]);
-    for(int i = 0; i < gt.cc[1]; i++) printf("%u  ", gt.children[1][i]);
-    printf("\n");
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 0);
 
-    /*
-    printf("NC: %u\n", gt.nc);
-    for(uint32_t id = 1; id <= gt.nc; id++) {
-        // printf("%3u: \"%s\"\n", id, gt.fen[id]);
-        free(gt.fen[id]);
-    }
-    free(gt.fen);
-    printf("Cool!\n");
-    */
+    ck_assert(!strcmp(INIT_POS, gt.fen[1]));
+    ck_assert(gt.height == 0);
+    ck_assert(gt.nc == 1);
+    ck_assert(gt.lo[0] == 1);
+    ck_assert(!gt.parent[1]);
+
+    che_free_fen_gt(gt);
+
+#test che_build_fen_gt_test_2
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 1);
+
+    ck_assert(!gt.parent[1]);
+    for(uint32_t id = 2; id <= gt.nc; id++)
+        ck_assert(gt.parent[id] == 1);
+    ck_assert(gt.height == 1);
+    ck_assert(gt.nc == 21);
+    ck_assert(gt.cc[1] == 20);
+    for(int i = 0; i < (int) gt.cc[1]; i++)
+        ck_assert(gt.children[1][i] == (uint32_t) (i + 2));
+    ck_assert(gt.lo[0] == 1);
+    ck_assert(gt.lo[1] == 2);
+
+    che_free_fen_gt(gt);
+
+#test che_build_fen_gt_test_3
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 2);
+
+    ck_assert(gt.nc == 421);
+    uint32_t cc = 0;
+    for(uint32_t id = 1; id < gt.lo[2]; id++) cc += gt.cc[id];
+    ck_assert(cc == gt.nc - 1);
+    uint32_t id;
+    ck_assert( x_fen_find_and_count(gt.fen, gt.nc,
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+        &id) == 1 );
+    ck_assert(!strcmp("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b "
+        "KQkq e3 0 1", gt.fen[ gt.parent[id] ]));
+    ck_assert(!strcmp(INIT_POS, gt.fen[ gt.parent[ gt.parent[id] ] ]));
+
+    che_free_fen_gt(gt);
+
+#test che_build_fen_gt_test_4
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 3);
+
+    ck_assert(gt.nc == 9323);
+    uint32_t cc = 0;
+    for(uint32_t id = 1; id < gt.lo[gt.height]; id++) cc += gt.cc[id];
+    ck_assert(cc == gt.nc - 1);
+    ck_assert(x_fen_find_and_count(gt.fen, gt.nc,
+        "rnbqkbnr/ppp1pppp/8/3p4/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 1 2",
+        NULL) == 2);
+
+    che_free_fen_gt(gt);
+
+#test che_build_fen_gt_test_5
+    struct fen_game_tree gt = che_build_fen_gt(FEN_SUPERPOSITION_1, 1);
+
+    ck_assert(gt.nc == MAX_LEGAL_MOVE_COUNT + 1);
+
+    che_free_fen_gt(gt);

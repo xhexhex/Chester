@@ -96,77 +96,82 @@ che_make_moves( const char *fen, const char *sans )
     return fens;
 }
 
-/*
-struct fen_game_tree {
-    char **fen;
-    uint8_t height, *cc; // cc, child count
-    // nc, node count; lo, level offset
-    uint32_t nc, perft, lo[30 + 1], *parent, **children;
-};
- */
-// On child count 'cc':
-// * Should be considered a one-based array with 'gt.nc' elements
-// * To start with slots from 1 to gt.nc – gt.perft should be set to zero
-//   and slots from gt.nc – gt.perft + 1 to gt.nc to MAX_LEGAL_MOVE_COUNT + 1
-// * Why not initialize level offset 'lo' first?
+// TODO: doc
 struct fen_game_tree
 che_build_fen_gt( const char *fen, uint8_t height )
 {
-    assert(height <= 30);
+    assert(height < FGT_LO_SIZE);
     if(!fen) fen = INIT_POS;
 
-    for(int level = 0; level <= height; level++) {
-        printf(">> %lld\n", che_perft(fen, level, true));
-    }
-
     struct fen_game_tree gt;
-    long long nc = che_gt_node_count(fen, height); // Mod so that is used only in assert()
-    assert(nc <= 100000000);
-    gt.nc = nc, gt.perft = che_perft(fen, height, true);
-    // printf("# %u\n", gt.nc);
 
-    gt.height = height;
-    assert((gt.cc = malloc((gt.nc + 1) * sizeof(uint8_t))));
-    for(uint32_t i = 1; i <= gt.nc; i++) gt.cc[i] = 0;
+    gt.nc = 0, gt.lo[0] = 1, gt.height = height;
+    for(int level = 1; level <= height; level++) {
+        gt.nc += che_perft(fen, level - 1, true);
+        gt.lo[level] = gt.nc + 1; }
+    gt.nc += che_perft(fen, height, true);
+
+    long long nc2 = che_gt_node_count(fen, height);
+    assert(nc2 <= 100000000);
+    assert(nc2 == gt.nc);
+
+    const uint32_t BHNC = gt.lo[height] - 1; // BHNC, below height node count
+    assert((gt.cc = malloc((BHNC + 1) * sizeof(uint8_t))));
+    for(uint32_t id = 1; id <= BHNC; id++) gt.cc[id] = 0;
+    assert((gt.children = malloc((BHNC + 1) * sizeof(void *))));
+    const int SLOT_COUNT = 50;
+    uint8_t *num_alloc_slots = malloc((BHNC + 1) * sizeof(uint8_t));
+    for(uint32_t id = 1; id <= BHNC; id++) {
+        assert((gt.children[id] = malloc(SLOT_COUNT * sizeof(uint32_t))));
+        num_alloc_slots[id] = SLOT_COUNT; }
 
     assert((gt.parent = malloc((gt.nc + 1) * sizeof(uint32_t))));
-    assert((gt.children = malloc((gt.nc + 1) * sizeof(void *))));
-    const int SLOT_COUNT = 50;
-    uint8_t *num_alloc_slots = malloc((gt.nc + 1) * sizeof(uint8_t));
-    for(uint32_t i = 1; i <= gt.nc; i++) {
-        assert((gt.children[i] = malloc(SLOT_COUNT * sizeof(uint32_t))));
-        num_alloc_slots[i] = SLOT_COUNT; }
-
-    // TODO: Named constant for 'lo' size
-    for(int i = 0; i <= 30; i++) gt.lo[i] = 0;
+    gt.parent[1] = 0;
 
     assert((gt.fen = malloc((gt.nc + 1) * sizeof(void *))));
     assert((gt.fen[1] = malloc(strlen(fen) + 1)));
     strcpy(gt.fen[1], fen);
 
-
     uint32_t cur = 1, vac = 1; // current, vacant
-    for(; cur <= gt.nc - gt.perft; cur++) {
+    for(; cur < gt.lo[height]; cur++) {
         char *unmod_ptr = che_make_moves(gt.fen[cur], NULL),
             *children = unmod_ptr, *child;
+
         while((child = next_line(&children))) {
+            // 'vac' is a child of 'cur'
             assert((gt.fen[++vac] = malloc(strlen(child) + 1)));
             strcpy(gt.fen[vac], child);
-            // 'vac' is a child of 'cur'
+
             if(gt.cc[cur] == num_alloc_slots[cur]) {
-                assert(false);
-            } else {
-                // printf("Hello? cur = %u, gt.cc[cur] = %u\n", cur, gt.cc[cur]);
-                // printf("+ %p\n", (void *) gt.children );
-                gt.children[cur][gt.cc[cur]] = vac;
-                // printf("Bye?\n");
-                ++gt.cc[cur];
-            }
-        }
+                num_alloc_slots[cur] += SLOT_COUNT;
+                gt.children[cur] = realloc(gt.children[cur],
+                    num_alloc_slots[cur] * sizeof(uint32_t)); }
+
+            gt.parent[vac] = cur, gt.children[cur][gt.cc[cur]] = vac;
+            ++gt.cc[cur]; }
+
         free(unmod_ptr);
     }
 
+    for(uint32_t id = 1; id <= BHNC; id++)
+        gt.children[id] = realloc(gt.children[id],
+            gt.cc[id] * sizeof(uint32_t));
+    free(num_alloc_slots);
+
     return gt;
+}
+
+// TODO: doc
+void
+che_free_fen_gt( struct fen_game_tree gt )
+{
+    for(uint32_t id = 1; id <= gt.nc; id++)
+        free(gt.fen[id]);
+    free(gt.fen), free(gt.cc), free(gt.parent);
+
+    for(uint32_t id = 1; id < gt.lo[gt.height]; id++)
+        free(gt.children[id]);
+    free(gt.children);
 }
 
 // Returns the result of making the move 'san' in position 'fen'. For
