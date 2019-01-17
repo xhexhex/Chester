@@ -132,8 +132,8 @@ FUNCTION_MAKER(3, NULL
 #undef FAIL_MSG
 
 /*
-    ct_perft_v1(INIT_POS, 4, 197281, false)
-    ---------------------------------------
+    ct_fen_based_perft(INIT_POS, 4, 197281, false)
+    ----------------------------------------------
     real    9m59.843s
     real    8m45.880s
     real    8m8.033s
@@ -145,6 +145,7 @@ FUNCTION_MAKER(3, NULL
     real    0m18.995s
     real    0m16.784s
     real    0m15.919s
+    real    0m5.397s
 */
 void
 ct_fen_based_perft( const char *root, int depth, int expected_nc,

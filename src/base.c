@@ -59,7 +59,7 @@ che_make_moves( const char *fen, const char *sans )
 
     bool fc = !sans; // fc, find children
     if(fc) {
-        sans = che_move_gen(fen);
+        sans = che_move_gen(fen); // This seems to be the root of all evil
         assert(sans && strlen(sans) >= 1);
         if(sans[0] == '-') {
             char *empty_str = malloc(1 * sizeof(char));

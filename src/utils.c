@@ -167,7 +167,7 @@ occupant_of_sq( const Pos *p, Bitboard sq_bit )
 char
 file_of_sq( Bitboard sq_bit )
 {
-    assert( is_sq_bit(sq_bit) );
+    // assert( is_sq_bit(sq_bit) );
 
     for( char file_letter = 'a'; file_letter <= 'h'; file_letter++ )
         if( sq_bit & file(file_letter) )
@@ -182,7 +182,7 @@ file_of_sq( Bitboard sq_bit )
 char
 rank_of_sq( Bitboard sq_bit )
 {
-    assert( is_sq_bit(sq_bit) );
+    // assert( is_sq_bit(sq_bit) );
 
     for( char rank_number = '1'; rank_number <= '8'; rank_number++ )
         if( sq_bit & rank(rank_number) )
@@ -640,10 +640,13 @@ copy_pos( const Pos *p, Pos *copy )
 Bitboard
 file( char letter )
 {
+    /*
     assert( letter >= 'a' && letter <= 'h' );
-
     Bitboard file_bb =
         (SB.a1 | SB.a2 | SB.a3 | SB.a4 | SB.a5 | SB.a6 | SB.a7 | SB.a8);
+    */
+
+    Bitboard file_bb = 0x101010101010101ULL;
     return file_bb << (letter - 'a');
 }
 

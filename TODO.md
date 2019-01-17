@@ -19,3 +19,5 @@
 * Add hashing support to `che_perft()`
 * Update `in_between()` so it makes use of square rays
 * Refactor and document `che_{build,free}_fen_gt()`
+* Function `is_castle()` has been optimized but functions `is_short_castle()`
+  and `is_long_castle()` have not

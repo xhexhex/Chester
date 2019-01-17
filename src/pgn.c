@@ -92,16 +92,16 @@ san_to_rawcode( const Pos *p, const char *san )
 char *
 rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
 {
-    ASSERT_FOR_PROMOTION
+    // ASSERT_FOR_PROMOTION
 
-    Chessman mover, target; int orig, dest;
+    Chessman mover, target;
+    int orig, dest;
     set_mover_target_orig_and_dest(p, rc, &mover, &target, &orig, &dest);
-    assert(mover != EMPTY_SQUARE);
 
     if(is_castle(p, rc))
         return x_rawcode_to_san_castling_move(p, rc, promotion);
 
-    ASSERT_FOR_MOVER_AND_TARGET
+    // ASSERT_FOR_MOVER_AND_TARGET
 
     int san_length = 2; // Min length of a SAN, e.g., "e4"
     char *piece_letter = x_rawcode_to_san_set_piece_letter(p, rc, mover,
@@ -123,7 +123,9 @@ rawcode_to_san( const Pos *p, Rawcode rc, char promotion )
         free(promotion_indicator), free(check_or_mate);
 
     assert((int) strlen(san) == san_length);
-    assert(che_is_san(san));
+    // Very expensive!
+    // assert(che_is_san(san));
+
     return san;
 }
 
@@ -253,7 +255,7 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
         default: assert(false); }
 
     bool w = whites_turn(p);
-    Bitboard osb = SBA[orig], dsb = SBA[dest], // orig/dest square bit
+    Bitboard osb = ONE << orig, dsb = ONE << dest, // orig/dest square bit
         pwa = 0; // pieces with access
 
     if(type == 'N') {
@@ -262,17 +264,27 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
         for(enum sq_dir dir = NORTH; dir <= NORTHWEST; dir++) {
             if(type == 'R' && dir % 2) continue;
             if(type == 'B' && !(dir % 2)) continue;
+            if(type == 'Q' && !(SQ_RAY[dest][dir] & p->ppa[
+                    w ? WHITE_QUEEN : BLACK_QUEEN]))
+                continue;
+            if(type == 'R' && !(SQ_RAY[dest][dir] & p->ppa[
+                    w ? WHITE_ROOK : BLACK_ROOK]))
+                continue;
+            if(type == 'B' && !(SQ_RAY[dest][dir] & p->ppa[
+                    w ? WHITE_BISHOP : BLACK_BISHOP]))
+                continue;
+
             Bitboard sb = dsb;
             Chessman index = (type == 'Q') ? WHITE_QUEEN : ((type == 'R') ?
                 WHITE_ROOK : WHITE_BISHOP);
             if(!w) index += 6;
-            while((sb = sq_nav(sb, dir)) && (sb & p->ppa[EMPTY_SQUARE]));
+            while((sb = SQ_NAV[bindex(sb)][dir]) && (sb & p->ppa[EMPTY_SQUARE]));
             if(sb & p->ppa[index]) pwa |= sb;
         }
     }
 
-    assert(osb & pwa);
     int num_pwa = bit_count(pwa);
+    assert(osb & pwa);
     assert(num_pwa);
     assert(((type == 'Q' || type == 'N') && num_pwa <= 8) ||
         ((type == 'R' || type == 'B') && num_pwa <= 4));
@@ -280,15 +292,15 @@ x_rawcode_to_san_set_disambiguator( const Pos *p, Chessman mover, int orig,
     if(num_pwa == 1) return disambiguator;
 
     ++*san_length;
-    Bitboard file_of_osb = file(file_of_sq(osb)), the_pwa_on_file_of_orig =
-        (file_of_osb & pwa);
+    Bitboard file_of_osb = osb | SQ_RAY[orig][NORTH] | SQ_RAY[orig][SOUTH],
+        the_pwa_on_file_of_orig = file_of_osb & pwa;
     assert(the_pwa_on_file_of_orig);
     if(bit_count(the_pwa_on_file_of_orig) == 1) {
         disambiguator[0] = file_of_sq(osb);
         return disambiguator; }
 
-    Bitboard rank_of_osb = rank(rank_of_sq(osb)), the_pwa_on_rank_of_orig =
-        (rank_of_osb & pwa);
+    Bitboard rank_of_osb = osb | SQ_RAY[orig][EAST] | SQ_RAY[orig][WEST],
+        the_pwa_on_rank_of_orig = rank_of_osb & pwa;
     assert(the_pwa_on_rank_of_orig);
     if(bit_count(the_pwa_on_rank_of_orig) == 1) {
         disambiguator[0] = rank_of_sq(osb);
@@ -304,7 +316,14 @@ x_rawcode_to_san_castling_move( const Pos *p, Rawcode rc, char promotion )
 {
     char *castle_san = (char *) malloc(6 + 1); // "O-O-O+"
     strcpy(castle_san, "O-O");
-    if(is_long_castle(p, rc)) strcat(castle_san, "-O");
+
+    int dest = RC_DEST_SQ_BINDEX[rc];
+    bool w = whites_turn(p);
+    // It is assumed that 'rc' is a castling move. The condition of the if
+    // statement determines whether it's a long castle.
+    if((w && ONE << dest & p->irp[0]) ||
+            (!w && ONE << (dest - 56) & p->irp[0]))
+        strcat(castle_san, "-O");
 
     Pos after_move;
     copy_pos(p, &after_move);
@@ -353,8 +372,8 @@ x_rawcode_to_san_set_promotion_indicator( const Pos *p, Rawcode rc,
     if(is_promotion(p, rc))
         promotion_indicator[0] = '=',
             promotion_indicator[1] = toupper(promotion);
-    *san_length += strlen(promotion_indicator);
 
+    *san_length += strlen(promotion_indicator);
     return promotion_indicator;
 }
 
@@ -367,11 +386,11 @@ x_rawcode_to_san_set_check_or_mate( const Pos *p, Rawcode rc, char promotion,
     Pos after_move;
     copy_pos(p, &after_move);
     make_move(&after_move, rc, tolower(promotion));
-    if(king_in_check(&after_move)) {
-        check_or_mate[0] = '+';
-        if(checkmate(&after_move)) check_or_mate[0] = '#'; }
-    *san_length += strlen(check_or_mate);
 
+    if(king_in_check(&after_move))
+        check_or_mate[0] = checkmate(&after_move) ? '#' : '+';
+
+    *san_length += strlen(check_or_mate);
     return check_or_mate;
 }
 

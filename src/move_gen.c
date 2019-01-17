@@ -78,6 +78,8 @@ che_move_gen( const char *fens )
         *fen, *results = malloc(num_alloc_bytes);
     strcpy(fen_data, fens), strcpy(results, "");
 
+    // if(true) return NULL;
+
     while((fen = next_line(&fen_data))) {
         ++iter_count;
         char *moves = single_fen_move_gen(fen);
@@ -163,6 +165,7 @@ single_fen_move_gen( const char *fen )
             free(tmp_san);
         } while(pindex > 1 && pindex < 5);
     }
+
     assert(num_legal_moves >= 0);
     assert(num_legal_moves <= MAX_LEGAL_MOVE_COUNT);
     for(int i = 0; str_data[i]; i++)
@@ -547,22 +550,22 @@ castle( const Pos *p, const char *castle_type )
 #define INIT_VARS \
     Chessman mover, target; \
     int orig, dest; \
-    set_mover_target_orig_and_dest( p, move, &mover, &target, \
+    set_mover_target_orig_and_dest( p, rc, &mover, &target, \
         &orig, &dest );
 
-// Returns true if the move represented by 'move' is O-O in position 'p';
+// Returns true if the move represented by 'rc' is O-O in position 'p';
 // otherwise returns false.
 bool
-is_short_castle( const Pos *p, Rawcode move )
+is_short_castle( const Pos *p, Rawcode rc )
 {
     INIT_VARS
     RETURN_STATEMENT(1)
 }
 
-// Returns true if the move represented by 'move' is O-O-O in position 'p';
+// Returns true if the move represented by 'rc' is O-O-O in position 'p';
 // otherwise returns false.
 bool
-is_long_castle( const Pos *p, Rawcode move )
+is_long_castle( const Pos *p, Rawcode rc )
 {
     INIT_VARS
     RETURN_STATEMENT(0)
@@ -570,17 +573,17 @@ is_long_castle( const Pos *p, Rawcode move )
 
 #undef RETURN_STATEMENT
 
-// Returns true if the move represented by 'move' is a capture in
+// Returns true if the move represented by 'rc' is a capture in
 // position 'p'; otherwise returns false.
 bool
-is_capture( const Pos *p, Rawcode move )
+is_capture( const Pos *p, Rawcode rc )
 {
     INIT_VARS
 
     assert( target != WHITE_KING && target != BLACK_KING );
 
     return
-        is_en_passant_capture(p, move) ||
+        is_en_passant_capture(p, rc) ||
         (
             mover >= WHITE_KING && mover <= WHITE_PAWN &&
             target >= BLACK_QUEEN && target <= BLACK_PAWN
@@ -591,17 +594,17 @@ is_capture( const Pos *p, Rawcode move )
         );
 }
 
-// Returns true if the move represented by 'move' is a pawn advance
+// Returns true if the move represented by 'rc' is a pawn advance
 // in position 'p'; otherwise returns false.
 bool
-is_pawn_advance( const Pos *p, Rawcode move )
+is_pawn_advance( const Pos *p, Rawcode rc )
 {
     INIT_VARS
-    assert( !is_single_step_pawn_advance(p, move) ||
-        !is_double_step_pawn_advance(p, move) );
+    assert( !is_single_step_pawn_advance(p, rc) ||
+        !is_double_step_pawn_advance(p, rc) );
 
-    return is_single_step_pawn_advance(p, move) ||
-        is_double_step_pawn_advance(p, move);
+    return is_single_step_pawn_advance(p, rc) ||
+        is_double_step_pawn_advance(p, rc);
 }
 
 // Not tested
@@ -609,10 +612,10 @@ is_pawn_advance( const Pos *p, Rawcode move )
     assert( (mover != WHITE_PAWN && mover != BLACK_PAWN) || \
         ( !(SBA[orig] & rank('1')) && !(SBA[orig] & rank('8')) ) );
 
-// Returns true if 'move' is a *single step* pawn advance in
+// Returns true if 'rc' is a *single step* pawn advance in
 // position 'p'; otherwise returns false.
 bool
-is_single_step_pawn_advance( const Pos *p, Rawcode move )
+is_single_step_pawn_advance( const Pos *p, Rawcode rc )
 {
     INIT_VARS
     ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
@@ -621,10 +624,10 @@ is_single_step_pawn_advance( const Pos *p, Rawcode move )
         (mover == BLACK_PAWN && SBA[dest] == (SBA[orig] >> 8));
 }
 
-// Returns true if 'move' is a *double step* pawn advance in
+// Returns true if 'rc' is a *double step* pawn advance in
 // position 'p'; otherwise returns false.
 bool
-is_double_step_pawn_advance( const Pos *p, Rawcode move )
+is_double_step_pawn_advance( const Pos *p, Rawcode rc )
 {
     INIT_VARS
     ASSERT_THAT_MOVER_NOT_PAWN_ON_FIRST_OR_LAST_RANK
@@ -653,6 +656,9 @@ is_promotion( const Pos *p, Rawcode rc )
         if((ONE << orig) & p->ppa[cm]) { mover = cm; break; }
 
     if( mover != WHITE_PAWN && mover != BLACK_PAWN ) return false;
+    if((mover == WHITE_PAWN && dest < 56) ||
+            (mover == BLACK_PAWN && dest > 7))
+        return false;
 
     Bitboard pawn = ONE << orig, pros_prom_sq = ONE << dest;
 
@@ -668,10 +674,10 @@ is_promotion( const Pos *p, Rawcode rc )
         (dest >= orig - 9 && dest <= orig - 7) );
 }
 
-// Returns true if and only if 'move' is an en passant capture
+// Returns true if and only if 'rc' is an en passant capture
 // in position 'p'.
 bool
-is_en_passant_capture( const Pos *p, Rawcode move )
+is_en_passant_capture( const Pos *p, Rawcode rc )
 {
     INIT_VARS
 
@@ -696,13 +702,22 @@ is_en_passant_capture( const Pos *p, Rawcode move )
 
 #undef INIT_VARS
 
-// Returns true iff 'move' is a castling move (either O-O or O-O-O)
+// Returns true iff 'rc' is a castling move (either O-O or O-O-O)
 // in position 'p'.
 bool
-is_castle( const Pos *p, Rawcode move )
+is_castle( const Pos *p, Rawcode rc )
 {
-    assert( !( is_short_castle(p, move) && is_long_castle(p, move) ) );
-    return is_short_castle(p, move) || is_long_castle(p, move);
+    int orig = RC_ORIG_SQ_BINDEX[rc], dest = RC_DEST_SQ_BINDEX[rc];
+    bool
+        mover_is_wk  = ONE << orig & p->ppa[WHITE_KING],
+        mover_is_bk  = ONE << orig & p->ppa[BLACK_KING],
+        target_is_wr = ONE << dest & p->ppa[WHITE_ROOK],
+        target_is_br = ONE << dest & p->ppa[BLACK_ROOK];
+
+    assert( !(mover_is_wk && mover_is_bk) );
+    assert( !(target_is_wr && target_is_br) );
+
+    return (mover_is_wk && target_is_wr) || (mover_is_bk && target_is_br);
 }
 
 // Returns true iff the king of the active color is in check in position 'p'.
