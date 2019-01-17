@@ -1335,3 +1335,20 @@
         "Ra6 Ra7 a3 axb3# c3 cxb3")
 
 #undef TEST_WITH_ARGS
+
+//
+// Test case
+//
+#tcase king_in_check_tests
+
+#test king_in_check_test_1
+    struct fen_game_tree gt_ip3 = che_build_fen_gt(NULL, 3);
+    int check_count = 0;
+
+    for(uint32_t id = 1; id <= gt_ip3.nc; id++) {
+        const Pos *p = fen_to_pos(gt_ip3.fen[id]);
+        if(king_in_check(p)) ++check_count;
+        free((void *) p); }
+
+    che_free_fen_gt(gt_ip3);
+    ck_assert(check_count == 12);

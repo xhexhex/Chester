@@ -30,15 +30,24 @@ che_build_fen_gt_tw_fools_mate( struct fen_game_tree gt_ip4 )
         gt_ip4.fen[ gt_ip4.parent[ids[1]] ]));
 }
 
+// DON'T FORGET V2! (the DFS-based version)
 // ip4, initial position (height 4)
 void
-che_build_fen_gt_tw_ip4_stats( struct fen_game_tree gt_ip4 )
+che_build_fen_gt_tw_ip4_stats_v1( struct fen_game_tree gt_ip4 )
 {
+    int check_count = 0, mate_count = 0;
+    const int CHECK_COUNT = 469 + 12, MATE_COUNT = 8;
+
     for(uint32_t id = 1; id <= gt_ip4.nc; id++) {
         const Pos *p = fen_to_pos(gt_ip4.fen[id]);
-        if(checkmate(p)) printf("\"%s\"\n", gt_ip4.fen[id]);
-        free((void *) p);
-    }
+
+        if(king_in_check(p)) ++check_count;
+        if(checkmate(p)) ++mate_count;
+
+        free((void *) p); }
+
+    assert(check_count == CHECK_COUNT);
+    assert(mate_count == MATE_COUNT);
 }
 
 //
@@ -49,6 +58,8 @@ static int
 x_fen_find_and_count( struct fen_game_tree gt, const char *search_key,
     uint32_t *ids )
 {
+    // printf("%s: What's the right way to traverse a tree?\n", __func__);
+
     int match_count = 0, index = -1;
 
     for(uint32_t id = 1; id <= gt.nc; id++) {

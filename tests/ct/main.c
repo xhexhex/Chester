@@ -7,6 +7,8 @@
 #include "ct_che_make_moves.h"
 #include "ct_che_build_fen_gt.h"
 #include "chester.h"
+// Remove!
+#include "../../src/utils.h"
 
 int test_count, error_count;
 
@@ -30,22 +32,43 @@ x_test_che_perft_with_range_of_levels( const char *fen, int first,
 int
 main()
 {
-    /*
-    printf("Forever I code\n");
-    struct fen_game_tree gt = che_build_fen_gt(NULL, 3);
-    assert(gt.nc == 9323);
-    che_free_fen_gt(gt);
-    */
+    const char FEN[] = FEN_PERFT_POS_5;
+    const int COUNT = 5000;
 
-    struct fen_game_tree gt_ip4 = che_build_fen_gt(NULL, 4);
-    assert(gt_ip4.nc == 206604);
-    che_build_fen_gt_tw_fools_mate(gt_ip4);
-    che_build_fen_gt_tw_ip4_stats(gt_ip4);
-    che_free_fen_gt(gt_ip4);
+    long long t0 = time_in_milliseconds();
+    for(int count = 1; count <= COUNT; count++) {
+        char *fens = che_make_moves(FEN, NULL);
+        free(fens); }
+    long long t1 = time_in_milliseconds();
+
+    printf("The che_make_moves() test took %lld ms\n", t1 - t0);
+
+    // [ 1] The che_make_moves() test took 15943 ms
 
     return 0;
 
-    printf("Remember Valgrind!\n");
+    //
+    //
+    //
+
+    /*
+    long long t0 = time_in_milliseconds();
+    struct fen_game_tree gt_ip4 = che_build_fen_gt(NULL, 4);
+    long long t1 = time_in_milliseconds();
+    // 2019-01-17: Building gt_ip4 took 12641 ms
+    printf("Building gt_ip4 took %lld ms\n", t1 - t0);
+
+    assert(gt_ip4.nc == 197281 + 8902 + 400 + 20 + 1);
+    che_build_fen_gt_tw_fools_mate(gt_ip4);
+    che_build_fen_gt_tw_ip4_stats_v1(gt_ip4);
+
+    che_free_fen_gt(gt_ip4);
+    return 0;
+    */
+
+    //
+    //
+    //
 
     const bool quick = true, mt = true; // mt, multithreading
     char test_group_id = 'A';
