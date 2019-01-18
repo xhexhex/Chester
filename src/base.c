@@ -111,11 +111,8 @@ che_build_fen_gt( const char *fen, uint8_t height )
         gt.lo[level] = gt.nc + 1; }
     gt.nc += che_perft(fen, height, true);
 
-    long long nc2 = che_gt_node_count(fen, height);
-    assert(nc2 <= 100000000);
-    assert(nc2 == gt.nc);
-
-    const uint32_t BHNC = gt.lo[height] - 1; // BHNC, below height node count
+    // BHNC, below height node count
+    const uint32_t BHNC = gt.lo[height] - 1;
     assert((gt.cc = malloc((BHNC + 1) * sizeof(uint8_t))));
     for(uint32_t id = 1; id <= BHNC; id++) gt.cc[id] = 0;
     assert((gt.children = malloc((BHNC + 1) * sizeof(void *))));
@@ -134,7 +131,7 @@ che_build_fen_gt( const char *fen, uint8_t height )
 
     uint32_t cur = 1, vac = 1; // current, vacant
     for(; cur < gt.lo[height]; cur++) {
-        char *unmod_ptr = che_make_moves(gt.fen[cur], NULL),
+        char *unmod_ptr = che_children(gt.fen[cur]),
             *children = unmod_ptr, *child;
 
         while((child = next_line(&children))) {
@@ -151,7 +148,7 @@ che_build_fen_gt( const char *fen, uint8_t height )
             ++gt.cc[cur]; }
 
         free(unmod_ptr);
-    }
+    } // End for
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -172,6 +169,46 @@ che_free_fen_gt( struct fen_game_tree gt )
     for(uint32_t id = 1; id < gt.lo[gt.height]; id++)
         free(gt.children[id]);
     free(gt.children);
+}
+
+// TODO: doc
+char *che_children( const char *fen )
+{
+    const Pos *p = fen_to_pos(fen);
+    Rawcode *rc = rawcodes(p);
+    const int num_rc = *rc;
+    int index = 0, prom_count = 0;
+    const char piece[] = "-qrbn";
+    Pos pos_child;
+    char *tmp_children[MAX_LEGAL_MOVE_COUNT + 1];
+
+    for(int i = 1; i <= num_rc; i++) {
+        bool prom = is_promotion(p, rc[i]);
+        if(prom) ++prom_count;
+
+        for(int j = prom ? 1 : 0; j < (prom ? 5 : 1); j++) {
+            copy_pos(p, &pos_child);
+            make_move(&pos_child, rc[i], piece[j]);
+            tmp_children[++index] = pos_to_fen(&pos_child);
+        }
+    }
+
+    assert(index == num_rc + 3 * prom_count);
+
+    int alloc_bytes_count = 1; // One byte for terminating null char
+    for(int i = 1; i <= index; i++)
+        alloc_bytes_count += strlen(tmp_children[i]) + 1; // FEN plus '\n'
+
+    char *children = malloc(alloc_bytes_count * sizeof(char));
+    strcpy(children, "");
+    for(int i = 1; i <= index; i++)
+        strcat(children, tmp_children[i]), strcat(children, "\n");
+    assert((int) strlen(children) == alloc_bytes_count - 1);
+
+    for(int i = 1; i <= index; i++) free(tmp_children[i]);
+    free((void *) p), free(rc);
+
+    return children;
 }
 
 // Returns the result of making the move 'san' in position 'fen'. For

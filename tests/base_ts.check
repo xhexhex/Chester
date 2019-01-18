@@ -1944,3 +1944,41 @@ ck_assert( counter == exp_count );
     ck_assert(gt.nc == MAX_LEGAL_MOVE_COUNT + 1);
 
     che_free_fen_gt(gt);
+
+//
+// Test case
+//
+#tcase che_children_tests
+
+#test che_children_test_1
+    char *c1 = che_children(INIT_POS),
+        *c2 = che_make_moves(INIT_POS, NULL);
+
+    ck_assert(strlen(c1) == strlen(c2));
+
+    int freq_1[128], freq_2[128];
+    for(int i = 0; i < 128; i++) freq_1[i] = 0, freq_2[i] = 0;
+    for(int i = 0; i < (int) strlen(c1); i++)
+        ++freq_1[(int) c1[i]], ++freq_2[(int) c2[i]];
+
+    assert(freq_1[(int) '\n'] == 20);
+    for(int i = 0; i < 128; i++) ck_assert(freq_1[i] == freq_2[i]);
+
+    free(c1), free(c2);
+
+#test che_children_test_2
+    const char fen[] = "k7/pp6/P7/1P6/8/8/4p3/7K b - - 12 34";
+    ck_assert(!che_fen_validator(fen));
+
+    const char expected[] =
+        "1k6/pp6/P7/1P6/8/8/4p3/7K w - - 13 35\n"
+        "k7/p7/p7/1P6/8/8/4p3/7K w - - 0 35\n"
+        "k7/p7/Pp6/1P6/8/8/4p3/7K w - - 0 35\n"
+        "k7/pp6/P7/1P6/8/8/8/4q2K w - - 0 35\n"
+        "k7/pp6/P7/1P6/8/8/8/4r2K w - - 0 35\n"
+        "k7/pp6/P7/1P6/8/8/8/4b2K w - - 0 35\n"
+        "k7/pp6/P7/1P6/8/8/8/4n2K w - - 0 35\n";
+
+    char *actual = che_children(fen);
+    ck_assert(!strcmp(actual, expected));
+    free(actual);

@@ -90,6 +90,7 @@ long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
 struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
 void che_free_fen_gt( struct fen_game_tree gt );
+char *che_children( const char *fen );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

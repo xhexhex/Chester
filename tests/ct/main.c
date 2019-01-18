@@ -117,6 +117,7 @@ main()
     //
     //
 
+    /*
     const char FEN[] = FEN_PERFT_POS_5;
     const int COUNT = 5000;
 
@@ -135,12 +136,12 @@ main()
     // Remember to look at san_to_rawcode()!
 
     return 0;
+    */
 
     //
     //
     //
 
-    /*
     long long t0 = time_in_milliseconds();
     struct fen_game_tree gt_ip5 = che_build_fen_gt(NULL, 5);
     long long t1 = time_in_milliseconds();
@@ -148,12 +149,13 @@ main()
 
     // [ 1] Building gt_ip5 took 187782 ms
     // [ 2] Building gt_ip5 took 185058 ms
+    // [ 3] Building gt_ip5 took  19175 ms
+    // [ 4] Building gt_ip5 took  15377 ms
 
     assert(gt_ip5.nc == 4865609 + 197281 + 8902 + 400 + 20 + 1);
 
     che_free_fen_gt(gt_ip5);
     return 0;
-    */
 
     //
     //
