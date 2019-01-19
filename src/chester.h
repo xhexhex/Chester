@@ -84,13 +84,14 @@ enum che_fen_error che_fen_validator( const char *fen );
 bool che_is_san( const char *san );
 char *che_make_moves( const char *fen, const char *sans );
 char *che_move_gen( const char *fens );
-char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
-void che_free_ff( void *ff );
+// char **che_fen_fields( const char *fen, bool expand_ppf, bool expand_caf );
+// void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
 struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
 void che_free_fen_gt( struct fen_game_tree gt );
 char *che_children( const char *fen );
+bool che_ep_has_occurred( const char *child, const char *parent );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

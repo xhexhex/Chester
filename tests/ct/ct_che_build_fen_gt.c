@@ -41,8 +41,10 @@ che_build_fen_gt_tw_ip4_stats_v1( struct fen_game_tree gt_ip4 )
     for(uint32_t id = 1; id <= gt_ip4.nc; id++) {
         const Pos *p = fen_to_pos(gt_ip4.fen[id]);
 
+        // Create the che_ versions?
         if(king_in_check(p)) ++check_count;
         if(checkmate(p)) ++mate_count;
+        // if(che_ep_has_occurred(child, parent))...
 
         free((void *) p); }
 
