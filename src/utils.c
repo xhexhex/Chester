@@ -655,7 +655,7 @@ file( char letter )
 Bitboard
 rank( char number )
 {
-    assert( number >= '1' && number <= '8' );
+    // assert( number >= '1' && number <= '8' );
 
     Bitboard rank_bb =
         (SB.a1 | SB.b1 | SB.c1 | SB.d1 | SB.e1 | SB.f1 | SB.g1 | SB.h1);

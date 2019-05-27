@@ -22,8 +22,10 @@
     ck_assert(!che_ep_has_occurred(
         "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
         INIT_POS));
-    printf(">> remove_redundant_epts() needed!\n");
+
+
     /*
+    printf(">> remove_redundant_epts() needed!\n");
     ck_assert(!che_ep_has_occurred(
         "rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2",
         "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"));

@@ -142,6 +142,7 @@ main()
     //
     //
 
+    /*
     long long t0 = time_in_milliseconds();
     struct fen_game_tree gt_ip5 = che_build_fen_gt(NULL, 5);
     long long t1 = time_in_milliseconds();
@@ -156,6 +157,7 @@ main()
 
     che_free_fen_gt(gt_ip5);
     return 0;
+    */
 
     //
     //
