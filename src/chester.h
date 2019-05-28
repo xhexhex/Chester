@@ -71,7 +71,7 @@ enum che_fen_error {
 
 // TODO: doc
 struct fen_game_tree {
-    char **fen;
+    char **ufen; // ufen, unique FENs
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
     uint32_t nc, lo[FGT_LO_SIZE], *parent, **children;

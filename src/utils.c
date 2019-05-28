@@ -735,6 +735,43 @@ void string_sort( char *s[], int count )
     qsort(s, (size_t) count, sizeof(char *), x_qsort_string_compare);
 }
 
+// TODO: doc
+int
+unique( char ***s, int count, bool dyn_alloc )
+{
+    if(count < 2) return count;
+
+    char **sorted = *s;
+    int num_removed = 0;
+
+    for(int i = 0; i < count - 1; ++i) {
+        if(!sorted[i]) continue;
+        int j = i + 1;
+        while(j < count && !strcmp(sorted[i], sorted[j])) {
+            if(dyn_alloc && sorted[i] != sorted[j]) {
+                free(sorted[j]); }
+            sorted[j] = NULL, ++num_removed, ++j;
+        }
+    }
+
+    int new_count = count - num_removed;
+    char **unique_s;
+    assert((unique_s = malloc(new_count * sizeof(void *))));
+
+    int j = 0;
+    for(int i = 0; i < count; ++i)
+        if(sorted[i]) {
+            unique_s[j] = malloc((strlen(sorted[i]) + 1) * sizeof(char));
+            strcpy(unique_s[j], sorted[i]);
+            if(dyn_alloc) free(sorted[i]);
+            ++j; }
+    assert(j == new_count);
+    if(dyn_alloc) free(sorted);
+    *s = unique_s;
+
+    return new_count;
+}
+
 // Returns the current time in milliseconds.
 long long
 time_in_milliseconds()

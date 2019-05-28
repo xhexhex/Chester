@@ -100,6 +100,8 @@ che_make_moves( const char *fen, const char *sans )
 struct fen_game_tree
 che_build_fen_gt( const char *fen, uint8_t height )
 {
+    // What if 'fen' is a stalemate position?
+
     assert(height < FGT_LO_SIZE);
     if(!fen) fen = INIT_POS;
 
@@ -125,19 +127,20 @@ che_build_fen_gt( const char *fen, uint8_t height )
     assert((gt.parent = malloc((gt.nc + 1) * sizeof(uint32_t))));
     gt.parent[1] = 0;
 
-    assert((gt.fen = malloc((gt.nc + 1) * sizeof(void *))));
-    assert((gt.fen[1] = malloc(strlen(fen) + 1)));
-    strcpy(gt.fen[1], fen);
+    char **tmp_fen, **sorted_tmp_fen; // Free!
+    assert((tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
+    assert((tmp_fen[1] = malloc(strlen(fen) + 1)));
+    strcpy(tmp_fen[1], fen);
 
     uint32_t cur = 1, vac = 1; // current, vacant
     for(; cur < gt.lo[height]; cur++) {
-        char *unmod_ptr = che_children(gt.fen[cur]),
+        char *unmod_ptr = che_children(tmp_fen[cur]),
             *children = unmod_ptr, *child;
 
         while((child = next_line(&children))) {
             // 'vac' is a child of 'cur'
-            assert((gt.fen[++vac] = malloc(strlen(child) + 1)));
-            strcpy(gt.fen[vac], child);
+            assert((tmp_fen[++vac] = malloc(strlen(child) + 1)));
+            strcpy(tmp_fen[vac], child);
 
             if(gt.cc[cur] == num_alloc_slots[cur]) {
                 num_alloc_slots[cur] += SLOT_COUNT;
@@ -149,6 +152,13 @@ che_build_fen_gt( const char *fen, uint8_t height )
 
         free(unmod_ptr);
     } // End for
+
+    assert((sorted_tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
+    for(uint32_t id = 1; id <= gt.nc; ++id)
+        sorted_tmp_fen[id] = tmp_fen[id];
+    string_sort(sorted_tmp_fen, gt.nc);
+
+    // ufen
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -163,8 +173,8 @@ void
 che_free_fen_gt( struct fen_game_tree gt )
 {
     for(uint32_t id = 1; id <= gt.nc; id++)
-        free(gt.fen[id]);
-    free(gt.fen), free(gt.cc), free(gt.parent);
+        free(gt.ufen[id]);
+    free(gt.ufen), free(gt.cc), free(gt.parent);
 
     for(uint32_t id = 1; id < gt.lo[gt.height]; id++)
         free(gt.children[id]);

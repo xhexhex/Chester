@@ -1367,6 +1367,36 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 // Test case
 //
+#tcase unique_tests
+
+#test unique_test_1
+    char *orig[] = {"Henrik", "Henrik", "Lindberg"}, **s = orig;
+    int new_count = unique(&s, 3, false);
+    ck_assert( new_count == 2 );
+    ck_assert(!strcmp("Henrik", s[0]));
+    ck_assert(!strcmp("Lindberg", s[1]));
+    for(int i = 0; i < new_count; ++i) free(s[i]);
+    free(s);
+
+#test unique_test_2
+    const int count = 6;
+    char **s = malloc(count * sizeof(void *));
+    for(int i = 0; i < count; ++i) s[i] = malloc((5 + 1) * sizeof(char));
+    strcpy(s[0], "Alice");
+    strcpy(s[1], "Alice");
+    strcpy(s[2], "Alice");
+    strcpy(s[3], "Bob");
+    strcpy(s[4], "Eve");
+    strcpy(s[5], "Eve");
+    int new_count = unique(&s, count, true);
+    ck_assert(new_count == 3);
+    ck_assert(!strcmp(s[0], "Alice"));
+    ck_assert(!strcmp(s[1], "Bob"));
+    ck_assert(!strcmp(s[2], "Eve"));
+
+//
+// Test case
+//
 #tcase bindex_tests
 
 #test bindex_trivial_test
