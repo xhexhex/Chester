@@ -37,9 +37,19 @@ ct: $(CHESTER_TESTER)
 $(CHESTER_TESTER): $(CT_SOURCES) $(CT_HEADERS)
 	@gcc $(CFLAGS) -I$$HOME/include -o $(CHESTER_TESTER) $(CT_SOURCES) $(CT_LDFLAGS)
 
+SANDBOX := tests/sandbox/sandbox
+SB_SOURCES := $(wildcard tests/sandbox/*.c)
+
+.PHONY: sandbox
+sandbox: $(SANDBOX)
+	@./$(SANDBOX)
+
+$(SANDBOX): $(SB_SOURCES)
+	@gcc $(CFLAGS) -I$$HOME/include -o $(SANDBOX) $(SB_SOURCES) $(CT_LDFLAGS)
+
 .PHONY: clean
 clean:
-	@rm --force $(TARGET) $(GEN_CHECKFILES_BIN) $(GEN_CHECKFILES_C) $(CHESTER_TESTER)
+	@rm --force $(TARGET) $(GEN_CHECKFILES_BIN) $(GEN_CHECKFILES_C) $(CHESTER_TESTER) $(SANDBOX)
 
 .PHONY: showvars
 showvars:
