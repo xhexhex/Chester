@@ -25,10 +25,11 @@ main()
 
     struct fen_game_tree gt = che_build_fen_gt(SOME_POSITION, 3);
 
-    printf("#: %d\n", gt.num_ufen);
+    // printf("#: %d\n", gt.num_ufen);
 
-    for(uint32_t id = 1; id <= gt.num_ufen; id++) {
-        printf("%s\n", gt.ufen[id]);
+    for(uint32_t id = 1; id <= gt.nc; id++) {
+        // printf("%s\n", gt.ufen[gt.findex[id]]);
+        printf("%u\n", gt.findex[id]);
     }
 
     // che_free_fen_gt(gt);

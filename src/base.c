@@ -19,6 +19,8 @@ static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static int x_ppa_to_ppf( const Bitboard *ppa, char *ppf );
 static void x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf,
     const Pos *p );
+static void x_che_build_fen_gt_set_findex(struct fen_game_tree *gt,
+    char **id_to_fen);
 
 /******************************
  ****                      ****
@@ -165,13 +167,13 @@ che_build_fen_gt( const char *fen, uint8_t height )
         sorted_tmp_fen[id] = malloc((strlen(tmp_fen[id]) + 1) * sizeof(char));
         strcpy(sorted_tmp_fen[id], tmp_fen[id]); }
     string_sort(sorted_tmp_fen + 1, gt.nc);
-    // gt.num_ufen = gt.nc + 1;
     size_t size = gt.nc + 1;
     gt.ufen = unique_strings(sorted_tmp_fen, &size);
     gt.num_ufen = size - 1;
-    // --gt.num_ufen;
-    // gt.num_ufen = unique(&gt.ufen, gt.nc + 1, true) - 1;
     assert(!strcmp("", gt.ufen[0]));
+
+    // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
+    x_che_build_fen_gt_set_findex(&gt, tmp_fen);
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -179,6 +181,40 @@ che_build_fen_gt( const char *fen, uint8_t height )
     free(num_alloc_slots);
 
     return gt;
+}
+
+// findex, FEN index
+static void
+x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
+{
+    assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
+    for(uint32_t id = 0; id <= gt->nc; ++id)
+        gt->findex[id] = 0;
+
+    for(uint32_t id = 1; id <= gt->nc; ++id) {
+        // printf("Looking for \"%s\"\n", id_to_fen[id]);
+        uint32_t left = 1, right = gt->num_ufen;
+
+        // Binary search algorithm
+        while(left <= right) {
+            uint32_t middle = (left + right) / 2;
+            // printf("%u\n", middle);
+            assert( middle >= 1 && middle <= gt->num_ufen );
+
+            if(strcmp(gt->ufen[middle], id_to_fen[id]) < 0) {
+                left = middle + 1;
+                continue;
+            } else if(strcmp(gt->ufen[middle], id_to_fen[id]) > 0) {
+                right = middle - 1;
+                continue;
+            }
+
+            gt->findex[id] = middle;
+            break;
+        } // End while
+
+        if(!gt->findex[id]) assert(false);
+    } // End for
 }
 
 // TODO: doc
