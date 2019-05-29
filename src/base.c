@@ -153,12 +153,25 @@ che_build_fen_gt( const char *fen, uint8_t height )
         free(unmod_ptr);
     } // End for
 
-    assert((sorted_tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
-    for(uint32_t id = 1; id <= gt.nc; ++id)
-        sorted_tmp_fen[id] = tmp_fen[id];
-    string_sort(sorted_tmp_fen, gt.nc);
+    /*
+    printf("BEGIN TMP_FEN >>\n");
+    for(uint32_t id = 1; id <= gt.nc; id++) printf("%s\n", tmp_fen[id]);
+    printf("<< END TMP_FEN\n");
+    */
 
-    // ufen
+    assert((sorted_tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
+    sorted_tmp_fen[0] = "";
+    for(uint32_t id = 1; id <= gt.nc; ++id) {
+        sorted_tmp_fen[id] = malloc((strlen(tmp_fen[id]) + 1) * sizeof(char));
+        strcpy(sorted_tmp_fen[id], tmp_fen[id]); }
+    string_sort(sorted_tmp_fen + 1, gt.nc);
+    // gt.num_ufen = gt.nc + 1;
+    size_t size = gt.nc + 1;
+    gt.ufen = unique_strings(sorted_tmp_fen, &size);
+    gt.num_ufen = size - 1;
+    // --gt.num_ufen;
+    // gt.num_ufen = unique(&gt.ufen, gt.nc + 1, true) - 1;
+    assert(!strcmp("", gt.ufen[0]));
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],

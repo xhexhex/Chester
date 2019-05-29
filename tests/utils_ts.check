@@ -1367,32 +1367,68 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 // Test case
 //
-#tcase unique_tests
+#tcase unique_strings_tests
 
-#test unique_test_1
-    char *orig[] = {"Henrik", "Henrik", "Lindberg"}, **s = orig;
-    int new_count = unique(&s, 3, false);
-    ck_assert( new_count == 2 );
-    ck_assert(!strcmp("Henrik", s[0]));
-    ck_assert(!strcmp("Lindberg", s[1]));
-    for(int i = 0; i < new_count; ++i) free(s[i]);
+#test unique_strings_test_1
+    char *orig[] = {"Henrik", "Henrik", "Lindberg"};
+    size_t size = 3;
+    char **s = unique_strings(orig, &size);
+    ck_assert(size == 2);
+    ck_assert(!strcmp(s[0], "Henrik"));
+    ck_assert(!strcmp(s[1], "Lindberg"));
+    for(size_t i = 0; i < size; ++i) free(s[i]);
     free(s);
 
-#test unique_test_2
-    const int count = 6;
-    char **s = malloc(count * sizeof(void *));
-    for(int i = 0; i < count; ++i) s[i] = malloc((5 + 1) * sizeof(char));
-    strcpy(s[0], "Alice");
-    strcpy(s[1], "Alice");
-    strcpy(s[2], "Alice");
-    strcpy(s[3], "Bob");
-    strcpy(s[4], "Eve");
-    strcpy(s[5], "Eve");
-    int new_count = unique(&s, count, true);
-    ck_assert(new_count == 3);
+#test unique_strings_test_2
+    size_t size = 6;
+    const size_t orig_size = size;
+    char **orig = malloc(orig_size * sizeof(void *));
+    for(size_t i = 0; i < orig_size; ++i)
+        orig[i] = malloc((5 + 1) * sizeof(char));
+    strcpy(orig[0], "Alice");
+    strcpy(orig[1], "Alice");
+    strcpy(orig[2], "Alice");
+    strcpy(orig[3], "Bob");
+    strcpy(orig[4], "Eve");
+    strcpy(orig[5], "Eve");
+
+    char **s = unique_strings(orig, &size);
+    ck_assert(size == 3);
     ck_assert(!strcmp(s[0], "Alice"));
     ck_assert(!strcmp(s[1], "Bob"));
     ck_assert(!strcmp(s[2], "Eve"));
+
+    for(size_t i = 0; i < size; ++i) free(s[i]);
+    for(size_t i = 0; i < orig_size; ++i) free(orig[i]);
+    free(orig), free(s);
+
+#test unique_strings_test_3
+    char *orig[] = {"abc"};
+    size_t size = 1;
+    char **s = unique_strings(orig, &size);
+    ck_assert(size == 1);
+    ck_assert(!strcmp(s[0], "abc"));
+    free(s[0]), free(s);
+
+#test unique_strings_test_4
+    char *orig[] = {"abc", "xyz", "abc"};
+    size_t size = 3;
+    char **s = unique_strings(orig, &size);
+    ck_assert(size == 3);
+    ck_assert(!strcmp(s[0], "abc"));
+    ck_assert(!strcmp(s[1], "xyz"));
+    ck_assert(!strcmp(s[2], "abc"));
+    for(size_t i = 0; i < size; ++i) free(s[i]);
+    free(s);
+
+#test unique_strings_test_5
+    char *orig[] = {"", "a", "a"};
+    size_t size = 3;
+    char **s = unique_strings(orig, &size);
+    ck_assert(size == 2);
+    ck_assert(!strcmp(s[0], ""));
+    ck_assert(!strcmp(s[1], "a"));
+    free(s[0]), free(s[1]), free(s);
 
 //
 // Test case

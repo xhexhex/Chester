@@ -54,7 +54,8 @@ void set_mover_target_orig_and_dest( const Pos *p, Rawcode move,
     Chessman *mover, Chessman *target, int *orig, int *dest );
 char *next_line( char **lines );
 void string_sort( char *s[], int count );
-int unique( char ***s, int count, bool dyn_alloc );
+// int unique( char ***s, int count, bool dyn_alloc );
+char **unique_strings( char **s, size_t *size );
 long long time_in_milliseconds();
 long long time_in_microseconds();
 int bindex(Bitboard bit);

@@ -74,7 +74,7 @@ struct fen_game_tree {
     char **ufen; // ufen, unique FENs
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
-    uint32_t nc, lo[FGT_LO_SIZE], *parent, **children;
+    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children;
 };
 
 //

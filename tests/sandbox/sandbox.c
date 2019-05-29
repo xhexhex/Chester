@@ -11,24 +11,27 @@
 
 #define NO_EP_INIT_POS \
     "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w KQkq - 0 1"
+#define SOME_POSITION "k7/8/8/8/8/P7/8/K7 w - - 0 1"
 
 int
 main()
 {
-    assert( che_fen_validator(NO_EP_INIT_POS) == FEN_NO_ERRORS );
+    assert( che_fen_validator(SOME_POSITION) == FEN_NO_ERRORS );
     // printf("Hello from the sandbox!\n");
     // long long che_perft( const char *fen, int depth, bool mt );
     // struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
     // for(int depth = 0; depth <= 4; ++depth)
     //    printf( "%lld\n", che_perft(NO_EP_INIT_POS, depth, true) );
 
-    struct fen_game_tree gt = che_build_fen_gt( NO_EP_INIT_POS, 5 );
+    struct fen_game_tree gt = che_build_fen_gt(SOME_POSITION, 3);
 
-    for(uint32_t id = 1; id <= gt.nc; id++) {
-        printf("%s\n", gt.fen[id]);
+    printf("#: %d\n", gt.num_ufen);
+
+    for(uint32_t id = 1; id <= gt.num_ufen; id++) {
+        printf("%s\n", gt.ufen[id]);
     }
 
-    che_free_fen_gt(gt);
+    // che_free_fen_gt(gt);
 }
 
 /**************

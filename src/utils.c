@@ -735,6 +735,7 @@ void string_sort( char *s[], int count )
     qsort(s, (size_t) count, sizeof(char *), x_qsort_string_compare);
 }
 
+/*
 // TODO: doc
 int
 unique( char ***s, int count, bool dyn_alloc )
@@ -759,17 +760,50 @@ unique( char ***s, int count, bool dyn_alloc )
     assert((unique_s = malloc(new_count * sizeof(void *))));
 
     int j = 0;
-    for(int i = 0; i < count; ++i)
+    for(int i = 0; i < count; ++i) {
         if(sorted[i]) {
             unique_s[j] = malloc((strlen(sorted[i]) + 1) * sizeof(char));
             strcpy(unique_s[j], sorted[i]);
-            if(dyn_alloc) free(sorted[i]);
-            ++j; }
+            // if(dyn_alloc) free(sorted[i]);
+            ++j; } }
     assert(j == new_count);
     if(dyn_alloc) free(sorted);
     *s = unique_s;
 
     return new_count;
+}
+*/
+
+// TODO: doc
+char **
+unique_strings( char **s, size_t *size )
+{
+    assert(*size > 0);
+    const size_t orig_size = *size;
+    char **unique;
+    assert((unique = malloc(orig_size * sizeof(void *))));
+    assert((unique[0] = malloc((strlen(s[0]) + 1) * sizeof(char))));
+    strcpy(unique[0], s[0]);
+    bool *duplicate;
+    assert((duplicate = malloc(orig_size * sizeof(bool))));
+    for(size_t i = 0; i < orig_size; ++i) duplicate[i] = false;
+
+    for(size_t i = 0; i < orig_size - 1; ++i) {
+        if(duplicate[i]) continue;
+        size_t j = i + 1;
+        while(j < orig_size && !strcmp(s[i], s[j])) {
+            duplicate[j] = true, --*size, ++j; } }
+
+    assert(*size > 0);
+
+    for(size_t i = 1, j = 1; i < orig_size; ++i) {
+        if(duplicate[i]) continue;
+        assert((unique[j] = malloc((strlen(s[i]) + 1) * sizeof(char))));
+        strcpy(unique[j], s[i]);
+        ++j; }
+
+    free(duplicate);
+    return unique;
 }
 
 // Returns the current time in milliseconds.
