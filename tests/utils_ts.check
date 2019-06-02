@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <stdarg.h>
 #include "../src/base.h"
 #include "../src/utils.h"
 #include "../src/chester.h"
@@ -1536,3 +1537,49 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 
 #test che_gt_node_count_test_8
     ck_assert(che_gt_node_count(FEN_PERFT_POS_6, 3) == 1 + 46 + 2079 + 89890);
+
+//
+// Test case
+//
+#tcase che_remove_redundant_eptsf_tests
+
+char **
+x_static_to_dynamic_strings( int count, ... )
+{
+    char **ds; // ds, dynamic strings
+    assert((ds = malloc(count * sizeof(void *))));
+
+    va_list ss; // ss, static strings
+    va_start(ss, count);
+
+    for(int i = 0; i < count; ++i) {
+        char *current = va_arg(ss, char *);
+        assert((ds[i] = malloc((strlen(current) + 1) * sizeof(char))));
+        strcpy(ds[i], current); }
+
+    va_end(ss);
+    return ds;
+}
+
+#test che_remove_redundant_eptsf_test_1
+#define STRINGS \
+    INIT_POS, \
+    "4k3/8/8/8/4Pp2/8/8/4K3 b - e3 0 1", \
+    "4k3/8/8/pP6/8/8/8/4K3 w - a6 0 2"
+
+    const int count = 3;
+    char **ds = x_static_to_dynamic_strings(count, STRINGS),
+        *ss[] = {STRINGS}; // ds, ss; dynamic, static strings
+
+    size_t num_removed = che_remove_redundant_eptsf(ds, count);
+    ck_assert(num_removed == 0);
+
+    for(int i = 0; i < count; ++i) {
+        // printf("\"%s\"\n", ds[i]);
+        ck_assert(che_fen_validator(ds[i]) == FEN_NO_ERRORS);
+        ck_assert(!strcmp(ds[i], ss[i]));
+        free(ds[i]); }
+
+    free(ds);
+
+#undef STRINGS

@@ -1882,22 +1882,21 @@ ck_assert( counter == exp_count );
 #tcase che_build_fen_gt_tests
 
 #test che_build_fen_gt_test_1
-    printf("%s: Update!\n", __func__);
-
-    /*
     struct fen_game_tree gt = che_build_fen_gt(NULL, 0);
 
+    ck_assert(gt.num_ufen == 1);
+    ck_assert(!strcmp("", gt.ufen[0]));
     ck_assert(!strcmp(INIT_POS, gt.ufen[1]));
     ck_assert(gt.height == 0);
     ck_assert(gt.nc == 1);
     ck_assert(gt.lo[0] == 1);
     ck_assert(!gt.parent[1]);
+    ck_assert(gt.findex[0] == 0);
+    ck_assert(gt.findex[1] == 1);
 
     che_free_fen_gt(gt);
-    */
 
 #test che_build_fen_gt_test_2
-    /*
     struct fen_game_tree gt = che_build_fen_gt(NULL, 1);
 
     ck_assert(!gt.parent[1]);
@@ -1905,6 +1904,7 @@ ck_assert( counter == exp_count );
         ck_assert(gt.parent[id] == 1);
     ck_assert(gt.height == 1);
     ck_assert(gt.nc == 21);
+    ck_assert(gt.num_ufen == 21);
     ck_assert(gt.cc[1] == 20);
     for(int i = 0; i < (int) gt.cc[1]; i++)
         ck_assert(gt.children[1][i] == (uint32_t) (i + 2));
@@ -1912,7 +1912,6 @@ ck_assert( counter == exp_count );
     ck_assert(gt.lo[1] == 2);
 
     che_free_fen_gt(gt);
-    */
 
 #test che_build_fen_gt_test_3
     /*

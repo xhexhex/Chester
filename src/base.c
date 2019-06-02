@@ -129,20 +129,20 @@ che_build_fen_gt( const char *fen, uint8_t height )
     assert((gt.parent = malloc((gt.nc + 1) * sizeof(uint32_t))));
     gt.parent[1] = 0;
 
-    char **tmp_fen, **sorted_tmp_fen; // Free!
-    assert((tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
-    assert((tmp_fen[1] = malloc(strlen(fen) + 1)));
-    strcpy(tmp_fen[1], fen);
+    char **id_to_fen, **sorted_id_to_fen; // Free!
+    assert((id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
+    assert((id_to_fen[1] = malloc(strlen(fen) + 1)));
+    strcpy(id_to_fen[1], fen);
 
     uint32_t cur = 1, vac = 1; // current, vacant
     for(; cur < gt.lo[height]; cur++) {
-        char *unmod_ptr = che_children(tmp_fen[cur]),
+        char *unmod_ptr = che_children(id_to_fen[cur]),
             *children = unmod_ptr, *child;
 
         while((child = next_line(&children))) {
             // 'vac' is a child of 'cur'
-            assert((tmp_fen[++vac] = malloc(strlen(child) + 1)));
-            strcpy(tmp_fen[vac], child);
+            assert((id_to_fen[++vac] = malloc(strlen(child) + 1)));
+            strcpy(id_to_fen[vac], child);
 
             if(gt.cc[cur] == num_alloc_slots[cur]) {
                 num_alloc_slots[cur] += SLOT_COUNT;
@@ -155,25 +155,27 @@ che_build_fen_gt( const char *fen, uint8_t height )
         free(unmod_ptr);
     } // End for
 
+    // che_remove_redundant_eptsf(id_to_fen + 1, count);
+
     /*
     printf("BEGIN TMP_FEN >>\n");
-    for(uint32_t id = 1; id <= gt.nc; id++) printf("%s\n", tmp_fen[id]);
+    for(uint32_t id = 1; id <= gt.nc; id++) printf("%s\n", id_to_fen[id]);
     printf("<< END TMP_FEN\n");
     */
 
-    assert((sorted_tmp_fen = malloc((gt.nc + 1) * sizeof(void *))));
-    sorted_tmp_fen[0] = "";
+    assert((sorted_id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
+    sorted_id_to_fen[0] = "";
     for(uint32_t id = 1; id <= gt.nc; ++id) {
-        sorted_tmp_fen[id] = malloc((strlen(tmp_fen[id]) + 1) * sizeof(char));
-        strcpy(sorted_tmp_fen[id], tmp_fen[id]); }
-    string_sort(sorted_tmp_fen + 1, gt.nc);
+        sorted_id_to_fen[id] = malloc((strlen(id_to_fen[id]) + 1) * sizeof(char));
+        strcpy(sorted_id_to_fen[id], id_to_fen[id]); }
+    string_sort(sorted_id_to_fen + 1, gt.nc);
     size_t size = gt.nc + 1;
-    gt.ufen = unique_strings(sorted_tmp_fen, &size);
+    gt.ufen = unique_strings(sorted_id_to_fen, &size);
     gt.num_ufen = size - 1;
     assert(!strcmp("", gt.ufen[0]));
 
     // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
-    x_che_build_fen_gt_set_findex(&gt, tmp_fen);
+    x_che_build_fen_gt_set_findex(&gt, id_to_fen);
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -183,51 +185,27 @@ che_build_fen_gt( const char *fen, uint8_t height )
     return gt;
 }
 
-// findex, FEN index
-static void
-x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
-{
-    assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
-    for(uint32_t id = 0; id <= gt->nc; ++id)
-        gt->findex[id] = 0;
-
-    for(uint32_t id = 1; id <= gt->nc; ++id) {
-        // printf("Looking for \"%s\"\n", id_to_fen[id]);
-        uint32_t left = 1, right = gt->num_ufen;
-
-        // Binary search algorithm
-        while(left <= right) {
-            uint32_t middle = (left + right) / 2;
-            // printf("%u\n", middle);
-            assert( middle >= 1 && middle <= gt->num_ufen );
-
-            if(strcmp(gt->ufen[middle], id_to_fen[id]) < 0) {
-                left = middle + 1;
-                continue;
-            } else if(strcmp(gt->ufen[middle], id_to_fen[id]) > 0) {
-                right = middle - 1;
-                continue;
-            }
-
-            gt->findex[id] = middle;
-            break;
-        } // End while
-
-        if(!gt->findex[id]) assert(false);
-    } // End for
-}
-
 // TODO: doc
 void
 che_free_fen_gt( struct fen_game_tree gt )
 {
-    for(uint32_t id = 1; id <= gt.nc; id++)
-        free(gt.ufen[id]);
+/*
+struct fen_game_tree {
+    char **ufen; // ufen, unique FENs
+    uint8_t height, *cc; // cc, child count
+    // nc, node count; lo, level offset
+    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
+        *findex;
+};
+ */
+
+    for(uint32_t j = 0; j <= gt.num_ufen; ++j)
+        free(gt.ufen[j]);
     free(gt.ufen), free(gt.cc), free(gt.parent);
 
     for(uint32_t id = 1; id < gt.lo[gt.height]; id++)
         free(gt.children[id]);
-    free(gt.children);
+    free(gt.children), free(gt.findex);
 }
 
 // TODO: doc
@@ -871,4 +849,38 @@ x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf, const Pos *p )
     const char std_caf[] = "KQkq";
     for(int i = 0; i < 4; i++)
         if(the_ecaf[i] != '-') the_ecaf[i] = std_caf[i];
+}
+
+// findex, FEN index
+static void
+x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
+{
+    assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
+    for(uint32_t id = 0; id <= gt->nc; ++id)
+        gt->findex[id] = 0;
+
+    for(uint32_t id = 1; id <= gt->nc; ++id) {
+        // printf("Looking for \"%s\"\n", id_to_fen[id]);
+        uint32_t left = 1, right = gt->num_ufen;
+
+        // Binary search algorithm
+        while(left <= right) {
+            uint32_t middle = (left + right) / 2;
+            // printf("%u\n", middle);
+            assert( middle >= 1 && middle <= gt->num_ufen );
+
+            if(strcmp(gt->ufen[middle], id_to_fen[id]) < 0) {
+                left = middle + 1;
+                continue;
+            } else if(strcmp(gt->ufen[middle], id_to_fen[id]) > 0) {
+                right = middle - 1;
+                continue;
+            }
+
+            gt->findex[id] = middle;
+            break;
+        } // End while
+
+        if(!gt->findex[id]) assert(false);
+    } // End for
 }
