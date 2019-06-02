@@ -38,6 +38,7 @@ static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
 static int x_qsort_string_compare( const void *a, const void *b );
 static long long x_gt_node_count( uint8_t depth );
+static int x_che_remove_redundant_eptsf_set_index( char *single_fen );
 
 /******************************
  ****                      ****
@@ -72,15 +73,70 @@ che_gt_node_count( const char *fen, uint8_t height )
 
 // TODO: doc
 size_t
-che_remove_redundant_eptsf(char **fen, const size_t count)
+che_remove_redundant_eptsf( char **fen, const size_t count )
 {
     size_t rfc = 0; // rfc, removed (EPTS) field count
+    char eptsf[3] = {'\0'};
 
-    for(size_t cur_count = 1; cur_count <= count; ++cur_count, ++fen) {
-        printf("\"%s\"\n", *fen);
+    for(size_t i = 1; i <= count; ++i, ++fen) {
+        // Determine the index of the first character of the EPTS field.
+        int index = x_che_remove_redundant_eptsf_set_index(*fen);
+        if((*fen)[index] == '-') continue;
+
+        eptsf[0] = (*fen)[index], eptsf[1] = (*fen)[index + 1];
+        int epts_bi = sq_name_to_bindex(eptsf), western_pawn_bi = -1,
+            eastern_pawn_bi = -1;
+        // printf("The bindex is %d\n", bindex);
+
+        Pos *p = fen_to_pos(*fen);
+
+        if(whites_turn(p) && SQ_NAV[epts_bi][SOUTHWEST] & p->ppa[WHITE_PAWN])
+            western_pawn_bi = epts_bi - 9;
+        if(whites_turn(p) && SQ_NAV[epts_bi][SOUTHEAST] & p->ppa[WHITE_PAWN])
+            eastern_pawn_bi = epts_bi - 7;
+        if(!whites_turn(p) && SQ_NAV[epts_bi][NORTHWEST] & p->ppa[BLACK_PAWN])
+            western_pawn_bi = epts_bi + 7;
+        if(!whites_turn(p) && SQ_NAV[epts_bi][NORTHEAST] & p->ppa[BLACK_PAWN])
+            eastern_pawn_bi = epts_bi + 9;
+
+        // printf("%d  %d  %d\n", epts_bi, western_pawn_bi, eastern_pawn_bi);
+        if(western_pawn_bi == -1 && eastern_pawn_bi == -1) {
+            ++rfc;
+            for(int i = index; i < (int) strlen(*fen); ++i)
+                (*fen)[i] = (*fen)[i + 1];
+            (*fen)[index] = '-';
+            continue; }
+
+        Pos p2;
+
+        if(western_pawn_bi > -1) {
+            Rawcode rc = ORIG_DEST_RC[western_pawn_bi][epts_bi];
+            copy_pos(p, &p2), make_move(&p2, rc, '-');
+            if(!forsaken_king(&p2)) { free(p); continue; } }
+        if(eastern_pawn_bi > -1) {
+            Rawcode rc = ORIG_DEST_RC[eastern_pawn_bi][epts_bi];
+            copy_pos(p, &p2), make_move(&p2, rc, '-');
+            if(!forsaken_king(&p2)) { free(p); continue; } }
+
+        ++rfc;
+        for(int i = index; i < (int) strlen(*fen); ++i)
+            (*fen)[i] = (*fen)[i + 1];
+        (*fen)[index] = '-';
+        free(p);
+
+        // printf("\"%s\"\n", eptsf);
+        // printf("\"%s\"\n", *fen);
     }
 
     return rfc;
+}
+
+static int
+x_che_remove_redundant_eptsf_set_index( char *single_fen )
+{
+    int space_count = 0, index = 15;
+    while(space_count < 3) if(single_fen[index++] == ' ') ++space_count;
+    return index;
 }
 
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
