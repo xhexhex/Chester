@@ -93,7 +93,7 @@ struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
 void che_free_fen_gt( struct fen_game_tree gt );
 char *che_children( const char *fen );
 bool che_ep_has_occurred( const char *child, const char *parent );
-size_t che_remove_redundant_eptsf( char **fen, size_t count );
+size_t che_remove_redundant_epts( char **fen, size_t count );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

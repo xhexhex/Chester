@@ -38,7 +38,13 @@ static bool x_king_in_dir(
     const char *fen, enum sq_dir dir, bool color_is_white, char rooks_file );
 static int x_qsort_string_compare( const void *a, const void *b );
 static long long x_gt_node_count( uint8_t depth );
-static int x_che_remove_redundant_eptsf_set_index( char *single_fen );
+static int x_che_remove_redundant_epts_set_index( char *single_fen );
+static void x_che_remove_redundant_epts_set_bit_indices( int *epts_bi,
+    int *western_pawn_bi, int *eastern_pawn_bi, const Pos *p, const char *eptsf );
+static void x_che_remove_redundant_epts_remove_epts( char *fen, int index,
+    size_t *rfc );
+static bool x_che_remove_redundant_epts_king_not_forsaken( int pawn_bindex,
+    int epts_bindex, const Pos *p );
 
 /******************************
  ****                      ****
@@ -71,72 +77,61 @@ che_gt_node_count( const char *fen, uint8_t height )
     return nc;
 }
 
-// TODO: doc
+// Used to remove a redundant en passant target square of a FEN string.
+// In Chester the EPTS is set whenever a pawn moves two squares forward.
+// It's therefore possible for the EPTS to be set in a position where an
+// en passant move isn't available. Here's a couple of examples of such
+// positions:
+// "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+// "b3kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2"
+//
+// As neither position has a pawn that can (legally) do an en passant
+// capture, the positions are equivalent to
+// "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"  and
+// "b3kr2/8/8/3PpP2/8/5K2/8/8 w - - 0 2".
+//
+// The parameter 'fen' is a string array that contains 'count' FEN strings.
+// The function returns the number of removed en passant target squares.
+// Note that removing an EPTS means replacing a square name such as "e3"
+// with the dash character '-'.
+//
+// The string elements of 'fen' are assumed to be in writable memory. Any
+// string element of 'fen' that contains a redundant EPTS will get modified
+// during the call to the function.
 size_t
-che_remove_redundant_eptsf( char **fen, const size_t count )
+che_remove_redundant_epts( char **fen, const size_t count )
 {
     size_t rfc = 0; // rfc, removed (EPTS) field count
     char eptsf[3] = {'\0'};
 
     for(size_t i = 1; i <= count; ++i, ++fen) {
         // Determine the index of the first character of the EPTS field.
-        int index = x_che_remove_redundant_eptsf_set_index(*fen);
+        int index = x_che_remove_redundant_epts_set_index(*fen);
         if((*fen)[index] == '-') continue;
 
         eptsf[0] = (*fen)[index], eptsf[1] = (*fen)[index + 1];
-        int epts_bi = sq_name_to_bindex(eptsf), western_pawn_bi = -1,
-            eastern_pawn_bi = -1;
-        // printf("The bindex is %d\n", bindex);
-
+        int epts_bi, western_pawn_bi, eastern_pawn_bi;
         Pos *p = fen_to_pos(*fen);
+        x_che_remove_redundant_epts_set_bit_indices(
+            &epts_bi, &western_pawn_bi, &eastern_pawn_bi, p, eptsf);
 
-        if(whites_turn(p) && SQ_NAV[epts_bi][SOUTHWEST] & p->ppa[WHITE_PAWN])
-            western_pawn_bi = epts_bi - 9;
-        if(whites_turn(p) && SQ_NAV[epts_bi][SOUTHEAST] & p->ppa[WHITE_PAWN])
-            eastern_pawn_bi = epts_bi - 7;
-        if(!whites_turn(p) && SQ_NAV[epts_bi][NORTHWEST] & p->ppa[BLACK_PAWN])
-            western_pawn_bi = epts_bi + 7;
-        if(!whites_turn(p) && SQ_NAV[epts_bi][NORTHEAST] & p->ppa[BLACK_PAWN])
-            eastern_pawn_bi = epts_bi + 9;
-
-        // printf("%d  %d  %d\n", epts_bi, western_pawn_bi, eastern_pawn_bi);
         if(western_pawn_bi == -1 && eastern_pawn_bi == -1) {
-            ++rfc;
-            for(int i = index; i < (int) strlen(*fen); ++i)
-                (*fen)[i] = (*fen)[i + 1];
-            (*fen)[index] = '-';
+            x_che_remove_redundant_epts_remove_epts(*fen, index, &rfc);
             continue; }
 
-        Pos p2;
+        if(western_pawn_bi > -1 &&
+            x_che_remove_redundant_epts_king_not_forsaken(
+                western_pawn_bi, epts_bi, p)) { free(p); continue; }
+        if(eastern_pawn_bi > -1 &&
+            x_che_remove_redundant_epts_king_not_forsaken(
+                eastern_pawn_bi, epts_bi, p)) { free(p); continue; }
 
-        if(western_pawn_bi > -1) {
-            Rawcode rc = ORIG_DEST_RC[western_pawn_bi][epts_bi];
-            copy_pos(p, &p2), make_move(&p2, rc, '-');
-            if(!forsaken_king(&p2)) { free(p); continue; } }
-        if(eastern_pawn_bi > -1) {
-            Rawcode rc = ORIG_DEST_RC[eastern_pawn_bi][epts_bi];
-            copy_pos(p, &p2), make_move(&p2, rc, '-');
-            if(!forsaken_king(&p2)) { free(p); continue; } }
+        x_che_remove_redundant_epts_remove_epts(*fen, index, &rfc);
 
-        ++rfc;
-        for(int i = index; i < (int) strlen(*fen); ++i)
-            (*fen)[i] = (*fen)[i + 1];
-        (*fen)[index] = '-';
         free(p);
-
-        // printf("\"%s\"\n", eptsf);
-        // printf("\"%s\"\n", *fen);
-    }
+    } // End for
 
     return rfc;
-}
-
-static int
-x_che_remove_redundant_eptsf_set_index( char *single_fen )
-{
-    int space_count = 0, index = 15;
-    while(space_count < 3) if(single_fen[index++] == ' ') ++space_count;
-    return index;
 }
 
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
@@ -1137,4 +1132,50 @@ x_gt_node_count( const uint8_t depth )
 
     free(rc);
     return nc;
+}
+
+static void
+x_che_remove_redundant_epts_remove_epts( char *fen, int index, size_t *rfc )
+{
+    ++*rfc;
+    for(int i = index; i < (int) strlen(fen); ++i)
+        fen[i] = fen[i + 1];
+    fen[index] = '-';
+}
+
+static void
+x_che_remove_redundant_epts_set_bit_indices( int *epts_bi,
+    int *western_pawn_bi, int *eastern_pawn_bi, const Pos *p,
+    const char *eptsf )
+{
+    *epts_bi = sq_name_to_bindex(eptsf), *western_pawn_bi = -1,
+        *eastern_pawn_bi = -1;
+
+    if(whites_turn(p) && SQ_NAV[*epts_bi][SOUTHWEST] & p->ppa[WHITE_PAWN])
+        *western_pawn_bi = *epts_bi - 9;
+    if(whites_turn(p) && SQ_NAV[*epts_bi][SOUTHEAST] & p->ppa[WHITE_PAWN])
+        *eastern_pawn_bi = *epts_bi - 7;
+    if(!whites_turn(p) && SQ_NAV[*epts_bi][NORTHWEST] & p->ppa[BLACK_PAWN])
+        *western_pawn_bi = *epts_bi + 7;
+    if(!whites_turn(p) && SQ_NAV[*epts_bi][NORTHEAST] & p->ppa[BLACK_PAWN])
+        *eastern_pawn_bi = *epts_bi + 9;
+}
+
+static int
+x_che_remove_redundant_epts_set_index( char *single_fen )
+{
+    int space_count = 0, index = 15;
+    while(space_count < 3) if(single_fen[index++] == ' ') ++space_count;
+    return index;
+}
+
+static bool
+x_che_remove_redundant_epts_king_not_forsaken( int pawn_bindex,
+    int epts_bindex, const Pos *p )
+{
+    Pos p2;
+    Rawcode rc = ORIG_DEST_RC[pawn_bindex][epts_bindex];
+    copy_pos(p, &p2), make_move(&p2, rc, '-');
+
+    return !forsaken_king(&p2);
 }

@@ -1541,7 +1541,7 @@ ck_assert( !strcmp( ecaf, exp_ecaf ) );
 //
 // Test case
 //
-#tcase che_remove_redundant_eptsf_tests
+#tcase che_remove_redundant_epts_tests
 
 char **
 x_static_to_dynamic_strings( int count, ... )
@@ -1561,7 +1561,7 @@ x_static_to_dynamic_strings( int count, ... )
     return ds;
 }
 
-#test che_remove_redundant_eptsf_test_1_of_2
+#test che_remove_redundant_epts_test_1_of_2
 #define STRINGS \
     INIT_POS, \
     "4k3/8/8/8/4Pp2/8/8/4K3 b - e3 0 1", \
@@ -1569,18 +1569,19 @@ x_static_to_dynamic_strings( int count, ... )
     FEN_PERSONALLY_SIGNIFICANT, \
     FEN_GAME_OF_THE_CENTURY, \
     "4kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2", \
-    "b3k3/8/8/3PpP2/8/5K2/8/8 w - e6 0 2"
+    "b3k3/8/8/3PpP2/8/5K2/8/8 w - e6 0 2", \
+    "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", \
+    "8/8/8/6k1/6pP/8/8/4K3 b - h3 0 123", \
+    "4k3/8/8/4pP2/8/8/8/4K3 w - e6 0 2"
 
-    const int count = 7;
+    const int count = 10;
     char **ds = x_static_to_dynamic_strings(count, STRINGS),
         *ss[] = {STRINGS}; // ds, ss; dynamic, static strings
 
-    size_t num_removed = che_remove_redundant_eptsf(ds, count);
+    size_t num_removed = che_remove_redundant_epts(ds, count);
     ck_assert(num_removed == 0);
 
     for(int i = 0; i < count; ++i) {
-        // printf("\"%s\"\n", ds[i]);
-        ck_assert(che_fen_validator(ds[i]) == FEN_NO_ERRORS); // Remove!
         ck_assert(!strcmp(ds[i], ss[i]));
         free(ds[i]); }
 
@@ -1588,23 +1589,32 @@ x_static_to_dynamic_strings( int count, ... )
 
 #undef STRINGS
 
-#test che_remove_redundant_eptsf_test_2_of_2
+#test che_remove_redundant_epts_test_2_of_2
 #define STRINGS \
     "4k3/8/8/8/4P3/8/8/4K3 b - e3 0 1", \
     "5k2/8/8/8/4Pp2/8/8/4KR2 b - e3 0 1", \
-    "b3kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2"
+    "b3kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2", \
+    "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1", \
+    "4k3/8/8/1pp5/1P6/p7/8/4K2R b K b3 0 1", \
+    "4k3/8/6P1/6Kp/6P1/8/8/8 w - h6 0 2", \
+    "8/8/4k3/8/4pPp1/7Q/6K1/4R3 b - f3 0 1"
 
-    const int count = 3;
+    const int count = 7;
     char **ds = x_static_to_dynamic_strings(count, STRINGS);
 
-    size_t num_removed = che_remove_redundant_eptsf(ds, count);
+    size_t num_removed = che_remove_redundant_epts(ds, count);
     ck_assert(num_removed == (size_t) count);
-
-    for(int i = 0; i < count; ++i)
-        ck_assert(che_fen_validator(ds[i]) == FEN_NO_ERRORS); // Remove!
 
     ck_assert(!strcmp(ds[0], "4k3/8/8/8/4P3/8/8/4K3 b - - 0 1"));
     ck_assert(!strcmp(ds[1], "5k2/8/8/8/4Pp2/8/8/4KR2 b - - 0 1"));
     ck_assert(!strcmp(ds[2], "b3kr2/8/8/3PpP2/8/5K2/8/8 w - - 0 2"));
+    ck_assert(!strcmp(ds[3], "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b "
+        "KQkq - 0 1"));
+    ck_assert(!strcmp(ds[4], "4k3/8/8/1pp5/1P6/p7/8/4K2R b K - 0 1"));
+    ck_assert(!strcmp(ds[5], "4k3/8/6P1/6Kp/6P1/8/8/8 w - - 0 2"));
+    ck_assert(!strcmp(ds[6], "8/8/4k3/8/4pPp1/7Q/6K1/4R3 b - - 0 1"));
+
+    for(int i = 0; i < count; ++i) free(ds[i]);
+    free(ds);
 
 #undef STRINGS

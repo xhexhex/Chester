@@ -9,13 +9,42 @@
 #include "../../src/move_gen.h"
 #include "../../src/pgn.h"
 
-#define NO_EP_INIT_POS \
-    "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w KQkq - 0 1"
-#define SOME_POSITION "k7/8/8/8/8/P7/8/K7 w - - 0 1"
+// #define FEN_1 "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
+// #define FEN_2 "4k3/8/8/1pp5/1P6/p7/8/4K2R b K b3 0 1"
+// #define FEN_3 "4k3/8/6P1/6Kp/6P1/8/8/8 w - h6 0 2"
+// #define FEN_4 "8/8/8/6k1/6pP/8/8/4K3 b - h3 0 123"
+// #define FEN_5 "4k3/8/8/4pP2/8/8/8/4K3 w - e6 0 2"
+// #define FEN_6 "8/8/4k3/8/4pPp1/7Q/6K1/4R3 b - f3 0 1"
 
 int
 main()
 {
+    // assert(!che_fen_validator(FEN_1));
+    // assert(!che_fen_validator(FEN_2));
+    // assert(!che_fen_validator(FEN_3));
+    // assert(!che_fen_validator(FEN_4));
+    // assert(!che_fen_validator(FEN_5));
+    // assert(!che_fen_validator(FEN_6));
+
+    const int count = 1;
+    char **fen = malloc(count * sizeof(void *));
+    fen[0] = malloc((strlen(FEN_6) + 1) * sizeof(char));
+    strcpy(fen[0], FEN_6);
+    size_t rfc = che_remove_redundant_eptsf(fen, count);
+    printf("The return value was %lu\n", rfc);
+    free(fen[0]), free(fen);
+}
+
+/**************
+ ** Junkyard **
+ **************/
+    /*
+    #define NO_EP_INIT_POS \
+        "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w KQkq - 0 1"
+    #define SOME_POSITION "k7/8/8/8/8/P7/8/K7 w - - 0 1"
+    */
+
+    /*
     assert( che_fen_validator(SOME_POSITION) == FEN_NO_ERRORS );
     // printf("Hello from the sandbox!\n");
     // long long che_perft( const char *fen, int depth, bool mt );
@@ -33,11 +62,7 @@ main()
     }
 
     // che_free_fen_gt(gt);
-}
-
-/**************
- ** Junkyard **
- **************/
+    */
 
     /*
     const Pos *p = fen_to_pos(FEN_KIWIPETE);
