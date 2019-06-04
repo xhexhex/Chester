@@ -5,34 +5,44 @@
 #include <string.h>
 
 #include "chester.h"
+#include "../../src/extra.h"
 #include "../../src/utils.h"
 #include "../../src/move_gen.h"
 #include "../../src/pgn.h"
 
-// #define FEN_1 "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"
-// #define FEN_2 "4k3/8/8/1pp5/1P6/p7/8/4K2R b K b3 0 1"
-// #define FEN_3 "4k3/8/6P1/6Kp/6P1/8/8/8 w - h6 0 2"
-// #define FEN_4 "8/8/8/6k1/6pP/8/8/4K3 b - h3 0 123"
-// #define FEN_5 "4k3/8/8/4pP2/8/8/8/4K3 w - e6 0 2"
-// #define FEN_6 "8/8/4k3/8/4pPp1/7Q/6K1/4R3 b - f3 0 1"
-
 int
 main()
 {
-    // assert(!che_fen_validator(FEN_1));
-    // assert(!che_fen_validator(FEN_2));
-    // assert(!che_fen_validator(FEN_3));
-    // assert(!che_fen_validator(FEN_4));
-    // assert(!che_fen_validator(FEN_5));
-    // assert(!che_fen_validator(FEN_6));
+    char *sta_fen[] = {
+        INIT_POS,
+        "4k3/8/8/8/4Pp2/8/8/4K3 b - e3 0 1",
+        "4k3/8/8/pP6/8/8/8/4K3 w - a6 0 2",
+        FEN_PERSONALLY_SIGNIFICANT,
+        FEN_GAME_OF_THE_CENTURY,
+        "4kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2",
+        "b3k3/8/8/3PpP2/8/5K2/8/8 w - e6 0 2",
+        "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
+        "8/8/8/6k1/6pP/8/8/4K3 b - h3 0 123",
+        "4k3/8/8/4pP2/8/8/8/4K3 w - e6 0 2",
+        "4k3/8/8/8/4P3/8/8/4K3 b - e3 0 1",
+        "5k2/8/8/8/4Pp2/8/8/4KR2 b - e3 0 1",
+        "b3kr2/8/8/3PpP2/8/5K2/8/8 w - e6 0 2",
+        "rnbqkbnr/pppppppp/8/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq a3 0 1",
+        "4k3/8/8/1pp5/1P6/p7/8/4K2R b K b3 0 1",
+        "4k3/8/6P1/6Kp/6P1/8/8/8 w - h6 0 2",
+        "8/8/4k3/8/4pPp1/7Q/6K1/4R3 b - f3 0 1",
+        NULL };
 
-    const int count = 1;
-    char **fen = malloc(count * sizeof(void *));
-    fen[0] = malloc((strlen(FEN_6) + 1) * sizeof(char));
-    strcpy(fen[0], FEN_6);
-    size_t rfc = che_remove_redundant_eptsf(fen, count);
-    printf("The return value was %lu\n", rfc);
-    free(fen[0]), free(fen);
+    char **dyn_fen = malloc(1 * sizeof(void *));
+    for(int i = 0; sta_fen[i]; ++i) {
+        *dyn_fen = malloc((strlen(sta_fen[i]) + 1) * sizeof(char));
+        strcpy(*dyn_fen, sta_fen[i]);
+        // printf("%2d: \"%s\"\n", i, *dyn_fen);
+        size_t num_removed = che_remove_redundant_epts(dyn_fen, 1);
+        printf("Return: %lu\n", num_removed);
+        free(*dyn_fen);
+    }
+    free(dyn_fen);
 }
 
 /**************

@@ -117,6 +117,7 @@ che_remove_redundant_epts( char **fen, const size_t count )
 
         if(western_pawn_bi == -1 && eastern_pawn_bi == -1) {
             x_che_remove_redundant_epts_remove_epts(*fen, index, &rfc);
+            free(p);
             continue; }
 
         if(western_pawn_bi > -1 &&
