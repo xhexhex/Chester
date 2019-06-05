@@ -100,9 +100,10 @@ che_make_moves( const char *fen, const char *sans )
 
 // TODO: doc
 struct fen_game_tree
-che_build_fen_gt( const char *fen, uint8_t height )
+che_build_fen_gt( const char *fen, const uint8_t height )
 {
     // What if 'fen' is a stalemate position?
+    // List of terminal nodes?
 
     assert(height < FGT_LO_SIZE);
     if(!fen) fen = INIT_POS;
@@ -110,15 +111,19 @@ che_build_fen_gt( const char *fen, uint8_t height )
     struct fen_game_tree gt;
 
     gt.nc = 0, gt.lo[0] = 1, gt.height = height;
-    for(int level = 1; level <= height; level++) {
+    for(int level = 1; level <= height; ++level) {
         gt.nc += che_perft(fen, level - 1, true);
         gt.lo[level] = gt.nc + 1; }
     gt.nc += che_perft(fen, height, true);
 
+    assert((gt.cc = malloc((gt.nc + 1) * sizeof(uint8_t))));
+    gt.cc[0] = UINT8_MAX;
+    memset((void *) (gt.cc + 1), 0, (size_t) gt.nc);
+    // for(uint32_t id = 1; id <= gt.nc; id++) gt.cc[id] = 0;
+
     // BHNC, below height node count
     const uint32_t BHNC = gt.lo[height] - 1;
-    assert((gt.cc = malloc((BHNC + 1) * sizeof(uint8_t))));
-    for(uint32_t id = 1; id <= BHNC; id++) gt.cc[id] = 0;
+    // printf("BHNC: %u\n", BHNC);
     assert((gt.children = malloc((BHNC + 1) * sizeof(void *))));
     const int SLOT_COUNT = 50;
     uint8_t *num_alloc_slots = malloc((BHNC + 1) * sizeof(uint8_t));
@@ -155,7 +160,7 @@ che_build_fen_gt( const char *fen, uint8_t height )
         free(unmod_ptr);
     } // End for
 
-    // che_remove_redundant_eptsf(id_to_fen + 1, count);
+    che_remove_redundant_epts(id_to_fen + 1, gt.nc);
 
     /*
     printf("BEGIN TMP_FEN >>\n");
@@ -176,6 +181,23 @@ che_build_fen_gt( const char *fen, uint8_t height )
 
     // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
     x_che_build_fen_gt_set_findex(&gt, id_to_fen);
+
+    // const uint32_t high_node_count = gt.nc - BHNC;
+    uint8_t *move_count = malloc((gt.nc + 1) * sizeof(uint8_t));
+    memset(move_count + 1, UINT8_MAX, gt.nc);
+    for(uint32_t id = gt.lo[height]; id <= gt.nc; ++id) {
+        uint32_t index = gt.findex[id];
+        // assert(index < high_node_count);
+
+        if(move_count[index] != UINT8_MAX) {
+            gt.cc[id] = move_count[index];
+            continue; }
+
+        Pos *p = fen_to_pos(gt.ufen[index]);
+        Rawcode *rc = rawcodes(p);
+        gt.cc[id] = rc[0], move_count[index] = rc[0];
+        free(p), free(rc);
+    }
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],

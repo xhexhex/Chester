@@ -13,6 +13,17 @@
 int
 main()
 {
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 1);
+    for(uint32_t id = 0; id <= gt.nc; ++id) {
+        printf("Child count of %2u: %u\n", id, gt.cc[id]);
+    }
+    che_free_fen_gt(gt);
+}
+
+/**************
+ ** Junkyard **
+ **************/
+    /*
     char *sta_fen[] = {
         INIT_POS,
         "4k3/8/8/8/4Pp2/8/8/4K3 b - e3 0 1",
@@ -43,11 +54,8 @@ main()
         free(*dyn_fen);
     }
     free(dyn_fen);
-}
+    */
 
-/**************
- ** Junkyard **
- **************/
     /*
     #define NO_EP_INIT_POS \
         "rnbqkbnr/8/pppppppp/8/8/PPPPPPPP/8/RNBQKBNR w KQkq - 0 1"
