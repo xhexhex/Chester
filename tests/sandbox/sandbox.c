@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "chester.h"
 #include "../../src/extra.h"
@@ -10,19 +11,63 @@
 #include "../../src/move_gen.h"
 #include "../../src/pgn.h"
 
+struct fen_game_tree gt;
+uint32_t visit_count, checkmate_count;
+
+void
+dfs(uint32_t node)
+{
+    ++visit_count;
+    if(!gt.cc[node]) {
+        char *fen = gt.ufen[gt.findex[node]];
+        const Pos *p = fen_to_pos(fen);
+        if(king_in_check(p)) ++checkmate_count;
+        free((void *) p); }
+
+    if(node >= gt.lo[gt.height])
+        return;
+
+    for(int i = 0; i < gt.cc[node]; ++i)
+        dfs(gt.children[node][i]);
+}
+
 int
 main()
 {
-    struct fen_game_tree gt = che_build_fen_gt(NULL, 1);
-    for(uint32_t id = 0; id <= gt.nc; ++id) {
-        printf("Child count of %2u: %u\n", id, gt.cc[id]);
-    }
+    // assert(!che_fen_validator(FEN_PERFT_POS_4));
+    printf("Working very hard...\n");
+
+    long long t0 = time_in_milliseconds();
+    // gt = che_build_fen_gt(FEN_PERFT_POS_4, 5);
+    gt = che_build_fen_gt(NULL, 5);
+    long long t1 = time_in_milliseconds();
+    printf("Building gt took %lld ms\n", t1 - t0);
+
+    long long t2 = time_in_milliseconds();
+    dfs(1);
+    long long t3 = time_in_milliseconds();
+    printf("Doing the DFS took %lld ms\n", t3 - t2);
+
+    assert(visit_count == gt.nc);
+    /*
+    assert(visit_count == 1 + 6 + 264 + 9467 + 422333 + 15833292);
+    assert(checkmate_count == 22 + 5 + 50562);
+    */
+    assert(visit_count == 1 + 20 + 400 + 8902 + 197281 + 4865609);
+    assert(checkmate_count == 8 + 347);
+    printf("Nodes: %u\n", gt.nc);
+    printf("Checkmates: %u\n", checkmate_count);
+    printf("gt.num_ufen: %u\n", gt.num_ufen);
+
     che_free_fen_gt(gt);
 }
 
 /**************
  ** Junkyard **
  **************/
+
+    // #define MATE_IN_3 "r1b1k2r/ppp2ppp/2p5/8/3Qn1q1/8/PPPB2PP/2KR1B1R w kq - 0 1"
+
     /*
     char *sta_fen[] = {
         INIT_POS,

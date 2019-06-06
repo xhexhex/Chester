@@ -800,19 +800,18 @@ void string_sort( char *s[], int count )
     qsort(s, (size_t) count, sizeof(char *), x_qsort_string_compare);
 }
 
-// TODO: doc
+// Works similarly to the Unix command uniq. The string array 's' with 'size'
+// string elements is assumed to be sorted. The function stores all the
+// unique strings in 's' in the returned string array. For example, if the
+// value of 's' is the 4-element string array {"Alice", "Bob", "Bob", "Eve"},
+// then the function returns {"Alice", "Bob", "Eve"}. Note that like 's',
+// the returned string array is in sorted order.
 char **
 unique_strings( char **s, size_t *size )
 {
-    assert(*size > 0);
     const size_t orig_size = *size;
-    char **unique;
-    assert((unique = malloc(orig_size * sizeof(void *))));
-    assert((unique[0] = malloc((strlen(s[0]) + 1) * sizeof(char))));
-    strcpy(unique[0], s[0]);
     bool *duplicate;
-    assert((duplicate = malloc(orig_size * sizeof(bool))));
-    for(size_t i = 0; i < orig_size; ++i) duplicate[i] = false;
+    assert((duplicate = calloc(orig_size, sizeof(bool))));
 
     for(size_t i = 0; i < orig_size - 1; ++i) {
         if(duplicate[i]) continue;
@@ -820,9 +819,10 @@ unique_strings( char **s, size_t *size )
         while(j < orig_size && !strcmp(s[i], s[j])) {
             duplicate[j] = true, --*size, ++j; } }
 
-    assert(*size > 0);
+    char **unique;
+    assert((unique = malloc((*size) * sizeof(void *))));
 
-    for(size_t i = 1, j = 1; i < orig_size; ++i) {
+    for(size_t i = 0, j = 0; i < orig_size; ++i) {
         if(duplicate[i]) continue;
         assert((unique[j] = malloc((strlen(s[i]) + 1) * sizeof(char))));
         strcpy(unique[j], s[i]);

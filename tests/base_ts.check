@@ -1948,21 +1948,15 @@ ck_assert( counter == exp_count );
     che_free_fen_gt(gt);
 
 #test che_build_fen_gt_test_4
-    struct fen_game_tree gt = che_build_fen_gt(NULL, 3);
+    struct fen_game_tree gt = che_build_fen_gt(
+        "R5k1/5ppp/8/8/8/8/8/4K3 b - - 1 1", 10);
+    ck_assert(!che_fen_validator("R5k1/5ppp/8/8/8/8/8/4K3 b - - 1 1"));
 
-    ck_assert(gt.nc == 9323);
+    ck_assert(gt.nc == 1);
+    ck_assert(gt.num_ufen == 1);
+    ck_assert(gt.height == 0);
 
     che_free_fen_gt(gt);
-
-/*
-struct fen_game_tree {
-    char **ufen; // ufen, unique FENs
-    uint8_t height, *cc; // cc, child count
-    // nc, node count; lo, level offset
-    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
-        *findex;
-};
- */
 
 #test che_build_fen_gt_test_5
     struct fen_game_tree gt = che_build_fen_gt(FEN_SUPERPOSITION_1, 1);

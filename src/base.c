@@ -171,8 +171,12 @@ che_build_fen_gt( const char *fen, const uint8_t height )
     assert((sorted_id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
     sorted_id_to_fen[0] = "";
     for(uint32_t id = 1; id <= gt.nc; ++id) {
+        sorted_id_to_fen[id] = id_to_fen[id];
+        /*
         sorted_id_to_fen[id] = malloc((strlen(id_to_fen[id]) + 1) * sizeof(char));
-        strcpy(sorted_id_to_fen[id], id_to_fen[id]); }
+        strcpy(sorted_id_to_fen[id], id_to_fen[id]);
+        */
+    }
     string_sort(sorted_id_to_fen + 1, gt.nc);
     size_t size = gt.nc + 1;
     gt.ufen = unique_strings(sorted_id_to_fen, &size);
@@ -181,6 +185,9 @@ che_build_fen_gt( const char *fen, const uint8_t height )
 
     // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
     x_che_build_fen_gt_set_findex(&gt, id_to_fen);
+    for(uint32_t id = 1; id <= gt.nc; ++id)
+        free(id_to_fen[id]); // free(sorted_id_to_fen[id]);
+    free(id_to_fen), free(sorted_id_to_fen);
 
     // const uint32_t high_node_count = gt.nc - BHNC;
     uint8_t *move_count = malloc((gt.nc + 1) * sizeof(uint8_t));
@@ -198,6 +205,8 @@ che_build_fen_gt( const char *fen, const uint8_t height )
         gt.cc[id] = rc[0], move_count[index] = rc[0];
         free(p), free(rc);
     }
+
+    free(move_count);
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -880,6 +889,7 @@ x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
     assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
     for(uint32_t id = 0; id <= gt->nc; ++id)
         gt->findex[id] = 0;
+    // memset!
 
     for(uint32_t id = 1; id <= gt->nc; ++id) {
         // printf("Looking for \"%s\"\n", id_to_fen[id]);
