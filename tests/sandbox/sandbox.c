@@ -34,6 +34,18 @@ dfs(uint32_t node)
 int
 main()
 {
+    struct fen_game_tree gt = che_build_fen_gt(NULL, 0);
+    che_free_fen_gt(gt);
+
+    return 0;
+
+    const char the_end[] = "R5k1/5ppp/8/8/8/8/8/4K3 b - - 1 1";
+    printf("%lld\n", che_perft(the_end, 0, true));
+    printf("%lld\n", che_perft(the_end, 1, true));
+    printf("%lld\n", che_perft(the_end, 5, true));
+
+    return 0;
+
     // assert(!che_fen_validator(FEN_PERFT_POS_4));
     printf("Working very hard...\n");
 

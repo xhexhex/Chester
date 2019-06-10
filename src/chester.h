@@ -33,6 +33,10 @@ typedef uint16_t Rawcode;
     "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"
 
 // TODO: doc
+#define NO_BRAINER_MATE_IN_2 \
+    "RK1kr1nN/P2p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 w - - 0 1"
+
+// TODO: doc
 extern const long long EPR_INIT_POS[]; // epr, expected perft results
 extern const long long EPR_KIWIPETE[];
 extern const long long EPR_PERFT_POS_3[];
@@ -75,7 +79,7 @@ struct fen_game_tree {
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
     uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
-        *findex, *terminal;
+        *findex;
 };
 
 //
