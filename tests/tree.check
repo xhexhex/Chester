@@ -133,10 +133,46 @@
 #test che_build_fen_gt_test_7
     struct fen_game_tree gt = che_build_fen_gt(NO_BRAINER_MATE_IN_2, 2);
 
+    ck_assert(gt.num_ufen == 7), ck_assert(gt.nc == 7);
+    ck_assert(gt.height == 2), ck_assert(gt.cc[1] == 3);
+
+    che_free_fen_gt(gt);
+
+#test che_build_fen_gt_test_8
+    struct fen_game_tree gt = che_build_fen_gt(NO_BRAINER_MATE_IN_2, 3);
+
+    const char *pos[] = {
+        "",
+        "2Rkr1nN/PK1p1pPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 0 2",
+        "R1qkr1nN/PK1p1pPp/1P3PRP/Bp4P1/1P6/8/8/8 w - - 2 2", // Qc8+
+        "R2kr1n1/PK1p1qPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 1 2",
+        "R2kr1nN/PK1p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 1 1", // Kb7+
+        "RK1kr1n1/P2p1NPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1", // Nxf7+
+        "RK1kr1n1/P2p1qPp/1P3PRP/Bp4P1/1P6/8/8/8 w - - 0 2",  // Qxf7
+        "RK1kr1n1/PP1p1qPp/5PRP/Bp4P1/1P6/8/8/8 b - - 0 2",   // b7# <--
+        "RK1kr1nN/P2p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 w - - 0 1", // Root
+        "RK1kr1nN/PP1p1pPp/5PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1",  // b7+
+        "RK1kr1nN/PPBp1pPp/5PRP/1p4P1/1P6/8/8/8 b - - 0 2",
+        "RK1kr1nN/PPqp1pPp/5PRP/Bp4P1/1P6/8/8/8 w - - 1 2" }; // Qc7+
+
+    /*
     printf("%s", che_move_gen(NO_BRAINER_MATE_IN_2));
-    printf("%s", che_move_gen("R2kr1nN/PK1p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 1 1"));
-    printf("%s", che_move_gen("RK1kr1n1/P2p1NPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));
-    printf("%s", che_move_gen("RK1kr1nN/PP1p1pPp/5PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));
+    printf("%s", che_move_gen("R2kr1nN/PK1p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 1 1"));  // Kb7+
+    printf("%s", che_move_gen("RK1kr1n1/P2p1NPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));  // Nxf7+
+    printf("%s", che_move_gen("RK1kr1nN/PP1p1pPp/5PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));   // b7+
+    */
+
+    for(uint32_t j = 1; j <= gt.num_ufen; ++j) {
+        ck_assert(!strcmp(gt.ufen[j], pos[j])); }
+
+    // const uint32_t mate_pos_j = 7;
+    uint32_t mate_pos_id = 0;
+    for(uint32_t id = 1; id <= gt.nc; ++id)
+        if(!strcmp(pos[7], gt.ufen[gt.findex[id]]))
+            mate_pos_id = id;
+
+    ck_assert(mate_pos_id);
+    printf(">> %u, %s\n", mate_pos_id, gt.ufen[gt.findex[mate_pos_id]]);
 
     che_free_fen_gt(gt);
 
