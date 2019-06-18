@@ -5,6 +5,7 @@
 
 #include "../src/base.h"
 #include "../src/utils.h"
+#include "../src/move_gen.h"
 
 #suite tree_ts
 
@@ -12,6 +13,32 @@
 // Test case
 //
 #tcase che_build_fen_gt_tests
+
+static struct fen_game_tree x_gt;
+static uint32_t x_visit_count, x_check_count,
+    x_checkmate_count, x_capture_count;
+
+static void
+x_dfs(uint32_t node)
+{
+    // printf("%u\n", node);
+    ++x_visit_count;
+
+    char *fen = x_gt.ufen[x_gt.findex[node]];
+    const Pos *p = fen_to_pos(fen);
+    if(king_in_check(p)) ++x_check_count;
+    Rawcode *rc = rawcodes(p);
+    if(!rc[0]) ++x_checkmate_count;
+    for(int i = 1; i <= (int) rc[0]; ++i)
+        if(is_capture(p, rc[i])) ++x_capture_count;
+    free(rc), free((void *) p);
+
+    if(node >= x_gt.lo[x_gt.height])
+        return;
+
+    for(int i = 0; i < x_gt.cc[node]; ++i)
+        x_dfs(x_gt.children[node][i]);
+}
 
 #test che_build_fen_gt_test_1
     struct fen_game_tree gt = che_build_fen_gt(NULL, 0);
@@ -143,49 +170,58 @@
 
     const char *pos[] = {
         "",
-        "2Rkr1nN/PK1p1pPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 0 2",
+        "2Rkr1nN/PK1p1pPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 0 2",  // Rxc8#
         "R1qkr1nN/PK1p1pPp/1P3PRP/Bp4P1/1P6/8/8/8 w - - 2 2", // Qc8+
-        "R2kr1n1/PK1p1qPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 1 2",
+        "R2kr1n1/PK1p1qPp/1P3PRP/Bp4P1/1P6/8/8/8 b - - 1 2",  // Kb7#
         "R2kr1nN/PK1p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 1 1", // Kb7+
         "RK1kr1n1/P2p1NPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1", // Nxf7+
         "RK1kr1n1/P2p1qPp/1P3PRP/Bp4P1/1P6/8/8/8 w - - 0 2",  // Qxf7
-        "RK1kr1n1/PP1p1qPp/5PRP/Bp4P1/1P6/8/8/8 b - - 0 2",   // b7# <--
+        "RK1kr1n1/PP1p1qPp/5PRP/Bp4P1/1P6/8/8/8 b - - 0 2",   // b7#
         "RK1kr1nN/P2p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 w - - 0 1", // Root
         "RK1kr1nN/PP1p1pPp/5PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1",  // b7+
-        "RK1kr1nN/PPBp1pPp/5PRP/1p4P1/1P6/8/8/8 b - - 0 2",
+        "RK1kr1nN/PPBp1pPp/5PRP/1p4P1/1P6/8/8/8 b - - 0 2",   // Bxc7#
         "RK1kr1nN/PPqp1pPp/5PRP/Bp4P1/1P6/8/8/8 w - - 1 2" }; // Qc7+
 
-    /*
-    printf("%s", che_move_gen(NO_BRAINER_MATE_IN_2));
-    printf("%s", che_move_gen("R2kr1nN/PK1p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 1 1"));  // Kb7+
-    printf("%s", che_move_gen("RK1kr1n1/P2p1NPp/1P3PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));  // Nxf7+
-    printf("%s", che_move_gen("RK1kr1nN/PP1p1pPp/5PRP/Bp4P1/1Pq5/8/8/8 b - - 0 1"));   // b7+
-    */
+    int mate_sequence[][4] = {
+        {8, 4, 2, 1},     // 1.Kb7+  Qc8+ 2.Rxc8#
+        {8, 5, 6, 3},     // 1.Nxf7+ Qxf7 2.Kb7#
+        {8, 5, 6, 7},     // 1.Nxf7+ Qxf7 2.b7#
+        {8, 9, 11, 10} }; // 1.b7+   Qc7+ 2.Bxc7#
 
+    ck_assert(gt.height == 3), ck_assert(gt.num_ufen == 11);
     for(uint32_t j = 1; j <= gt.num_ufen; ++j) {
         ck_assert(!strcmp(gt.ufen[j], pos[j])); }
 
-    // const uint32_t mate_pos_j = 7;
-    uint32_t mate_pos_id = 0;
-    for(uint32_t id = 1; id <= gt.nc; ++id)
-        if(!strcmp(pos[7], gt.ufen[gt.findex[id]]))
-            mate_pos_id = id;
-
-    ck_assert(mate_pos_id);
-    printf(">> %u, %s\n", mate_pos_id, gt.ufen[gt.findex[mate_pos_id]]);
+    for(int row = 0; row < 4; ++row) {
+        for(int col = 3; col >= 0; --col) {
+            uint32_t id = 0;
+            int hit_count = 0;
+            for(uint32_t current_id = 1; current_id <= gt.nc; ++current_id)
+                if(!strcmp( pos[mate_sequence[row][col]],
+                        gt.ufen[gt.findex[current_id]]))
+                    ++hit_count, id = current_id;
+            ck_assert(id), ck_assert(hit_count == 1);
+            ck_assert(!col ||
+                (uint32_t) mate_sequence[row][col - 1] == gt.findex[gt.parent[id]]);
+        } // End inner for
+    } // End outer for
 
     che_free_fen_gt(gt);
 
-/*
-struct fen_game_tree {
-    char **ufen; // ufen, unique FENs
-    uint8_t height, *cc; // cc, child count
-    // nc, node count; lo, level offset
-    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
-        *findex;
-};
-*/
-    // printf("%s", che_move_gen(NO_BRAINER_MATE_IN_2));
+#test che_build_fen_gt_test_9
+    struct fen_game_tree gt1 = che_build_fen_gt(NO_BRAINER_MATE_IN_2, 4);
+    ck_assert(gt1.height == 3), ck_assert(gt1.nc == 11);
+    che_free_fen_gt(gt1);
+    struct fen_game_tree gt2 = che_build_fen_gt(NO_BRAINER_MATE_IN_2, 10);
+    ck_assert(gt2.height == 3), ck_assert(gt2.nc == 11);
+    che_free_fen_gt(gt2);
 
-// #define STALEMATE
-// #undef STALEMATE
+#test che_build_fen_gt_test_10
+    x_gt = che_build_fen_gt(NO_BRAINER_MATE_IN_2, 3);
+    x_visit_count = x_check_count = x_checkmate_count = x_capture_count = 0;
+    x_dfs(1);
+    ck_assert(x_visit_count == 11);
+    ck_assert(x_check_count == 9);
+    ck_assert(x_checkmate_count == 4);
+    ck_assert(x_capture_count == 4);
+    che_free_fen_gt(x_gt);
