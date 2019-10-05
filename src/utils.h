@@ -61,6 +61,7 @@ long long time_in_microseconds();
 int bindex(Bitboard bit);
 Bitboard white_army( const Pos *p );
 Bitboard black_army( const Pos *p );
+void nth_ppf_rank( const char *fen, int rank_number, char *nine_bytes );
 
 #endif
 // end UTILS_H

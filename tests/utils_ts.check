@@ -1618,3 +1618,30 @@ x_static_to_dynamic_strings( int count, ... )
     free(ds);
 
 #undef STRINGS
+
+//
+// Test case
+//
+#tcase nth_ppf_rank_tests
+
+#test nth_ppf_rank_test_1
+    char ca[9];
+    nth_ppf_rank(INIT_POS, 8, ca);
+    ck_assert(!strcmp(ca, "rnbqkbnr"));
+
+    nth_ppf_rank(INIT_POS, 4, ca);
+    ck_assert(!strcmp(ca, "8"));
+
+    nth_ppf_rank(INIT_POS, 1, ca);
+    ck_assert(!strcmp(ca, "RNBQKBNR"));
+
+#test nth_ppf_rank_test_2
+    char ca[9];
+    nth_ppf_rank(FEN_KIWIPETE, 8, ca);
+    ck_assert(!strcmp(ca, "r3k2r"));
+
+    nth_ppf_rank(FEN_KIWIPETE, 6, ca);
+    ck_assert(!strcmp(ca, "bn2pnp1"));
+
+    nth_ppf_rank(FEN_KIWIPETE, 1, ca);
+    ck_assert(!strcmp(ca, "R3K2R"));

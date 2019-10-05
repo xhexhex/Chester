@@ -870,6 +870,29 @@ black_army( const Pos *p )
         p->ppa[ BLACK_KNIGHT ] | p->ppa[ BLACK_PAWN ];
 }
 
+// Extracts the rank specified by 'rank_number' from the PPF of 'fen'
+// and copies it into 'nine_bytes'. For example, after the call
+//
+// nth_ppf_rank(INIT_POS, 1, ca)
+//
+// the character array 'ca' would contain the string "RNBQKBNR".
+void
+nth_ppf_rank( const char *fen, int rank_number, char *nine_bytes )
+{
+    int index = 0, slash_count = 0;
+    const int target_slash_count = 8 - rank_number;
+
+    while(slash_count < target_slash_count) {
+        while(fen[index++] != '/');
+        ++slash_count; }
+
+    int cai = 0; // character array index
+    while(fen[index] != '/' && fen[index] != ' ')
+        nine_bytes[cai++] = fen[index++];
+
+    nine_bytes[cai] = 0;
+}
+
 /****************************
  ****                    ****
  ****  Static functions  ****
