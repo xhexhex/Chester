@@ -74,7 +74,7 @@ enum che_fen_error {
 #define FGT_LO_SIZE 21
 
 // TODO: doc
-struct fen_game_tree {
+struct explicit_game_tree {
     char **ufen; // ufen, unique FENs
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
@@ -93,11 +93,14 @@ char *che_move_gen( const char *fens );
 // void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
-struct fen_game_tree che_build_fen_gt( const char *fen, uint8_t height );
-void che_free_fen_gt( struct fen_game_tree gt );
+struct explicit_game_tree che_build_explicit_gt( const char *fen, uint8_t height );
+void che_free_explicit_gt( struct explicit_game_tree gt );
 char *che_children( const char *fen );
 bool che_ep_has_occurred( const char *child, const char *parent );
 size_t che_remove_redundant_epts( char **fen, size_t count );
+uint32_t che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
+    uint32_t *en_passants, uint32_t *castles, uint32_t *proms, uint32_t *checks,
+    uint32_t *checkmates );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

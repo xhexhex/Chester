@@ -1,14 +1,16 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "tree.h"
 #include "chester.h"
 #include "utils.h"
 #include "move_gen.h"
 
-static void x_che_build_fen_gt_set_findex(struct fen_game_tree *gt,
+static void x_che_build_explicit_gt_set_findex(struct explicit_game_tree *gt,
     char **id_to_fen);
+static void x_che_explicit_gt_stats_dfs( uint32_t node );
 
 /******************************
  ****                      ****
@@ -17,16 +19,16 @@ static void x_che_build_fen_gt_set_findex(struct fen_game_tree *gt,
  ******************************/
 
 // TODO: doc
-struct fen_game_tree
-che_build_fen_gt( const char *fen, const uint8_t height )
+struct explicit_game_tree
+che_build_explicit_gt( const char *fen, const uint8_t height )
 {
     // What if 'fen' is a stalemate position?
-    // List of terminal nodes?
+    // printf("%s: I work but am a mess\n", __func__);
 
     assert(height < FGT_LO_SIZE);
     if(!fen) fen = INIT_POS;
 
-    struct fen_game_tree gt;
+    struct explicit_game_tree gt;
 
     gt.nc = 0, gt.lo[0] = 1, gt.height = UINT8_MAX; // gt.height = height;
     long long nodes_on_level;
@@ -111,7 +113,7 @@ che_build_fen_gt( const char *fen, const uint8_t height )
     assert(!strcmp("", gt.ufen[0]));
 
     // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
-    x_che_build_fen_gt_set_findex(&gt, id_to_fen);
+    x_che_build_explicit_gt_set_findex(&gt, id_to_fen);
     for(uint32_t id = 1; id <= gt.nc; ++id)
         free(id_to_fen[id]); // free(sorted_id_to_fen[id]);
     free(id_to_fen), free(sorted_id_to_fen);
@@ -145,18 +147,8 @@ che_build_fen_gt( const char *fen, const uint8_t height )
 
 // TODO: doc
 void
-che_free_fen_gt( struct fen_game_tree gt )
+che_free_explicit_gt( struct explicit_game_tree gt )
 {
-/*
-struct fen_game_tree {
-    char **ufen; // ufen, unique FENs
-    uint8_t height, *cc; // cc, child count
-    // nc, node count; lo, level offset
-    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
-        *findex;
-};
- */
-
     for(uint32_t j = 0; j <= gt.num_ufen; ++j)
         free(gt.ufen[j]);
     free(gt.ufen), free(gt.cc), free(gt.parent);
@@ -164,6 +156,35 @@ struct fen_game_tree {
     for(uint32_t id = 1; id < gt.lo[gt.height]; id++)
         free(gt.children[id]);
     free(gt.children), free(gt.findex);
+}
+
+static uint32_t x_nodes, x_captures, x_en_passants, x_castles, x_proms,
+    x_checks, x_checkmates;
+static struct explicit_game_tree x_gt;
+
+// TODO: doc
+uint32_t
+che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
+    uint32_t *en_passants, uint32_t *castles, uint32_t *proms,
+    uint32_t *checks, uint32_t *checkmates )
+{
+    x_gt = gt;
+
+    x_nodes = 0;
+    x_captures = captures ? 0 : UINT32_MAX;
+    x_en_passants = en_passants ? 0 : UINT32_MAX;
+    x_castles = castles ? 0 : UINT32_MAX;
+    x_proms = proms ? 0 : UINT32_MAX;
+    x_checks = checks ? 0 : UINT32_MAX;
+    x_checkmates = checkmates ? 0 : UINT32_MAX;
+
+    x_che_explicit_gt_stats_dfs(1);
+
+    if(en_passants) *en_passants = x_en_passants;
+    if(checks) *checks = x_checks;
+    if(checkmates) *checkmates = x_checkmates;
+
+    return x_nodes;
 }
 
 /****************************
@@ -174,7 +195,7 @@ struct fen_game_tree {
 
 // findex, FEN index
 static void
-x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
+x_che_build_explicit_gt_set_findex(struct explicit_game_tree *gt, char **id_to_fen)
 {
     assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
     for(uint32_t id = 0; id <= gt->nc; ++id)
@@ -205,4 +226,33 @@ x_che_build_fen_gt_set_findex(struct fen_game_tree *gt, char **id_to_fen)
 
         if(!gt->findex[id]) assert(false);
     } // End for
+}
+
+static void
+x_che_explicit_gt_stats_dfs( uint32_t node )
+{
+    ++x_nodes;
+
+    char *fen = x_gt.ufen[x_gt.findex[node]];
+    const Pos *p = fen_to_pos(fen);
+    const Rawcode *rc = rawcodes(p);
+
+    if(x_en_passants != UINT32_MAX && node < x_gt.lo[x_gt.height]) {
+        int space_count = 0, index = 15;
+        while(space_count < 3)
+            if(fen[index++] == ' ')
+                ++space_count;
+        if(fen[index] != '-') ++x_en_passants; }
+    if(x_checks != UINT32_MAX && king_in_check(p))
+        ++x_checks;
+    if(x_checkmates != UINT32_MAX && !rc[0] && king_in_check(p))
+        ++x_checkmates;
+
+    free((void *) p), free((void *) rc);
+
+    if(node >= x_gt.lo[x_gt.height])
+        return;
+
+    for(int i = 0; i < x_gt.cc[node]; ++i)
+        x_che_explicit_gt_stats_dfs(x_gt.children[node][i]);
 }

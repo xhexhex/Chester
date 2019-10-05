@@ -1342,17 +1342,13 @@
 #tcase king_in_check_tests
 
 #test king_in_check_test_1
-    printf("%s: Update!\n", __func__);
-
-    /*
-    struct fen_game_tree gt_ip3 = che_build_fen_gt(NULL, 3);
+    struct explicit_game_tree gt = che_build_explicit_gt(NULL, 3);
     int check_count = 0;
 
-    for(uint32_t id = 1; id <= gt_ip3.nc; id++) {
-        const Pos *p = fen_to_pos(gt_ip3.fen[id]);
+    for(uint32_t id = 1; id <= gt.nc; id++) {
+        const Pos *p = fen_to_pos(gt.ufen[gt.findex[id]]);
         if(king_in_check(p)) ++check_count;
         free((void *) p); }
 
-    che_free_fen_gt(gt_ip3);
+    che_free_explicit_gt(gt);
     ck_assert(check_count == 12);
-    */
