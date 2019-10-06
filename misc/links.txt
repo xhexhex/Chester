@@ -10,3 +10,5 @@ https://github.com/jniemann66/juddperft
 https://www.refactoring.com/catalog/replaceRecursionWithIteration.html
 https://en.wikipedia.org/wiki/Joke_chess_problem
 https://timkr.home.xs4all.nl/chess2/diary_14.htm
+https://github.com/moroshko/chessboard
+https://caustique.github.io/chessboard-js/#/

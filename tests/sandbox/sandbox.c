@@ -14,11 +14,14 @@
 int
 main()
 {
-    printf("%s\n", INIT_POS);
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "4k3/8/8/8/3pPp2/8/8/4K3 b - e3 0 1", 1);
 
-    char ca[9];
-    nth_ppf_rank(INIT_POS, 1, ca);
-    printf("\"%s\"\n", ca);
+    uint32_t en_passants;
+    che_explicit_gt_stats(gt, NULL, &en_passants, NULL, NULL, NULL, NULL);
+    printf("en_passants is %d\n", en_passants);
+
+    che_free_explicit_gt(gt);
 }
 
 /**************

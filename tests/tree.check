@@ -236,12 +236,13 @@ x_dfs(uint32_t node)
     struct explicit_game_tree gt = che_build_explicit_gt(FEN_PERFT_POS_4, 3);
     ck_assert(gt.nc == 1 + 6 + 264 + 9467);
 
-    uint32_t en_passants = 0, checks = 0, checkmates = 0;
-
+    uint32_t captures, en_passants, promotions, checks, checkmates;
     ck_assert(gt.nc == che_explicit_gt_stats(gt,
-        NULL, &en_passants, NULL, NULL, &checks, &checkmates));
+        &captures, &en_passants, NULL, &promotions, &checks, &checkmates));
 
+    ck_assert(captures == 0 + 0 + 87 + 1021);
     ck_assert(en_passants == 0 + 0 + 0 + 4);
+    ck_assert(promotions == 0 + 0 + 48 + 120);
     ck_assert(checks == 1 + 0 + 10 + 38);
     ck_assert(checkmates == 0 + 0 + 0 + 22);
 
@@ -251,12 +252,13 @@ x_dfs(uint32_t node)
     struct explicit_game_tree gt = che_build_explicit_gt(FEN_PERFT_POS_3, 4);
     ck_assert(gt.nc == 1 + 14 + 191 + 2812 + 43238);
 
-    uint32_t en_passants;
-
+    uint32_t en_passants, checks, checkmates;
     ck_assert(gt.nc == che_explicit_gt_stats(gt,
-        NULL, &en_passants, NULL, NULL, NULL, NULL));
+        NULL, &en_passants, NULL, NULL, &checks, &checkmates));
 
     ck_assert(en_passants == 0 + 0 + 0 + 2 + 123);
+    ck_assert(checks == 0 + 2 + 10 + 267 + 1680);
+    ck_assert(checkmates == 0 + 0 + 0 + 17 + 0);
 
     che_free_explicit_gt(gt);
 
@@ -266,11 +268,67 @@ x_dfs(uint32_t node)
     ck_assert(gt.nc == 1 + 9);
 
     uint32_t en_passants;
-
     ck_assert(gt.nc == che_explicit_gt_stats(gt,
         NULL, &en_passants, NULL, NULL, NULL, NULL));
 
     ck_assert(en_passants == 0 + 2);
+    che_free_explicit_gt(gt);
+
+#test che_explicit_gt_stats_test_4
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "8/2p5/p1P5/PpP5/8/4b2k/8/7K w - b6 0 123", 1);
+    ck_assert(gt.nc == 1 + 2);
+
+    uint32_t en_passants;
+    ck_assert(gt.nc == che_explicit_gt_stats(gt,
+        NULL, &en_passants, NULL, NULL, NULL, NULL));
+
+    ck_assert(en_passants == 0 + 2);
+    che_free_explicit_gt(gt);
+
+#test che_explicit_gt_stats_test_5
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "6n1/5pP1/5PR1/6Pp/3b4/6k1/8/7K w - h6 0 75", 1);
+    ck_assert(gt.nc == 1 + 2);
+
+    uint32_t en_passants, checks, checkmates;
+    ck_assert(gt.nc == che_explicit_gt_stats(gt,
+        NULL, &en_passants, NULL, NULL, &checks, &checkmates));
+
+    ck_assert(en_passants == 0 + 1);
+    ck_assert(checks == 0 + 1);
+    ck_assert(checkmates == 0 + 0);
+
+    che_free_explicit_gt(gt);
+
+#test che_explicit_gt_stats_test_6
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "8/8/R7/7k/5pPP/7K/8/8 b - g3 0 1", 1);
+    ck_assert(gt.nc == 1 + 1);
+
+    uint32_t en_passants, checks, checkmates;
+    ck_assert(gt.nc == che_explicit_gt_stats(gt,
+        NULL, &en_passants, NULL, NULL, &checks, &checkmates));
+
+    ck_assert(en_passants == 0 + 1);
+    ck_assert(checks == 1 + 0);
+    ck_assert(checkmates == 0 + 0);
+
+    che_free_explicit_gt(gt);
+
+#test che_explicit_gt_stats_test_7
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "k7/4P3/8/8/8/8/8/4K3 b - - 12 34", 2);
+    ck_assert(gt.nc == 1 + 3 + 27);
+
+    uint32_t en_passants, promotions, checks, checkmates;
+    ck_assert(gt.nc == che_explicit_gt_stats(gt,
+        NULL, &en_passants, NULL, &promotions, &checks, &checkmates));
+
+    ck_assert(en_passants == 0 + 0 + 0);
+    ck_assert(promotions == 0 + 0 + 12);
+    ck_assert(checks == 0 + 0 + 2);
+    ck_assert(checkmates == 0 + 0 + 0);
 
     che_free_explicit_gt(gt);
 

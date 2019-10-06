@@ -11,6 +11,10 @@
 static void x_che_build_explicit_gt_set_findex(struct explicit_game_tree *gt,
     char **id_to_fen);
 static void x_che_explicit_gt_stats_dfs( uint32_t node );
+static void x_che_explicit_gt_stats_dfs_check_for_2nd_ep( const char *fen,
+    int eptsf_offset );
+static void x_che_explicit_gt_stats_dfs_count_promotions( const Pos *p,
+    const Rawcode *rc );
 
 /******************************
  ****                      ****
@@ -181,6 +185,7 @@ che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
     x_che_explicit_gt_stats_dfs(1);
 
     if(en_passants) *en_passants = x_en_passants;
+    if(proms) *proms = x_proms;
     if(checks) *checks = x_checks;
     if(checkmates) *checkmates = x_checkmates;
 
@@ -236,23 +241,70 @@ x_che_explicit_gt_stats_dfs( uint32_t node )
     char *fen = x_gt.ufen[x_gt.findex[node]];
     const Pos *p = fen_to_pos(fen);
     const Rawcode *rc = rawcodes(p);
+    bool w = whites_turn(p);
+    Bitboard rank_1 = 255;
 
     if(x_en_passants != UINT32_MAX && node < x_gt.lo[x_gt.height]) {
         int space_count = 0, index = 15;
-        while(space_count < 3)
-            if(fen[index++] == ' ')
-                ++space_count;
-        if(fen[index] != '-') ++x_en_passants; }
+        while(space_count < 3) if(fen[index++] == ' ') ++space_count;
+        if(fen[index] != '-') {
+            ++x_en_passants;
+            x_che_explicit_gt_stats_dfs_check_for_2nd_ep(fen, index);
+        }
+    }
+    if(x_en_passants != UINT32_MAX && node < x_gt.lo[x_gt.height]) {
+        if( (w && ((rank_1 << 48) & p->ppa[WHITE_PAWN])) ||
+                (!w && ((rank_1 << 8) & p->ppa[BLACK_PAWN]))
+        ) x_che_explicit_gt_stats_dfs_count_promotions(p, rc);
+    }
     if(x_checks != UINT32_MAX && king_in_check(p))
         ++x_checks;
     if(x_checkmates != UINT32_MAX && !rc[0] && king_in_check(p))
         ++x_checkmates;
 
     free((void *) p), free((void *) rc);
-
-    if(node >= x_gt.lo[x_gt.height])
-        return;
-
+    if(node >= x_gt.lo[x_gt.height]) return;
     for(int i = 0; i < x_gt.cc[node]; ++i)
         x_che_explicit_gt_stats_dfs(x_gt.children[node][i]);
+}
+
+static void
+x_che_explicit_gt_stats_dfs_check_for_2nd_ep( const char *fen,
+    int eptsf_offset )
+{
+    char epts_file = fen[eptsf_offset];
+    if(epts_file == 'a' || epts_file == 'h') return;
+
+    int epts_rank = fen[eptsf_offset + 1] - '0';
+    char rank[8 + 1], expanded_rank[8 + 1];
+    bool w = (fen[eptsf_offset + 1] == '6');
+
+    nth_ppf_rank(fen, epts_rank + (w ? -1 : 1), rank);
+    expand_ppf_rank(rank, expanded_rank);
+    // printf("expanded_rank is \"%s\"\n", expanded_rank);
+
+    int index_of_epts_file = epts_file - 'a'; // Between 1 and 6
+    char ac_pawn = w ? 'P' : 'p'; // Active color pawn
+    if(expanded_rank[index_of_epts_file - 1] != ac_pawn) return;
+    if(expanded_rank[index_of_epts_file + 1] == ac_pawn) ++x_en_passants;
+}
+
+static void
+x_che_explicit_gt_stats_dfs_count_promotions( const Pos *p,
+    const Rawcode *rc )
+{
+    // It's already established that it's either White's turn and there's
+    // a white pawn on rank 7 or it's Black's turn and there's a black
+    // pawn on rank 2.
+
+    bool w = whites_turn(p);
+    int num_moves = rc[0];
+    for(int i = 1; i <= num_moves; ++i) {
+        int orig = RC_ORIG_SQ_BINDEX[rc[i]];
+        // Continue if the chessman being moved is not a pawn
+        if(!(ONE << orig & (p->ppa[WHITE_PAWN] | p->ppa[BLACK_PAWN])))
+            continue;
+        if((w && orig >= 48 && orig <= 55) || (!w && orig >= 8 && orig <= 15))
+            x_proms += 4;
+    }
 }
