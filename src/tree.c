@@ -184,6 +184,7 @@ che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
 
     x_che_explicit_gt_stats_dfs(1);
 
+    if(captures) *captures = x_captures;
     if(en_passants) *en_passants = x_en_passants;
     if(proms) *proms = x_proms;
     if(checks) *checks = x_checks;
@@ -241,29 +242,32 @@ x_che_explicit_gt_stats_dfs( uint32_t node )
     char *fen = x_gt.ufen[x_gt.findex[node]];
     const Pos *p = fen_to_pos(fen);
     const Rawcode *rc = rawcodes(p);
-    bool w = whites_turn(p);
+    bool w = whites_turn(p),
+        node_is_at_max_level = (node >= x_gt.lo[x_gt.height]);
     Bitboard rank_1 = 255;
 
-    if(x_en_passants != UINT32_MAX && node < x_gt.lo[x_gt.height]) {
+    if(x_captures != UINT32_MAX && !node_is_at_max_level)
+        for(int i = 1; i <= *rc; ++i)
+            if(is_capture(p, rc[i]))
+                x_captures += is_promotion(p, rc[i]) ? 4 : 1;
+    if(x_en_passants != UINT32_MAX && !node_is_at_max_level) {
         int space_count = 0, index = 15;
         while(space_count < 3) if(fen[index++] == ' ') ++space_count;
         if(fen[index] != '-') {
             ++x_en_passants;
-            x_che_explicit_gt_stats_dfs_check_for_2nd_ep(fen, index);
-        }
-    }
-    if(x_en_passants != UINT32_MAX && node < x_gt.lo[x_gt.height]) {
-        if( (w && ((rank_1 << 48) & p->ppa[WHITE_PAWN])) ||
-                (!w && ((rank_1 << 8) & p->ppa[BLACK_PAWN]))
-        ) x_che_explicit_gt_stats_dfs_count_promotions(p, rc);
-    }
+            x_che_explicit_gt_stats_dfs_check_for_2nd_ep(fen, index); } }
+    if(x_proms != UINT32_MAX && !node_is_at_max_level)
+        if((w && ((rank_1 << 48) & p->ppa[WHITE_PAWN])) ||
+                (!w && ((rank_1 << 8) & p->ppa[BLACK_PAWN])))
+            x_che_explicit_gt_stats_dfs_count_promotions(p, rc);
     if(x_checks != UINT32_MAX && king_in_check(p))
         ++x_checks;
     if(x_checkmates != UINT32_MAX && !rc[0] && king_in_check(p))
         ++x_checkmates;
 
     free((void *) p), free((void *) rc);
-    if(node >= x_gt.lo[x_gt.height]) return;
+
+    if(node_is_at_max_level) return;
     for(int i = 0; i < x_gt.cc[node]; ++i)
         x_che_explicit_gt_stats_dfs(x_gt.children[node][i]);
 }
