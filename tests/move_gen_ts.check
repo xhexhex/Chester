@@ -413,6 +413,12 @@
     TEST_WITH_ARGS( "r5kr/8/8/8/8/8/8/R5KR b AHah - 5 50", "queenside",
         rawcode("g8a8"), CASTLE_OK )
 
+#test castle_returns_1140_and_sets_castle_error_to_CASTLE_OK
+    Pos *p;
+
+    TEST_WITH_ARGS( "4k2r/7P/8/8/8/8/8/4K3 b k - 12 34", "kingside",
+        rawcode("e8h8"), CASTLE_OK )
+
 #undef TEST_WITH_ARGS
 
 //

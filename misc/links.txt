@@ -12,3 +12,4 @@ https://en.wikipedia.org/wiki/Joke_chess_problem
 https://timkr.home.xs4all.nl/chess2/diary_14.htm
 https://github.com/moroshko/chessboard
 https://caustique.github.io/chessboard-js/#/
+http://cinnamonchess.altervista.org/bitboard_calculator/Calc.html

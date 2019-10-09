@@ -473,6 +473,16 @@ black_attackers( const Bitboard *ppa, Bitboard sq )
 // the specified type of castling is available as a move in position 'p',
 // the function returns the rawcode corresponding to the castling move.
 //
+// It's important to note that the function considers castling to be
+// available in positions where the king would castle into check. For
+// example, after the call
+//
+//     Rawcode rc = castle(
+//         fen_to_pos("4k2r/7P/8/8/8/8/8/4K3 b k - 12 34"), "kingside")
+//
+// the variable 'rc' holds the non-zero value 1140 which corresponds to
+// the rawmove "e8h8" or the move ...O-O.
+//
 // In Chester, as far as coordinate notation is concerned, castling moves
 // are encoded as the castling king capturing the castling rook. Consider
 // the following made-up position: "4k3/8/8/8/8/8/8/4K2R w K - 0 1".

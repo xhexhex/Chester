@@ -186,6 +186,7 @@ che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
 
     if(captures) *captures = x_captures;
     if(en_passants) *en_passants = x_en_passants;
+    if(castles) *castles = x_castles;
     if(proms) *proms = x_proms;
     if(checks) *checks = x_checks;
     if(checkmates) *checkmates = x_checkmates;
@@ -256,6 +257,18 @@ x_che_explicit_gt_stats_dfs( uint32_t node )
         if(fen[index] != '-') {
             ++x_en_passants;
             x_che_explicit_gt_stats_dfs_check_for_2nd_ep(fen, index); } }
+    if(x_castles != UINT32_MAX && !node_is_at_max_level) {
+        // kingside/queenside castling move
+        Rawcode kcm = castle(p, "kingside"), qcm = castle(p, "queenside");
+        Pos after_castling;
+        if(kcm) {
+            copy_pos(p, &after_castling);
+            make_move(&after_castling, kcm, '-');
+            if(!forsaken_king(&after_castling)) ++x_castles; }
+        if(qcm) {
+            copy_pos(p, &after_castling);
+            make_move(&after_castling, qcm, '-');
+            if(!forsaken_king(&after_castling)) ++x_castles; } }
     if(x_proms != UINT32_MAX && !node_is_at_max_level)
         if((w && ((rank_1 << 48) & p->ppa[WHITE_PAWN])) ||
                 (!w && ((rank_1 << 8) & p->ppa[BLACK_PAWN])))

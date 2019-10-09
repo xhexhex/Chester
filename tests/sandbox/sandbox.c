@@ -14,12 +14,20 @@
 int
 main()
 {
-    struct explicit_game_tree gt = che_build_explicit_gt(
-        "4k3/8/8/8/3pPp2/8/8/4K3 b - e3 0 1", 1);
+    // assert(!che_fen_validator("4k2r/7P/8/8/8/8/8/4K3 b k - 12 34"));
 
-    uint32_t en_passants;
-    che_explicit_gt_stats(gt, NULL, &en_passants, NULL, NULL, NULL, NULL);
-    printf("en_passants is %d\n", en_passants);
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        "4k2r/7P/8/8/8/8/8/4K3 b k - 12 34", 2);
+
+    // struct explicit_game_tree gt = che_build_explicit_gt(FEN_PERFT_POS_4, 2);
+    // assert(gt.nc == 1 + 6 + 264);
+
+    uint32_t captures, en_passants, castles, promotions, checks, checkmates;
+    assert(gt.nc == che_explicit_gt_stats(gt,
+        &captures, &en_passants, &castles, &promotions, &checks, &checkmates));
+
+    printf("castles: %u\n", castles);
+    assert(castles == 0);
 
     che_free_explicit_gt(gt);
 }

@@ -233,15 +233,17 @@ x_dfs(uint32_t node)
 #tcase che_explicit_gt_stats_tests
 
 #test che_explicit_gt_stats_test_1
+    printf("Work on che_explicit_gt_stats_tests\n");
     struct explicit_game_tree gt = che_build_explicit_gt(FEN_PERFT_POS_4, 3);
     ck_assert(gt.nc == 1 + 6 + 264 + 9467);
 
-    uint32_t captures, en_passants, promotions, checks, checkmates;
+    uint32_t captures, en_passants, castles, promotions, checks, checkmates;
     ck_assert(gt.nc == che_explicit_gt_stats(gt,
-        &captures, &en_passants, NULL, &promotions, &checks, &checkmates));
+        &captures, &en_passants, &castles, &promotions, &checks, &checkmates));
 
     ck_assert(captures == 0 + 0 + 87 + 1021);
     ck_assert(en_passants == 0 + 0 + 0 + 4);
+    ck_assert(castles == 0 + 0 + 6 + 0);
     ck_assert(promotions == 0 + 0 + 48 + 120);
     ck_assert(checks == 1 + 0 + 10 + 38);
     ck_assert(checkmates == 0 + 0 + 0 + 22);
@@ -382,8 +384,19 @@ x_dfs(uint32_t node)
 
     che_free_explicit_gt(gt);
 
-/*
-uint32_t che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
-    uint32_t *en_passants, uint32_t *castles, uint32_t *proms, uint32_t *checks,
-    uint32_t *checkmates );
- */
+#test che_explicit_gt_stats_test_11
+    struct explicit_game_tree gt = che_build_explicit_gt(FEN_KIWIPETE, 2);
+    ck_assert(gt.nc == 1 + 48 + 2039);
+
+    uint32_t captures, en_passants, castles, promotions, checks, checkmates;
+    ck_assert(gt.nc == che_explicit_gt_stats(gt,
+        &captures, &en_passants, &castles, &promotions, &checks, &checkmates));
+
+    ck_assert(captures == 0 + 8 + 351);
+    ck_assert(en_passants == 0 + 0 + 1);
+    ck_assert(castles == 0 + 2 + 91);
+    ck_assert(promotions == 0 + 0 + 0);
+    ck_assert(checks == 0 + 0 + 3);
+    ck_assert(checkmates == 0 + 0 + 0);
+
+    che_free_explicit_gt(gt);
