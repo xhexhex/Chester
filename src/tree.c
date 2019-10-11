@@ -162,7 +162,16 @@ static uint32_t x_nodes, x_captures, x_en_passants, x_castles, x_proms,
     x_checks, x_checkmates;
 static struct explicit_game_tree x_gt;
 
-// "4k2r/8/8/8/3B4/8/4pPPP/r5K1 w k - 12 34"
+// The function is used to obtain statistical information about the chess
+// game tree represented by 'gt'. This stat info is similar to what can be
+// found on the web page https://www.chessprogramming.org/Perft_Results.
+//
+// We'll use the position
+//
+//     const char *fen = "4k2r/8/8/8/3B4/8/4pPPP/r5K1 w k - 12 34"
+//
+// as an example. The first three lines of the stat info for 'fen' is
+// as follows.
 //
 // | Depth | Nodes | Captures | EPs | Castles | Proms | Checks | Checkmates |
 // +------------------------------------------------------------------------+
@@ -170,6 +179,21 @@ static struct explicit_game_tree x_gt;
 // |     1 |     1 |        1 |   0 |       0 |     0 |      0 |          0 |
 // |     2 |    18 |        1 |   0 |       1 |     4 |      2 |          2 |
 //
+// Let's consider the code fragment
+//
+//     struct explicit_game_tree gt = che_build_explicit_gt(fen, 2);
+//     uint32_t capture_count, check_count;
+//     uint32_t node_count = che_explicit_gt_stats(
+//         gt, &capture_count, NULL, NULL, NULL, &check_count, NULL);
+//
+// After the second function call the three uint32_t variables will
+// have the following values:
+// > node_count    = 1 + 1 + 18 = 20
+// > capture_count = 0 + 1 +  1 =  2
+// > check_count   = 1 + 0 +  2 =  3
+//
+// As can be observed from the example, the return value of the function
+// is the number of nodes in the chess game tree represented by 'gt'.
 uint32_t
 che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
     uint32_t *en_passants, uint32_t *castles, uint32_t *proms,
