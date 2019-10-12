@@ -14,12 +14,19 @@
 int
 main()
 {
-    const char *fen = "4k2r/8/8/8/3B4/8/4pPPP/r5K1 w k - 12 34";
-    struct explicit_game_tree gt = che_build_explicit_gt(fen, 2);
-    uint32_t capture_count, check_count;
-    uint32_t node_count = che_explicit_gt_stats(
-        gt, &capture_count, NULL, NULL, NULL, &check_count, NULL);
-    printf("%u  %u  %u\n", node_count, capture_count, check_count);
+    struct explicit_game_tree gt = che_build_explicit_gt(FEN_KIWIPETE, 3);
+    che_free_explicit_gt(gt);
+
+    //
+    // Do a Valgrind at some point on che_build_explicit_gt().
+    //
+    /*
+    long long t0 = time_in_milliseconds(), t1;
+    struct explicit_game_tree gt = che_build_explicit_gt(FEN_KIWIPETE, 4);
+    t1 = time_in_milliseconds();
+    printf("Building the tree took %lld ms\n", t1 - t0);
+    che_free_explicit_gt(gt);
+    */
 }
 
 /**************

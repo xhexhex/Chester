@@ -1,0 +1,4 @@
+The performance test is the duration of the call
+che_build_explicit_gt(FEN_KIWIPETE, 4) in milliseconds.
+
+[ 1] 71700 ms

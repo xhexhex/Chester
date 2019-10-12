@@ -22,34 +22,27 @@ static void x_che_explicit_gt_stats_dfs( uint32_t node );
 struct explicit_game_tree
 che_build_explicit_gt( const char *fen, const uint8_t height )
 {
-    // What if 'fen' is a stalemate position?
-    // printf("%s: I work but am a mess\n", __func__);
+    const bool checkpoint = false;
+    long long t0 = time_in_milliseconds();
 
-    assert(height < FGT_LO_SIZE);
     if(!fen) fen = INIT_POS;
 
     struct explicit_game_tree gt;
 
-    gt.nc = 0, gt.lo[0] = 1, gt.height = UINT8_MAX; // gt.height = height;
+    gt.nc = 0, gt.lo[0] = 1, gt.height = UINT8_MAX;
     long long nodes_on_level;
     for(int level = 0; level <= height; ++level) {
-        if(!(nodes_on_level = che_perft(fen, level, true)))
-            break;
+        if(!(nodes_on_level = che_perft(fen, level, true))) break;
         ++gt.height, gt.lo[level] = gt.nc + 1, gt.nc += nodes_on_level; }
-    // if(nodes_on_level)
-    //    gt.nc += che_perft(fen, height, true);
-    // printf("The two heights: %u %u\n", height, gt.height);
-    // printf("gt.nc: %u\n", gt.nc);
+
+    long long t1 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 1: %lld ms\n", t1 - t0);
 
     assert((gt.cc = malloc((gt.nc + 1) * sizeof(uint8_t))));
-    gt.cc[0] = UINT8_MAX;
     memset((void *) (gt.cc + 1), 0, (size_t) gt.nc);
-    // for(uint32_t id = 1; id <= gt.nc; id++) gt.cc[id] = 0;
-
 
     // BHNC, below height node count
     const uint32_t BHNC = gt.lo[gt.height] - 1;
-    // printf("BHNC: %u\n", BHNC);
     assert((gt.children = malloc((BHNC + 1) * sizeof(void *))));
     const int SLOT_COUNT = 50;
     uint8_t *num_alloc_slots = malloc((BHNC + 1) * sizeof(uint8_t));
@@ -60,10 +53,13 @@ che_build_explicit_gt( const char *fen, const uint8_t height )
     assert((gt.parent = malloc((gt.nc + 1) * sizeof(uint32_t))));
     gt.parent[1] = 0;
 
-    char **id_to_fen, **sorted_id_to_fen; // Free!
+    char **id_to_fen, **sorted_id_to_fen;
     assert((id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
     assert((id_to_fen[1] = malloc(strlen(fen) + 1)));
     strcpy(id_to_fen[1], fen);
+
+    long long t2 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 2: %lld ms\n", t2 - t0);
 
     uint32_t cur = 1, vac = 1; // current, vacant
     for(; cur < gt.lo[gt.height]; cur++) {
@@ -86,44 +82,36 @@ che_build_explicit_gt( const char *fen, const uint8_t height )
         free(unmod_ptr);
     } // End for
 
-    // printf("\"%s\"\n", *(id_to_fen + 1));
-    // printf("Hello...\n");
-    che_remove_redundant_epts(id_to_fen + 1, gt.nc);
-    // printf("...there!\n");
+    long long t3 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 3: %lld ms\n", t3 - t0);
 
-    /*
-    printf("BEGIN TMP_FEN >>\n");
-    for(uint32_t id = 1; id <= gt.nc; id++) printf("%s\n", id_to_fen[id]);
-    printf("<< END TMP_FEN\n");
-    */
+    che_remove_redundant_epts(id_to_fen + 1, gt.nc);
+
+    long long t4 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 4: %lld ms\n", t4 - t0);
 
     assert((sorted_id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
     sorted_id_to_fen[0] = "";
-    for(uint32_t id = 1; id <= gt.nc; ++id) {
+    for(uint32_t id = 1; id <= gt.nc; ++id)
         sorted_id_to_fen[id] = id_to_fen[id];
-        /*
-        sorted_id_to_fen[id] = malloc((strlen(id_to_fen[id]) + 1) * sizeof(char));
-        strcpy(sorted_id_to_fen[id], id_to_fen[id]);
-        */
-    }
     string_sort(sorted_id_to_fen + 1, gt.nc);
     size_t size = gt.nc + 1;
     gt.ufen = unique_strings(sorted_id_to_fen, &size);
     gt.num_ufen = size - 1;
-    assert(!strcmp("", gt.ufen[0]));
 
-    // for(uint32_t id = 1; id <= gt.num_ufen; ++id) printf("%s\n", gt.ufen[id]);
     x_che_build_explicit_gt_set_findex(&gt, id_to_fen);
     for(uint32_t id = 1; id <= gt.nc; ++id)
-        free(id_to_fen[id]); // free(sorted_id_to_fen[id]);
+        free(id_to_fen[id]);
     free(id_to_fen), free(sorted_id_to_fen);
 
-    // const uint32_t high_node_count = gt.nc - BHNC;
     uint8_t *move_count = malloc((gt.nc + 1) * sizeof(uint8_t));
     memset(move_count + 1, UINT8_MAX, gt.nc);
+
+    long long t5 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 5: %lld ms\n", t5 - t0);
+
     for(uint32_t id = gt.lo[gt.height]; id <= gt.nc; ++id) {
         uint32_t index = gt.findex[id];
-        // assert(index < high_node_count);
 
         if(move_count[index] != UINT8_MAX) {
             gt.cc[id] = move_count[index];
@@ -132,8 +120,10 @@ che_build_explicit_gt( const char *fen, const uint8_t height )
         Pos *p = fen_to_pos(gt.ufen[index]);
         Rawcode *rc = rawcodes(p);
         gt.cc[id] = rc[0], move_count[index] = rc[0];
-        free(p), free(rc);
-    }
+        free(p), free(rc); }
+
+    long long t6 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 6: %lld ms\n", t6 - t0);
 
     free(move_count);
 
@@ -141,6 +131,9 @@ che_build_explicit_gt( const char *fen, const uint8_t height )
         gt.children[id] = realloc(gt.children[id],
             gt.cc[id] * sizeof(uint32_t));
     free(num_alloc_slots);
+
+    long long t7 = time_in_milliseconds();
+    if(checkpoint) printf("Checkpoint 7: %lld ms\n", t7 - t0);
 
     return gt;
 }

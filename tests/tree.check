@@ -22,14 +22,15 @@ static uint32_t x_visit_count, x_check_count,
 static void
 x_dfs(uint32_t node)
 {
-    // printf("%u\n", node);
     ++x_visit_count;
 
     char *fen = x_gt.ufen[x_gt.findex[node]];
     const Pos *p = fen_to_pos(fen);
-    if(king_in_check(p)) ++x_check_count;
     Rawcode *rc = rawcodes(p);
-    if(!rc[0]) ++x_checkmate_count;
+
+    if(king_in_check(p)) {
+        ++x_check_count;
+        if(!rc[0]) ++x_checkmate_count; }
     for(int i = 1; i <= (int) rc[0]; ++i)
         if(is_capture(p, rc[i])) ++x_capture_count;
     free(rc), free((void *) p);
@@ -225,6 +226,20 @@ x_dfs(uint32_t node)
     ck_assert(x_check_count == 9);
     ck_assert(x_checkmate_count == 4);
     ck_assert(x_capture_count == 4);
+    che_free_explicit_gt(x_gt);
+
+#test che_build_explicit_gt_test_11
+    const char *fen = "4k3/4P3/4K3/8/8/8/8/8 b - - 12 34";
+    x_gt = che_build_explicit_gt(fen, 3);
+
+    x_visit_count = x_check_count = x_checkmate_count = x_capture_count = 0;
+    x_dfs(1);
+
+    ck_assert(x_visit_count == 1);
+    ck_assert(x_check_count == 0);
+    ck_assert(x_checkmate_count == 0);
+    ck_assert(x_capture_count == 0);
+
     che_free_explicit_gt(x_gt);
 
 //
