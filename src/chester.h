@@ -95,7 +95,8 @@ char *che_move_gen( const char *fens );
 // void che_free_ff( void *ff );
 long long che_perft( const char *fen, int depth, bool mt );
 long long che_gt_node_count( const char *fen, uint8_t height );
-struct explicit_game_tree che_build_explicit_gt( const char *fen, uint8_t height );
+struct explicit_game_tree che_build_explicit_gt( const char *fen,
+    uint8_t height, bool set_highest_level_child_counts );
 void che_free_explicit_gt( struct explicit_game_tree gt );
 char *che_children( const char *fen );
 bool che_ep_has_occurred( const char *child, const char *parent );

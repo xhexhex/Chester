@@ -14,19 +14,21 @@
 int
 main()
 {
-    struct explicit_game_tree gt = che_build_explicit_gt(FEN_KIWIPETE, 3);
+    /*
+    struct explicit_game_tree gt = che_build_explicit_gt(
+        FEN_KIWIPETE, 3, false);
     che_free_explicit_gt(gt);
+    */
 
     //
     // Do a Valgrind at some point on che_build_explicit_gt().
     //
-    /*
-    long long t0 = time_in_milliseconds(), t1;
-    struct explicit_game_tree gt = che_build_explicit_gt(FEN_KIWIPETE, 4);
-    t1 = time_in_milliseconds();
-    printf("Building the tree took %lld ms\n", t1 - t0);
+    // long long t0 = time_in_milliseconds(), t1;
+    struct explicit_game_tree gt =
+        che_build_explicit_gt(FEN_KIWIPETE, 4, false);
+    // t1 = time_in_milliseconds();
+    // printf("Building the tree took %lld ms\n", t1 - t0);
     che_free_explicit_gt(gt);
-    */
 }
 
 /**************

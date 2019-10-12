@@ -11,6 +11,8 @@
 static void x_che_build_explicit_gt_set_findex(struct explicit_game_tree *gt,
     char **id_to_fen);
 static void x_che_explicit_gt_stats_dfs( uint32_t node );
+static void x_che_build_explicit_gt_set_highest_level_child_counts(
+    struct explicit_game_tree *gt );
 
 /******************************
  ****                      ****
@@ -20,9 +22,10 @@ static void x_che_explicit_gt_stats_dfs( uint32_t node );
 
 // TODO: doc
 struct explicit_game_tree
-che_build_explicit_gt( const char *fen, const uint8_t height )
+che_build_explicit_gt( const char *fen, const uint8_t height,
+    bool set_highest_level_child_counts )
 {
-    const bool checkpoint = false;
+    const bool checkpoint = true;
     long long t0 = time_in_milliseconds();
 
     if(!fen) fen = INIT_POS;
@@ -104,28 +107,14 @@ che_build_explicit_gt( const char *fen, const uint8_t height )
         free(id_to_fen[id]);
     free(id_to_fen), free(sorted_id_to_fen);
 
-    uint8_t *move_count = malloc((gt.nc + 1) * sizeof(uint8_t));
-    memset(move_count + 1, UINT8_MAX, gt.nc);
-
     long long t5 = time_in_milliseconds();
     if(checkpoint) printf("Checkpoint 5: %lld ms\n", t5 - t0);
 
-    for(uint32_t id = gt.lo[gt.height]; id <= gt.nc; ++id) {
-        uint32_t index = gt.findex[id];
-
-        if(move_count[index] != UINT8_MAX) {
-            gt.cc[id] = move_count[index];
-            continue; }
-
-        Pos *p = fen_to_pos(gt.ufen[index]);
-        Rawcode *rc = rawcodes(p);
-        gt.cc[id] = rc[0], move_count[index] = rc[0];
-        free(p), free(rc); }
+    if(set_highest_level_child_counts)
+        x_che_build_explicit_gt_set_highest_level_child_counts(&gt);
 
     long long t6 = time_in_milliseconds();
     if(checkpoint) printf("Checkpoint 6: %lld ms\n", t6 - t0);
-
-    free(move_count);
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
@@ -302,4 +291,27 @@ x_che_explicit_gt_stats_dfs( uint32_t node )
 
     for(int i = 0; i < x_gt.cc[node]; ++i)
         x_che_explicit_gt_stats_dfs(x_gt.children[node][i]);
+}
+
+static void
+x_che_build_explicit_gt_set_highest_level_child_counts(
+    struct explicit_game_tree *gt )
+{
+    uint8_t *move_count = malloc((gt->nc + 1) * sizeof(uint8_t));
+    memset(move_count + 1, UINT8_MAX, gt->nc);
+
+    for(uint32_t id = gt->lo[gt->height]; id <= gt->nc; ++id) {
+        uint32_t index = gt->findex[id];
+
+        // Not strictly necessary but enhances performance.
+        if(move_count[index] != UINT8_MAX) {
+            gt->cc[id] = move_count[index];
+            continue; }
+
+        Pos *p = fen_to_pos(gt->ufen[index]);
+        Rawcode *rc = rawcodes(p);
+        gt->cc[id] = rc[0], move_count[index] = rc[0];
+        free(p), free(rc); }
+
+    free(move_count);
 }
