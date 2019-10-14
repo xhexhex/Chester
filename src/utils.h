@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "chester.h"
 #include "base.h"
 
 // Expands 'caf', stores the result in 'ecaf' and resolves ambiguous results
@@ -62,6 +63,7 @@ int bindex(Bitboard bit);
 Bitboard white_army( const Pos *p );
 Bitboard black_army( const Pos *p );
 void nth_ppf_rank( const char *fen, int rank_number, char *nine_bytes );
+char *clipped_fen( const char *fen );
 
 #endif
 // end UTILS_H

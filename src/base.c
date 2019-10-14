@@ -97,8 +97,20 @@ che_make_moves( const char *fen, const char *sans )
 }
 
 // TODO: doc
-char *che_children( const char *fen )
+char *
+che_children( const char *fen, struct naive_binary_search_tree *nbst )
 {
+    // printf("A");
+    const char *four_field_fen;
+    if(nbst) four_field_fen = clipped_fen(fen);
+
+    struct naive_bst_node *node;
+    if(nbst && (node = che_search_naive_bst(nbst->root, four_field_fen))) {
+        free((void *) four_field_fen);
+        char *copy_of_data = malloc(strlen(node->data) + 1);
+        strcpy(copy_of_data, node->data);
+        return copy_of_data; }
+
     const Pos *p = fen_to_pos(fen);
     Rawcode *rc = rawcodes(p);
     const int num_rc = *rc;
@@ -132,6 +144,10 @@ char *che_children( const char *fen )
 
     for(int i = 1; i <= index; i++) free(tmp_children[i]);
     free((void *) p), free(rc);
+
+    if(nbst) {
+        che_insert_into_naive_bst(nbst, four_field_fen, children);
+        free((void *) four_field_fen); }
 
     return children;
 }

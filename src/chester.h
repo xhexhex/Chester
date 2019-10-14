@@ -84,6 +84,18 @@ struct explicit_game_tree {
         *findex;
 };
 
+// TODO: doc
+struct naive_binary_search_tree {
+    struct naive_bst_node *root, **node_ptr;
+    uint8_t height;
+    uint32_t node_count, node_limit;
+};
+
+struct naive_bst_node {
+    char *key, *data;
+    struct naive_bst_node *left, *right;
+};
+
 //
 // The Chester interface
 //
@@ -98,12 +110,18 @@ long long che_gt_node_count( const char *fen, uint8_t height );
 struct explicit_game_tree che_build_explicit_gt( const char *fen,
     uint8_t height, bool set_highest_level_child_counts );
 void che_free_explicit_gt( struct explicit_game_tree gt );
-char *che_children( const char *fen );
+char *che_children( const char *fen, struct naive_binary_search_tree *nbst );
 bool che_ep_has_occurred( const char *child, const char *parent );
 size_t che_remove_redundant_epts( char **fen, size_t count );
 uint32_t che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
     uint32_t *en_passants, uint32_t *castles, uint32_t *proms, uint32_t *checks,
     uint32_t *checkmates );
+struct naive_binary_search_tree che_init_naive_bst( uint32_t node_limit );
+void che_destroy_naive_bst( struct naive_binary_search_tree nbst );
+struct naive_bst_node *che_search_naive_bst( struct naive_bst_node *root,
+    const char *key);
+void che_insert_into_naive_bst( struct naive_binary_search_tree *nbst,
+    const char *key, const char *data );
 
 // enum che_movetext_error che_movetext_validator(fen, movetext);
 

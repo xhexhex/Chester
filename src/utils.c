@@ -135,6 +135,85 @@ che_remove_redundant_epts( char **fen, const size_t count )
     return rfc;
 }
 
+// TODO: doc
+// Rename to che_init_naive_bst?
+struct naive_binary_search_tree
+che_init_naive_bst( uint32_t node_limit )
+{
+    struct naive_binary_search_tree nbst;
+
+    nbst.root = NULL;
+    nbst.node_ptr = malloc(node_limit * sizeof(void *));
+    nbst.height = nbst.node_count = 0;
+    nbst.node_limit = node_limit;
+
+    return nbst;
+}
+
+// TODO: doc
+void
+che_destroy_naive_bst( struct naive_binary_search_tree nbst )
+{
+    for(uint32_t i = 0; i < nbst.node_count; ++i) {
+        free(nbst.node_ptr[i]->key);
+        free(nbst.node_ptr[i]->data);
+        free(nbst.node_ptr[i]); }
+
+    free(nbst.node_ptr);
+}
+
+// TODO: doc
+struct naive_bst_node *
+che_search_naive_bst( struct naive_bst_node *root, const char *key )
+{
+    // Base cases: root is null or key is present at root.
+    if(root == NULL || !strcmp(key, root->key))
+        return root;
+    // Key is greater than the key of root.
+    if(strcmp(key, root->key) > 0)
+        return che_search_naive_bst(root->right, key);
+    // Key is smaller than the key of root.
+    return che_search_naive_bst(root->left, key);
+}
+
+struct naive_bst_node *
+x_recursive_insert_into_naive_bst( struct naive_bst_node *node,
+    const char *key )
+{
+    if(!node) {
+        struct naive_bst_node *temp_node =
+            malloc(1 * sizeof(struct naive_binary_search_tree));
+        temp_node->key = malloc(strlen(key) + 1);
+        strcpy(temp_node->key, key);
+        temp_node->left = temp_node->right = NULL;
+        return temp_node; }
+
+    if(strcmp(key, node->key) < 0)
+        node->left  = x_recursive_insert_into_naive_bst(node->left, key);
+    else if(strcmp(key, node->key) > 0)
+        node->right = x_recursive_insert_into_naive_bst(node->right, key);
+
+    return node;
+}
+
+// TODO: doc
+void
+che_insert_into_naive_bst( struct naive_binary_search_tree *nbst,
+    const char *key, const char *data )
+{
+    struct naive_bst_node *root_node =
+        x_recursive_insert_into_naive_bst(nbst->root, key);
+
+    if(!nbst->root) nbst->root = root_node;
+
+    struct naive_bst_node *inserted_node =
+        che_search_naive_bst(nbst->root, key);
+    inserted_node->data = malloc(strlen(data) + 1);
+    strcpy(inserted_node->data, data);
+
+    nbst->node_ptr[nbst->node_count++] = inserted_node;
+}
+
 // str_m_pat as in "string matches pattern". Returns true if 'str' matches the
 // extended regular expression 'pat'.
 bool
@@ -891,6 +970,27 @@ nth_ppf_rank( const char *fen, int rank_number, char *nine_bytes )
         nine_bytes[cai++] = fen[index++];
 
     nine_bytes[cai] = 0;
+}
+
+// TODO: doc
+char *
+clipped_fen( const char *fen )
+{
+    int null_index = strlen(fen);
+
+    bool first_space_encountered = false;
+    while(true) {
+        char c = fen[--null_index];
+        if(c == ' ' && !first_space_encountered)
+            first_space_encountered = true;
+        else if(c == ' ')
+            break; }
+
+    char *clipped = malloc((size_t) null_index + 1);
+    for(int i = 0; i < null_index; ++i) clipped[i] = fen[i];
+    clipped[null_index] = '\0';
+
+    return clipped;
 }
 
 /****************************

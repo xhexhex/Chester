@@ -25,7 +25,7 @@ struct explicit_game_tree
 che_build_explicit_gt( const char *fen, const uint8_t height,
     bool set_highest_level_child_counts )
 {
-    const bool checkpoint = true;
+    const bool checkpoint = false;
     long long t0 = time_in_milliseconds();
 
     if(!fen) fen = INIT_POS;
@@ -65,11 +65,16 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
     if(checkpoint) printf("Checkpoint 2: %lld ms\n", t2 - t0);
 
     uint32_t cur = 1, vac = 1; // current, vacant
+    struct naive_binary_search_tree nbst = che_init_naive_bst(10 * 1000 * 1000);
     for(; cur < gt.lo[gt.height]; cur++) {
-        char *unmod_ptr = che_children(id_to_fen[cur]),
+        // printf("Hello, sir!\n");
+        // printf("A");
+        char *unmod_ptr = che_children(id_to_fen[cur], &nbst),
             *children = unmod_ptr, *child;
+        // printf("B\n");
 
         while((child = next_line(&children))) {
+            // printf("\"%s\"\n", child);
             // 'vac' is a child of 'cur'
             assert((id_to_fen[++vac] = malloc(strlen(child) + 1)));
             strcpy(id_to_fen[vac], child);
@@ -84,6 +89,8 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
 
         free(unmod_ptr);
     } // End for
+    if(checkpoint) printf("Nodes in BST: %u\n", nbst.node_count);
+    che_destroy_naive_bst(nbst);
 
     long long t3 = time_in_milliseconds();
     if(checkpoint) printf("Checkpoint 3: %lld ms\n", t3 - t0);

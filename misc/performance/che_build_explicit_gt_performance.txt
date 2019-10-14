@@ -3,3 +3,19 @@ che_build_explicit_gt(FEN_KIWIPETE, 4) in milliseconds.
 
 [ 1] 71700 ms
 [ 2] 23149 ms
+
+###
+
+henrik@nterror:~/Dropbox/Chester$ make && time make sandbox
+make: Nothing to be done for 'all'.
+Checkpoint 1: 876 ms
+Checkpoint 2: 891 ms
+Checkpoint 3: 15671 ms
+Checkpoint 4: 16204 ms
+Checkpoint 5: 22683 ms
+Checkpoint 6: 22683 ms
+Checkpoint 7: 22780 ms
+
+real	0m22.930s
+user	0m28.519s
+sys	0m0.173s

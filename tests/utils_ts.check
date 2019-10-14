@@ -1645,3 +1645,65 @@ x_static_to_dynamic_strings( int count, ... )
 
     nth_ppf_rank(FEN_KIWIPETE, 1, ca);
     ck_assert(!strcmp(ca, "R3K2R"));
+
+//
+// Test case
+//
+#tcase clipped_fen_tests
+
+#test clipped_fen_test_1
+    char *clipped = clipped_fen(INIT_POS);
+    ck_assert(!strcmp( clipped,
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"));
+    free(clipped);
+
+#test clipped_fen_test_2
+    char *clipped = clipped_fen(FEN_KIWIPETE);
+    ck_assert(!strcmp( clipped,
+        "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -"));
+    free(clipped);
+
+//
+// Test case
+//
+#tcase che_insert_into_naive_bst_tests
+
+#test che_insert_into_naive_bst_test_1
+    struct naive_binary_search_tree nbst = che_init_naive_bst(7);
+    ck_assert(nbst.node_count == 0);
+
+    che_insert_into_naive_bst(&nbst, "Henrik", "1");
+    ck_assert(nbst.node_count == 1);
+    che_insert_into_naive_bst(&nbst, "Eriksson", "2");
+    ck_assert(nbst.node_count == 2);
+    che_insert_into_naive_bst(&nbst, "Tammi", "3");
+    ck_assert(nbst.node_count == 3);
+    che_insert_into_naive_bst(&nbst, "Aho", "4");
+    ck_assert(nbst.node_count == 4);
+    che_insert_into_naive_bst(&nbst, "Fagerholm", "5");
+    che_insert_into_naive_bst(&nbst, "Salminen", "6");
+    che_insert_into_naive_bst(&nbst, "Virtanen", "7");
+    ck_assert(nbst.node_count == 7);
+
+    ck_assert(nbst.height == 2);
+
+    struct naive_bst_node *root = nbst.root, *roots_left = nbst.root->left,
+        *roots_right = nbst.root->right;
+
+    ck_assert(!strcmp(root->key, "Henrik"));
+    ck_assert(!strcmp(roots_left->key, "Eriksson"));
+    ck_assert(!strcmp(roots_right->key, "Tammi"));
+    ck_assert(!strcmp(roots_left->left->key, "Aho"));
+    ck_assert(!strcmp(roots_left->right->key, "Fagerholm"));
+    ck_assert(!strcmp(roots_right->left->key, "Salminen"));
+    ck_assert(!strcmp(roots_right->right->key, "Virtanen"));
+
+    ck_assert(!strcmp(root->data, "1"));
+    ck_assert(!strcmp(roots_left->data, "2"));
+    ck_assert(!strcmp(roots_right->data, "3"));
+    ck_assert(!strcmp(roots_left->left->data, "4"));
+    ck_assert(!strcmp(roots_left->right->data, "5"));
+    ck_assert(!strcmp(roots_right->left->data, "6"));
+    ck_assert(!strcmp(roots_right->right->data, "7"));
+
+    che_destroy_naive_bst(nbst);
