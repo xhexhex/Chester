@@ -43,6 +43,8 @@ extern const Bitboard KING_SQS[];
 extern const Bitboard ROOK_SQS[];
 extern const Bitboard BISHOP_SQS[];
 
+extern struct naive_binary_search_tree *naive_bst_for_che_children;
+
 // The minimum and maximum lengths for the PPF of a FEN string
 #define PPF_MIN_LENGTH 17
 #define PPF_MAX_LENGTH 71

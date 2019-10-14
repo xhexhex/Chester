@@ -14,30 +14,30 @@
 int
 main()
 {
-    struct explicit_game_tree gt =
-        che_build_explicit_gt(FEN_PERFT_POS_4, 5, false);
-    che_free_explicit_gt(gt);
     /*
-    // long long t0 = time_in_milliseconds(), t1;
-    struct explicit_game_tree gt =
-        che_build_explicit_gt(FEN_KIWIPETE, 3, false);
-    // t1 = time_in_milliseconds();
-    // printf("Building the tree took %lld ms\n", t1 - t0);
-    assert(gt.nc == 1 + 48 + 2039 + 97862);
+    const uint32_t NODE_LIMIT = 10;
 
-    uint32_t captures, en_passants, castles, promotions, checks, checkmates;
-    assert(gt.nc == che_explicit_gt_stats(gt,
-        &captures, &en_passants, &castles, &promotions, &checks, &checkmates));
+    struct naive_binary_search_tree nbst = che_init_naive_bst(NODE_LIMIT);
+    che_insert_into_naive_bst(&nbst, "mahdoton", "1");
+    che_insert_into_naive_bst(&nbst, "rankka", "2");
+    che_insert_into_naive_bst(&nbst, "painava", "3");
+    che_insert_into_naive_bst(&nbst, "pakkaus", "4");
+    che_insert_into_naive_bst(&nbst, "aamu", "5");
+    che_insert_into_naive_bst(&nbst, "paino", "6");
+    che_insert_into_naive_bst(&nbst, "aakkonen", "7");
+    che_insert_into_naive_bst(&nbst, "paini", "8");
+    che_insert_into_naive_bst(&nbst, "lumi", "9");
+    che_insert_into_naive_bst(&nbst, "paita", "10");
 
-    assert(captures == 0 + 8 + 351 + 17102);
-    assert(en_passants == 0 + 0 + 1 + 45);
-    assert(castles == 0 + 2 + 91 + 3162);
-    assert(promotions == 0 + 0 + 0 + 0);
-    assert(checks == 0 + 0 + 3 + 993);
-    assert(checkmates == 0 + 0 + 0 + 1);
+    printf("\"%s\"\n", nbst.root->right->left->right->left->right->key);
 
-    che_free_explicit_gt(gt);
+    che_destroy_naive_bst(nbst);
     */
+
+    naive_bst_for_che_children = NULL;
+    struct explicit_game_tree gt =
+        che_build_explicit_gt(FEN_KIWIPETE, 4, false);
+    che_free_explicit_gt(gt);
 }
 
 /**************

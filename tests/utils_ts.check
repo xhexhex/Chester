@@ -1666,29 +1666,29 @@ x_static_to_dynamic_strings( int count, ... )
 //
 // Test case
 //
-#tcase che_insert_into_naive_bst_tests
+#tcase insert_into_naive_bst_tests
 
-#test che_insert_into_naive_bst_test_1
-    struct naive_binary_search_tree nbst = che_init_naive_bst(7);
-    ck_assert(nbst.node_count == 0);
+#test insert_into_naive_bst_test_1
+    struct naive_binary_search_tree *nbst = init_naive_bst(7);
+    ck_assert(nbst->node_count == 0);
 
-    che_insert_into_naive_bst(&nbst, "Henrik", "1");
-    ck_assert(nbst.node_count == 1);
-    che_insert_into_naive_bst(&nbst, "Eriksson", "2");
-    ck_assert(nbst.node_count == 2);
-    che_insert_into_naive_bst(&nbst, "Tammi", "3");
-    ck_assert(nbst.node_count == 3);
-    che_insert_into_naive_bst(&nbst, "Aho", "4");
-    ck_assert(nbst.node_count == 4);
-    che_insert_into_naive_bst(&nbst, "Fagerholm", "5");
-    che_insert_into_naive_bst(&nbst, "Salminen", "6");
-    che_insert_into_naive_bst(&nbst, "Virtanen", "7");
-    ck_assert(nbst.node_count == 7);
+    insert_into_naive_bst(nbst, "Henrik", "1");
+    ck_assert(nbst->node_count == 1);
+    insert_into_naive_bst(nbst, "Eriksson", "2");
+    ck_assert(nbst->node_count == 2);
+    insert_into_naive_bst(nbst, "Tammi", "3");
+    ck_assert(nbst->node_count == 3);
+    insert_into_naive_bst(nbst, "Aho", "4");
+    ck_assert(nbst->node_count == 4);
+    insert_into_naive_bst(nbst, "Fagerholm", "5");
+    insert_into_naive_bst(nbst, "Salminen", "6");
+    insert_into_naive_bst(nbst, "Virtanen", "7");
+    ck_assert(nbst->node_count == 7);
 
-    ck_assert(nbst.height == 2);
+    ck_assert(nbst->height == 2);
 
-    struct naive_bst_node *root = nbst.root, *roots_left = nbst.root->left,
-        *roots_right = nbst.root->right;
+    struct naive_bst_node *root = nbst->root, *roots_left = nbst->root->left,
+        *roots_right = nbst->root->right;
 
     ck_assert(!strcmp(root->key, "Henrik"));
     ck_assert(!strcmp(roots_left->key, "Eriksson"));
@@ -1706,4 +1706,61 @@ x_static_to_dynamic_strings( int count, ... )
     ck_assert(!strcmp(roots_right->left->data, "6"));
     ck_assert(!strcmp(roots_right->right->data, "7"));
 
-    che_destroy_naive_bst(nbst);
+    destroy_naive_bst(nbst);
+
+#test insert_into_naive_bst_test_2
+    const uint32_t NODE_LIMIT = 10;
+
+    struct naive_binary_search_tree *nbst = init_naive_bst(NODE_LIMIT);
+    insert_into_naive_bst(nbst, "mahdoton", "1");
+    insert_into_naive_bst(nbst, "rankka", "2");
+    insert_into_naive_bst(nbst, "painava", "3");
+    insert_into_naive_bst(nbst, "pakkaus", "4");
+    insert_into_naive_bst(nbst, "aamu", "5");
+    insert_into_naive_bst(nbst, "paino", "6");
+    insert_into_naive_bst(nbst, "aakkonen", "7");
+    insert_into_naive_bst(nbst, "paini", "8");
+    insert_into_naive_bst(nbst, "lumi", "9");
+    insert_into_naive_bst(nbst, "paita", "10");
+
+    ck_assert(nbst->height == 5);
+    ck_assert(nbst->node_count == 10);
+    ck_assert(nbst->node_limit == NODE_LIMIT);
+
+    // Level 5
+    ck_assert(!strcmp(nbst->root->right->left->right->left->left->key,
+        "paini"));
+    ck_assert(!strcmp(nbst->root->right->left->right->left->left->data,
+        "8"));
+    ck_assert(!strcmp(nbst->root->right->left->right->left->right->key,
+        "paita"));
+    ck_assert(!strcmp(nbst->root->right->left->right->left->right->data,
+        "10"));
+
+    // Level 4
+    ck_assert(!strcmp(nbst->root->right->left->right->left->key, "paino"));
+    ck_assert(!strcmp(nbst->root->right->left->right->left->data, "6"));
+
+    // Level 3
+    ck_assert(!strcmp(nbst->root->right->left->right->key, "pakkaus"));
+    ck_assert(!strcmp(nbst->root->right->left->right->data, "4"));
+
+    // Level 2
+    ck_assert(!strcmp(nbst->root->left->left->key, "aakkonen"));
+    ck_assert(!strcmp(nbst->root->left->left->data, "7"));
+    ck_assert(!strcmp(nbst->root->left->right->key, "lumi"));
+    ck_assert(!strcmp(nbst->root->left->right->data, "9"));
+    ck_assert(!strcmp(nbst->root->right->left->key, "painava"));
+    ck_assert(!strcmp(nbst->root->right->left->data, "3"));
+
+    // Level 1
+    ck_assert(!strcmp(nbst->root->left->key, "aamu"));
+    ck_assert(!strcmp(nbst->root->left->data, "5"));
+    ck_assert(!strcmp(nbst->root->right->key, "rankka"));
+    ck_assert(!strcmp(nbst->root->right->data, "2"));
+
+    // Level 0
+    ck_assert(!strcmp(nbst->root->key, "mahdoton"));
+    ck_assert(!strcmp(nbst->root->data, "1"));
+
+    destroy_naive_bst(nbst);

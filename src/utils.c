@@ -45,6 +45,8 @@ static void x_che_remove_redundant_epts_remove_epts( char *fen, int index,
     size_t *rfc );
 static bool x_che_remove_redundant_epts_king_not_forsaken( int pawn_bindex,
     int epts_bindex, const Pos *p );
+static struct naive_bst_node *x_recursive_insert_into_naive_bst(
+    struct naive_bst_node *node, const char *key );
 
 /******************************
  ****                      ****
@@ -136,78 +138,62 @@ che_remove_redundant_epts( char **fen, const size_t count )
 }
 
 // TODO: doc
-// Rename to che_init_naive_bst?
-struct naive_binary_search_tree
-che_init_naive_bst( uint32_t node_limit )
+struct naive_binary_search_tree *
+init_naive_bst( uint32_t node_limit )
 {
-    struct naive_binary_search_tree nbst;
+    struct naive_binary_search_tree *nbst =
+        malloc(sizeof(struct naive_binary_search_tree));
 
-    nbst.root = NULL;
-    nbst.node_ptr = malloc(node_limit * sizeof(void *));
-    nbst.height = nbst.node_count = 0;
-    nbst.node_limit = node_limit;
+    nbst->root = NULL;
+    nbst->node_ptr = malloc(node_limit * sizeof(void *));
+    nbst->height = nbst->node_count = 0;
+    nbst->node_limit = node_limit;
 
     return nbst;
 }
 
 // TODO: doc
 void
-che_destroy_naive_bst( struct naive_binary_search_tree nbst )
+destroy_naive_bst( struct naive_binary_search_tree *nbst )
 {
-    for(uint32_t i = 0; i < nbst.node_count; ++i) {
-        free(nbst.node_ptr[i]->key);
-        free(nbst.node_ptr[i]->data);
-        free(nbst.node_ptr[i]); }
+    for(uint32_t i = 0; i < nbst->node_count; ++i) {
+        free(nbst->node_ptr[i]->key);
+        free(nbst->node_ptr[i]->data);
+        free(nbst->node_ptr[i]); }
 
-    free(nbst.node_ptr);
+    free(nbst->node_ptr), free(nbst);
 }
 
 // TODO: doc
 struct naive_bst_node *
-che_search_naive_bst( struct naive_bst_node *root, const char *key )
+search_naive_bst( struct naive_bst_node *root, const char *key )
 {
     // Base cases: root is null or key is present at root.
     if(root == NULL || !strcmp(key, root->key))
         return root;
     // Key is greater than the key of root.
     if(strcmp(key, root->key) > 0)
-        return che_search_naive_bst(root->right, key);
+        return search_naive_bst(root->right, key);
     // Key is smaller than the key of root.
-    return che_search_naive_bst(root->left, key);
+    return search_naive_bst(root->left, key);
 }
 
-struct naive_bst_node *
-x_recursive_insert_into_naive_bst( struct naive_bst_node *node,
-    const char *key )
-{
-    if(!node) {
-        struct naive_bst_node *temp_node =
-            malloc(1 * sizeof(struct naive_binary_search_tree));
-        temp_node->key = malloc(strlen(key) + 1);
-        strcpy(temp_node->key, key);
-        temp_node->left = temp_node->right = NULL;
-        return temp_node; }
-
-    if(strcmp(key, node->key) < 0)
-        node->left  = x_recursive_insert_into_naive_bst(node->left, key);
-    else if(strcmp(key, node->key) > 0)
-        node->right = x_recursive_insert_into_naive_bst(node->right, key);
-
-    return node;
-}
+static uint8_t x_current_level_in_tree, x_tree_height;
 
 // TODO: doc
 void
-che_insert_into_naive_bst( struct naive_binary_search_tree *nbst,
+insert_into_naive_bst( struct naive_binary_search_tree *nbst,
     const char *key, const char *data )
 {
+    x_current_level_in_tree = UINT8_MAX, x_tree_height = nbst->height;
     struct naive_bst_node *root_node =
         x_recursive_insert_into_naive_bst(nbst->root, key);
+    nbst->height = x_tree_height;
 
     if(!nbst->root) nbst->root = root_node;
 
     struct naive_bst_node *inserted_node =
-        che_search_naive_bst(nbst->root, key);
+        search_naive_bst(nbst->root, key);
     inserted_node->data = malloc(strlen(data) + 1);
     strcpy(inserted_node->data, data);
 
@@ -1302,4 +1288,30 @@ x_che_remove_redundant_epts_king_not_forsaken( int pawn_bindex,
     copy_pos(p, &p2), make_move(&p2, rc, '-');
 
     return !forsaken_king(&p2);
+}
+
+static struct naive_bst_node *
+x_recursive_insert_into_naive_bst( struct naive_bst_node *node,
+    const char *key )
+{
+    ++x_current_level_in_tree;
+
+    if(x_tree_height < x_current_level_in_tree)
+        x_tree_height = x_current_level_in_tree;
+
+    if(!node) {
+        struct naive_bst_node *temp_node =
+            malloc(1 * sizeof(struct naive_binary_search_tree));
+        temp_node->key = malloc(strlen(key) + 1);
+        strcpy(temp_node->key, key);
+        temp_node->left = temp_node->right = NULL;
+        return temp_node; }
+
+    if(strcmp(key, node->key) < 0)
+        node->left  = x_recursive_insert_into_naive_bst(node->left, key);
+    else if(strcmp(key, node->key) > 0)
+        node->right = x_recursive_insert_into_naive_bst(node->right, key);
+
+    --x_current_level_in_tree;
+    return node;
 }

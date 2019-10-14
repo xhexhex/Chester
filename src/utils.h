@@ -27,6 +27,18 @@
 #define sq_name_to_bindex(sq_name) \
     (sq_name[0] - 'a' + 8 * (sq_name[1] - '1'))
 
+// TODO: doc
+struct naive_binary_search_tree {
+    struct naive_bst_node *root, **node_ptr;
+    uint8_t height;
+    uint32_t node_count, node_limit;
+};
+
+struct naive_bst_node {
+    char *key, *data;
+    struct naive_bst_node *left, *right;
+};
+
 bool str_m_pat( const char *str, const char *pat );
 Chessman occupant_of_sq( const Pos *p, Bitboard sq_bit );
 char file_of_sq( Bitboard sq_bit );
@@ -64,6 +76,12 @@ Bitboard white_army( const Pos *p );
 Bitboard black_army( const Pos *p );
 void nth_ppf_rank( const char *fen, int rank_number, char *nine_bytes );
 char *clipped_fen( const char *fen );
+struct naive_binary_search_tree *init_naive_bst( uint32_t node_limit );
+void destroy_naive_bst( struct naive_binary_search_tree *nbst );
+struct naive_bst_node *search_naive_bst( struct naive_bst_node *root,
+    const char *key);
+void insert_into_naive_bst( struct naive_binary_search_tree *nbst,
+    const char *key, const char *data );
 
 #endif
 // end UTILS_H

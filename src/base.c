@@ -12,6 +12,8 @@
 #include "pgn.h"
 #include "extra.h"
 
+struct naive_binary_search_tree *naive_bst_for_che_children;
+
 static void x_fen_to_pos_init_turn_and_ca_flags( Pos *p, const char *acf,
     const char *caf, const char *fen );
 static void x_fen_to_pos_init_irp( Pos *p, const char *caf, const char *fen );
@@ -98,14 +100,15 @@ che_make_moves( const char *fen, const char *sans )
 
 // TODO: doc
 char *
-che_children( const char *fen, struct naive_binary_search_tree *nbst )
+che_children( const char *fen )
 {
-    // printf("A");
     const char *four_field_fen;
-    if(nbst) four_field_fen = clipped_fen(fen);
+    if(naive_bst_for_che_children) four_field_fen = clipped_fen(fen);
 
     struct naive_bst_node *node;
-    if(nbst && (node = che_search_naive_bst(nbst->root, four_field_fen))) {
+    if(naive_bst_for_che_children &&
+            (node = search_naive_bst(
+                naive_bst_for_che_children->root, four_field_fen))) {
         free((void *) four_field_fen);
         char *copy_of_data = malloc(strlen(node->data) + 1);
         strcpy(copy_of_data, node->data);
@@ -145,8 +148,9 @@ che_children( const char *fen, struct naive_binary_search_tree *nbst )
     for(int i = 1; i <= index; i++) free(tmp_children[i]);
     free((void *) p), free(rc);
 
-    if(nbst) {
-        che_insert_into_naive_bst(nbst, four_field_fen, children);
+    if(naive_bst_for_che_children) {
+        insert_into_naive_bst(naive_bst_for_che_children,
+            four_field_fen, children);
         free((void *) four_field_fen); }
 
     return children;
