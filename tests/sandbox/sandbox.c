@@ -14,6 +14,19 @@
 int
 main()
 {
+    const uint32_t NODE_LIMIT = 4;
+
+    struct naive_binary_search_tree *nbst = init_naive_bst(NODE_LIMIT);
+    insert_into_naive_bst(nbst, "Antti", "1");
+    insert_into_naive_bst(nbst, "Bertta", "2");
+    insert_into_naive_bst(nbst, "Cecilia", "3");
+    insert_into_naive_bst(nbst, "Daavid", "4");
+    // insert_into_naive_bst(nbst, "Pekka", "5" );
+
+    destroy_naive_bst(nbst);
+    printf("Done!\n");
+    return 0;
+    printf("Still here!\n");
     /*
     const uint32_t NODE_LIMIT = 10;
 

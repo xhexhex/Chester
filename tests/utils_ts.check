@@ -1764,3 +1764,46 @@ x_static_to_dynamic_strings( int count, ... )
     ck_assert(!strcmp(nbst->root->data, "1"));
 
     destroy_naive_bst(nbst);
+
+
+#test insert_into_naive_bst_test_3
+    const uint32_t NODE_LIMIT = 4;
+    struct naive_binary_search_tree *nbst = init_naive_bst(NODE_LIMIT);
+
+    insert_into_naive_bst(nbst, "Antti", "1");
+    insert_into_naive_bst(nbst, "Bertta", "2");
+    insert_into_naive_bst(nbst, "Cecilia", "3");
+    insert_into_naive_bst(nbst, "Daavid", "4");
+
+    ck_assert(!strcmp(nbst->root->key, "Antti"));
+    ck_assert(!strcmp(nbst->root->right->key, "Bertta"));
+    ck_assert(!strcmp(nbst->root->right->right->key, "Cecilia"));
+    ck_assert(!strcmp(nbst->root->right->right->right->key, "Daavid"));
+
+    ck_assert(nbst->root->left == NULL);
+    ck_assert(nbst->root->right->left == NULL);
+    ck_assert(nbst->root->right->right->left == NULL);
+    ck_assert(nbst->root->right->right->right->left == NULL);
+
+    destroy_naive_bst(nbst);
+
+#test insert_into_naive_bst_test_4
+    const uint32_t NODE_LIMIT = 4;
+    struct naive_binary_search_tree *nbst = init_naive_bst(NODE_LIMIT);
+
+    insert_into_naive_bst(nbst, "Daavid", "1");
+    insert_into_naive_bst(nbst, "Cecilia", "2");
+    insert_into_naive_bst(nbst, "Bertta", "3");
+    insert_into_naive_bst(nbst, "Antti", "4");
+    // The following line should cause an "Assertion 'false' failed" error.
+    // insert_into_naive_bst(nbst, "Antti", "5");
+
+    ck_assert(!strcmp(nbst->root->key, "Daavid"));
+    ck_assert(!strcmp(nbst->root->left->key, "Cecilia"));
+    ck_assert(!strcmp(nbst->root->left->left->key, "Bertta"));
+    ck_assert(!strcmp(nbst->root->left->left->left->key, "Antti"));
+
+    ck_assert(nbst->root->right == NULL);
+    ck_assert(nbst->root->left->right == NULL);
+    ck_assert(nbst->root->left->left->right == NULL);
+    ck_assert(nbst->root->left->left->left->right == NULL);

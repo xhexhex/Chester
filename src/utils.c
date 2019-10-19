@@ -137,7 +137,9 @@ che_remove_redundant_epts( char **fen, const size_t count )
     return rfc;
 }
 
-// TODO: doc
+// Allocate and initialize an instance of struct naive_binary_search_tree
+// that corresponds to an empty "naive" binary search tree. The new tree
+// can hold a maximum of 'node_limit' nodes.
 struct naive_binary_search_tree *
 init_naive_bst( uint32_t node_limit )
 {
@@ -152,7 +154,7 @@ init_naive_bst( uint32_t node_limit )
     return nbst;
 }
 
-// TODO: doc
+// Free the memory that was dynamically allocated for the 'nbst' parameter.
 void
 destroy_naive_bst( struct naive_binary_search_tree *nbst )
 {
@@ -164,23 +166,32 @@ destroy_naive_bst( struct naive_binary_search_tree *nbst )
     free(nbst->node_ptr), free(nbst);
 }
 
-// TODO: doc
+// The parameter 'root' is (on the first call of the function) assumed
+// to be the root of a "naive" binary search tree. The function returns
+// a pointer to the node in the tree that has a key equal to the 'key'
+// parameter. If no such key is found the function returns NULL.
 struct naive_bst_node *
 search_naive_bst( struct naive_bst_node *root, const char *key )
 {
-    // Base cases: root is null or key is present at root.
+    // Base cases: the current node 'root' is null or the search key
+    // 'key' is present at 'root'.
     if(root == NULL || !strcmp(key, root->key))
         return root;
-    // Key is greater than the key of root.
+    // The search key 'key' is greater than the key stored in
+    // the node 'root'.
     if(strcmp(key, root->key) > 0)
         return search_naive_bst(root->right, key);
-    // Key is smaller than the key of root.
+    // The search key 'key' is less than the key stored in
+    // the node 'root'.
     return search_naive_bst(root->left, key);
 }
 
 static uint8_t x_current_level_in_tree, x_tree_height;
 
-// TODO: doc
+// The means of inserting nodes into a "naive" binary search tree. A new
+// node is inserted into the tree 'nbst' with the values specified by the
+// 'key' and 'data' parameters. It is assumed that the tree does not already
+// contain a node that has a key equal to 'key'.
 void
 insert_into_naive_bst( struct naive_binary_search_tree *nbst,
     const char *key, const char *data )
@@ -1311,6 +1322,7 @@ x_recursive_insert_into_naive_bst( struct naive_bst_node *node,
         node->left  = x_recursive_insert_into_naive_bst(node->left, key);
     else if(strcmp(key, node->key) > 0)
         node->right = x_recursive_insert_into_naive_bst(node->right, key);
+    else assert(false);
 
     --x_current_level_in_tree;
     return node;

@@ -26,7 +26,7 @@ struct explicit_game_tree
 che_build_explicit_gt( const char *fen, const uint8_t height,
     bool set_highest_level_child_counts )
 {
-    const bool checkpoint = true;
+    const bool checkpoint = false;
     long long t0 = time_in_milliseconds();
 
     if(!fen) fen = INIT_POS;

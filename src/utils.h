@@ -27,7 +27,12 @@
 #define sq_name_to_bindex(sq_name) \
     (sq_name[0] - 'a' + 8 * (sq_name[1] - '1'))
 
-// TODO: doc
+// A naive/simple binary search tree. 'root' points to the root node of
+// a tree of 'node_count' nodes. The maximum number of nodes the tree
+// can contain is indicated by 'node_limit'. The pointer array 'node_ptr'
+// contains a pointer to each of the tree's 'node_count' nodes. The main
+// use of 'node_ptr' has to do with freeing the memory allocated for
+// the tree structure (as in free(node_ptr[i])).
 struct naive_binary_search_tree {
     struct naive_bst_node *root, **node_ptr;
     uint8_t height;
