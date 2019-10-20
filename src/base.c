@@ -21,6 +21,10 @@ static void x_fen_to_pos_init_epts_file( Pos *p, const char eptsf[] );
 static int x_ppa_to_ppf( const Bitboard *ppa, char *ppf );
 static void x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf,
     const Pos *p );
+static char *x_che_children_create_children( const char **tmp_children,
+    int index );
+static char **x_che_children_create_tmp_children( const char *fen,
+    int *index );
 
 /******************************
  ****                      ****
@@ -114,39 +118,13 @@ che_children( const char *fen )
         strcpy(copy_of_data, node->data);
         return copy_of_data; }
 
-    const Pos *p = fen_to_pos(fen);
-    Rawcode *rc = rawcodes(p);
-    const int num_rc = *rc;
-    int index = 0, prom_count = 0;
-    const char piece[] = "-qrbn";
-    Pos pos_child;
-    char *tmp_children[MAX_LEGAL_MOVE_COUNT + 1];
-
-    for(int i = 1; i <= num_rc; i++) {
-        bool prom = is_promotion(p, rc[i]);
-        if(prom) ++prom_count;
-
-        for(int j = prom ? 1 : 0; j < (prom ? 5 : 1); j++) {
-            copy_pos(p, &pos_child);
-            make_move(&pos_child, rc[i], piece[j]);
-            tmp_children[++index] = pos_to_fen(&pos_child);
-        }
-    }
-
-    assert(index == num_rc + 3 * prom_count);
-
-    int alloc_bytes_count = 1; // One byte for terminating null char
-    for(int i = 1; i <= index; i++)
-        alloc_bytes_count += strlen(tmp_children[i]) + 1; // FEN plus '\n'
-
-    char *children = malloc(alloc_bytes_count * sizeof(char));
-    strcpy(children, "");
-    for(int i = 1; i <= index; i++)
-        strcat(children, tmp_children[i]), strcat(children, "\n");
-    assert((int) strlen(children) == alloc_bytes_count - 1);
+    int index;
+    char **tmp_children = x_che_children_create_tmp_children(fen, &index),
+        *children = x_che_children_create_children(
+            (const char **) tmp_children, index);
 
     for(int i = 1; i <= index; i++) free(tmp_children[i]);
-    free((void *) p), free(rc);
+    free(tmp_children);
 
     if(naive_bst_for_che_children) {
         insert_into_naive_bst(naive_bst_for_che_children,
@@ -757,4 +735,49 @@ x_conditional_shredder_ecaf_to_std_ecaf_conv( char *the_ecaf, const Pos *p )
     const char std_caf[] = "KQkq";
     for(int i = 0; i < 4; i++)
         if(the_ecaf[i] != '-') the_ecaf[i] = std_caf[i];
+}
+
+static char *
+x_che_children_create_children( const char **tmp_children, int index )
+{
+    int alloc_bytes_count = 1; // One byte for terminating null char
+    for(int i = 1; i <= index; i++)
+        alloc_bytes_count += strlen(tmp_children[i]) + 1; // FEN plus '\n'
+
+    char *children = malloc(alloc_bytes_count * sizeof(char));
+    strcpy(children, "");
+    for(int i = 1; i <= index; i++)
+        strcat(children, tmp_children[i]), strcat(children, "\n");
+    // assert((int) strlen(children) == alloc_bytes_count - 1);
+
+    return children;
+}
+
+static char **
+x_che_children_create_tmp_children( const char *fen, int *index )
+{
+    *index = 0;
+
+    const Pos *p = fen_to_pos(fen);
+    Rawcode *rc = rawcodes(p);
+    const int num_rc = *rc;
+    int prom_count = 0;
+    const char piece[] = "-qrbn";
+    Pos pos_child;
+    char **tmp_children = malloc((MAX_LEGAL_MOVE_COUNT + 1) * sizeof(char *));
+
+    for(int i = 1; i <= num_rc; i++) {
+        bool prom = is_promotion(p, rc[i]);
+        if(prom) ++prom_count;
+
+        for(int j = prom ? 1 : 0; j < (prom ? 5 : 1); j++) {
+            copy_pos(p, &pos_child);
+            make_move(&pos_child, rc[i], piece[j]);
+            tmp_children[++*index] = pos_to_fen(&pos_child);
+        }
+    }
+    free((void *) p), free(rc);
+    // assert(*index == num_rc + 3 * prom_count);
+
+    return tmp_children;
 }
