@@ -1975,3 +1975,31 @@ ck_assert( counter == exp_count );
     naive_bst_for_che_children = NULL;
     free(result_1_sa), free(result_2_sa);
     free(orig_result_1_ptr), free(orig_result_2_ptr);
+
+#test che_children_test_8
+    const char fen[] = "8/8/8/8/8/6K1/3p4/4R1k1 b - - 12 34";
+    char *actual = che_children(fen);
+    const char expected[] = {
+        "8/8/8/8/8/6K1/8/4q1k1 w - - 0 35\n"
+        "8/8/8/8/8/6K1/8/4r1k1 w - - 0 35\n"
+        "8/8/8/8/8/6K1/8/4b1k1 w - - 0 35\n"
+        "8/8/8/8/8/6K1/8/4n1k1 w - - 0 35\n" };
+
+    ck_assert(!strcmp(actual, expected));
+    free(actual);
+
+#test che_children_test_9
+    const char fen[] = "7k/4P3/8/8/8/8/8/K7 w - - 12 34";
+    ck_assert(!che_fen_validator(fen));
+    char *actual = che_children(fen);
+    const char expected[] =
+        "7k/4P3/8/8/8/8/K7/8 b - - 13 34\n"
+        "7k/4P3/8/8/8/8/8/1K6 b - - 13 34\n"
+        "7k/4P3/8/8/8/8/1K6/8 b - - 13 34\n"
+        "4Q2k/8/8/8/8/8/8/K7 b - - 0 34\n"
+        "4R2k/8/8/8/8/8/8/K7 b - - 0 34\n"
+        "4B2k/8/8/8/8/8/8/K7 b - - 0 34\n"
+        "4N2k/8/8/8/8/8/8/K7 b - - 0 34\n";
+
+    ck_assert(!strcmp(actual, expected));
+    free(actual);

@@ -102,7 +102,47 @@ che_make_moves( const char *fen, const char *sans )
     return fens;
 }
 
-// TODO: doc
+// Returns the children of the parameter 'fen' as a newline-separated
+// list of FEN strings. The children of 'fen' are the positions that
+// can be reached from the position indicated by 'fen' with a single
+// move (ply). Here's an example:
+//
+//     const char fen[] = "7k/4P3/8/8/8/8/8/K7 w - - 12 34";
+//     char *children = che_children(fen);
+//     printf("%s", children);
+//
+// The output of the printf() call is as follows:
+//
+//     7k/4P3/8/8/8/8/K7/8 b - - 13 34
+//     7k/4P3/8/8/8/8/8/1K6 b - - 13 34
+//     7k/4P3/8/8/8/8/1K6/8 b - - 13 34
+//     4Q2k/8/8/8/8/8/8/K7 b - - 0 34
+//     4R2k/8/8/8/8/8/8/K7 b - - 0 34
+//     4B2k/8/8/8/8/8/8/K7 b - - 0 34
+//     4N2k/8/8/8/8/8/8/K7 b - - 0 34
+//
+// The order in which the child nodes (positions) are listed corresponds
+// to the rawcode values of the moves in ascending order. If there are
+// pawn promotion moves, the queen promotion is listed first, then the rook
+// promotion, then the bishop promotion, and finally the knight promotion.
+//
+// It's possible that the position indicated by the parameter 'fen' is
+// a checkmate or stalemate position. In this case the function returns
+// the empty string "".
+//
+// If the function is called many times it might be useful to store the
+// results of the computations in an appropriate data structure to avoid
+// unnecessary recomputation. If this is the case the caller of the function
+// can set 'naive_bst_for_che_children' in the following manner:
+//
+//     naive_bst_for_che_children = init_naive_bst(MAX_NODE_COUNT);
+//
+// che_build_explicit_gt() is an example of a function that does this.
+// Note that it is the caller's responsibility to free the memory allocated
+// by init_naive_bst() and set 'naive_bst_for_che_children' to NULL when
+// the binary search tree is no longer needed. It is also the caller's
+// responsibility to free the memory allocated by che_children() for the
+// list of FENs it returns.
 char *
 che_children( const char *fen )
 {
