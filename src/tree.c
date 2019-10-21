@@ -21,26 +21,19 @@ static void x_che_build_explicit_gt_set_highest_level_child_counts(
  ******************************/
 
 // TODO: doc
-// Should you add a fourth parameter?
+#define SUFFICIENT_AMOUNT_OF_NODES (20 * 1000 * 1000)
 struct explicit_game_tree
 che_build_explicit_gt( const char *fen, const uint8_t height,
-    bool set_highest_level_child_counts )
+    bool set_highest_level_child_counts, bool use_naive_bst )
 {
-    const bool checkpoint = false;
-    long long t0 = time_in_milliseconds();
-
     if(!fen) fen = INIT_POS;
 
     struct explicit_game_tree gt;
-
     gt.nc = 0, gt.lo[0] = 1, gt.height = UINT8_MAX;
     long long nodes_on_level;
     for(int level = 0; level <= height; ++level) {
         if(!(nodes_on_level = che_perft(fen, level, true))) break;
         ++gt.height, gt.lo[level] = gt.nc + 1, gt.nc += nodes_on_level; }
-
-    long long t1 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 1: %lld ms\n", t1 - t0);
 
     assert((gt.cc = malloc((gt.nc + 1) * sizeof(uint8_t))));
     memset((void *) (gt.cc + 1), 0, (size_t) gt.nc);
@@ -62,11 +55,10 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
     assert((id_to_fen[1] = malloc(strlen(fen) + 1)));
     strcpy(id_to_fen[1], fen);
 
-    long long t2 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 2: %lld ms\n", t2 - t0);
-
     assert(!naive_bst_for_che_children);
-    naive_bst_for_che_children = init_naive_bst(20 * 1000 * 1000);
+    if(use_naive_bst)
+        naive_bst_for_che_children =
+            init_naive_bst(SUFFICIENT_AMOUNT_OF_NODES);
 
     uint32_t cur = 1, vac = 1; // current, vacant
     for(; cur < gt.lo[gt.height]; cur++) {
@@ -89,20 +81,11 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
         free(unmod_ptr);
     } // End for
 
-    if(checkpoint && naive_bst_for_che_children)
-        printf("Nodes in BST: %u\n",
-            naive_bst_for_che_children->node_count);
     if(naive_bst_for_che_children) {
         destroy_naive_bst(naive_bst_for_che_children);
         naive_bst_for_che_children = NULL; }
 
-    long long t3 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 3: %lld ms\n", t3 - t0);
-
     che_remove_redundant_epts(id_to_fen + 1, gt.nc);
-
-    long long t4 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 4: %lld ms\n", t4 - t0);
 
     assert((sorted_id_to_fen = malloc((gt.nc + 1) * sizeof(void *))));
     sorted_id_to_fen[0] = "";
@@ -118,25 +101,17 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
         free(id_to_fen[id]);
     free(id_to_fen), free(sorted_id_to_fen);
 
-    long long t5 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 5: %lld ms\n", t5 - t0);
-
     if(set_highest_level_child_counts)
         x_che_build_explicit_gt_set_highest_level_child_counts(&gt);
-
-    long long t6 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 6: %lld ms\n", t6 - t0);
 
     for(uint32_t id = 1; id <= BHNC; id++)
         gt.children[id] = realloc(gt.children[id],
             gt.cc[id] * sizeof(uint32_t));
     free(num_alloc_slots);
 
-    long long t7 = time_in_milliseconds();
-    if(checkpoint) printf("Checkpoint 7: %lld ms\n", t7 - t0);
-
     return gt;
 }
+#undef SUFFICIENT_AMOUNT_OF_NODES
 
 // TODO: doc
 void
@@ -222,30 +197,25 @@ che_explicit_gt_stats( struct explicit_game_tree gt, uint32_t *captures,
 
 // findex, FEN index
 static void
-x_che_build_explicit_gt_set_findex(struct explicit_game_tree *gt, char **id_to_fen)
+x_che_build_explicit_gt_set_findex( struct explicit_game_tree *gt,
+    char **id_to_fen )
 {
-    assert((gt->findex = malloc((gt->nc + 1) * sizeof(uint32_t) )));
-    for(uint32_t id = 0; id <= gt->nc; ++id)
-        gt->findex[id] = 0;
-    // memset!
+    assert((gt->findex = calloc(gt->nc + 1, sizeof(uint32_t))));
 
     for(uint32_t id = 1; id <= gt->nc; ++id) {
-        // printf("Looking for \"%s\"\n", id_to_fen[id]);
         uint32_t left = 1, right = gt->num_ufen;
 
         // Binary search algorithm
         while(left <= right) {
             uint32_t middle = (left + right) / 2;
-            // printf("%u\n", middle);
-            assert( middle >= 1 && middle <= gt->num_ufen );
+            assert(middle >= 1 && middle <= gt->num_ufen);
 
             if(strcmp(gt->ufen[middle], id_to_fen[id]) < 0) {
                 left = middle + 1;
-                continue;
-            } else if(strcmp(gt->ufen[middle], id_to_fen[id]) > 0) {
+                continue; }
+            else if(strcmp(gt->ufen[middle], id_to_fen[id]) > 0) {
                 right = middle - 1;
-                continue;
-            }
+                continue; }
 
             gt->findex[id] = middle;
             break;
