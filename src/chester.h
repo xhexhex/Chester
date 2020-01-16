@@ -37,6 +37,8 @@ typedef uint16_t Rawcode;
 // TODO: doc
 #define NO_BRAINER_MATE_IN_2 \
     "RK1kr1nN/P2p1pPp/1P3PRP/Bp4P1/1Pq5/8/8/8 w - - 0 1"
+#define NO_BRAINER_TRIVIAL_1 \
+    "8/8/8/1Q6/2B2R2/6Pk/5P1P/4rrKR w - - 0 1"
 
 // TODO: doc
 extern const long long EPR_INIT_POS[]; // epr, expected perft results
@@ -80,8 +82,8 @@ struct explicit_game_tree {
     char **ufen; // ufen, unique FENs
     uint8_t height, *cc; // cc, child count
     // nc, node count; lo, level offset
-    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent, **children,
-        *findex;
+    uint32_t nc, num_ufen, lo[FGT_LO_SIZE], *parent,
+        **children, *findex;
 };
 
 //

@@ -251,6 +251,46 @@ x_dfs(uint32_t node)
 
     che_free_explicit_gt(x_gt);
 
+#test che_build_explicit_gt_test_12
+    // A game tree height of four is specified even though this particular
+    // tree can never be higher than three.
+    x_gt = che_build_explicit_gt(NO_BRAINER_TRIVIAL_1, 4, false, true);
+    // Testing that the variable equals the true height which in this
+    // case is less than the specified height.
+    ck_assert(x_gt.height == 3);
+
+    ck_assert(x_gt.num_ufen == 5);
+    for(int i = 1; i <= (int) x_gt.num_ufen; i++)
+        ck_assert(!che_fen_validator(x_gt.ufen[i]));
+
+    x_visit_count = x_check_count = x_checkmate_count = x_capture_count = 0;
+    x_dfs(1);
+
+    ck_assert(x_visit_count == 5);
+    ck_assert(x_check_count == 4);
+    ck_assert(x_checkmate_count == 1);
+    ck_assert(x_capture_count == 4);
+
+    che_free_explicit_gt(x_gt);
+
+#test che_build_explicit_gt_test_13
+    struct explicit_game_tree gt =
+        che_build_explicit_gt(NULL, 2, false, true);
+
+    ck_assert(gt.height == 2);
+    ck_assert(gt.nc == 421);
+    ck_assert(gt.num_ufen == 421);
+    ck_assert(gt.lo[0] == 1);
+    ck_assert(gt.lo[1] == 2);
+    ck_assert(gt.lo[2] == 22);
+
+    uint32_t children_in_tree = 0;
+    for(uint32_t id = 1; id <= gt.nc; ++id)
+        children_in_tree += gt.cc[id];
+    ck_assert(children_in_tree == 20 + 400 + 0); // perft(1) + perft(2)
+
+    che_free_explicit_gt(gt);
+
 //
 // Test case
 //

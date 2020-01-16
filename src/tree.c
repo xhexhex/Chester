@@ -20,7 +20,39 @@ static void x_che_build_explicit_gt_set_highest_level_child_counts(
  ****                      ****
  ******************************/
 
-// TODO: doc
+// Returns the EGT (struct explicit_game_tree) variable corresponding
+// to the parameters 'fen' and 'height'. If 'fen' equals NULL, then
+// the parameter is assumed to indicate the (standard) initial position.
+// The 'height' parameter specifies the highest level of the tree. The
+// level of the root node is always zero. For example, after the call
+//
+//     gt = che_build_explicit_gt(NULL, 2, false, true)
+//
+// the 'gt' variable contains a three-level tree. Level 0 has one node
+// (the initial position), level 1 has 20 nodes and level 2 has
+// 20 * 20 = 400 nodes. In the call the argument corresponding to the
+// parameter 'set_highest_level_child_counts' is false so the child counts
+// for the nodes in level 2 are skipped. To see the difference in practice
+// have a look at the tests che_build_explicit_gt_test_3 and
+// che_build_explicit_gt_test_13 in the file tree.check. The primary
+// purpose of passing 'set_highest_level_child_counts' the false value
+// is that it improves performance. The same goes for the parameter
+// 'use_naive_bst'. View the documentation of function che_children()
+// for details on this.
+//
+// Note that in some cases the actual height of the game tree in the EGT
+// variable might be less than the one specified by the parameter 'height'.
+// An obvious example of this is when 'fen' contains a checkmate or stalemate
+// position in which case the actual height is always zero. View
+// che_build_explicit_gt_test_12 in the file tree.check for a less trivial
+// example.
+//
+// Initializing the EGT variable involves dynamic memory allocation so
+// the function che_free_explicit_gt() should be called when the variable
+// is no longer needed.
+//
+// For a detailed description of struct explicit_game_tree view the
+// documentation in the file chester.h.
 #define SUFFICIENT_AMOUNT_OF_NODES (20 * 1000 * 1000)
 struct explicit_game_tree
 che_build_explicit_gt( const char *fen, const uint8_t height,
@@ -113,7 +145,7 @@ che_build_explicit_gt( const char *fen, const uint8_t height,
 }
 #undef SUFFICIENT_AMOUNT_OF_NODES
 
-// TODO: doc
+// Frees the memory allocated by the call to che_build_explicit_gt().
 void
 che_free_explicit_gt( struct explicit_game_tree gt )
 {
