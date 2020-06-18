@@ -1,5 +1,4 @@
 # Chester
-> A shared library to facilitate chess programming
+> Move along, folks, nothing to see here!
 
-Currently Chester supports FEN record validation. Move generation is under
-development.
+The quick brown fox jumps over the lazy dog.
