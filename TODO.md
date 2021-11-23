@@ -21,3 +21,4 @@
 * Refactor and document `che_{build,free}_fen_gt()`
 * Function `is_castle()` has been optimized but functions `is_short_castle()`
   and `is_long_castle()` have not
+* I should get started with Chester again!
